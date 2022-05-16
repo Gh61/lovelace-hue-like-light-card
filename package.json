@@ -1,0 +1,34 @@
+{
+    "name": "hue-like-light-card",
+    "version": "v1.0",
+    "description": "Hue-Like Light Card",
+    "keywords": [
+        "home-assistant",
+        "homeassistant",
+        "hass",
+        "automation",
+        "lovelace",
+        "custom-cards"
+    ],
+    "module": "hue-like-light-card.js",
+    "repository": "git@github.com:Gh61/lovelace-hue-like-light-card.git",
+    "author": "Tom Zenkner <t.zenkner@email.com>",
+    "license": "TODO",
+    "dependencies": {
+        "custom-card-helpers": "^1.9.0",
+        "rollup-plugin-typescript2": "^0.31.2"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^5.23.0",
+        "@typescript-eslint/parser": "^5.23.0",
+        "eslint": "^8.15.0",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-plugin-import": "^2.26.0",
+        "rollup-plugin-terser": "^7.0.2"
+    },
+    "scripts": {
+        "build": "npm run lint && npm run rollup",
+        "lint": "eslint src/*.ts",
+        "rollup": "rollup -c"
+    }
+}
