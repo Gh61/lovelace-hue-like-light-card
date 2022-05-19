@@ -1,5 +1,8 @@
 import typescript from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+
+var dev = true;
 
 export default {
     input: ["src/hue-like-light-card.ts"],
@@ -9,6 +12,7 @@ export default {
     },
     plugins: [
         typescript(),
-        terser()
+        nodeResolve(),
+        !dev && terser()
     ]
 }

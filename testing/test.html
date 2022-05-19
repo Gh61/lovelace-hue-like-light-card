@@ -52,6 +52,7 @@ body
 }
 .card-gradient-2
 {
+	height: 80px;
 	background: linear-gradient(90deg, red 0%, orange 100%);
 }
 .card-gradient-3
@@ -106,11 +107,14 @@ function updateShadow(ev, input)
     var input = input || ev.srcElement;
     //var shadowIntensity = 100 - input.value;
     var card = input.closest(".card");
+    var tenthHeight = card.clientHeight * 0.1;
+	var shadowSize = 8 * tenthHeight;
+	var coef = 100 / shadowSize;
 
     // 1 - 100 => 5-55
-    var spread = input.value / 2 + 5;
+    var spread = input.value / coef + tenthHeight;
 
-    card.style["box-shadow"] = "inset 0px -50px 50px -" + spread + "px rgba(0,0,0,0.75)";
+    card.style["box-shadow"] = `inset 0px -${shadowSize}px ${shadowSize}px -${spread}px rgba(0,0,0,0.75)`;
     //card.style["box-shadow"] = "inset 0px -30px 50px -25px rgba(0,0,0,0." + shadowIntensity +")"
 }
 

@@ -16,15 +16,20 @@
     "license": "TODO",
     "dependencies": {
         "custom-card-helpers": "^1.9.0",
-        "rollup-plugin-typescript2": "^0.31.2"
+        "home-assistant-js-websocket": "^7.0.5",
+        "lit": "^2.2.4"
     },
     "devDependencies": {
+        "@rollup/plugin-node-resolve": "^13.3.0",
         "@typescript-eslint/eslint-plugin": "^5.23.0",
         "@typescript-eslint/parser": "^5.23.0",
         "eslint": "^8.15.0",
         "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "^2.26.0",
-        "rollup-plugin-terser": "^7.0.2"
+        "rollup-plugin-terser": "^7.0.2",
+        "rollup-plugin-typescript2": "^0.31.2",
+        "tslib": "^2.4.0",
+        "typescript": "^4.6.4"
     },
     "scripts": {
         "build": "npm run lint && npm run rollup",
