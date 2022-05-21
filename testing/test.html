@@ -73,27 +73,27 @@ body
 	<span class="mdi mdi-bed"></span>
 	<span class="title">Kuchyně</span>
 	<div>
-		<input class="slider" type="range" min="1" max="100" value="90" />
+		<input class="slider" type="range" min="0" max="100" value="90" />
 	</div>
 </div>
 <div class="card card-orange">
 	<div>
-		<input class="slider" type="range" min="1" max="100" value="70" />
+		<input class="slider" type="range" min="0" max="100" value="70" />
 	</div>
 </div>
 <div class="card card-gradient-2">
 	<div>
-		<input class="slider" type="range" min="1" max="100" value="50" />
+		<input class="slider" type="range" min="0" max="100" value="50" />
 	</div>
 </div>
 <div class="card card-gradient-3">
 	<div>
-		<input class="slider" type="range" min="1" max="100" value="30" />
+		<input class="slider" type="range" min="0" max="100" value="30" />
 	</div>
 </div>
 <div class="card card-gradient-4">
 	<div>
-		<input class="slider" type="range" min="1" max="100" value="10" />
+		<input class="slider" type="range" min="0" max="100" value="10" />
 	</div>
 </div>
 
@@ -105,17 +105,20 @@ body
 function updateShadow(ev, input)
 {
     var input = input || ev.srcElement;
-    //var shadowIntensity = 100 - input.value;
     var card = input.closest(".card");
-    var tenthHeight = card.clientHeight * 0.1;
-	var shadowSize = 8 * tenthHeight;
-	var coef = 100 / shadowSize;
 
-    // 1 - 100 => 5-55
-    var spread = input.value / coef + tenthHeight;
+    var darkness = 100 - input.value;
+    var coef = (card.clientHeight / 100);
+    var spread = 20;
+    var position = spread + (darkness * 0.95) * coef;
+    var width = card.clientHeight / 2;
+    if (darkness > 70)
+    {
+        width -= (width - 20) * (darkness - 70) / 30; // width: 20-clientHeight/2
+    }
 
-    card.style["box-shadow"] = `inset 0px -${shadowSize}px ${shadowSize}px -${spread}px rgba(0,0,0,0.75)`;
-    //card.style["box-shadow"] = "inset 0px -30px 50px -25px rgba(0,0,0,0." + shadowIntensity +")"
+
+    card.style["box-shadow"] = `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,0.75)`;
 }
 
 document.addEventListener("change", updateShadow);

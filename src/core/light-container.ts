@@ -2,7 +2,10 @@ import { HomeAssistant } from "custom-card-helpers";
 import { HassEntity } from "home-assistant-js-websocket";
 
 export interface ILightContainer {
-    hass: HomeAssistant;
+    /**
+     * Sets current hass instance to this container.
+     */
+    set hass(hass:HomeAssistant);
 
     /**
      * Returns icon for this container of lights.
@@ -38,6 +41,11 @@ export interface ILightContainer {
      * Gets or sets current value of brightness of lights in this container.
      */
     value: number;
+
+    /**
+     * Returns background style for card with lights in this container.
+     */
+    getBackground(): string;
 }
 
 export class LightContainer implements ILightContainer {
@@ -56,10 +64,6 @@ export class LightContainer implements ILightContainer {
     set hass(value: HomeAssistant) {
         this._hass = value;
         this._entity = this._hass.states[this._entity_id];
-    }
-
-    getIcon() {
-        return this._entity && this._entity.attributes.icon;
     }
 
     isUnavailable(): boolean {
@@ -95,6 +99,20 @@ export class LightContainer implements ILightContainer {
             entity_id: this._entity_id,
             ["brightness"]: value,
         });
+    }
+
+    getIcon() {
+        return this._entity && this._entity.attributes.icon;
+    }
+
+    getBackground(): string {
+        const attr = this._entity.attributes;
+        const rgb = <number[]>attr.rgb_color; // array with value r,g,b
+
+        if(!rgb)
+            return '#ffda95'; // +-warm light
+
+        return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
     }
 }
 

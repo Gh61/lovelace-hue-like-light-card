@@ -1,6 +1,7 @@
 import { LovelaceCard, HomeAssistant } from 'custom-card-helpers';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { LightController } from './core/light-controller';
 import { HueLikeLightCardConfig } from './types/types';
@@ -15,10 +16,15 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     setConfig(config: HueLikeLightCardConfig) {
         this._config = config;
 
+        // set rounded borders
+        if (this._config.roundedBorders != null) {
+            this.classes['hue-borders'] = !!this._config.roundedBorders;
+        }
+
         // create list of entities (prepend entity and then insert all entities)
         const ents: string[] = [];
         config.entity && ents.push(config.entity);
-        config.entites && config.entites.forEach(e => ents.push(e));
+        config.entities && config.entities.forEach(e => ents.push(e));
 
         this._ctrl = new LightController(ents);
     }
@@ -55,10 +61,13 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     ha-card
     {
         color:white;
-        border-radius:7px;
         height:80px;
-        background:linear-gradient(90deg, red 0%, orange 100%);
+        background:var(--off-color);
         position: relative;
+    }
+    ha-card.hue-borders
+    {
+        border-radius: 10px;
     }
     ha-icon
     {
@@ -87,17 +96,36 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     `;
 
+    @property() classes = { 'hue-borders': true };
     @property() shadowStyles = { 'box-shadow': 'none' };
 
-    updateShadowStyles() {
-        const card = <Element>this.renderRoot.querySelector('ha-card');
-        const tenthHeight = card.clientHeight * 0.1;
-        const shadowSize = 8 * tenthHeight;
-        const coef = 100 / shadowSize;
+    private calculateCurrentShadow(): string {
+        if (this._ctrl.isOff())
+            return 'inset 0px 0px 10px rgba(0,0,0,0.2)';//'none';
 
-        // 1 - 100 => 5-55
-        const spread = this._ctrl.value / coef + tenthHeight;
-        this.shadowStyles['box-shadow'] = `inset 0px -${shadowSize}px ${shadowSize}px -${spread}px rgba(0,0,0,0.75)`;
+        const card = <Element>this.renderRoot.querySelector('ha-card');
+        const darkness = 100 - this._ctrl.value;
+        const coef = (card.clientHeight / 100);
+        const spread = 20;
+        const position = spread + (darkness * 0.95) * coef;
+        let width = card.clientHeight / 2;
+        if (darkness > 70) {
+            width -= (width - 20) * (darkness - 70) / 30; // width: 20-clientHeight/2
+        }
+
+        return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,0.75)`;
+    }
+
+    private getCurrentBackground(): string | boolean {
+        if (this._ctrl.isOff())
+            return false;
+
+        return this._ctrl.getBackground();
+    }
+
+    private updateShadowStyles(): void {
+        this.shadowStyles['background'] = this.getCurrentBackground();
+        this.shadowStyles['box-shadow'] = this.calculateCurrentShadow();
     }
 
     protected render() {
@@ -107,8 +135,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         const max = 100;
         const step = 1;
 
-        //style=${styleMap(this.shadowStyles)}
-        return html`<ha-card style=${styleMap(this.shadowStyles)}>
+        return html`<ha-card class=${classMap(this.classes)} style=${styleMap(this.shadowStyles)}>
             <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
             <h2>${this._config.title}</h2>
             <ha-switch .checked=${this._ctrl.isOn()} .disabled=${this._ctrl.isUnavailable()} .haptic=true @change=${() => this.changed(false)}></ha-switch>
@@ -126,5 +153,13 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     protected updated() {
         this.updateShadowStyles();
+    }
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.style.setProperty(
+            '--off-color',
+            this._config.offColor || '#444'
+        );
     }
 }

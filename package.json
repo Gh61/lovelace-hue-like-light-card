@@ -13,7 +13,7 @@
     "module": "hue-like-light-card.js",
     "repository": "git@github.com:Gh61/lovelace-hue-like-light-card.git",
     "author": "Tom Zenkner <t.zenkner@email.com>",
-    "license": "TODO",
+    "license": "LGPLv2.1",
     "dependencies": {
         "custom-card-helpers": "^1.9.0",
         "home-assistant-js-websocket": "^7.0.5",

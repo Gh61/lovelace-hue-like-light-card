@@ -5,8 +5,6 @@ import { TimeCache } from "./time-cache";
 export class LightController implements ILightContainer {
     private _hass: HomeAssistant;
     private _lights: LightContainer[];
-    private _cache: TimeCache;
-    private _lastOnValue: number;
 
     constructor(entity_ids: string[]) {
         // we need at least one
@@ -23,12 +21,53 @@ export class LightController implements ILightContainer {
         this._lights.forEach(l => l.hass = hass);
     }
 
-    private initTimeCache() {
+    //#region TimeCache
+
+    /*
+     * This TimeCache is here, so the UI control can react instantly on changes.
+     * When user do some change, it might take up to about 2 seconds for HA to register these changes on devices.
+     * So the cache is here to tell the UI that the expected change has happened instantly.
+     * After the specified interval, cached values are invalidated and in the moment of getting these values, live values are read from HA.
+     */
+
+    // TODO: make the cache somehow public,
+    // maybe implement in LightContainer and make LightContainer instances system-wide, so all cards can react to changes instantly
+    // TODO: also implement some change notify mechanizm
+
+    private _cache: TimeCache;
+    private _lastOnValue: number;
+
+    private initTimeCache(): void {
         this._cache = new TimeCache(1500);// ms
         this._cache.registerProperty("isOn", () => this._lights.some(l => l.isOn()));
         this._cache.registerProperty("isOff", () => this._lights.every(l => l.isOff()));
         this._cache.registerProperty("value", () => this.valueGetFactory());
     }
+
+    private notifyTurnOn(): void {
+        this._cache.setValue("isOn", true);
+        this._cache.setValue("isOff", false);
+        if (this._lastOnValue) {
+            this._cache.setValue("value", this._lastOnValue);
+        }
+    }
+
+    private notifyTurnOff(): void {
+        this._cache.setValue("isOn", false);
+        this._cache.setValue("isOff", true);
+        this._cache.setValue("value", 0);
+    }
+
+    private notifyValueChanged(value: number): void {
+        if (value > 0) {
+            this._lastOnValue = value;
+        }
+        this._cache.setValue("value", value);
+        this._cache.setValue("isOn", value > 0);
+        this._cache.setValue("isOff", value == 0);
+    }
+
+    //#endregion
 
     isOn(): boolean {
         return this._cache.getValue("isOn");
@@ -43,17 +82,11 @@ export class LightController implements ILightContainer {
     }
     turnOn(): void {
         this._lights.filter(l => l.isOff()).forEach(l => l.turnOn());
-        this._cache.setValue("isOn", true);
-        this._cache.setValue("isOff", false);
-        if (this._lastOnValue) {
-            this._cache.setValue("value", this._lastOnValue);
-        }
+        this.notifyTurnOn();
     }
     turnOff(): void {
         this._lights.filter(l => l.isOn()).forEach(l => l.turnOff());
-        this._cache.setValue("isOn", false);
-        this._cache.setValue("isOff", true);
-        this._cache.setValue("value", 0);
+        this.notifyTurnOff();
     }
 
     get value() {
@@ -64,18 +97,13 @@ export class LightController implements ILightContainer {
         // set value only to lights that are on
         let isOn = false;
         this._lights.filter(l => l.isOn()).forEach(l => { l.value = value; isOn = true; });
-        // if no light is on, turn them on now
+        // if no light is on, turn them all on now
         if (isOn == false) {
             this._lights.forEach(l => l.value = value);
         }
         // TODO: smart value setting
 
-        if (value > 0) {
-            this._lastOnValue = value;
-        }
-        this._cache.setValue("value", value);
-        this._cache.setValue("isOn", value > 0);
-        this._cache.setValue("isOff", value == 0);
+        this.notifyValueChanged(value);
     }
 
     private valueGetFactory() {
@@ -103,5 +131,32 @@ export class LightController implements ILightContainer {
                 : this._lights[0].getIcon() || "mdi:lightbulb"; // 1 lightbulb)
 
         return lightIcon;
+    }
+
+
+    getBackground(): string {
+        var litLights = this._lights.filter(l => l.isOn());
+        if (litLights.length == 0)
+            return '';
+        if (litLights.length == 1)
+            return litLights[0].getBackground();
+
+        var step = 100.0 / (litLights.length - 1);
+
+        const offset = 10;
+        var colors = `${litLights[0].getBackground()} 0%, ${litLights[0].getBackground()} ${offset}%`; // first 10% must be the first light
+        var currentStep = 0;
+        for(let i = 1; i < litLights.length; i++)
+        {
+            currentStep += step;
+            
+            // last 10% must be the last light
+            if (i + 1 == litLights.length) {
+                colors += `, ${litLights[i].getBackground()} ${100-offset}%`;
+            }
+            colors += `, ${litLights[i].getBackground()} ${Math.round(currentStep)}%`;
+        }
+
+        return `linear-gradient(90deg, ${colors})`;
     }
 }
