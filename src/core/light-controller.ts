@@ -133,6 +133,19 @@ export class LightController implements ILightContainer {
         return lightIcon;
     }
 
+    getTitle() {
+        var title = '';
+        for (let i = 0; i < this._lights.length && i < 3; i++) {
+            if (i > 0) {
+                title += ", ";
+            }
+            title += this._lights[i].getTitle();
+        }
+        if (this._lights.length > 3)
+            title += ", ...";
+
+        return title;
+    }
 
     getBackground(): string {
         var litLights = this._lights.filter(l => l.isOn());
@@ -146,13 +159,12 @@ export class LightController implements ILightContainer {
         const offset = 10;
         var colors = `${litLights[0].getBackground()} 0%, ${litLights[0].getBackground()} ${offset}%`; // first 10% must be the first light
         var currentStep = 0;
-        for(let i = 1; i < litLights.length; i++)
-        {
+        for (let i = 1; i < litLights.length; i++) {
             currentStep += step;
-            
+
             // last 10% must be the last light
             if (i + 1 == litLights.length) {
-                colors += `, ${litLights[i].getBackground()} ${100-offset}%`;
+                colors += `, ${litLights[i].getBackground()} ${100 - offset}%`;
             }
             colors += `, ${litLights[i].getBackground()} ${Math.round(currentStep)}%`;
         }

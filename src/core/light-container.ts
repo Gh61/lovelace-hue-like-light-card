@@ -5,12 +5,7 @@ export interface ILightContainer {
     /**
      * Sets current hass instance to this container.
      */
-    set hass(hass:HomeAssistant);
-
-    /**
-     * Returns icon for this container of lights.
-     */
-    getIcon(): string | undefined | null;
+    set hass(hass: HomeAssistant);
 
     /**
      * Returns true if any light in this container is on.
@@ -41,6 +36,16 @@ export interface ILightContainer {
      * Gets or sets current value of brightness of lights in this container.
      */
     value: number;
+
+    /**
+     * Returns icon for this container of lights.
+     */
+    getIcon(): string | undefined | null;
+
+    /**
+     * Returns suggested title for card with lights in this container.
+     */
+    getTitle(): string | undefined | null;
 
     /**
      * Returns background style for card with lights in this container.
@@ -90,7 +95,6 @@ export class LightContainer implements ILightContainer {
             return 0;
 
         const attr = this._entity.attributes;
-        console.log(attr);
         return Math.round((attr.brightness * 100.0) / 255); // brightness is 0-255
     }
     set value(value: number) {
@@ -105,11 +109,15 @@ export class LightContainer implements ILightContainer {
         return this._entity && this._entity.attributes.icon;
     }
 
+    getTitle() {
+        return this._entity.attributes.friendly_name;
+    }
+
     getBackground(): string {
         const attr = this._entity.attributes;
         const rgb = <number[]>attr.rgb_color; // array with value r,g,b
 
-        if(!rgb)
+        if (!rgb)
             return '#ffda95'; // +-warm light
 
         return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;

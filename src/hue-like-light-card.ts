@@ -1,8 +1,6 @@
 import { LovelaceCard, HomeAssistant } from 'custom-card-helpers';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js';
-import { styleMap } from 'lit/directives/style-map.js';
 import { LightController } from './core/light-controller';
 import { HueLikeLightCardConfig } from './types/types';
 
@@ -15,11 +13,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     setConfig(config: HueLikeLightCardConfig) {
         this._config = config;
-
-        // set rounded borders
-        if (this._config.roundedBorders != null) {
-            this.classes['hue-borders'] = !!this._config.roundedBorders;
-        }
 
         // create list of entities (prepend entity and then insert all entities)
         const ents: string[] = [];
@@ -36,6 +29,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
 
     private changed(isSlider: boolean) {
+        // TODO: try to update on sliding (use debounce) not only on change.
+
         if (isSlider) {
             const value = (this.shadowRoot?.querySelector("ha-slider") as HTMLInputElement).value;
             if (value != null) {
@@ -52,7 +47,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         }
 
         // update styles
-        this.updateShadowStyles();
+        this.updateStyles();
     }
 
     // #### UI:
@@ -62,42 +57,48 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     {
         color:white;
         height:80px;
-        background:var(--off-color);
-        position: relative;
+        background:var(--hue-background);
+        position:relative;
+        box-shadow:var(--hue-box-shadow);
     }
     ha-card.hue-borders
     {
-        border-radius: 10px;
+        border-radius:10px;
+        box-shadow:var(--hue-box-shadow), 0px 2px 3px rgba(0,0,0,0.85);
     }
     ha-icon
     {
-        position: absolute;
-        left: 22px;
-        top: 17px;
-        transform: scale(2);
+        position:absolute;
+        left:22px;
+        top:17px;
+        transform:scale(2);
     }
     h2
     {
-        padding-top: 0.5em;
-        margin: 0px 0px 0 80px;
-        font-weight: 500;
+        padding-top:0.5em;
+        margin:0px 60px 0px 70px;
+        font-weight:500;
+        text-overflow:ellipsis;
+        overflow:hidden;
+        white-space:nowrap;
     }
     ha-switch
     {
-        position: absolute;
-        right: 14px;
-        top: 22px;
+        position:absolute;
+        right:14px;
+        top:22px;
     }
     ha-slider
     {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
+        position:absolute;
+        bottom:0;
+        width:100%;
     }
     `;
 
-    @property() classes = { 'hue-borders': true };
-    @property() shadowStyles = { 'box-shadow': 'none' };
+    private getOffBackground(): string {
+        return this._config.offColor || '#666';
+    }
 
     private calculateCurrentShadow(): string {
         if (this._ctrl.isOff())
@@ -116,31 +117,39 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,0.75)`;
     }
 
-    private getCurrentBackground(): string | boolean {
+    private getCurrentBackground(): string {
         if (this._ctrl.isOff())
-            return false;
+            return this.getOffBackground();
 
         return this._ctrl.getBackground();
     }
 
-    private updateShadowStyles(): void {
-        this.shadowStyles['background'] = this.getCurrentBackground();
-        this.shadowStyles['box-shadow'] = this.calculateCurrentShadow();
+    private updateStyles(): void {
+        this.style.setProperty(
+            '--hue-background',
+            this.getCurrentBackground() || this.getOffBackground()
+        );
+        this.style.setProperty(
+            '--hue-box-shadow',
+            this.calculateCurrentShadow()
+        );
     }
 
     protected render() {
         this._ctrl.hass = this.hass;
 
-        const min = 0;
+        const min = this._config.allowZero ? 0 : 1;
         const max = 100;
         const step = 1;
 
-        return html`<ha-card class=${classMap(this.classes)} style=${styleMap(this.shadowStyles)}>
+        const title = this._config.title || this._ctrl.getTitle();
+
+        return html`<ha-card>
             <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
-            <h2>${this._config.title}</h2>
+            <h2>${title}</h2>
             <ha-switch .checked=${this._ctrl.isOn()} .disabled=${this._ctrl.isUnavailable()} .haptic=true @change=${() => this.changed(false)}></ha-switch>
 
-            <ha-slider .min=${min} .max=${max} .step=${step} .value=${this._ctrl.value}
+            <ha-slider .min=${min} .max=${max} .step=${step} .disabled=${this._config.allowZero ? false : this._ctrl.isOff()} .value=${this._ctrl.value}
             pin @change=${() => this.changed(true)}
             ignore-bar-touch
             ></ha-slider>
@@ -148,18 +157,21 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
 
     protected firstUpdated() {
+        // CSS
+        if (this._config.hueBorders == null || !!this._config.hueBorders){
+            (this.renderRoot.querySelector('ha-card') as Element).className = "hue-borders";
+        }
+
         this.updated();
     }
 
     protected updated() {
-        this.updateShadowStyles();
+        this.updateStyles();
     }
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.style.setProperty(
-            '--off-color',
-            this._config.offColor || '#444'
-        );
+        // CSS
+        this.updateStyles();
     }
 }
