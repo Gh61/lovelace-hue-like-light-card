@@ -29,7 +29,10 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
 
     private changed(isSlider: boolean) {
-        // TODO: try to update on sliding (use debounce) not only on change.
+        // TODO: try to update on sliding (use debounce) not only on change. (https://www.webcomponents.org/element/@polymer/paper-slider/elements/paper-slider#events)
+        // TODO: make title clickable
+        // TODO: add subtext
+        // TODO: add outline/shadow to title, so its visible on bright colors
 
         if (isSlider) {
             const value = (this.shadowRoot?.querySelector('ha-slider') as HTMLInputElement).value;
