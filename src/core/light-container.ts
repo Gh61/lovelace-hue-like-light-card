@@ -1,5 +1,6 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity } from 'home-assistant-js-websocket';
+import { HassLightAttributes } from '../types/types';
 import { TimeCache, TimeCacheValue } from './time-cache';
 
 export interface ILightContainer {
@@ -74,6 +75,10 @@ export class LightContainer implements ILightContainer {
         this._entity = this._hass.states[this._entity_id];
     }
 
+    private getAttributes(): HassLightAttributes {
+        return this._entity.attributes;
+    }
+
     //#region TimeCache
 
     /*
@@ -93,12 +98,15 @@ export class LightContainer implements ILightContainer {
 
     private initTimeCache(): void {
         this._cache = new TimeCache(1500);// ms
-        this._cache.registerProperty('state', () => new TimeCacheValue(this._entity?.state, this.getDontCache()));
-        this._cache.registerProperty('value', () => new TimeCacheValue(this.valueGetFactory(), this.getDontCache()));
+        this._cache.registerProperty('state', () => new TimeCacheValue(this._entity?.state, this.getDontCacheState()));
+        this._cache.registerProperty('value', () => new TimeCacheValue(this.valueGetFactory(), this.getDontCacheValue()));
     }
 
-    private getDontCache(): boolean {
+    private getDontCacheState(): boolean {
         return !this._entity || this._entity.state == 'unavailable';
+    }
+    private getDontCacheValue(): boolean {
+        return this.getDontCacheState() || this._entity.attributes.brightness == null;
     }
 
     private notifyTurnOn(): void {
@@ -151,8 +159,10 @@ export class LightContainer implements ILightContainer {
         if (this.isOff())
             return 0;
 
-        const attr = this._entity.attributes;
-        return Math.round((attr.brightness * 100.0) / 255); // brightness is 0-255
+        const attr = this.getAttributes();
+        const brightness = attr.brightness ?? 1;
+        this._lastOnValue = Math.round((brightness * 100.0) / 255); // brightness is 0-255
+        return this._lastOnValue;
     }
     get value() {
         return <number>this._cache.getValue('value');
@@ -175,7 +185,7 @@ export class LightContainer implements ILightContainer {
     }
 
     getBackground(): string {
-        const attr = this._entity.attributes;
+        const attr = this.getAttributes();
         const rgb = <number[]>attr.rgb_color; // array with value r,g,b
 
         if (!rgb) {
