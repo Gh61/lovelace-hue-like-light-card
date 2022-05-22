@@ -4,17 +4,30 @@
         "es2021": true
     },
     "extends": [
-        "plugin:@typescript-eslint/recommended" // Uses the recommended rules from the @typescript-eslint/eslint-plugin
+        "plugin:@typescript-eslint/recommended", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
+        "airbnb-typescript"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 2020,
-        "sourceType": "module"
+        "sourceType": "module",
+        "project": "./tsconfig.json"
     },
     "plugins": [
         "@typescript-eslint"
     ],
     "rules": {
-        "@typescript-eslint/no-non-null-assertion": "off"
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "linebreak-style": ["error", "windows"],
+        "@typescript-eslint/indent": ["error", 4],
+        "@typescript-eslint/comma-dangle": ["error", "never"],
+        "no-underscore-dangle": ["error", { "allowAfterThis": true }],
+        "@typescript-eslint/no-unused-expressions": ["error", { "allowShortCircuit":true }],
+        "@typescript-eslint/lines-between-class-members": "off",
+        "@typescript-eslint/keyword-spacing": ["error", {"overrides": { "this": { "before": false }}}],
+
+        "react/jsx-filename-extension": "off",
+        "import/extensions": "off",
+        "import/no-extraneous-dependencies": "off"
     }
 }

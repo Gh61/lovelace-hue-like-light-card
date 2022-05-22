@@ -1,6 +1,6 @@
 import { LovelaceCard, HomeAssistant } from 'custom-card-helpers';
 import { LitElement, css, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js';
 import { LightController } from './core/light-controller';
 import { HueLikeLightCardConfig } from './types/types';
 
@@ -32,13 +32,12 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         // TODO: try to update on sliding (use debounce) not only on change.
 
         if (isSlider) {
-            const value = (this.shadowRoot?.querySelector("ha-slider") as HTMLInputElement).value;
+            const value = (this.shadowRoot?.querySelector('ha-slider') as HTMLInputElement).value;
             if (value != null) {
                 this._ctrl.value = parseInt(value);
             }
-        }
-        else { // isToggle
-            const checked = (this.shadowRoot?.querySelector("ha-switch") as HTMLInputElement).checked;
+        } else { // isToggle
+            const checked = (this.shadowRoot?.querySelector('ha-switch') as HTMLInputElement).checked;
             if (checked) {
                 this._ctrl.turnOn();
             } else {
@@ -158,8 +157,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     protected firstUpdated() {
         // CSS
-        if (this._config.hueBorders == null || !!this._config.hueBorders){
-            (this.renderRoot.querySelector('ha-card') as Element).className = "hue-borders";
+        if (this._config.hueBorders == null || !!this._config.hueBorders) {
+            (this.renderRoot.querySelector('ha-card') as Element).className = 'hue-borders';
         }
 
         this.updated();

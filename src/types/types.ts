@@ -1,4 +1,6 @@
-import { LovelaceCardConfig } from "custom-card-helpers";
+import { LovelaceCardConfig } from 'custom-card-helpers';
+
+export type ValueFactory = () => unknown;
 
 export interface HueLikeLightCardConfig extends LovelaceCardConfig {
     readonly title?: string;

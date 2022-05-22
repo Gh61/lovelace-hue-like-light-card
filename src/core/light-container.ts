@@ -1,6 +1,6 @@
-import { HomeAssistant } from "custom-card-helpers";
-import { HassEntity } from "home-assistant-js-websocket";
-import { TimeCache, TimeCacheValue } from "./time-cache";
+import { HomeAssistant } from 'custom-card-helpers';
+import { HassEntity } from 'home-assistant-js-websocket';
+import { TimeCache, TimeCacheValue } from './time-cache';
 
 export interface ILightContainer {
     /**
@@ -60,9 +60,9 @@ export class LightContainer implements ILightContainer {
     private _entity: HassEntity;
 
     constructor(entity_id: string) {
-        const domain = entity_id.split(".")[0];
-        if (domain != "light")
-            throw new Error(`Unsupported entity type: ${domain}. The only supported type is 'light'.`)
+        const domain = entity_id.split('.')[0];
+        if (domain != 'light')
+            throw new Error(`Unsupported entity type: ${domain}. The only supported type is 'light'.`);
 
         this._entity_id = entity_id;
 
@@ -89,44 +89,45 @@ export class LightContainer implements ILightContainer {
 
     private _cache: TimeCache;
     private _lastOnValue: number;
+    private _lastColor: string;
 
     private initTimeCache(): void {
         this._cache = new TimeCache(1500);// ms
-        this._cache.registerProperty("state", () => new TimeCacheValue(this._entity?.state, this.getDontCache()));
-        this._cache.registerProperty("value", () => new TimeCacheValue(this.valueGetFactory(), this.getDontCache()));
+        this._cache.registerProperty('state', () => new TimeCacheValue(this._entity?.state, this.getDontCache()));
+        this._cache.registerProperty('value', () => new TimeCacheValue(this.valueGetFactory(), this.getDontCache()));
     }
 
     private getDontCache(): boolean {
-        return !this._entity || this._entity.state == "unavailable";
+        return !this._entity || this._entity.state == 'unavailable';
     }
 
     private notifyTurnOn(): void {
-        this._cache.setValue("state", "on");
+        this._cache.setValue('state', 'on');
         if (this._lastOnValue) {
-            this._cache.setValue("value", this._lastOnValue);
+            this._cache.setValue('value', this._lastOnValue);
         }
     }
 
     private notifyTurnOff(): void {
-        this._cache.setValue("state", "off");
-        this._cache.setValue("value", 0);
+        this._cache.setValue('state', 'off');
+        this._cache.setValue('value', 0);
     }
 
     private notifyValueChanged(value: number): void {
         if (value > 0) {
             this._lastOnValue = value;
         }
-        this._cache.setValue("value", value);
-        this._cache.setValue("state", value > 0 ? "on" : "off");
+        this._cache.setValue('value', value);
+        this._cache.setValue('state', value > 0 ? 'on' : 'off');
     }
 
     //#endregion
 
     isUnavailable(): boolean {
-        return this._cache.getValue("state") == "unavailable";
+        return this._cache.getValue('state') == 'unavailable';
     }
     isOn(): boolean {
-        return this._cache.getValue("state") == "on";
+        return this._cache.getValue('state') == 'on';
     }
     isOff(): boolean {
         return !this.isOn();
@@ -143,7 +144,7 @@ export class LightContainer implements ILightContainer {
         } else {
             this.notifyTurnOff();
         }
-        this._hass.callService("light", on ? "turn_on" : "turn_off", { entity_id: this._entity_id });
+        this._hass.callService('light', on ? 'turn_on' : 'turn_off', { entity_id: this._entity_id });
     }
 
     private valueGetFactory() {
@@ -154,14 +155,14 @@ export class LightContainer implements ILightContainer {
         return Math.round((attr.brightness * 100.0) / 255); // brightness is 0-255
     }
     get value() {
-        return this._cache.getValue("value");
+        return <number>this._cache.getValue('value');
     }
     set value(value: number) {
         this.notifyValueChanged(value);
         const brightness = Math.round((value / 100.0) * 255); // brightness is 0-255
-        this._hass.callService("light", "turn_on", {
+        this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
-            ["brightness"]: brightness,
+            ['brightness']: brightness
         });
     }
 
@@ -177,10 +178,15 @@ export class LightContainer implements ILightContainer {
         const attr = this._entity.attributes;
         const rgb = <number[]>attr.rgb_color; // array with value r,g,b
 
-        if (!rgb)
-            return '#ffda95'; // +-warm light
+        if (!rgb) {
+            if (this._lastColor)
+                return this._lastColor;
 
-        return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+            return '#ffda95'; // +-warm light
+        }
+
+        this._lastColor = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+        return this._lastColor;
     }
 }
 
