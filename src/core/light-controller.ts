@@ -1,6 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { ILightContainer, LightContainer } from "./light-container";
-import { TimeCache } from "./time-cache";
 
 export class LightController implements ILightContainer {
     private _hass: HomeAssistant;
@@ -12,8 +11,6 @@ export class LightController implements ILightContainer {
             throw new Error(`No entity specified (use 'entity' and/or 'entities').`);
 
         this._lights = entity_ids.map(e => new LightContainer(e));
-
-        this.initTimeCache();
     }
 
     set hass(hass: HomeAssistant) {
@@ -21,77 +18,24 @@ export class LightController implements ILightContainer {
         this._lights.forEach(l => l.hass = hass);
     }
 
-    //#region TimeCache
-
-    /*
-     * This TimeCache is here, so the UI control can react instantly on changes.
-     * When user do some change, it might take up to about 2 seconds for HA to register these changes on devices.
-     * So the cache is here to tell the UI that the expected change has happened instantly.
-     * After the specified interval, cached values are invalidated and in the moment of getting these values, live values are read from HA.
-     */
-
-    // TODO: make the cache somehow public,
-    // maybe implement in LightContainer and make LightContainer instances system-wide, so all cards can react to changes instantly
-    // TODO: also implement some change notify mechanizm
-
-    private _cache: TimeCache;
-    private _lastOnValue: number;
-
-    private initTimeCache(): void {
-        this._cache = new TimeCache(1500);// ms
-        this._cache.registerProperty("isOn", () => this._lights.some(l => l.isOn()));
-        this._cache.registerProperty("isOff", () => this._lights.every(l => l.isOff()));
-        this._cache.registerProperty("value", () => this.valueGetFactory());
-    }
-
-    private notifyTurnOn(): void {
-        this._cache.setValue("isOn", true);
-        this._cache.setValue("isOff", false);
-        if (this._lastOnValue) {
-            this._cache.setValue("value", this._lastOnValue);
-        }
-    }
-
-    private notifyTurnOff(): void {
-        this._cache.setValue("isOn", false);
-        this._cache.setValue("isOff", true);
-        this._cache.setValue("value", 0);
-    }
-
-    private notifyValueChanged(value: number): void {
-        if (value > 0) {
-            this._lastOnValue = value;
-        }
-        this._cache.setValue("value", value);
-        this._cache.setValue("isOn", value > 0);
-        this._cache.setValue("isOff", value == 0);
-    }
-
-    //#endregion
-
     isOn(): boolean {
-        return this._cache.getValue("isOn");
-        //return this._lights.some(l => l.isOn());
+        return this._lights.some(l => l.isOn());
     }
     isOff(): boolean {
-        return this._cache.getValue("isOff");
-        //return this._lights.every(l => l.isOff());
+        return this._lights.every(l => l.isOff());
     }
     isUnavailable(): boolean {
         return this._lights.every(l => l.isUnavailable());
     }
     turnOn(): void {
         this._lights.filter(l => l.isOff()).forEach(l => l.turnOn());
-        this.notifyTurnOn();
     }
     turnOff(): void {
         this._lights.filter(l => l.isOn()).forEach(l => l.turnOff());
-        this.notifyTurnOff();
     }
 
     get value() {
-        return this._cache.getValue("value");
-        //return this.valueGetFactory();
+        return this.valueGetFactory();
     }
     set value(value: number) {
         // set value only to lights that are on
@@ -102,8 +46,6 @@ export class LightController implements ILightContainer {
             this._lights.forEach(l => l.value = value);
         }
         // TODO: smart value setting
-
-        this.notifyValueChanged(value);
     }
 
     private valueGetFactory() {
@@ -119,8 +61,8 @@ export class LightController implements ILightContainer {
         if (count == 0)
             return 0;
 
-        this._lastOnValue = total / count * 1.0;
-        return this._lastOnValue;
+        const value = total / count * 1.0;
+        return value;
     }
 
     getIcon(): string {

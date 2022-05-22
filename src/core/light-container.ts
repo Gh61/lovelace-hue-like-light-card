@@ -1,5 +1,6 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { HassEntity } from "home-assistant-js-websocket";
+import { TimeCache, TimeCacheValue } from "./time-cache";
 
 export interface ILightContainer {
     /**
@@ -64,6 +65,8 @@ export class LightContainer implements ILightContainer {
             throw new Error(`Unsupported entity type: ${domain}. The only supported type is 'light'.`)
 
         this._entity_id = entity_id;
+
+        this.initTimeCache();
     }
 
     set hass(value: HomeAssistant) {
@@ -71,11 +74,59 @@ export class LightContainer implements ILightContainer {
         this._entity = this._hass.states[this._entity_id];
     }
 
+    //#region TimeCache
+
+    /*
+     * This TimeCache is here, so the UI control can react instantly on changes.
+     * When user do some change, it might take up to about 2 seconds for HA to register these changes on devices.
+     * So the cache is here to tell the UI that the expected change has happened instantly.
+     * After the specified interval, cached values are invalidated and in the moment of getting these values, live values are read from HA.
+     */
+
+    // TODO: make the cache somehow public,
+    // maybe make LightContainer instances system-wide, so all cards can react to changes instantly
+    // TODO: also implement some change notify mechanizm
+
+    private _cache: TimeCache;
+    private _lastOnValue: number;
+
+    private initTimeCache(): void {
+        this._cache = new TimeCache(1500);// ms
+        this._cache.registerProperty("state", () => new TimeCacheValue(this._entity?.state, this.getDontCache()));
+        this._cache.registerProperty("value", () => new TimeCacheValue(this.valueGetFactory(), this.getDontCache()));
+    }
+
+    private getDontCache(): boolean {
+        return !this._entity || this._entity.state == "unavailable";
+    }
+
+    private notifyTurnOn(): void {
+        this._cache.setValue("state", "on");
+        if (this._lastOnValue) {
+            this._cache.setValue("value", this._lastOnValue);
+        }
+    }
+
+    private notifyTurnOff(): void {
+        this._cache.setValue("state", "off");
+        this._cache.setValue("value", 0);
+    }
+
+    private notifyValueChanged(value: number): void {
+        if (value > 0) {
+            this._lastOnValue = value;
+        }
+        this._cache.setValue("value", value);
+        this._cache.setValue("state", value > 0 ? "on" : "off");
+    }
+
+    //#endregion
+
     isUnavailable(): boolean {
-        return !this._entity || this._entity.state === "unavailable";
+        return this._cache.getValue("state") == "unavailable";
     }
     isOn(): boolean {
-        return !this.isUnavailable() && this._entity.state == "on";
+        return this._cache.getValue("state") == "on";
     }
     isOff(): boolean {
         return !this.isOn();
@@ -87,21 +138,30 @@ export class LightContainer implements ILightContainer {
         this.toggle(false);
     }
     toggle(on: boolean) {
+        if (on) {
+            this.notifyTurnOn();
+        } else {
+            this.notifyTurnOff();
+        }
         this._hass.callService("light", on ? "turn_on" : "turn_off", { entity_id: this._entity_id });
     }
 
-    get value() {
+    private valueGetFactory() {
         if (this.isOff())
             return 0;
 
         const attr = this._entity.attributes;
         return Math.round((attr.brightness * 100.0) / 255); // brightness is 0-255
     }
+    get value() {
+        return this._cache.getValue("value");
+    }
     set value(value: number) {
-        value = Math.round((value / 100.0) * 255); // brightness is 0-255
+        this.notifyValueChanged(value);
+        const brightness = Math.round((value / 100.0) * 255); // brightness is 0-255
         this._hass.callService("light", "turn_on", {
             entity_id: this._entity_id,
-            ["brightness"]: value,
+            ["brightness"]: brightness,
         });
     }
 
