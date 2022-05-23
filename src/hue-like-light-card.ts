@@ -12,6 +12,7 @@ import { HueLikeLightCardConfig } from './types/types';
 export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _config: HueLikeLightCardConfig;
     private _ctrl: LightController;
+    private _offBackground: Background;
 
     @property() hass: HomeAssistant;
 
@@ -23,7 +24,9 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         config.entity && ents.push(config.entity);
         config.entities && config.entities.forEach(e => ents.push(e));
 
-        this._ctrl = new LightController(ents, ColorResolver.getColor(config.defaultColor || 'warm'));
+        this._ctrl = new LightController(ents, ColorResolver.getColor(config.defaultColor || Consts.DefaultColor));
+
+        this._offBackground = new Background([new Color(this._config.offColor || Consts.OffColor)]);
     }
 
     // The height of your card. Home Assistant uses this to automatically
@@ -60,11 +63,12 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     static styles = css`
     ha-card
     {
-        color:white;
         height:80px;
         background:var(--hue-background);
         position:relative;
-        box-shadow:var(--hue-box-shadow);
+        box-shadow:var(--hue-box-shadow),
+            var( --ha-card-box-shadow, 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12) /* default_ha_shadows */
+        );
     }
     ha-card.hue-borders
     {
@@ -103,10 +107,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     `;
 
-    private getOffBackground(): Background {
-        return new Background([new Color(this._config.offColor || '#666')]);
-    }
-
     private calculateCurrentShadow(): string {
         if (this._ctrl.isOff())
             return 'inset 0px 0px 10px rgba(0,0,0,0.2)';//'none';
@@ -128,14 +128,22 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     private getCurrentBackground(): Background {
         if (this._ctrl.isOff())
-            return this.getOffBackground();
+            return this._offBackground;
 
-        return this._ctrl.getBackground() || this.getOffBackground();
+        return this._ctrl.getBackground() || this._offBackground;
     }
 
     private updateStyles(): void {
-        const background = this.getCurrentBackground() || this.getOffBackground();
-        const foreground = this._ctrl.value <= 50 ? Consts.LightColor : background.getForeground(Consts.LightColor, Consts.DarkColor);
+        const background = this.getCurrentBackground() || this._offBackground;
+        const foreground = this._ctrl.isOn() && this._ctrl.value <= 50 
+            ? Consts.LightColor // is on and under 50 => Light
+            : background.getForeground(
+                Consts.LightColor, // should be light
+                this._ctrl.isOn() // should be dark
+                    ? Consts.DarkColor
+                    : Consts.DarkOffColor // make it little lighter, when isOff
+            );
+
         this.style.setProperty(
             '--hue-background',
             background.toString()

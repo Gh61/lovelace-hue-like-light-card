@@ -31,9 +31,9 @@ export class Color {
     }
 
     /**
-    * Parses the given color string. Only supports rgb(a) and hex format.
+    * Parses the given color string. Only supports color name, rgb(a) and hex format.
     */
-    private parse(color_id: string): void {
+    private parse(color_id: string, allowNames = true): void {
         if (color_id.startsWith('#')) {
             color_id = color_id.substring(1);
             if (color_id.length == 3) {
@@ -58,6 +58,16 @@ export class Color {
                 this._blue = parseInt(parts[3]);
             }
         } else {
+            if (allowNames) {
+                // small hack: https://stackoverflow.com/a/47355187/1341409
+                const ctx = document.createElement('canvas').getContext('2d');
+                if (ctx != null) {
+                    ctx.fillStyle = color_id;
+                    this.parse(ctx.fillStyle, false); // standardized color format (hex)
+                    return;
+                }
+            }
+
             throw new Error('Unrecognized color format: ' + color_id);
         }
     }
