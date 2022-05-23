@@ -4,7 +4,7 @@ import { LightContainer } from './light-container';
  * Static class making LightContainer instances global.
  */
 export class GlobalLights {
-    private static _containers = {};
+    private static _containers:Record<string, LightContainer> = {};
 
     static getLightContainer(entity_id: string): LightContainer {
         let instance = this._containers[entity_id];

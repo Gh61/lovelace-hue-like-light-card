@@ -15,8 +15,8 @@ export class TimeCacheValue {
 
 export class TimeCache {
     private readonly _cacheInterval: number;
-    private _factories = {};
-    private _lastValues = {};
+    private _factories:Record<string, ValueFactory> = {};
+    private _lastValues:Record<string, TimeCacheItem> = {};
 
     /**
      * Will create time cache with specified interval in miliseconds.
@@ -74,10 +74,15 @@ export class TimeCache {
             throw Error(`Property with name ${name} is not registered in TimeCache.`);
     }
 
-    private createCacheItem(value: unknown) {
+    private createCacheItem(value: unknown):TimeCacheItem {
         return {
             value: value,
             time: new Date().getTime()
         };
     }
+}
+
+interface TimeCacheItem {
+    value:unknown;
+    time:number
 }
