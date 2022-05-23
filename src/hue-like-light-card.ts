@@ -77,6 +77,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         left:22px;
         top:17px;
         transform:scale(2);
+        color:var(--hue-text-color);
     }
     h2
     {
