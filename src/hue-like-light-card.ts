@@ -109,7 +109,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     private calculateCurrentShadow(): string {
         if (this._ctrl.isOff())
-            return 'inset 0px 0px 10px rgba(0,0,0,0.2)';//'none';
+            return this._config.disableOffShadow ? '0px 0px 0px white' : 'inset 0px 0px 10px rgba(0,0,0,0.2)';
 
         const card = <Element>this.renderRoot.querySelector('ha-card');
         if (!card)

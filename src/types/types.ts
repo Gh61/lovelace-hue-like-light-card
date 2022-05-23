@@ -9,6 +9,7 @@ export interface HueLikeLightCardConfig extends LovelaceCardConfig {
     readonly icon?: string;
     readonly hueBorders?: boolean;
     readonly offColor?: string;
+    readonly disableOffShadow?: boolean;
     readonly defaultColor?: string;
     readonly allowZero?: boolean;
     readonly entity?: string;
