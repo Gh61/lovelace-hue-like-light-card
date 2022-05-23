@@ -1,59 +1,10 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity } from 'home-assistant-js-websocket';
-import { HassLightAttributes } from '../types/types';
+import { Consts } from '../types/consts';
+import { HassLightAttributes, ILightContainer } from '../types/types';
+import { Background } from './colors/background';
+import { Color } from './colors/color';
 import { TimeCache, TimeCacheValue } from './time-cache';
-
-export interface ILightContainer {
-    /**
-     * Sets current hass instance to this container.
-     */
-    set hass(hass: HomeAssistant);
-
-    /**
-     * Returns true if any light in this container is on.
-     */
-    isOn(): boolean;
-
-    /**
-     * Returns true if all lights in this container are off.
-     */
-    isOff(): boolean;
-
-    /**
-     * Returns true if all lights in this container are unavailable.
-     */
-    isUnavailable(): boolean;
-
-    /**
-     * Will turn all lights on.
-     */
-    turnOn(): void;
-
-    /**
-     * Will turn all lights off.
-     */
-    turnOff(): void;
-
-    /**
-     * Gets or sets current value of brightness of lights in this container.
-     */
-    value: number;
-
-    /**
-     * Returns icon for this container of lights.
-     */
-    getIcon(): string | undefined | null;
-
-    /**
-     * Returns suggested title for card with lights in this container.
-     */
-    getTitle(): string | undefined | null;
-
-    /**
-     * Returns background style for card with lights in this container.
-     */
-    getBackground(): string;
-}
 
 export class LightContainer implements ILightContainer {
     private _entity_id: string;
@@ -94,10 +45,10 @@ export class LightContainer implements ILightContainer {
 
     private _cache: TimeCache;
     private _lastOnValue: number;
-    private _lastColor: string;
+    private _lastBackground: Background;
 
     private initTimeCache(): void {
-        this._cache = new TimeCache(1500);// ms
+        this._cache = new TimeCache(Consts.TimeCacheInterval);// ms
         this._cache.registerProperty('state', () => new TimeCacheValue(this._entity?.state, this.getDontCacheState()));
         this._cache.registerProperty('value', () => new TimeCacheValue(this.valueGetFactory(), this.getDontCacheValue()));
     }
@@ -184,19 +135,20 @@ export class LightContainer implements ILightContainer {
         return this._entity.attributes.friendly_name;
     }
 
-    getBackground(): string {
+    getBackground(): Background | null {
         const attr = this.getAttributes();
         const rgb = <number[]>attr.rgb_color; // array with value r,g,b
 
         if (!rgb) {
-            if (this._lastColor)
-                return this._lastColor;
+            if (this._lastBackground)
+                return this._lastBackground;
 
-            return '#ffda95'; // +-warm light
+            return null;
         }
 
-        this._lastColor = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
-        return this._lastColor;
+        const color = new Color(rgb[0], rgb[1], rgb[2]);
+        this._lastBackground = new Background([color]);
+        return new Background([this._lastBackground]);
     }
 }
 

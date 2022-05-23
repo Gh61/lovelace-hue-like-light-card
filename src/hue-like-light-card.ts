@@ -1,7 +1,11 @@
 import { LovelaceCard, HomeAssistant } from 'custom-card-helpers';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { Background } from './core/colors/background';
+import { Color } from './core/colors/color';
+import { ColorResolver } from './core/colors/color-resolvers';
 import { LightController } from './core/light-controller';
+import { Consts } from './types/consts';
 import { HueLikeLightCardConfig } from './types/types';
 
 @customElement('hue-like-light-card')
@@ -19,7 +23,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         config.entity && ents.push(config.entity);
         config.entities && config.entities.forEach(e => ents.push(e));
 
-        this._ctrl = new LightController(ents);
+        this._ctrl = new LightController(ents, ColorResolver.getColor(config.defaultColor || 'warm'));
     }
 
     // The height of your card. Home Assistant uses this to automatically
@@ -32,7 +36,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         // TODO: try to update on sliding (use debounce) not only on change. (https://www.webcomponents.org/element/@polymer/paper-slider/elements/paper-slider#events)
         // TODO: make title clickable
         // TODO: add subtext
-        // TODO: add outline/shadow to title, so its visible on bright colors
 
         if (isSlider) {
             const value = (this.shadowRoot?.querySelector('ha-slider') as HTMLInputElement).value;
@@ -79,10 +82,11 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     {
         padding-top:0.5em;
         margin:0px 60px 0px 70px;
-        font-weight:500;
+        font-weight:400;
         text-overflow:ellipsis;
         overflow:hidden;
         white-space:nowrap;
+        color:var(--hue-text-color);
     }
     ha-switch
     {
@@ -98,8 +102,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     `;
 
-    private getOffBackground(): string {
-        return this._config.offColor || '#666';
+    private getOffBackground(): Background {
+        return new Background([new Color(this._config.offColor || '#666')]);
     }
 
     private calculateCurrentShadow(): string {
@@ -107,6 +111,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             return 'inset 0px 0px 10px rgba(0,0,0,0.2)';//'none';
 
         const card = <Element>this.renderRoot.querySelector('ha-card');
+        if (!card)
+            return '';
         const darkness = 100 - this._ctrl.value;
         const coef = (card.clientHeight / 100);
         const spread = 20;
@@ -119,21 +125,27 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,0.75)`;
     }
 
-    private getCurrentBackground(): string {
+    private getCurrentBackground(): Background {
         if (this._ctrl.isOff())
             return this.getOffBackground();
 
-        return this._ctrl.getBackground();
+        return this._ctrl.getBackground() || this.getOffBackground();
     }
 
     private updateStyles(): void {
+        const background = this.getCurrentBackground() || this.getOffBackground();
+        const foreground = this._ctrl.value <= 50 ? Consts.LightColor : background.getForeground(Consts.LightColor, Consts.DarkColor);
         this.style.setProperty(
             '--hue-background',
-            this.getCurrentBackground() || this.getOffBackground()
+            background.toString()
         );
         this.style.setProperty(
             '--hue-box-shadow',
             this.calculateCurrentShadow()
+        );
+        this.style.setProperty(
+            '--hue-text-color',
+            foreground
         );
     }
 

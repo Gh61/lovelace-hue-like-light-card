@@ -1,17 +1,23 @@
 import { HomeAssistant } from 'custom-card-helpers';
+import { Consts } from '../types/consts';
+import { ILightContainer } from '../types/types';
+import { Background } from './colors/background';
+import { Color } from './colors/color';
 import { GlobalLights } from './global-lights';
-import { ILightContainer, LightContainer } from './light-container';
+import { LightContainer } from './light-container';
 
 export class LightController implements ILightContainer {
     private _hass: HomeAssistant;
     private _lights: LightContainer[];
+    private _defaultColor: Color;
 
-    constructor(entity_ids: string[]) {
+    constructor(entity_ids: string[], defaultColor: Color) {
         // we need at least one
         if (!entity_ids.length)
             throw new Error('No entity specified (use "entity" and/or "entities").');
 
-        this._lights = entity_ids.map(e => GlobalLights.getLightContainer(e));//new LightContainer(e));
+        this._defaultColor = defaultColor;
+        this._lights = entity_ids.map(e => GlobalLights.getLightContainer(e));
     }
 
     set hass(hass: HomeAssistant) {
@@ -68,10 +74,10 @@ export class LightController implements ILightContainer {
 
     getIcon(): string {
         const lightIcon = this._lights.length > 2
-            ? 'mdi:lightbulb-group' // 3 lightbulbs
+            ? Consts.DefaultMoreIcon // 3 lightbulbs
             : this._lights.length > 1
-                ? 'mdi:lightbulb-multiple' // 2 lightbulbs
-                : this._lights[0].getIcon() || 'mdi:lightbulb'; // 1 lightbulb)
+                ? Consts.DefaultTwoIcon // 2 lightbulbs
+                : this._lights[0].getIcon() || Consts.DefaultOneIcon; // 1 lightbulb)
 
         return lightIcon;
     }
@@ -90,28 +96,10 @@ export class LightController implements ILightContainer {
         return title;
     }
 
-    getBackground(): string {
-        const litLights = this._lights.filter(l => l.isOn());
-        if (litLights.length == 0)
-            return '';
-        if (litLights.length == 1)
-            return litLights[0].getBackground();
-
-        const step = 100.0 / (litLights.length - 1);
-
-        const offset = 10;
-        let colors = `${litLights[0].getBackground()} 0%, ${litLights[0].getBackground()} ${offset}%`; // first 10% must be the first light
-        let currentStep = 0;
-        for (let i = 1; i < litLights.length; i++) {
-            currentStep += step;
-
-            // last 10% must be the last light
-            if (i + 1 == litLights.length) {
-                colors += `, ${litLights[i].getBackground()} ${100 - offset}%`;
-            }
-            colors += `, ${litLights[i].getBackground()} ${Math.round(currentStep)}%`;
-        }
-
-        return `linear-gradient(90deg, ${colors})`;
+    getBackground(): Background | null {
+        const backgrounds = this._lights.filter(l => l.isOn()).map(l => l.getBackground() || this._defaultColor);
+        if (backgrounds.length == 0)
+            return null;
+        return new Background(backgrounds);
     }
 }
