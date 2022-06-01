@@ -119,6 +119,13 @@ export class LightContainer implements ILightContainer {
         return <number>this._cache.getValue('value');
     }
     set value(value: number) {
+        // just to be sure
+        if (value < 0) {
+            value = 0;
+        } else if (value > 100) {
+            value = 100;
+        }
+
         this.notifyValueChanged(value);
         const brightness = Math.round((value / 100.0) * 255); // brightness is 0-255
         this._hass.callService('light', 'turn_on', {

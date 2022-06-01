@@ -45,14 +45,44 @@ export class LightController implements ILightContainer {
         return this.valueGetFactory();
     }
     set value(value: number) {
-        // set value only to lights that are on
-        let isOn = false;
-        this._lights.filter(l => l.isOn()).forEach(l => { l.value = value; isOn = true; });
-        // if no light is on, turn them all on now
-        if (isOn == false) {
+        const litLights = this._lights.filter(l => l.isOn());
+        // when only one light is on, set the value to that light
+        if (litLights.length == 1) {
+            litLights[0].value = value;
+            return;
+        } else if (litLights.length == 0) { // when no light is on, set value to all lights
             this._lights.forEach(l => l.value = value);
+            return;
         }
-        // TODO: smart value setting
+
+        // get percentage change of remaining value
+        const oldValue = this.value;
+        const valueChange = value - oldValue;
+        const remainingValue = valueChange > 0 ? (100 - this.value) : this.value;
+        const percentualChange = valueChange / remainingValue; // percentual of remaining
+
+        // calculate the value for each light
+        this._lights.forEach(l => {
+            const lightOldValue = l.value;
+            // of value of this light is the same asi value of controller, set it exactly to value
+            if (lightOldValue == oldValue) {
+                l.value = value;
+                return;
+            }
+
+            // get remaining part of this one light
+            const remainingLightValue = valueChange > 0 ? (100 - l.value) : l.value;
+            // compute value increment
+            const lightValueChange = Math.round(remainingLightValue * percentualChange);
+            // get new value
+            let newValue = l.value + lightValueChange;
+
+            // don't let the value drop to zero, if the target value isn't exactly zero
+            if (newValue < 1 && value > 0) {
+                newValue = 1;
+            }
+            l.value = newValue;
+        });
     }
 
     private valueGetFactory() {
