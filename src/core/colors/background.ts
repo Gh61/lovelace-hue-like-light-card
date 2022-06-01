@@ -24,16 +24,17 @@ export class Background {
 
     /**
      * Gets foreground for this background, either @param light (potentially white) or @param dark (potentially black).
+     * @param offset: offset added to luminance (can move breaking point in either direction)
      */
-    public getForeground<T>(light: T, dark: T) {
+    public getForeground<T>(light: T, dark: T, offset: number): T {
         if (this._colors.length < 3) {
-            return this._colors[0].getForeground(light, dark);
+            return this._colors[0].getForeground(light, dark, offset);
         }
 
         // wee need to choose color based on the brightness of the first half
         let forLight = 0;
         for (let i = 0; i < this._colors.length / 2; i++) {
-            if (this._colors[i].getForeground(true, false))
+            if (this._colors[i].getForeground(true, false, offset))
                 forLight++;
         }
 

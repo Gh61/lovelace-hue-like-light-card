@@ -82,6 +82,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         top:17px;
         transform:scale(2);
         color:var(--hue-text-color);
+        transition:all 0.3s ease-out 0s;
     }
     h2
     {
@@ -93,6 +94,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         overflow:hidden;
         white-space:nowrap;
         color:var(--hue-text-color);
+        transition:all 0.3s ease-out 0s;
     }
     ha-switch
     {
@@ -123,8 +125,12 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         if (darkness > 70) {
             width -= (width - 20) * (darkness - 70) / 30; // width: 20-clientHeight/2
         }
+        let shadowDensity = 0.65;
+        if (darkness > 60) {
+            shadowDensity -= (shadowDensity - 0.5) * (darkness - 60) / 40; // shadowDensity: 0.5-0.65
+        }
 
-        return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,0.75)`;
+        return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,${shadowDensity})`;
     }
 
     private getCurrentBackground(): Background {
@@ -136,6 +142,9 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     private updateStyles(): void {
         const background = this.getCurrentBackground() || this._offBackground;
+        const offset = this._ctrl.isOn() && this._ctrl.value > 50
+            ? -(10 - ((this._ctrl.value - 50) / 5)) // offset: -10-0
+            : 0;
         const foreground = this._ctrl.isOn() && this._ctrl.value <= 50 
             ? Consts.LightColor // is on and under 50 => Light
             : background.getForeground(
@@ -143,6 +152,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
                 this._ctrl.isOn() // should be dark
                     ? Consts.DarkColor
                     : Consts.DarkOffColor // make it little lighter, when isOff
+                ,
+                offset // offset for darker brightness
             );
 
         this.style.setProperty(

@@ -18,16 +18,17 @@ export class Color {
     /**
      * Returns relative luminance (0-255).
      */
-    public getLuminance():number {
+    public getLuminance(): number {
         return this._red * 0.299 + this._green * 0.587 + this._blue * 0.114;
     }
 
     /**
      * Returns foreground for this color, either @param light (potentially white) or @param dark (potentially black).
+     * @param offset: offset added to luminance (can move breaking point in either direction)
      */
-    public getForeground<T>(light: T, dark: T) {
+    public getForeground<T>(light: T, dark: T, offset: number): T {
         const luminance = this.getLuminance();
-        return luminance < Consts.LuminanceBreakingPoint ? light : dark;
+        return (luminance + offset) < Consts.LuminanceBreakingPoint ? light : dark;
     }
 
     /**
