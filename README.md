@@ -27,7 +27,7 @@ TODO: HACS
   </tr>
   <tr>
     <td><code>entities</code></td>
-    <td>list string</td>
+    <td>list of strings</td>
     <td>yes*</td>
     <td>-</td>
     <td>Multiple Light entity names</td>
@@ -51,14 +51,15 @@ TODO: HACS
     <td>boolean</td>
     <td>no</td>
     <td><code>false</code></td>
-    <td>If turned on, the slider can be moved to and from value 0<br/>(turning off/on the the lights)</td>
+    <td>If turned on, the slider can be moved to and from value 0.<br/>(turning off/on the the lights)</td>
   </tr>
   <tr>
     <td><code>defaultColor</code></td>
     <td>string</td>
     <td>no</td>
     <td><code>'warm'</code></td>
-    <td>If selected light (or lights) don't has RGB mode,<br/>this value is color is used when the light is on<br/>Possible format:
+    <td>
+      If selected light (or lights) don't has RGB mode,<br/>this value is color is used when the light is on.<br/>Possible format:
       <ul>
         <li>HEX: <code>'#fff'</code>, <code>'#ffffff'</code></li>
         <li>RGB: <code>'rgb(255,255,255)'</code></li>
@@ -67,11 +68,32 @@ TODO: HACS
       </ul>
   </tr>
   <tr>
-    <td><code>...</code></td>
+    <td><code>offColor</code></td>
+    <td>string</td>
+    <td>no</td>
+    <td><code>'#666'</code></td>
+    <td>
+      The color of the pane, when all lights are off.<br/>Possible format:
+      <ul>
+        <li>HEX: <code>'#fff'</code>, <code>'#ffffff'</code></li>
+        <li>RGB: <code>'rgb(255,255,255)'</code></li>
+        <li>WEB name: <code>'white'</code></li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><code>disableOffShadow</code></td>
     <td>boolean</td>
     <td>no</td>
     <td><code>false</code></td>
-    <td>TODO</td>
+    <td>If turned on, the card will not have inner shadow, when all lights are off.</td>
+  </tr>
+  <tr>
+    <td><code>hueBorders</code></td>
+    <td>boolean</td>
+    <td>no</td>
+    <td><code>true</code></td>
+    <td>If turned off, the card will not have so much rounded edges. It will have default edge rounding instead.</td>
   </tr>
   <tr>
     <td colspan="5" style="text-align: center">
