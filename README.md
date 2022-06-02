@@ -96,7 +96,7 @@ TODO: HACS
     <td>If turned off, the card will not have so much rounded edges. It will have default edge rounding instead.</td>
   </tr>
   <tr>
-    <td colspan="5" style="text-align: center">
+    <td colspan="5">
       <i>* At least one of this two must be filled in</i>
     </td>
   </tr>
