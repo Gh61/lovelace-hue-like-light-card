@@ -88,7 +88,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     {
         padding-top:0.5em;
         margin:0px 60px 0px 70px;
-        min-height:21px;
+        min-height:22px;
+        vertical-align:top;
         font-weight:400;
         text-overflow:ellipsis;
         overflow:hidden;
