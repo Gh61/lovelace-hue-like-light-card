@@ -7,7 +7,7 @@ This card is providing light control. It is inspired by original Philips Hue app
 \* *intensity of color, shadow and other UI properties may be subject of change*
 
 ### Basic configuration
-```
+```yaml
 type: custom:hue-like-light-card
 entity: light.livingroom_color
 ```
@@ -70,7 +70,7 @@ TODO: HACS
       <ul>
         <li>HEX: <code>'#fff'</code>, <code>'#ffffff'</code></li>
         <li>RGB: <code>'rgb(255,255,255)'</code></li>
-        <li>WEB name: <code>'white'</code></li>
+        <li>WEB name: <code>'salmon'</code></li>
         <li>predefined: <code>'warm'</code> or <code>'cold'</code></td></li>
       </ul>
   </tr>
@@ -84,7 +84,7 @@ TODO: HACS
       <ul>
         <li>HEX: <code>'#fff'</code>, <code>'#ffffff'</code></li>
         <li>RGB: <code>'rgb(255,255,255)'</code></li>
-        <li>WEB name: <code>'white'</code></li>
+        <li>WEB name: <code>'DarkSeaGreen'</code></li>
       </ul>
     </td>
   </tr>
@@ -118,7 +118,7 @@ TODO: HACS
 ## Examples of configuration
 #### Multiple lights
 ![Screen2](/doc/screen2.png)
-```
+```yaml
 type: custom:hue-like-light-card
 title: TV colors
 entities:
@@ -130,17 +130,49 @@ entities:
 
 #### Custom title and icon
 ![Screen3](/doc/screen3.png)
-```
+```yaml
 type: custom:hue-like-light-card
 entity: light.livingroom_lamp
 title: Reading light
 icon: mdi:floor-lamp
 ```
 
-#### TODO
+#### Home Assistant-like
+![Screen4](/doc/screen4.png)
+```yaml
+type: custom:hue-like-light-card
+title: TV colors
+entities:
+  - light.tvlight_color1
+  - light.tvlight_color2
+  - light.tvlight_color3
+  - light.tvlight_color4
+offColor: white
+disableOffShadow: true
+hueBorders: false
+```
+
+#### Turnable with slider
+![Screen5](/doc/screen5.png)
+```yaml
+type: custom:hue-like-light-card
+title: Living room
+entity: light.livingroom_light
+allowZero: true
+```
+
+#### Non-RGB Light
+![Screen6](/doc/screen6.png)
+```yaml
+type: custom:hue-like-light-card
+title: Living room
+entity: light.livingroom_light
+defaultColor: 'rgb(230,230,255)'
+```
+
 
 ## Coming soon features
-- reactions on sliding evens instead of on change (value will be changed in the moment of sliding, not after)
+- reactions on sliding event instead of on change (value will be changed in the moment of sliding, not after)
 - faster reactions between multiple cards (instant change of value on other cards)
 - click on the card (choosable action)
 - subtext under the main text (how many lights are on, ...)
