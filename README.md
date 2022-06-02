@@ -6,6 +6,13 @@ This card is providing light control. It is inspired by original Philips Hue app
 
 \* *intensity of color, shadow and other UI properties may be subject of change*
 
+### Basic configuration
+```
+type: custom:hue-like-light-card
+entity: light.livingroom_color
+```
+For more options see [Configuration](#configuration) or let yourself inspire in [Examples of configuration](#examples-of-configuration)
+
 ## Instalation
 TODO: HACS
 
@@ -107,3 +114,34 @@ TODO: HACS
     - If the entity has no icon, `mdi:lightbulb` (![lightbulb](https://user-images.githubusercontent.com/10837736/171443813-5e0dc16c-de15-43a1-9e96-0917c038e0a9.svg)) is used.
 - If the card has two lights `mdi:lightbulb-multiple` (![lightbulb-multiple](https://user-images.githubusercontent.com/10837736/171444016-4b571fcf-0e30-4eca-9baf-61a710c17c05.svg)) is used.
 - If the card has three or more lights attached, `mdi:lightbulb-group` (![lightbulb-group](https://user-images.githubusercontent.com/10837736/171444069-639d41d5-1dc7-4bd7-8104-b77f52df86fb.svg)) is used.
+
+## Examples of configuration
+#### Multiple lights
+![Screen2](/doc/screen2.png)
+```
+type: custom:hue-like-light-card
+title: TV colors
+entities:
+  - light.tvlight_color1
+  - light.tvlight_color2
+  - light.tvlight_color3
+  - light.tvlight_color4
+```
+
+#### Custom title and icon
+![Screen3](/doc/screen3.png)
+```
+type: custom:hue-like-light-card
+entity: light.livingroom_lamp
+title: Reading light
+icon: mdi:floor-lamp
+```
+
+#### TODO
+
+## Coming soon features
+- reactions on sliding evens instead of on change (value will be changed in the moment of sliding, not after)
+- faster reactions between multiple cards (instant change of value on other cards)
+- click on the card (choosable action)
+- subtext under the main text (how many lights are on, ...)
+- ui editor?
