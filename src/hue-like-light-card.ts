@@ -1,14 +1,13 @@
-import { LovelaceCard, HomeAssistant } from 'custom-card-helpers';
+import { LovelaceCard, HomeAssistant, LovelaceCardConfig, fireEvent } from 'custom-card-helpers';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Background } from './core/colors/background';
-import { Color } from './core/colors/color';
-import { ColorResolver } from './core/colors/color-resolvers';
 import { LightController } from './core/light-controller';
+import { HueLikeLightCardConfig } from './types/config';
 import { Consts } from './types/consts';
-import { HueLikeLightCardConfig } from './types/types';
+import { HueLikeLightCardConfigInterface } from './types/types';
 
-@customElement('hue-like-light-card')
+@customElement(Consts.CardElementName)
 export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _config: HueLikeLightCardConfig;
     private _ctrl: LightController;
@@ -16,23 +15,22 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     @property() hass: HomeAssistant;
 
-    setConfig(config: HueLikeLightCardConfig) {
-        this._config = config;
+    setConfig(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
+        this._config = new HueLikeLightCardConfig(plainConfig);
 
-        // create list of entities (prepend entity and then insert all entities)
-        const ents: string[] = [];
-        config.entity && ents.push(config.entity);
-        config.entities && config.entities.forEach(e => ents.push(e));
-
-        this._ctrl = new LightController(ents, ColorResolver.getColor(config.defaultColor || Consts.DefaultColor));
-
-        this._offBackground = new Background([new Color(this._config.offColor || Consts.OffColor)]);
+        this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor());
+        this._offBackground = new Background([this._config.getOffColor()]);
     }
 
     // The height of your card. Home Assistant uses this to automatically
     // distribute all cards over the available columns.
     getCardSize(): number {
         return 3;
+    }
+
+    private cardClicked() : void {
+        fireEvent(this, 'hass-more-info', { entityId: this._config.getEntities()[0] });
+        //alert(this._ctrl.isOn() ? 'OnAction' : 'OffAction');
     }
 
     private changed(isSlider: boolean) {
@@ -74,6 +72,11 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     {
         border-radius:10px;
         box-shadow:var(--hue-box-shadow), 0px 2px 3px rgba(0,0,0,0.85);
+    }
+    ha-card div.tap-area
+    {
+        height:48px; /* card(80) - slider(32) */
+        cursor: pointer;
     }
     ha-icon
     {
@@ -181,8 +184,10 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         const title = this._config.title || this._ctrl.getTitle();
 
         return html`<ha-card>
-            <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
-            <h2>${title}</h2>
+            <div class="tap-area" @click="${(): void => this.cardClicked()}">
+                <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
+                <h2>${title}</h2>
+            </div>
             <ha-switch .checked=${this._ctrl.isOn()} .disabled=${this._ctrl.isUnavailable()} .haptic=true @change=${() => this.changed(false)}></ha-switch>
 
             <ha-slider .min=${min} .max=${max} .step=${step} .disabled=${this._config.allowZero ? false : this._ctrl.isOff()} .value=${this._ctrl.value}
@@ -194,7 +199,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     protected firstUpdated() {
         // CSS
-        if (this._config.hueBorders == null || !!this._config.hueBorders) {
+        if (this._config.hueBorders) {
             (this.renderRoot.querySelector('ha-card') as Element).className = 'hue-borders';
         }
 

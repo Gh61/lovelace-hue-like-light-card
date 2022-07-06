@@ -1,19 +1,19 @@
-import { HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
+import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntityAttributeBase } from 'home-assistant-js-websocket';
 import { Background } from '../core/colors/background';
 
 export type ValueFactory = () => unknown;
 
-export interface HueLikeLightCardConfig extends LovelaceCardConfig {
-    readonly title?: string;
-    readonly icon?: string;
-    readonly hueBorders?: boolean;
-    readonly offColor?: string;
-    readonly disableOffShadow?: boolean;
-    readonly defaultColor?: string;
-    readonly allowZero?: boolean;
+export interface HueLikeLightCardConfigInterface {
     readonly entity?: string;
     readonly entities?: string[]
+    readonly title?: string;
+    readonly icon?: string;
+    readonly allowZero?: boolean;
+    readonly defaultColor?: string;
+    readonly offColor?: string;
+    readonly disableOffShadow?: boolean;
+    readonly hueBorders?: boolean;
 }
 
 export interface HassLightAttributes extends HassEntityAttributeBase {

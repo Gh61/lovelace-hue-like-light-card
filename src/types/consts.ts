@@ -1,4 +1,7 @@
 export class Consts {
+    public static readonly Dev = true;
+    public static readonly CardElementName = Consts.Dev ? 'hue-like-light-card-test' : 'hue-like-light-card';
+
     public static readonly LuminanceBreakingPoint = 192; // hue breaking point is pretty high
     public static readonly LightColor = '#fff';
     public static readonly DarkColor = 'rgba(0,0,0,0.7)';
