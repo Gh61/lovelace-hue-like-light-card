@@ -1,5 +1,5 @@
 import { LovelaceCardConfig } from 'custom-card-helpers';
-import { HueLikeLightCardConfigInterface } from './types';
+import { ClickAction, HueLikeLightCardConfigInterface } from './types';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
@@ -10,6 +10,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.entities = plainConfig.entities;
         this.title = plainConfig.title;
         this.icon = plainConfig.icon;
+        this.offClick = HueLikeLightCardConfig.getClickAction(plainConfig.offClick);
+        this.onClick = HueLikeLightCardConfig.getClickAction(plainConfig.onClick);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
         this.offColor = plainConfig.offColor || Consts.OffColor;
@@ -28,10 +30,33 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         return !!plain;
     }
 
+    /**
+     * Returns ClickAction valid enum, default for empty or throws exception.
+     * @param plain 
+     */
+    private static getClickAction(plain:ClickAction | string | undefined) : ClickAction {
+        if (!plain)
+            return ClickAction.Default;
+
+        let helpValues = '';
+        for (const value in ClickAction) {
+            const enumValue = (ClickAction as Record<string, string>)[value];
+            if (plain == enumValue)
+                return plain as ClickAction;
+
+            helpValues += `'${enumValue}', `;
+        }
+    
+        throw new Error(`Click action '${plain}' was not recognized. Allowed values are: ${helpValues}`);
+        //return ClickAction.Default;
+    }
+
     readonly entity?: string;
     readonly entities?: string[];
     readonly title?: string;
     readonly icon?: string;
+    readonly offClick: ClickAction;
+    readonly onClick: ClickAction;
     readonly allowZero: boolean;
     readonly defaultColor: string;
     readonly offColor: string;
@@ -49,6 +74,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
 
         return ents;
     }
+
+
 
     /**
      * @returns Default color as instance of Color.

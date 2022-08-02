@@ -4,11 +4,33 @@ import { Background } from '../core/colors/background';
 
 export type ValueFactory = () => unknown;
 
+export class CustomCardInfo {
+    type: string;
+    name: string;
+    description: string;
+}
+
+export interface WindowWithCards extends Window {
+    customCards?: CustomCardInfo[];
+}
+
+export enum ClickAction {
+    Default = 'default',
+    NoAction = 'none',
+    TurnOn = 'turn-on',
+    TurnOff = 'turn-off',
+    MoreInfo = 'more-info',
+    Scene = 'scene',
+    HueScreen = 'hue-screen'
+}
+
 export interface HueLikeLightCardConfigInterface {
     readonly entity?: string;
     readonly entities?: string[]
     readonly title?: string;
     readonly icon?: string;
+    readonly offClick?: ClickAction;
+    readonly onClick?: ClickAction;
     readonly allowZero?: boolean;
     readonly defaultColor?: string;
     readonly offColor?: string;

@@ -1,16 +1,36 @@
-import { LovelaceCard, HomeAssistant, LovelaceCardConfig, fireEvent } from 'custom-card-helpers';
+import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { ClickHandler } from './core/click-handler';
 import { Background } from './core/colors/background';
 import { LightController } from './core/light-controller';
 import { HueLikeLightCardConfig } from './types/config';
 import { Consts } from './types/consts';
-import { HueLikeLightCardConfigInterface } from './types/types';
+import { HueLikeLightCardConfigInterface, WindowWithCards } from './types/types';
+
+/* eslint no-console: 0 */
+console.info(
+    `%cHUE-%cLIKE%c LIGHT%c CARD %c${Consts.Version}`,
+    'font-weight:bold;color:white;background:#0046FF',
+    'font-weight:bold;color:white;background:#9E00FF',
+    'font-weight:bold;color:white;background:#FF00F3',
+    'font-weight:bold;color:white;background:#FF0032',
+    'font-weight:bold;color:white;background:#FF8B00'
+);
+
+// This puts card into the UI card picker dialog
+(window as WindowWithCards).customCards = (window as WindowWithCards).customCards || [];
+(window as WindowWithCards).customCards!.push({
+    type: Consts.CardElementName,
+    name: Consts.CardName,
+    description: Consts.CardDescription
+});
 
 @customElement(Consts.CardElementName)
 export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _config: HueLikeLightCardConfig;
     private _ctrl: LightController;
+    private _clickHandler: ClickHandler;
     private _offBackground: Background;
 
     @property() hass: HomeAssistant;
@@ -20,6 +40,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
         this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor());
         this._offBackground = new Background([this._config.getOffColor()]);
+        this._clickHandler = new ClickHandler(this._config, this._ctrl, this);
     }
 
     // The height of your card. Home Assistant uses this to automatically
@@ -29,13 +50,15 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
 
     private cardClicked() : void {
-        fireEvent(this, 'hass-more-info', { entityId: this._config.getEntities()[0] });
-        //alert(this._ctrl.isOn() ? 'OnAction' : 'OffAction');
+        // handle the click
+        this._clickHandler.handleClick();
+
+        // update styles
+        this.updateStyles();
     }
 
     private changed(isSlider: boolean) {
         // TODO: try to update on sliding (use debounce) not only on change. (https://www.webcomponents.org/element/@polymer/paper-slider/elements/paper-slider#events)
-        // TODO: make title clickable
         // TODO: add subtext
 
         if (isSlider) {
