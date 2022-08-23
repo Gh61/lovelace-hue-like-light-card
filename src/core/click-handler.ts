@@ -1,4 +1,5 @@
 import { fireEvent } from 'custom-card-helpers';
+import { HueDialog } from '../hue-dialog/dialog';
 import { HueLikeLightCardConfig } from '../types/config';
 import { ClickAction } from '../types/types';
 import { LightController } from './light-controller';
@@ -40,12 +41,20 @@ export class ClickHandler {
     }
 
     private resolveDefaultWhenOn() : ClickAction {
-        // TODO: resolve to more-info or hueScreen
+        if (this._ctrl.count == 1) {
+            return ClickAction.MoreInfo;
+        } else if (this._ctrl.count > 1) {
+            return ClickAction.HueScreen;
+        }
+
         return ClickAction.TurnOff;
     }
 
     private resolveDefaultWhenOff() : ClickAction {
-        // TODO: resolve to more-info or hueScreen
+        if (this._ctrl.count == 1) {
+            return ClickAction.MoreInfo;
+        }
+
         return ClickAction.TurnOn;
     }
 
@@ -66,8 +75,9 @@ export class ClickHandler {
                 // TODO: add scenes to config + add scene selector
                 throw new Error('NotImplementedException');
             case ClickAction.HueScreen:
-                // TODO: create custom window
-                throw new Error('NotImplementedException');
+                const dialog = new HueDialog(this._ctrl);
+                dialog.show();
+                break;
 
             case ClickAction.Default:
                 throw new Error('Cannot execute Default action');

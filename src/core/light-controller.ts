@@ -20,6 +20,10 @@ export class LightController implements ILightContainer {
         this._lights = entity_ids.map(e => GlobalLights.getLightContainer(e));
     }
 
+    get count() {
+        return this._lights.length;
+    }
+
     set hass(hass: HomeAssistant) {
         this._hass = hass;
         this._lights.forEach(l => l.hass = hass);
