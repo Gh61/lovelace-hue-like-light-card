@@ -26,9 +26,10 @@ export enum ClickAction {
 
 export interface HueLikeLightCardConfigInterface {
     readonly entity?: string;
-    readonly entities?: string[]
+    readonly entities?: string[];
     readonly title?: string;
     readonly icon?: string;
+    //readonly scenes?: string[];
     readonly offClick?: ClickAction;
     readonly onClick?: ClickAction;
     readonly allowZero?: boolean;
@@ -36,6 +37,12 @@ export interface HueLikeLightCardConfigInterface {
     readonly offColor?: string;
     readonly disableOffShadow?: boolean;
     readonly hueBorders?: boolean;
+    readonly resources?: ResourcesInterface;
+}
+
+export interface ResourcesInterface {
+    readonly scenes?: string;
+    readonly lights?: string;
 }
 
 export interface HassLightAttributes extends HassEntityAttributeBase {

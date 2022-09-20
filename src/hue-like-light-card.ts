@@ -4,6 +4,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { ClickHandler } from './core/click-handler';
 import { Background } from './core/colors/background';
 import { LightController } from './core/light-controller';
+import { ViewUtils } from './core/view-utils';
 import { HueLikeLightCardConfig } from './types/config';
 import { Consts } from './types/consts';
 import { HueLikeLightCardConfigInterface, WindowWithCards } from './types/types';
@@ -52,28 +53,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private cardClicked() : void {
         // handle the click
         this._clickHandler.handleClick();
-
-        // update styles
-        this.updateStyles();
-    }
-
-    private changed(isSlider: boolean) {
-        // TODO: try to update on sliding (use debounce) not only on change. (https://www.webcomponents.org/element/@polymer/paper-slider/elements/paper-slider#events)
-        // TODO: add subtext
-
-        if (isSlider) {
-            const value = (this.shadowRoot?.querySelector('ha-slider') as HTMLInputElement).value;
-            if (value != null) {
-                this._ctrl.value = parseInt(value);
-            }
-        } else { // isToggle
-            const checked = (this.shadowRoot?.querySelector('ha-switch') as HTMLInputElement).checked;
-            if (checked) {
-                this._ctrl.turnOn();
-            } else {
-                this._ctrl.turnOff();
-            }
-        }
 
         // update styles
         this.updateStyles();
@@ -160,32 +139,12 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,${shadowDensity})`;
     }
 
-    private getCurrentBackground(): Background {
-        if (this._ctrl.isOff())
-            return this._offBackground;
-
-        return this._ctrl.getBackground() || this._offBackground;
-    }
-
     private updateStyles(): void {
-        const background = this.getCurrentBackground() || this._offBackground;
-        const offset = this._ctrl.isOn() && this._ctrl.value > 50
-            ? -(10 - ((this._ctrl.value - 50) / 5)) // offset: -10-0
-            : 0;
-        const foreground = this._ctrl.isOn() && this._ctrl.value <= 50 
-            ? Consts.LightColor // is on and under 50 => Light
-            : background.getForeground(
-                Consts.LightColor, // should be light
-                this._ctrl.isOn() // should be dark
-                    ? Consts.DarkColor
-                    : Consts.DarkOffColor // make it little lighter, when isOff
-                ,
-                offset // offset for darker brightness
-            );
+        const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
 
         this.style.setProperty(
             '--hue-background',
-            background.toString()
+            bfg.background.toString()
         );
         this.style.setProperty(
             '--hue-box-shadow',
@@ -193,32 +152,31 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         );
         this.style.setProperty(
             '--hue-text-color',
-            foreground
+            bfg.foreground
         );
     }
 
     protected render() {
         this._ctrl.hass = this.hass;
 
-        const min = this._config.allowZero ? 0 : 1;
-        const max = 100;
-        const step = 1;
-
         const title = this._config.title || this._ctrl.getTitle();
+        const onChangeCallback = () => {
+            this.requestUpdate();
+            this.updateStyles();
+        };
 
         return html`<ha-card>
             <div class="tap-area" @click="${(): void => this.cardClicked()}">
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
                 <h2>${title}</h2>
             </div>
-            <ha-switch .checked=${this._ctrl.isOn()} .disabled=${this._ctrl.isUnavailable()} .haptic=true @change=${() => this.changed(false)}></ha-switch>
+            ${ViewUtils.createSwitch(this._ctrl, onChangeCallback)}
 
-            <ha-slider .min=${min} .max=${max} .step=${step} .disabled=${this._config.allowZero ? false : this._ctrl.isOff()} .value=${this._ctrl.value}
-            pin @change=${() => this.changed(true)}
-            ignore-bar-touch
-            ></ha-slider>
+            ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
         </ha-card>`;
     }
+
+    //#region updateStyles hooks
 
     protected firstUpdated() {
         // CSS
@@ -238,4 +196,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         // CSS
         this.updateStyles();
     }
+
+    //#endregion
 }

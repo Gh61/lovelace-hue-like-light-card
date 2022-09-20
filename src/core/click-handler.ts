@@ -53,6 +53,8 @@ export class ClickHandler {
     private resolveDefaultWhenOff() : ClickAction {
         if (this._ctrl.count == 1) {
             return ClickAction.MoreInfo;
+        } else if (this._ctrl.count > 1) {
+            return ClickAction.HueScreen;
         }
 
         return ClickAction.TurnOn;
@@ -75,7 +77,7 @@ export class ClickHandler {
                 // TODO: add scenes to config + add scene selector
                 throw new Error('NotImplementedException');
             case ClickAction.HueScreen:
-                const dialog = new HueDialog(this._ctrl);
+                const dialog = new HueDialog(this._config, this._ctrl);
                 dialog.show();
                 break;
 

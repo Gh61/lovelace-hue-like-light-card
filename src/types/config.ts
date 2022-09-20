@@ -3,6 +3,7 @@ import { ClickAction, HueLikeLightCardConfigInterface } from './types';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
+import { Resources } from './resources';
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     constructor(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
@@ -17,6 +18,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.offColor = plainConfig.offColor || Consts.OffColor;
         this.disableOffShadow = HueLikeLightCardConfig.getBoolean(plainConfig.disableOffShadow, false);
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
+        this.resources = new Resources(plainConfig.resources);
     }
 
     /**
@@ -62,6 +64,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     readonly offColor: string;
     readonly disableOffShadow: boolean;
     readonly hueBorders: boolean;
+    readonly resources: Resources;
 
     /**
      * @returns List of entity identifiers

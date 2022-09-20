@@ -39,8 +39,6 @@ export class LightContainer implements ILightContainer {
      * After the specified interval, cached values are invalidated and in the moment of getting these values, live values are read from HA.
      */
 
-    // TODO: make the cache somehow public,
-    // maybe make LightContainer instances system-wide, so all cards can react to changes instantly
     // TODO: also implement some change notify mechanizm
 
     private _cache: TimeCache;
