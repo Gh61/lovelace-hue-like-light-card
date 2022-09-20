@@ -1,3 +1,6 @@
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)  [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/paygh61/)
+
+
 # Hue-Like Light Card for Home Assistant
 
 This card is providing light control. It is inspired by original Philips Hue app.
@@ -13,8 +16,28 @@ entity: light.livingroom_color
 ```
 For more options see [Configuration](#configuration) or let yourself inspire in [Examples of configuration](#examples-of-configuration)
 
-## Instalation
-TODO: HACS
+## Installation
+
+### HACS
+
+- Open HACS
+- Go to "Frontend" section
+- Click button with "+" icon
+- Search for "Hue-Like Light Card"
+- Install repository in HACS
+- Refresh your browser
+
+### Manual
+
+- Download `hue-like-light-card.js` file from the [latest release](https://github.com/Gh61/lovelace-hue-like-light-card/releases/latest)
+- Save downloaded file somewhere in `<ha config>/www/` directory, e.g. `/config/www/custom_lovelace/hue-like-light-card.js`
+- Add saved file to [Lovelace resources](https://my.home-assistant.io/redirect/lovelace_resources/)
+  ```yaml
+  url: /local/custom_lovelace/hue-like-light-card.js
+  type: module
+  ```
+- Restart HA if you had to create `www` directory
+- Refresh your browser
 
 ## Configuration
 <table>
