@@ -1,5 +1,5 @@
 import { LovelaceCardConfig } from 'custom-card-helpers';
-import { ClickAction, HueLikeLightCardConfigInterface } from './types';
+import { ClickAction, HueLikeLightCardConfigInterface, SceneConfig } from './types';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
@@ -11,6 +11,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.entities = plainConfig.entities;
         this.title = plainConfig.title;
         this.icon = plainConfig.icon;
+        this.scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
         this.offClick = HueLikeLightCardConfig.getClickAction(plainConfig.offClick);
         this.onClick = HueLikeLightCardConfig.getClickAction(plainConfig.onClick);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
@@ -53,10 +54,56 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         //return ClickAction.Default;
     }
 
+    /**
+     * Returns array of SceneConfig - parsed from passed plain config.
+     * @param plain Plain value from config
+     */
+    private static getScenesArray(plain: (string | SceneConfig)[] | undefined) : SceneConfig[] {
+        if (!plain)
+            return [];
+
+        if (plain.length > 0) {
+            const result = new Array<SceneConfig>();
+            for (let i = 0; i < plain.length; i++) {
+                const scene = plain[i];
+                const pScene = HueLikeLightCardConfig.getScene(scene, i);
+                if (!pScene) {
+
+                }
+            }
+            return result;
+        }
+
+        return [];
+    }
+
+    /**
+     * Returns SceneConfig - parse from passed plain config value.
+     * @param plain Plain value of one scene from config
+     * @param index Index of value in array (for error message purposes)
+     */
+    private static getScene(plain: string | SceneConfig, index:number) : SceneConfig {
+        if (typeof plain == 'string') {
+            return new SceneConfig(plain);
+        }
+
+        if (!plain.entity) {
+            throw new Error(`Scene on index ${index} is missing 'entity' attribute, which is required.`);
+        }
+
+        const result = new SceneConfig(plain.entity);
+        result.title = plain.title;
+        result.icon = plain.icon;
+        result.color = plain.color;
+
+        return result;
+    }
+
     readonly entity?: string;
     readonly entities?: string[];
     readonly title?: string;
     readonly icon?: string;
+    readonly scenes: SceneConfig[];
     readonly offClick: ClickAction;
     readonly onClick: ClickAction;
     readonly allowZero: boolean;
@@ -77,8 +124,6 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
 
         return ents;
     }
-
-
 
     /**
      * @returns Default color as instance of Color.

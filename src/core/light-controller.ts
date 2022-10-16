@@ -5,13 +5,16 @@ import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { GlobalLights } from './global-lights';
 import { LightContainer } from './light-container';
+import { NotifyBase } from './notify-base';
 
-export class LightController implements ILightContainer {
+export class LightController extends NotifyBase<LightController> implements ILightContainer {
     private _hass: HomeAssistant;
     private _lights: LightContainer[];
     private _defaultColor: Color;
 
     constructor(entity_ids: string[], defaultColor: Color) {
+        super();
+
         // we need at least one
         if (!entity_ids.length)
             throw new Error('No entity specified (use "entity" and/or "entities").');
@@ -27,6 +30,10 @@ export class LightController implements ILightContainer {
     set hass(hass: HomeAssistant) {
         this._hass = hass;
         this._lights.forEach(l => l.hass = hass);
+        this.raisePropertyChanged('hass');
+    }
+    get hass() {
+        return this._hass;
     }
 
     isOn(): boolean {

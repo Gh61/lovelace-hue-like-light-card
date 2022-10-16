@@ -1,6 +1,8 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntityAttributeBase } from 'home-assistant-js-websocket';
 import { Background } from '../core/colors/background';
+import { Color } from '../core/colors/color';
+import { ColorResolver } from '../core/colors/color-resolvers';
 
 export type ValueFactory = () => unknown;
 
@@ -24,12 +26,33 @@ export enum ClickAction {
     HueScreen = 'hue-screen'
 }
 
+export class SceneConfig {
+    constructor(entity: string) {
+        this.entity = entity;
+    }
+
+    entity: string;
+    title?: string;
+    icon?: string;
+    color?: string;
+
+    /**
+     * @returns color as instance of Color or null, if no color is present.
+     */
+    public getDefaultColor() : Color | null {
+        if (!this.color)
+            return null;
+
+        return ColorResolver.getColor(this.color);
+    }
+}
+
 export interface HueLikeLightCardConfigInterface {
     readonly entity?: string;
     readonly entities?: string[];
     readonly title?: string;
     readonly icon?: string;
-    //readonly scenes?: string[];
+    readonly scenes?: (string | SceneConfig)[];
     readonly offClick?: ClickAction;
     readonly onClick?: ClickAction;
     readonly allowZero?: boolean;
