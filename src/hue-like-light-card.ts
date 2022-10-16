@@ -66,13 +66,10 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         height:80px;
         background:var(--hue-background);
         position:relative;
-        box-shadow:var(--hue-box-shadow),
-            var( --ha-card-box-shadow, 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12) /* default_ha_shadows */
-        );
     }
     ha-card.hue-borders
     {
-        border-radius:10px;
+        border-radius:${Consts.HueBorderRadius}px;
         box-shadow:var(--hue-box-shadow), 0px 2px 3px rgba(0,0,0,0.85);
     }
     ha-card div.tap-area
@@ -116,39 +113,22 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     `;
 
-    private calculateCurrentShadow(): string {
-        if (this._ctrl.isOff())
-            return this._config.disableOffShadow ? '0px 0px 0px white' : 'inset 0px 0px 10px rgba(0,0,0,0.2)';
-
-        const card = <Element>this.renderRoot.querySelector('ha-card');
-        if (!card)
-            return '';
-        const darkness = 100 - this._ctrl.value;
-        const coef = (card.clientHeight / 100);
-        const spread = 20;
-        const position = spread + (darkness * 0.95) * coef;
-        let width = card.clientHeight / 2;
-        if (darkness > 70) {
-            width -= (width - 20) * (darkness - 70) / 30; // width: 20-clientHeight/2
-        }
-        let shadowDensity = 0.65;
-        if (darkness > 60) {
-            shadowDensity -= (shadowDensity - 0.5) * (darkness - 60) / 40; // shadowDensity: 0.5-0.65
-        }
-
-        return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,${shadowDensity})`;
-    }
-
     private updateStyles(): void {
+        const card = <Element>this.renderRoot.querySelector('ha-card');
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
+        const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config);
 
         this.style.setProperty(
             '--hue-background',
             bfg.background.toString()
         );
         this.style.setProperty(
+            '--ha-card-box-shadow',
+            shadow
+        );
+        this.style.setProperty(
             '--hue-box-shadow',
-            this.calculateCurrentShadow()
+            shadow
         );
         this.style.setProperty(
             '--hue-text-color',

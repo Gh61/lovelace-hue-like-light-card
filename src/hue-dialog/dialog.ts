@@ -143,13 +143,16 @@ export class HueDialog extends LitElement {
         .heading {
             color:var(--hue-text-color);
             background:var(--hue-background);
+            box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
+            transition:all 0.3s ease-out 0s;
+
             border-bottom-left-radius: var(--ha-dialog-border-radius, 28px);
             border-bottom-right-radius: var(--ha-dialog-border-radius, 28px);
             padding-bottom: calc(var(--ha-dialog-border-radius, 28px) / 2);
         }
         ha-header-bar {
             --mdc-theme-on-primary: var(--hue-text-color);
-            --mdc-theme-primary: var(--hue-background);
+            --mdc-theme-primary: transparent;/*var(--hue-background);*/
             flex-shrink: 0;
             display: block;
         }
@@ -160,11 +163,14 @@ export class HueDialog extends LitElement {
             width: 100%;
         }
         /* Disable the bottom border radius */
+        /* in default styles: --ha-border-radius=0 in this case */
+        /*
         @media all and (max-width: 450px), all and (max-height: 500px) {
             border-bottom-left-radius: none;
             border-bottom-right-radius: none;
             padding-bottom: none;
         }
+        */
 
         /* titles */
         .header{
@@ -190,21 +196,40 @@ export class HueDialog extends LitElement {
         // default text-color: '--primary-text-color'
         // default background: '--mdc-theme-surface'
 
+        const heading = <Element>this.renderRoot.querySelector('.heading');
+
         const computedStyle = getComputedStyle(this);
         const cssBackground = computedStyle.getPropertyValue('--mdc-theme-surface');
         const cssForeground = computedStyle.getPropertyValue('--primary-text-color');
 
         const offBackground = new Background([new Color(cssBackground)]);
-        const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, false);
+        const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
+        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config);
+
+        // when first rendered, clientHeight is 0, so no shadow is genered - plan new update:
+        if (!shadow) {
+            this.requestUpdate();
+        }
 
         // default color if background is default
         if (bfg.background == offBackground) {
             bfg.foreground = cssForeground;
         }
 
+        if (this._config.hueBorders) {
+            this.style.setProperty(
+                '--ha-dialog-border-radius',
+                Consts.HueBorderRadius + 'px'
+            );
+        }
+
         this.style.setProperty(
             '--hue-background',
             bfg.background.toString()
+        );
+        this.style.setProperty(
+            '--hue-box-shadow',
+            shadow
         );
         this.style.setProperty(
             '--hue-text-color',

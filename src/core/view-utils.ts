@@ -104,4 +104,30 @@ export class ViewUtils {
 
         return foreground;
     }
+
+    /**
+     * Calculates default shadow for passed element, using passed lightController state and config.
+     */
+    public static calculateDefaultShadow(element:Element, ctrl:LightController, config:HueLikeLightCardConfig):string {
+        if (ctrl.isOff())
+            return config.disableOffShadow ? '0px 0px 0px white' : 'inset 0px 0px 10px rgba(0,0,0,0.2)';
+
+        const card = element;
+        if (!card || !card.clientHeight)
+            return '';
+        const darkness = 100 - ctrl.value;
+        const coef = (card.clientHeight / 100);
+        const spread = 20;
+        const position = spread + (darkness * 0.95) * coef;
+        let width = card.clientHeight / 2;
+        if (darkness > 70) {
+            width -= (width - 20) * (darkness - 70) / 30; // width: 20-clientHeight/2
+        }
+        let shadowDensity = 0.65;
+        if (darkness > 60) {
+            shadowDensity -= (shadowDensity - 0.5) * (darkness - 60) / 40; // shadowDensity: 0.5-0.65
+        }
+
+        return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,${shadowDensity})`;
+    }
 }

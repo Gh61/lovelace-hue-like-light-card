@@ -5,7 +5,9 @@ export class Consts {
     public static readonly CardName = 'Hue-Like Light Card';
     public static readonly CardDescription = 'Hue-like way to control your lights';
     public static readonly HueDialogName = Consts.CardElementName + '-hue-dialog';
+    public static readonly HueDialogTileName = Consts.HueDialogName + '-tile';
 
+    public static readonly HueBorderRadius = 10;
     public static readonly LuminanceBreakingPoint = 192; // hue breaking point is pretty high
     public static readonly LightColor = '#fff';
     public static readonly DarkColor = 'rgba(0,0,0,0.7)';
