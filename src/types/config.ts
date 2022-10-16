@@ -67,8 +67,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
             for (let i = 0; i < plain.length; i++) {
                 const scene = plain[i];
                 const pScene = HueLikeLightCardConfig.getScene(scene, i);
-                if (!pScene) {
-
+                if (pScene) {
+                    result.push(pScene);
                 }
             }
             return result;

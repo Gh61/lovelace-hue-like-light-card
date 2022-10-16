@@ -1,5 +1,5 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { HassEntityAttributeBase } from 'home-assistant-js-websocket';
+import { HassEntity, HassEntityAttributeBase } from 'home-assistant-js-websocket';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
@@ -28,6 +28,10 @@ export enum ClickAction {
 
 export class SceneConfig {
     constructor(entity: string) {
+        const domain = entity.split('.')[0];
+        if (domain != 'scene')
+            throw new Error(`Unsupported entity type: ${domain}. The only supported type for scenes is 'scene'.`);
+
         this.entity = entity;
     }
 
@@ -35,15 +39,47 @@ export class SceneConfig {
     title?: string;
     icon?: string;
     color?: string;
+}
+
+export class SceneData {
+    private _config:SceneConfig;
+    private _hass:HomeAssistant;
+    private _entity:HassEntity;
+
+    constructor(config:SceneConfig) {
+        this._config = config;
+    }
+
+    set hass(value: HomeAssistant) {
+        this._hass = value;
+        this._entity = this._hass.states[this._config.entity];
+    }
+
+    public getTitle() {
+        this.ensureHass();
+
+        return this._config.title || this._entity.attributes.friendly_name;
+    }
+
+    public getIcon() {
+        this.ensureHass();
+
+        return this._config.icon || this._entity.attributes.icon;
+    }
 
     /**
      * @returns color as instance of Color or null, if no color is present.
      */
-    public getDefaultColor() : Color | null {
-        if (!this.color)
+    public getColor() : Color | null {
+        if (!this._config.color)
             return null;
 
-        return ColorResolver.getColor(this.color);
+        return ColorResolver.getColor(this._config.color);
+    }
+
+    private ensureHass() {
+        if (!this._hass)
+            throw new Error('Scene data not initialized - call setHass first!');
     }
 }
 

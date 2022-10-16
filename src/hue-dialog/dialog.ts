@@ -1,4 +1,5 @@
-import { html, css, LitElement } from 'lit';
+import { css, LitElement } from 'lit';
+import { html, unsafeStatic } from 'lit/static-html.js';
 import { customElement, state } from 'lit/decorators.js';
 import { cache } from 'lit/directives/cache.js';
 import { Background } from '../core/colors/background';
@@ -7,11 +8,17 @@ import { LightController } from '../core/light-controller';
 import { ViewUtils } from '../core/view-utils';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
+import { HueDialogTile } from './dialog-tile';
 
 type Tab = 'colors' | 'scenes';
 
-@customElement(Consts.HueDialogName)
+@customElement(HueDialog.ElementName)
 export class HueDialog extends LitElement {
+
+    /**
+     * Name of this Element
+     */
+    public static readonly ElementName = Consts.CardElementName + '-hue-dialog';
 
     /*
     Doc:
@@ -189,6 +196,17 @@ export class HueDialog extends LitElement {
             letter-spacing: var(--paper-font-title_-_letter-spacing);
             line-height: var(--paper-font-title_-_line-height);
         }
+
+        .content {
+            outline: none;
+        }
+
+        /* tiles - scenes, lights */
+        .tiles {
+            display: flex;
+            flex-flow: row;
+            gap: 10px;
+        }
         `];
     }
 
@@ -290,7 +308,12 @@ export class HueDialog extends LitElement {
                     <div class='header'>
                         <div class='title'>${this._config.resources.scenes}</div>
                     </div>
-
+                    <div class='tiles'>
+                        ${(this._config.scenes.map((s, i) => i % 2 == 0 ? html`` : html`<${unsafeStatic(HueDialogTile.ElementName)} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogTile.ElementName)}>`))}
+                    </div>
+                    <div class='tiles'>
+                        ${(this._config.scenes.map((s, i) => i % 2 == 1 ? html`` : html`<${unsafeStatic(HueDialogTile.ElementName)} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogTile.ElementName)}>`))}
+                    </div>
                   `
                 : html`
                     <h3>Here for Colors</h3>
