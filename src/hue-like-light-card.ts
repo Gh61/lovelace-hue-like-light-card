@@ -1,5 +1,5 @@
 import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ClickHandler } from './core/click-handler';
 import { Background } from './core/colors/background';
@@ -66,11 +66,12 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         height:80px;
         background:var(--hue-background);
         position:relative;
+        box-shadow:var(--hue-box-shadow), var(--ha-default-shadow);
     }
     ha-card.hue-borders
     {
         border-radius:${Consts.HueBorderRadius}px;
-        box-shadow:var(--hue-box-shadow), 0px 2px 3px rgba(0,0,0,0.85);
+        box-shadow:var(--hue-box-shadow), ${unsafeCSS(Consts.HueShadow)};
     }
     ha-card div.tap-area
     {
@@ -113,7 +114,26 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     `;
 
+    private haShadow:string;
+
     private updateStyles(): void {
+        // get defaultShadow (when not using hueBorders)
+        if (!this._config.hueBorders && !this.haShadow) {
+
+            // get default haShadow
+            const c = document.createElement('ha-card');
+            document.body.appendChild(c);
+            const s = getComputedStyle(c);
+            this.haShadow = s.boxShadow;
+            c.remove();
+
+            // set default shadow property
+            this.style.setProperty(
+                '--ha-default-shadow',
+                this.haShadow
+            );
+        }
+
         const card = <Element>this.renderRoot.querySelector('ha-card');
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
         const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config);

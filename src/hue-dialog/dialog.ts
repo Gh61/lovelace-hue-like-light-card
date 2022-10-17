@@ -134,6 +134,8 @@ export class HueDialog extends LitElement {
     }
   `;
 
+    private static readonly tileGap = 10;
+
     static get styles() {
         return [
             HueDialog.haStyleDialog,
@@ -202,10 +204,19 @@ export class HueDialog extends LitElement {
         }
 
         /* tiles - scenes, lights */
+        .tile-scroller {
+            display: flex;
+            flex-flow: column;
+            /*gap: ${HueDialog.tileGap}px;*/
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
         .tiles {
             display: flex;
             flex-flow: row;
-            gap: 10px;
+            gap: ${HueDialog.tileGap}px;
+            margin-bottom: ${HueDialog.tileGap}px;
         }
         `];
     }
@@ -268,6 +279,11 @@ export class HueDialog extends LitElement {
             this.updateStyles();
         };
 
+        // // TODO:
+        // - fix setting value by slider only to light in on state
+        // // TODO:
+        // - resolve scene clickAction in config
+
         /*eslint-disable */
         return html`
         <ha-dialog
@@ -308,11 +324,13 @@ export class HueDialog extends LitElement {
                     <div class='header'>
                         <div class='title'>${this._config.resources.scenes}</div>
                     </div>
-                    <div class='tiles'>
-                        ${(this._config.scenes.map((s, i) => i % 2 == 0 ? html`` : html`<${unsafeStatic(HueDialogTile.ElementName)} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogTile.ElementName)}>`))}
-                    </div>
-                    <div class='tiles'>
-                        ${(this._config.scenes.map((s, i) => i % 2 == 1 ? html`` : html`<${unsafeStatic(HueDialogTile.ElementName)} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogTile.ElementName)}>`))}
+                    <div class='tile-scroller'>
+                        <div class='tiles'>
+                            ${(this._config.scenes.map((s, i) => i % 2 == 1 ? html`` : html`<${unsafeStatic(HueDialogTile.ElementName)} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogTile.ElementName)}>`))}
+                        </div>
+                        <div class='tiles'>
+                            ${(this._config.scenes.map((s, i) => i % 2 == 0 ? html`` : html`<${unsafeStatic(HueDialogTile.ElementName)} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogTile.ElementName)}>`))}
+                        </div>
                     </div>
                   `
                 : html`
