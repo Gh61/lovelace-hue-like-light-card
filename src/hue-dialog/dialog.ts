@@ -55,7 +55,7 @@ export class HueDialog extends LitElement {
 
     private static readonly colorsTab:Tab = 'colors';
     private static readonly scenesTab:Tab = 'scenes';
-    private static readonly tabs = [ HueDialog.colorsTab, HueDialog.scenesTab ]; //TODO: swap scenes view for color picker view when light clicked
+    private static readonly tabs = [ HueDialog.colorsTab, HueDialog.scenesTab ]; //TODO: Remove tabs, use css animation hide of scenes and show of colorpicker
 
     @state()
     private _currTab = HueDialog.scenesTab;
@@ -278,12 +278,6 @@ export class HueDialog extends LitElement {
             this.requestUpdate();
             this.updateStyles();
         };
-
-        // // TODO:
-        // - fix setting value by slider only to light in on state
-        // // TODO:
-        // - resolve scene clickAction in config
-        // - automatic click action: detect configured scenes
 
         /*eslint-disable */
         return html`

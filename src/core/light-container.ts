@@ -1,6 +1,7 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { Consts } from '../types/consts';
+import { ensureEntityDomain } from '../types/extensions';
 import { HassLightAttributes, ILightContainer } from '../types/types';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
@@ -12,9 +13,7 @@ export class LightContainer implements ILightContainer {
     private _entity: HassEntity;
 
     constructor(entity_id: string) {
-        const domain = entity_id.split('.')[0];
-        if (domain != 'light')
-            throw new Error(`Unsupported entity type: ${domain}. The only supported type is 'light'.`);
+        ensureEntityDomain(entity_id, 'light');
 
         this._entity_id = entity_id;
 
@@ -154,6 +153,10 @@ export class LightContainer implements ILightContainer {
         const color = new Color(rgb[0], rgb[1], rgb[2]);
         this._lastBackground = new Background([color]);
         return new Background([this._lastBackground]);
+    }
+
+    getEntityId(): string {
+        return this._entity_id;
     }
 }
 

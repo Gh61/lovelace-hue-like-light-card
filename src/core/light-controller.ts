@@ -23,8 +23,18 @@ export class LightController extends NotifyBase<LightController> implements ILig
         this._lights = entity_ids.map(e => GlobalLights.getLightContainer(e));
     }
 
-    get count() {
+    /**
+     * Returns count of registered lights.
+     */
+    public get count() {
         return this._lights.length;
+    }
+
+    /**
+     * @returns all lit lights
+     */
+    public getLitLights() : ILightContainer[] {
+        return this._lights.filter(l => l.isOn());
     }
 
     set hass(hass: HomeAssistant) {
@@ -73,7 +83,7 @@ export class LightController extends NotifyBase<LightController> implements ILig
         const percentualChange = valueChange / remainingValue; // percentual of remaining
 
         // calculate the value for each light
-        this._lights.forEach(l => {
+        this._lights.filter(l => l.isOn()).forEach(l => {
             const lightOldValue = l.value;
             // of value of this light is the same asi value of controller, set it exactly to value
             if (lightOldValue == oldValue) {
@@ -142,5 +152,9 @@ export class LightController extends NotifyBase<LightController> implements ILig
         if (backgrounds.length == 0)
             return null;
         return new Background(backgrounds);
+    }
+
+    getEntityId(): string {
+        throw Error('Cannot get entity id from LightController');
     }
 }

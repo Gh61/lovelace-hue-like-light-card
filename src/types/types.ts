@@ -3,6 +3,7 @@ import { HassEntity, HassEntityAttributeBase } from 'home-assistant-js-websocket
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
+import { ensureEntityDomain } from './extensions';
 
 export type ValueFactory = () => unknown;
 
@@ -26,11 +27,37 @@ export enum ClickAction {
     HueScreen = 'hue-screen'
 }
 
+export class ClickActionData {
+    private readonly _onlyValue : string;
+    private readonly _valueStore : Record<string, string>;
+
+    constructor(plainConfig: string | Record<string, string> | ClickActionData | undefined) {
+        if (typeof plainConfig == 'string') {
+            this._onlyValue = plainConfig;
+        } else if (plainConfig instanceof ClickActionData) {
+            // eslint-disable-next-line no-underscore-dangle
+            this._onlyValue = plainConfig._onlyValue;
+            // eslint-disable-next-line no-underscore-dangle
+            this._valueStore = plainConfig._valueStore;
+        } else {
+            this._valueStore = plainConfig || {};
+        }
+    }
+
+    /**
+     * Gets data parameter from config.
+     */
+    public getData(key:string) : string {
+        if (this._onlyValue)
+            return this._onlyValue;
+
+        return this._valueStore[key];
+    } 
+}
+
 export class SceneConfig {
     constructor(entity: string) {
-        const domain = entity.split('.')[0];
-        if (domain != 'scene')
-            throw new Error(`Unsupported entity type: ${domain}. The only supported type for scenes is 'scene'.`);
+        ensureEntityDomain(entity, 'scene');
 
         this.entity = entity;
     }
@@ -46,13 +73,26 @@ export class SceneData {
     private _hass:HomeAssistant;
     private _entity:HassEntity;
 
-    constructor(config:SceneConfig) {
-        this._config = config;
+    constructor(configOrEntityId:SceneConfig | string) {
+        if (typeof configOrEntityId == 'string') {
+            this._config = new SceneConfig(configOrEntityId);
+        } else {
+            this._config = configOrEntityId;
+        }
     }
 
     set hass(value: HomeAssistant) {
         this._hass = value;
         this._entity = this._hass.states[this._config.entity];
+    }
+
+    /**
+     * Will activate this scene
+     */
+    public activate() {
+        this.ensureHass();
+
+        this._hass.callService('scene', 'turn_on', { entity_id: this._config.entity });
     }
 
     public getTitle() {
@@ -96,8 +136,10 @@ export interface HueLikeLightCardConfigInterface {
     readonly title?: string;
     readonly icon?: string;
     readonly scenes?: (string | SceneConfig)[];
-    readonly offClick?: ClickAction;
-    readonly onClick?: ClickAction;
+    readonly offClickAction?: ClickAction;
+    readonly offClickData?: string | Record<string, string> | ClickActionData;
+    readonly onClickAction?: ClickAction;
+    readonly onClickData?: string | Record<string, string> | ClickActionData;
     readonly allowZero?: boolean;
     readonly defaultColor?: string;
     readonly offColor?: string;
@@ -114,6 +156,39 @@ export interface ResourcesInterface {
 export interface HassLightAttributes extends HassEntityAttributeBase {
     brightness?: number;
     rgb_color?: number[];
+}
+
+export interface HassAreaInfo {
+    area_id: string;
+    name: string;
+}
+
+export interface HassEntityInfo {
+    area_id?:string;
+    config_entry_id:string;
+    device_id:string;
+    disabled_by?:string;
+    entity_category?:string;
+    entity_id:string;
+    has_entity_name:boolean;
+    hidden_by?:string;
+    icon?:string;
+    id:string;
+    name?:string;
+    original_name?:string;
+    platform?:string;
+}
+
+export interface HassSearchDeviceResult {
+    area?:string[];
+    automation?:string[];
+    config_entry:string[];
+    scene?:string[];
+}
+
+export interface HomeAssistantEx extends HomeAssistant {
+    areas: Record<string, HassAreaInfo>;
+    entities: Record<string, HassEntityInfo>;
 }
 
 export interface ILightContainer {
@@ -153,17 +228,23 @@ export interface ILightContainer {
     value: number;
 
     /**
-     * Returns icon for this container of lights.
+     * @returns icon for this container of lights.
      */
     getIcon(): string | undefined | null;
 
     /**
-     * Returns suggested title for card with lights in this container.
+     * @returns suggested title for card with lights in this container.
      */
     getTitle(): string | undefined | null;
 
     /**
-     * Returns background style for card with lights in this container.
+     * @returns background style for card with lights in this container.
      */
     getBackground(): Background | null;
+
+    /**
+     * @returns entity_id of light inside.
+     * @throws Error when this container contains multiple lights.
+     */
+    getEntityId(): string;
 }

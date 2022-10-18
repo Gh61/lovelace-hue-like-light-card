@@ -20,20 +20,24 @@ export class HueDialogTile extends LitElement {
     private _scene: SceneData;
 
     set hass(hass:HomeAssistant) {
-        // custom @property() implementation
-        this.requestUpdate(nameof(this, 'hass'), this._hass);
+        const oldHass = this._hass;
 
         this._hass = hass;
         this.updateHassDependentProps();
+
+        // custom @property() implementation
+        this.requestUpdate(nameof(this, 'hass'), oldHass);
     }
 
     set sceneConfig(config:SceneConfig) {
-        // custom @property() implementation
-        this.requestUpdate(nameof(this, 'sceneConfig'), this._sceneConfig);
+        const oldSceneConfig = this._sceneConfig;
 
         this._sceneConfig = config;
         this._scene = new SceneData(config);
         this.updateHassDependentProps();
+
+        // custom @property() implementation
+        this.requestUpdate(nameof(this, 'sceneConfig'), oldSceneConfig);
     }
 
     private updateHassDependentProps() {
@@ -42,9 +46,9 @@ export class HueDialogTile extends LitElement {
         }
     }
 
-    private tileClicked() {
-        // set scene
-        this._hass.callService('scene', 'turn_on', { entity_id: this._sceneConfig.entity });
+    private sceneClicked() {
+        // activate scene
+        this._scene.activate();
 
         // stops the animation and clears the queue
         this._effectQueue.stopAndClear();
@@ -183,7 +187,7 @@ export class HueDialogTile extends LitElement {
     private renderScene() {
         /*eslint-disable */
         return html`
-        <div class='hue-tile scene' title='${this._scene.getTitle()}' @click="${this.tileClicked}">
+        <div class='hue-tile scene' title='${this._scene.getTitle()}' @click="${this.sceneClicked}">
             <div class='icon-background'>
                 <div class='color'>
                     <ha-icon icon="${this._scene.getIcon('mdi:palette')}"></ha-icon>

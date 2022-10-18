@@ -1,19 +1,24 @@
-import { LovelaceCardConfig } from 'custom-card-helpers';
-import { ClickAction, HueLikeLightCardConfigInterface, SceneConfig } from './types';
+import { ClickAction, ClickActionData, HassSearchDeviceResult, HueLikeLightCardConfigInterface, SceneConfig } from './types';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
 import { Resources } from './resources';
+import { HomeAssistant } from 'custom-card-helpers';
+import { removeDuplicites } from './extensions';
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
-    constructor(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
+    private _scenes : SceneConfig[];
+
+    constructor(plainConfig: HueLikeLightCardConfigInterface) {
         this.entity = plainConfig.entity;
         this.entities = plainConfig.entities;
         this.title = plainConfig.title;
         this.icon = plainConfig.icon;
-        this.scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
-        this.offClick = HueLikeLightCardConfig.getClickAction(plainConfig.offClick);
-        this.onClick = HueLikeLightCardConfig.getClickAction(plainConfig.onClick);
+        this._scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
+        this.offClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.offClickAction);
+        this.offClickData = new ClickActionData(plainConfig.offClickData);
+        this.onClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.onClickAction);
+        this.onClickData = new ClickActionData(plainConfig.onClickData);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
         this.offColor = plainConfig.offColor || Consts.OffColor;
@@ -103,9 +108,11 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     readonly entities?: string[];
     readonly title?: string;
     readonly icon?: string;
-    readonly scenes: SceneConfig[];
-    readonly offClick: ClickAction;
-    readonly onClick: ClickAction;
+    get scenes() { return this._scenes; }
+    readonly offClickAction: ClickAction;
+    readonly offClickData: ClickActionData;
+    readonly onClickAction: ClickAction;
+    readonly onClickData: ClickActionData;
     readonly allowZero: boolean;
     readonly defaultColor: string;
     readonly offColor: string;
@@ -137,5 +144,50 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
      */
     public getOffColor() : Color {
         return new Color(this.offColor);
+    }
+
+    private scenesLoaded = false;
+    /**
+     * Will try to load scenes from HA WS, if are no scenes are configured.
+     */
+    public async tryLoadScenes(hass: HomeAssistant) {
+        if (!hass)
+            throw new Error('Hass instance must be passed!');
+
+        if (this.scenes.length == 0 && !this.scenesLoaded) {
+            this.scenesLoaded = true;
+
+            // load all areas
+            let lightAreas = new Array<string>();
+            await Promise.all(this.getEntities().map(async entityId => {
+                const entityResult = await hass.connection.sendMessagePromise<HassSearchDeviceResult>({
+                    type: 'search/related',
+                    item_type: 'entity',
+                    item_id: entityId
+                });
+                if (entityResult && entityResult.area && entityResult.area.length) {
+                    lightAreas.push(entityResult.area[0]);
+                }
+            }));
+            lightAreas = removeDuplicites(lightAreas);
+
+            // load scenes for areas
+            let loadedScenes = new Array<string>();
+            await Promise.all(lightAreas.map(async area => {
+                const areaResult = await hass.connection.sendMessagePromise<HassSearchDeviceResult>({
+                    type: 'search/related',
+                    item_type: 'area',
+                    item_id: area
+                });
+
+                if (areaResult && areaResult.scene) {
+                    areaResult.scene.forEach(s => loadedScenes.push(s));
+                }
+            }));
+            loadedScenes = removeDuplicites(loadedScenes);
+
+            // set to config
+            this._scenes = HueLikeLightCardConfig.getScenesArray(loadedScenes);
+        }
     }
 }

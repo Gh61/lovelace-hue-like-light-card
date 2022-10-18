@@ -1,12 +1,13 @@
 import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
 import { LitElement, css, html, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 import { ClickHandler } from './core/click-handler';
 import { Background } from './core/colors/background';
 import { LightController } from './core/light-controller';
 import { ViewUtils } from './core/view-utils';
 import { HueLikeLightCardConfig } from './types/config';
 import { Consts } from './types/consts';
+import { nameof } from './types/extensions';
 import { HueLikeLightCardConfigInterface, WindowWithCards } from './types/types';
 
 /* eslint no-console: 0 */
@@ -30,14 +31,31 @@ console.info(
 @customElement(Consts.CardElementName)
 export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _config: HueLikeLightCardConfig;
+    private _hass: HomeAssistant;
     private _ctrl: LightController;
     private _clickHandler: ClickHandler;
     private _offBackground: Background;
 
-    @property() hass: HomeAssistant;
+    set hass(hass:HomeAssistant) {
+        const oldHass = this._hass;
 
-    setConfig(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
-        this._config = new HueLikeLightCardConfig(plainConfig);
+        // first load hass - try load scenes
+        if (!this._hass) {
+            this._config.tryLoadScenes(hass);
+        }
+
+        this._hass = hass; // save hass instance
+        this._ctrl.hass = hass; // pass hass instance to Controller
+
+        // custom @property() implementation
+        this.requestUpdate(nameof(this, 'hass'), oldHass);
+    }
+    get hass() {
+        return this._hass;
+    }
+
+    async setConfig(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
+        this._config = new HueLikeLightCardConfig(<HueLikeLightCardConfigInterface>plainConfig);
 
         this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor());
         this._offBackground = new Background([this._config.getOffColor()]);
@@ -157,8 +175,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
 
     protected render() {
-        this._ctrl.hass = this.hass;
-
         const title = this._config.title || this._ctrl.getTitle();
         const onChangeCallback = () => {
             this.requestUpdate();

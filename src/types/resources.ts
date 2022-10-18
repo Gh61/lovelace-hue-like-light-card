@@ -4,7 +4,7 @@ export class Resources implements ResourcesInterface {
     /**
      * Creates new instance of text resources.
      */
-    constructor(config:ResourcesInterface) {
+    constructor(config:ResourcesInterface | undefined) {
         config = config || {};
 
         this.scenes = config.scenes || 'Scenes';
