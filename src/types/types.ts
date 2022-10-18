@@ -61,10 +61,17 @@ export class SceneData {
         return this._config.title || this._entity.attributes.friendly_name;
     }
 
-    public getIcon() {
+    /**
+     * @returns icon from config or from entity settings or passed defaultIcon.
+     */
+    public getIcon(defaultIcon:string | null = null) {
         this.ensureHass();
 
-        return this._config.icon || this._entity.attributes.icon;
+        // if config has empty icon defined - return empty
+        if (this._config.icon != undefined)
+            return this._config.icon;
+
+        return this._entity.attributes.icon || defaultIcon;
     }
 
     /**

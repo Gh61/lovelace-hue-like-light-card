@@ -283,6 +283,7 @@ export class HueDialog extends LitElement {
         // - fix setting value by slider only to light in on state
         // // TODO:
         // - resolve scene clickAction in config
+        // - automatic click action: detect configured scenes
 
         /*eslint-disable */
         return html`

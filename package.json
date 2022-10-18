@@ -33,6 +33,7 @@
     },
     "scripts": {
         "build": "npm run lint && npm run rollup",
+        "fixnbuild" : "npm run lintfix && npm run rollup",
         "lint": "eslint src/**",
         "lintfix": "eslint src/** --fix",
         "rollup": "rollup -c"

@@ -49,15 +49,15 @@ export class HueDialogTile extends LitElement {
         // stops the animation and clears the queue
         this._effectQueue.stopAndClear();
 
-        // TODO: move selected class to scene - add changin of text and icon color
-        const colorElement = this.renderRoot.querySelector('.color');
-        if (colorElement) {
-            colorElement.classList.remove('selected', 'unselected');
+        // find tile and start animation
+        const sceneElement = this.renderRoot.querySelector('.scene');
+        if (sceneElement) {
+            sceneElement.classList.remove('selected', 'unselected');
             const animationMs = (HueDialogTile.animationSeconds * 1000);
-            this._effectQueue.addEffect(0, () => colorElement.classList.add('selected'));
-            this._effectQueue.addEffect(3000, () => colorElement.classList.add('unselected'));
-            this._effectQueue.addEffect(animationMs, () => { colorElement.classList.add('no-animate'); colorElement.classList.remove('selected'); });
-            this._effectQueue.addEffect(50, () => { colorElement.classList.remove('no-animate', 'unselected'); });
+            this._effectQueue.addEffect(0, () => sceneElement.classList.add('selected'));
+            this._effectQueue.addEffect(3000, () => sceneElement.classList.add('unselected'));
+            this._effectQueue.addEffect(animationMs, () => { sceneElement.classList.add('stop-color-animate'); sceneElement.classList.remove('selected'); });
+            this._effectQueue.addEffect(50, () => { sceneElement.classList.remove('stop-color-animate', 'unselected'); });
             this._effectQueue.start();
         }
     }
@@ -89,7 +89,7 @@ export class HueDialogTile extends LitElement {
         justify-content: center;
     }
     .scene .icon-background .color {
-        background: cyan; /* TODO: */
+        background: var(--hue-tile-accent-color, lightslategray);
         height: ${HueDialogTile.colorDimensions}px;
         width: ${HueDialogTile.colorDimensions}px;
         border-radius: ${HueDialogTile.colorDimensions / 2}px;
@@ -99,23 +99,23 @@ export class HueDialogTile extends LitElement {
         transition: all ${HueDialogTile.animationSeconds}s linear;
     }
     .scene .icon-background .color ha-icon {
-        color:${unsafeCSS(Consts.LightColor)}; /* TODO: dark color */
+        color: var(--hue-tile-fg-color, ${unsafeCSS(Consts.LightColor)});
         transform: scale(${HueDialogTile.iconScale});
     }
-    .scene .icon-background .color.selected {
+    .scene.selected .icon-background .color {
         height: ${HueDialogTile.height * 2}px;
         width: ${HueDialogTile.width * 2}px;
         border-radius: ${HueDialogTile.height}px;
         margin-left: -${HueDialogTile.padding * 2}px;
         margin-right: -${HueDialogTile.padding * 2}px;
     }
-    .scene .icon-background .color.selected ha-icon{
+    .scene.selected .icon-background .color ha-icon{
         animation: pop-icon 0.5s linear 1;
     }
-    .scene .icon-background .color.unselected {
+    .scene.unselected .icon-background .color {
         background: transparent;
     }
-    .scene .icon-background .color.no-animate {
+    .scene.stop-color-animate .icon-background .color {
         transition: none;
     }
 
@@ -129,6 +129,7 @@ export class HueDialogTile extends LitElement {
         display: flex;
         flex-flow: column;
         justify-content: center;
+        transition: all ${HueDialogTile.animationSeconds / 2}s linear;
     }
     .scene .title span {
         overflow: hidden;
@@ -137,11 +138,39 @@ export class HueDialogTile extends LitElement {
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
     }
+    .scene.selected .title {
+        color:var(--hue-tile-fg-text-color, ${unsafeCSS(Consts.LightColor)});
+    }
 
     @keyframes pop-icon{
         50% { transform: scale(${HueDialogTile.iconScale * 2}); }
     }
     `;
+
+    private _sceneAccentColorSet:boolean;
+    protected updated() {
+        if (this._scene && !this._sceneAccentColorSet) {
+            this._sceneAccentColorSet = true;
+            const accentColor = this._scene.getColor();
+            if (accentColor) {
+                const fg = accentColor.getForeground(Consts.LightColor, Consts.DarkColor, 20); // offset:20 - lets make the text color light sooner
+                const textFg = accentColor.getForeground(Consts.LightColor, 'black', 20); // offset:20 - lets make the text color light sooner
+
+                this.style.setProperty(
+                    '--hue-tile-accent-color',
+                    accentColor.toString()
+                );
+                this.style.setProperty(
+                    '--hue-tile-fg-color',
+                    fg.toString()
+                );
+                this.style.setProperty(
+                    '--hue-tile-fg-text-color',
+                    textFg.toString()
+                );
+            }
+        }
+    }
 
     protected render() {
         if (this._scene) {
@@ -157,7 +186,7 @@ export class HueDialogTile extends LitElement {
         <div class='hue-tile scene' title='${this._scene.getTitle()}' @click="${this.tileClicked}">
             <div class='icon-background'>
                 <div class='color'>
-                    <ha-icon icon="${this._scene.getIcon()}"></ha-icon>
+                    <ha-icon icon="${this._scene.getIcon('mdi:palette')}"></ha-icon>
                 </div>
             </div>
             <div class='title'>
