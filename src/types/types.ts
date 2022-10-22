@@ -66,6 +66,7 @@ export class SceneConfig {
     title?: string;
     icon?: string;
     color?: string;
+    // TODO: add posibility to set color gradient
 }
 
 export class SceneData {

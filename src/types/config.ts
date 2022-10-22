@@ -22,6 +22,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
         this.offColor = plainConfig.offColor || Consts.OffColor;
+        this.wasOffColorSet = !!plainConfig.offColor;
         this.disableOffShadow = HueLikeLightCardConfig.getBoolean(plainConfig.disableOffShadow, false);
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
         this.resources = new Resources(plainConfig.resources);
@@ -119,6 +120,12 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     readonly disableOffShadow: boolean;
     readonly hueBorders: boolean;
     readonly resources: Resources;
+
+    /**
+     * Returns whether offColor was set in configuration.
+     * Returns false, when offColor is taken from Consts.
+     */
+    readonly wasOffColorSet: boolean;
 
     /**
      * @returns List of entity identifiers

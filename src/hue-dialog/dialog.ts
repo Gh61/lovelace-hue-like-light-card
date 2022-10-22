@@ -227,11 +227,20 @@ export class HueDialog extends LitElement {
 
         const heading = <Element>this.renderRoot.querySelector('.heading');
 
-        const computedStyle = getComputedStyle(this);
-        const cssBackground = computedStyle.getPropertyValue('--mdc-theme-surface');
-        const cssForeground = computedStyle.getPropertyValue('--primary-text-color');
+        let offBackground:Background;
+        let recommendedOffFg:string | null = null;
+        // if the user sets custom off color - use it
+        if (this._config.wasOffColorSet) {
+            offBackground = new Background([this._config.getOffColor()]);
+        } else {
+            // take original theme colors
+            const computedStyle = getComputedStyle(this);
+            const cssBackground = computedStyle.getPropertyValue('--mdc-theme-surface');
+            recommendedOffFg = computedStyle.getPropertyValue('--primary-text-color');
 
-        const offBackground = new Background([new Color(cssBackground)]);
+            offBackground = new Background([new Color(cssBackground)]);
+        }
+
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
         const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config);
 
@@ -240,9 +249,9 @@ export class HueDialog extends LitElement {
             this.requestUpdate();
         }
 
-        // default color if background is default
-        if (bfg.background == offBackground) {
-            bfg.foreground = cssForeground;
+        // default fg color if background is default from theme
+        if (bfg.background == offBackground && recommendedOffFg) {
+            bfg.foreground = recommendedOffFg;
         }
 
         if (this._config.hueBorders) {
