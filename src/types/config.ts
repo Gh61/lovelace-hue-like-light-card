@@ -164,37 +164,42 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         if (this.scenes.length == 0 && !this.scenesLoaded) {
             this.scenesLoaded = true;
 
-            // load all areas
-            let lightAreas = new Array<string>();
-            await Promise.all(this.getEntities().map(async entityId => {
-                const entityResult = await hass.connection.sendMessagePromise<HassSearchDeviceResult>({
-                    type: 'search/related',
-                    item_type: 'entity',
-                    item_id: entityId
-                });
-                if (entityResult && entityResult.area && entityResult.area.length) {
-                    lightAreas.push(entityResult.area[0]);
-                }
-            }));
-            lightAreas = removeDuplicites(lightAreas);
+            try {
+                // load all areas
+                let lightAreas = new Array<string>();
+                await Promise.all(this.getEntities().map(async entityId => {
+                    const entityResult = await hass.connection.sendMessagePromise<HassSearchDeviceResult>({
+                        type: 'search/related',
+                        item_type: 'entity',
+                        item_id: entityId
+                    });
+                    if (entityResult && entityResult.area && entityResult.area.length) {
+                        lightAreas.push(entityResult.area[0]);
+                    }
+                }));
+                lightAreas = removeDuplicites(lightAreas);
 
-            // load scenes for areas
-            let loadedScenes = new Array<string>();
-            await Promise.all(lightAreas.map(async area => {
-                const areaResult = await hass.connection.sendMessagePromise<HassSearchDeviceResult>({
-                    type: 'search/related',
-                    item_type: 'area',
-                    item_id: area
-                });
+                // load scenes for areas
+                let loadedScenes = new Array<string>();
+                await Promise.all(lightAreas.map(async area => {
+                    const areaResult = await hass.connection.sendMessagePromise<HassSearchDeviceResult>({
+                        type: 'search/related',
+                        item_type: 'area',
+                        item_id: area
+                    });
 
-                if (areaResult && areaResult.scene) {
-                    areaResult.scene.forEach(s => loadedScenes.push(s));
-                }
-            }));
-            loadedScenes = removeDuplicites(loadedScenes);
+                    if (areaResult && areaResult.scene) {
+                        areaResult.scene.forEach(s => loadedScenes.push(s));
+                    }
+                }));
+                loadedScenes = removeDuplicites(loadedScenes);
 
-            // set to config
-            this._scenes = HueLikeLightCardConfig.getScenesArray(loadedScenes);
+                // set to config
+                this._scenes = HueLikeLightCardConfig.getScenesArray(loadedScenes);
+            } catch (error) {
+                console.error('Cannot load scenes from HA.');
+                console.error(error);
+            }
         }
     }
 }
