@@ -45,6 +45,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <th>Key</th>
     <th>Type</th>
     <th>Required</th>
+    <th>Since</th>
     <th>Default</th>
     <th>Description</th>
   </tr>
@@ -52,6 +53,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><code>entity</code></td>
     <td>string</td>
     <td>yes*</td>
+    <td>1.0.0</td>
     <td>-</td>
     <td>Light entity name (eg. <code>light.my_light</code>)</td>
   </tr>
@@ -59,6 +61,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><code>entities</code></td>
     <td>list of strings</td>
     <td>yes*</td>
+    <td>1.0.0</td>
     <td>-</td>
     <td>Multiple Light entity names</td>
   </tr>
@@ -66,6 +69,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><code>title</code></td>
     <td>string</td>
     <td>no</td>
+    <td>1.0.0</td>
     <td><i>Lights name</i></td>
     <td>Card title</td>
   </tr>
@@ -73,13 +77,55 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><code>icon</code></td>
     <td>string</td>
     <td>no</td>
-    <td><i><a href="#automatic-icon">automatic</a></i></td>
+    <td>1.0.0</td>
+    <td><i><a href="#automatic-icon">automatic icon</a></i></td>
     <td>Card icon</td>
+  </tr>
+  <tr>
+    <td><code>offClickAction</code></td>
+    <td><a href="#click-action">Click Action</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><a href="#automatic-click-action"><code>default</code></a></td>
+    <td>Action when tile is clicked and all <b>lights are off</b></td>
+  </tr>
+  <tr>
+    <td><code>offClickData</code></td>
+    <td><a href="#click-action-data">Click Action Data</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>-</td>
+    <td><a href="#click-action-data">Data</a> for <code>offClickAction</code></td>
+  </tr>
+  <tr>
+    <td><code>onClickAction</code></td>
+    <td><a href="#click-action">Click Action</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><a href="#automatic-click-action"><code>default</code></a></td>
+    <td>Action when tile is clicked and any of <b>lights is on</b></td>
+  </tr>
+  <tr>
+    <td><code>onClickData</code></td>
+    <td><a href="#click-action-data">Click Action Data</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>-</td>
+    <td><a href="#click-action-data">Data</a> for <code>onClickAction</code></td>
+  </tr>
+  <tr>
+    <td><code>scenes</code></td>
+    <td>list of <a href="#scenes-configuration">Scenes</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><i><a href="#scenes-detection">automatic detection</a></i></td>
+    <td>Scenes shown in <a>Hue dialog</a></td>
   </tr>
   <tr>
     <td><code>allowZero</code></td>
     <td>boolean</td>
     <td>no</td>
+    <td>1.0.0</td>
     <td><code>false</code></td>
     <td>If turned on, the slider can be moved to and from value 0.<br/>(turning off/on the the lights)</td>
   </tr>
@@ -87,6 +133,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><code>defaultColor</code></td>
     <td>string</td>
     <td>no</td>
+    <td>1.0.0</td>
     <td><code>'warm'</code></td>
     <td>
       If selected light (or lights) don't has RGB mode,<br/>this value is color is used when the light is on.<br/>Possible format:
@@ -101,6 +148,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><code>offColor</code></td>
     <td>string</td>
     <td>no</td>
+    <td>1.0.0</td>
     <td><code>'#666'</code></td>
     <td>
       The color of the pane, when all lights are off.<br/>Possible format:
@@ -115,6 +163,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><code>disableOffShadow</code></td>
     <td>boolean</td>
     <td>no</td>
+    <td>1.0.0</td>
     <td><code>false</code></td>
     <td>If turned on, the card will not have inner shadow, when all lights are off.</td>
   </tr>
@@ -122,11 +171,20 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><code>hueBorders</code></td>
     <td>boolean</td>
     <td>no</td>
+    <td>1.0.0</td>
     <td><code>true</code></td>
     <td>If turned off, the card will not have so much rounded edges. It will have default edge rounding instead.</td>
   </tr>
   <tr>
-    <td colspan="5">
+    <td><code>resources</code></td>
+    <td><a href="resources-object">Resources object</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>-</td>
+    <td>Can change (localize) texts on this card</td>
+  </tr>
+  <tr>
+    <td colspan="6">
       <i>* At least one of this two must be filled in</i>
     </td>
   </tr>
@@ -137,6 +195,94 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     - If the entity has no icon, `mdi:lightbulb` (![lightbulb](https://user-images.githubusercontent.com/10837736/171443813-5e0dc16c-de15-43a1-9e96-0917c038e0a9.svg)) is used.
 - If the card has two lights `mdi:lightbulb-multiple` (![lightbulb-multiple](https://user-images.githubusercontent.com/10837736/171444016-4b571fcf-0e30-4eca-9baf-61a710c17c05.svg)) is used.
 - If the card has three or more lights attached, `mdi:lightbulb-group` (![lightbulb-group](https://user-images.githubusercontent.com/10837736/171444069-639d41d5-1dc7-4bd7-8104-b77f52df86fb.svg)) is used.
+
+## Click action
+When the card is clicked, something can happen. This can be configured through configuration.
+```yaml
+type: custom:hue-like-light-card
+...
+offClickAction: turn-on
+onClickAction: turn-off
+```
+*Simple example to toggle lights on click.*
+
+### Possible actions
+<table>
+  <tr>
+    <th>Key</th>
+    <th><a href="#action-data">Possible data*</a></th>
+    <th>Data required</th>
+    <th>Since</th>
+    <th>Action on click</th>
+  </tr>
+  <tr>
+    <td><code>default</code></td>
+    <td>yes</td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><a href="#automatic-click-action">automatic action</a></td>
+  </tr>
+  <tr>
+    <td><code>none</code></td>
+    <td>no</td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>nothing</td>
+  </tr>
+  <tr>
+    <td><code>turn-on</code></td>
+    <td>no</td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>turn on all lights</td>
+  </tr>
+  <tr>
+    <td><code>turn-off</code></td>
+    <td>no</td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>turn off all lights</td>
+  </tr>
+  <tr>
+    <td><code>more-info</code></td>
+    <td>yes (<code>entity</code>)</td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>show system more-info dialog</td>
+  </tr>
+  <tr>
+    <td><code>scene</code></td>
+    <td>yes (<code>scene</code>)</td>
+    <td>yes</td>
+    <td>1.1.0</td>
+    <td>activate selected scene</td>
+  </tr>
+  <tr>
+    <td><code>hue-screen</code></td>
+    <td>no (is using general <code>scenes</code> config)</td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>show <a href="#hue-screen">Hue Screen</a></td>
+  </tr>
+</table>
+
+### Action data
+TODO:
+
+### Automatic click action
+TODO:
+
+## Scenes configuration
+TODO:
+### Scenes detection
+TODO:
+
+## Hue Screen
+TODO:
+
+### Resources object
+TODO:
+
 
 ## Examples of configuration
 #### Multiple lights
