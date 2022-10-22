@@ -5,6 +5,8 @@
 
 This card is providing light control. It is inspired by original Philips Hue app.
 
+TODO: Make better screenshot!
+
 ![Screen1](/doc/screen1.png)
 
 \* *intensity of color, shadow and other UI properties may be subject of change*

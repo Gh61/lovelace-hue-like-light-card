@@ -1,0 +1,3 @@
+TODO:
+- add dialog background config option (with auto foreground)
+- auto remove card title from scene name if it is at beginning (up to first letter)

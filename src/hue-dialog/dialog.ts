@@ -211,6 +211,8 @@ export class HueDialog extends LitElement {
             max-width: 100%;
             overflow-x: auto;
             overflow-y: hidden;
+            padding: 0 24px;
+            margin: 0 -24px;
         }
         .tiles {
             display: flex;
