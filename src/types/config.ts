@@ -23,6 +23,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
         this.offColor = plainConfig.offColor || Consts.OffColor;
         this.wasOffColorSet = !!plainConfig.offColor;
+        this.hueScreenBgColor = plainConfig.hueScreenBgColor || Consts.DialogBgColor;
         this.disableOffShadow = HueLikeLightCardConfig.getBoolean(plainConfig.disableOffShadow, false);
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
         this.resources = new Resources(plainConfig.resources);
@@ -117,6 +118,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     readonly allowZero: boolean;
     readonly defaultColor: string;
     readonly offColor: string;
+    readonly hueScreenBgColor: string;
     readonly disableOffShadow: boolean;
     readonly hueBorders: boolean;
     readonly resources: Resources;
@@ -151,6 +153,13 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
      */
     public getOffColor() : Color {
         return new Color(this.offColor);
+    }
+
+    /**
+     * @returns Background color for hue-screen dialog. 
+     */
+    public getHueScreenBgColor() : Color {
+        return new Color(this.hueScreenBgColor);
     }
 
     private scenesLoaded = false;

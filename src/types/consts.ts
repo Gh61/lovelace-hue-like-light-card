@@ -1,5 +1,5 @@
 export class Consts {
-    public static readonly Version = 'v1.0.0';
+    public static readonly Version = 'v1.1.0';
     public static readonly Dev = true;
     public static readonly CardElementName = Consts.Dev ? 'hue-like-light-card-test' : 'hue-like-light-card';
     public static readonly CardName = 'Hue-Like Light Card';
@@ -15,6 +15,9 @@ export class Consts {
     public static readonly ColdColor = '#f5f5ff';
     public static readonly DefaultColor = 'warm';
     public static readonly OffColor = '#666';
+    public static readonly DialogBgColor = '#171717';
+    public static readonly DialogFgLightColor = '#aaa';
+    public static readonly DialogOffColor = '#363636';
     public static readonly GradientOffset = 10; // percent
     public static readonly DefaultOneIcon = 'mdi:lightbulb';
     public static readonly DefaultTwoIcon = 'mdi:lightbulb-multiple';

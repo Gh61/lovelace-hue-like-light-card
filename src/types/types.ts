@@ -144,6 +144,7 @@ export interface HueLikeLightCardConfigInterface {
     readonly allowZero?: boolean;
     readonly defaultColor?: string;
     readonly offColor?: string;
+    readonly hueScreenBgColor?: string;
     readonly disableOffShadow?: boolean;
     readonly hueBorders?: boolean;
     readonly resources?: ResourcesInterface;

@@ -223,25 +223,48 @@ export class HueDialog extends LitElement {
         `];
     }
 
-    private updateStyles(): void {
+    private updateStyles(isFirst: boolean): void {
         // default text-color: '--primary-text-color'
         // default background: '--mdc-theme-surface'
 
+        // content text color: '--mdc-dialog-content-ink-color'
+
+        // ## Content styles
+        if (isFirst) {
+            const contentBg = this._config.getHueScreenBgColor();
+            const contentFg = contentBg.getForeground(Consts.DialogFgLightColor, Consts.DarkColor, +120); // for most colors use dark
+
+            this.style.setProperty(
+                '--mdc-theme-surface',
+                contentBg.toString()
+            );
+            this.style.setProperty(
+                '--primary-text-color',
+                contentFg.toString()
+            );
+        }
+
+        // ## Heading styles
         const heading = <Element>this.renderRoot.querySelector('.heading');
 
         let offBackground:Background;
-        let recommendedOffFg:string | null = null;
+        const recommendedOffFg:string | null = null;
         // if the user sets custom off color - use it
         if (this._config.wasOffColorSet) {
             offBackground = new Background([this._config.getOffColor()]);
         } else {
-            // take original theme colors
-            const computedStyle = getComputedStyle(this);
-            const cssBackground = computedStyle.getPropertyValue('--mdc-theme-surface');
-            recommendedOffFg = computedStyle.getPropertyValue('--primary-text-color');
-
-            offBackground = new Background([new Color(cssBackground)]);
+            offBackground = new Background([new Color(Consts.DialogOffColor)]);
         }
+        
+        // TODO: theme color possibility
+        // else {
+        //     // take original theme colors
+        //     const computedStyle = getComputedStyle(this);
+        //     const cssBackground = computedStyle.getPropertyValue('--mdc-theme-surface');
+        //     recommendedOffFg = computedStyle.getPropertyValue('--primary-text-color');
+
+        //     offBackground = new Background([new Color(cssBackground)]);
+        // }
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
         const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config);
@@ -287,7 +310,7 @@ export class HueDialog extends LitElement {
 
         const onChangeCallback = () => {
             this.requestUpdate();
-            this.updateStyles();
+            this.updateStyles(false);
         };
 
         /*eslint-disable */
@@ -357,17 +380,11 @@ export class HueDialog extends LitElement {
     //#region updateStyles hooks
 
     protected firstUpdated() {
-        this.updated();
+        this.updateStyles(true);
     }
 
     protected updated() {
-        this.updateStyles();
-    }
-
-    connectedCallback(): void {
-        super.connectedCallback();
-        // CSS
-        this.updateStyles();
+        this.updateStyles(false);
     }
 
     //#endregion

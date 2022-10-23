@@ -24,7 +24,7 @@ export class Color {
 
     /**
      * Returns foreground for this color, either @param light (potentially white) or @param dark (potentially black).
-     * @param offset: offset added to luminance (can move breaking point in either direction)
+     * @param offset: offset added to luminance: higher value => sooner dark foreground (can be negative)
      */
     public getForeground<T>(light: T, dark: T, offset: number): T {
         const luminance = this.getLuminance();

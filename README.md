@@ -152,9 +152,20 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><a href="#color">Color</a></td>
     <td>no</td>
     <td>1.0.0</td>
-    <td><code>'#666'</code></td>
+    <td><code>'#666'</code><br/>(<code>`#363636`</code> for <a href="#hue-screen">Hue Screen</a>)</td>
     <td>
       The color of the pane, when all lights are off.
+      When set, also used in <a href="#hue-screen">Hue Screen</a> header (recommended setting also <code>hueScreenBgColor</code> accordingly).
+    </td>
+  </tr>
+  <tr>
+    <td><code>hueScreenBgColor</code></td>
+    <td><a href="#color">Color</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><code>'#171717'</code></td>
+    <td>
+      Background color of <a href="#hue-screen">Hue Screen</a>
     </td>
   </tr>
   <tr>
@@ -456,6 +467,7 @@ entities:
   - light.tvlight_color3
   - light.tvlight_color4
 offColor: white
+hueScreenBgColor: white
 disableOffShadow: true
 hueBorders: false
 ```
