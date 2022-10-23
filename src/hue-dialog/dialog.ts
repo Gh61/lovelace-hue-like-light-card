@@ -9,6 +9,7 @@ import { ViewUtils } from '../core/view-utils';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
 import { HueDialogTile } from './dialog-tile';
+import { HaDialog } from '../types/types';
 
 type Tab = 'colors' | 'scenes';
 
@@ -71,6 +72,12 @@ export class HueDialog extends LitElement {
         if (this._isRendered)
             throw new Error('Already rendered!');
 
+        window.history.pushState(
+            { dialog: 'hue-dialog', open: true },
+            ''
+        );
+        window.addEventListener('popstate', this._onHistoryBackListener);
+
         // append to DOM
         document.body.appendChild(this);
 
@@ -78,10 +85,28 @@ export class HueDialog extends LitElement {
         this._ctrl.registerOnPropertyChanged(this._id, (p) => this.onLightControllerChanged(p));
     }
 
+    public close(): void {
+        if (!this._isRendered)
+            return;
+
+        // try to find dialog (if no success, call standard remove)
+        const haDialog = <HaDialog>this.renderRoot.querySelector('ha-dialog');
+        if (haDialog && haDialog.close) {
+            haDialog.close();
+        } else {
+            this.onDialogClose();
+        }
+    }
+
+    private readonly _onHistoryBackListener = () => this.close();
+
     /** When the dialog is closed. Removes itself from the DOM. */
     private onDialogClose() {
         if (this._isRendered) {
             this.remove();
+
+            // unregister popstate
+            window.removeEventListener('popstate', this._onHistoryBackListener);
 
             // unregister update delegate
             this._ctrl.unregisterOnPropertyChanged(this._id);

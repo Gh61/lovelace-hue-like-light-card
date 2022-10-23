@@ -165,6 +165,8 @@ export interface ResourcesInterface {
     readonly lights?: string;
 }
 
+// #region Hass
+
 export interface HassLightAttributes extends HassEntityAttributeBase {
     brightness?: number;
     rgb_color?: number[];
@@ -202,6 +204,12 @@ export interface HomeAssistantEx extends HomeAssistant {
     areas: Record<string, HassAreaInfo>;
     entities: Record<string, HassEntityInfo>;
 }
+
+export interface HaDialog extends HTMLElement {
+    close?():void;
+}
+
+// #endregion
 
 export interface ILightContainer {
     /**

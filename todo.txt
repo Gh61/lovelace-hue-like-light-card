@@ -1,3 +1,2 @@
 TODO:
-- fix phone 'back' button press on hue-dialog (ESC possibly)
 - add 'theme-color' value for backgrounds (and offColor)
