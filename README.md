@@ -1,4 +1,6 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)  [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/paygh61/)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/paygh61/)
+![Downloads](https://img.shields.io/github/downloads/Gh61/lovelace-hue-like-light-card/total.svg)
 
 
 # Hue-Like Light Card for Home Assistant
@@ -152,7 +154,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><a href="#color">Color</a></td>
     <td>no</td>
     <td>1.0.0</td>
-    <td><code>'#666'</code><br/>(<code>`#363636`</code> for <a href="#hue-screen">Hue Screen</a>)</td>
+    <td><code>'#666'</code><br/>(<code>'#363636'</code> for <a href="#hue-screen">Hue Screen</a>)</td>
     <td>
       The color of the pane, when all lights are off.
       When set, also used in <a href="#hue-screen">Hue Screen</a> header (recommended setting also <code>hueScreenBgColor</code> accordingly).
@@ -227,7 +229,7 @@ onClickAction: turn-off
 ### Possible actions
 <table>
   <tr>
-    <th>Key</th>
+    <th width="120">Key</th>
     <th><a href="#action-data">Possible data*</a></th>
     <th>Data required</th>
     <th>Since</th>
@@ -267,9 +269,9 @@ onClickAction: turn-off
     <td>no</td>
     <td>1.1.0</td>
     <td>
-      Shows system more-info dialog of one light.
-      If any light is on, the first lit light will be selected.
-      If all light are off, first light will be selected.
+      Shows system more-info dialog of one light.<br/>
+      If any light is on, the first lit light will be selected.<br/>
+      If all light are off, first light will be selected.<br/>
       When action data are used, any entity can be selected.
     </td>
   </tr>
@@ -282,7 +284,7 @@ onClickAction: turn-off
   </tr>
   <tr>
     <td><code>hue-screen</code></td>
-    <td>no (is using general <code>scenes</code> config)</td>
+    <td>no<br/>(is using general <a href="#configuration"><code>scenes</code></a> config)</td>
     <td>no</td>
     <td>1.1.0</td>
     <td>show <a href="#hue-screen">Hue Screen</a></td>
@@ -334,7 +336,7 @@ hue-screen◄───┤Are there scenes?│   │Is only one light?├──�
 
 ## Scenes configuration
 To enable switching between scenes, you can configure scenes, that can be activated in [Hue Screen](#hue-screen).<br/>
-When no scenes are defined, we will try to [detect scenes automatically](#scenes-detection).
+When no scenes are defined, scenes will be detected [automatically](#scenes-detection).
 ### Scene parameters
 <table>
   <tr>
