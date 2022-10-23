@@ -9,10 +9,10 @@ This card is providing light control. It is inspired by original Philips Hue app
 <table>
 <tr>
   <td>
-    <img alt="Screen1" src="/Gh61/lovelace-hue-like-light-card/raw/main/doc/screen1.png" height="707" />
+    <img alt="Screen1" src="/doc/screen1.png" height="707" />
   </td>
   <td>
-    <img alt="Hue-Screen2" src="/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="707" />
+    <img alt="Hue-Screen2" src="/doc/hue-screen2.png" height="707" />
   </td>
 </tr>
 </table>
@@ -396,7 +396,7 @@ All scenes from all areas, where configured lights are placed, are taken.
 Hue screen will allow you to activate [scenes](#scenes-configuration), *and in the future* set light colors (same functionality as Hue App).
 
 ![Hue-Screen](/doc/hue-screen1.png)
-<img alt="Hue-Screen2" src="/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="440" />
+<img alt="Hue-Screen2" src="/doc/hue-screen2.png" height="440" />
 
 ## Resources object
 Using the configuration option `resources`, you can change all static texts used in this component.
