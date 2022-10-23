@@ -5,14 +5,13 @@
 
 This card is providing light control. It is inspired by original Philips Hue app.
 
-![Screen1](/doc/screen1.png)
 <table>
 <tr>
   <td>
-    <img alt="Screen1" src="/doc/screen1.png" height="707" />
+    <img alt="Screen1" src="/doc/screen1.png" height="500" />
   </td>
   <td>
-    <img alt="Hue-Screen2" src="/doc/hue-screen2.png" height="707" />
+    <img alt="Hue-Screen2" src="/doc/hue-screen2.png" height="500" />
   </td>
 </tr>
 </table>
