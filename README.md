@@ -5,8 +5,8 @@
 
 This card is providing light control. It is inspired by original Philips Hue app.
 
-<img alt="Screen1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/screen1.png" height="500" />
-<img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="500" />
+<img alt="Screen1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/screen1.png" height="500" style="display:inline-block" />
+<img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="500" style="display:inline-block" />
 
 \* *intensity of color, shadow and other UI properties may be subject of change*
 
