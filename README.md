@@ -5,9 +5,17 @@
 
 This card is providing light control. It is inspired by original Philips Hue app.
 
-TODO: Make better screenshot!
-
 ![Screen1](/doc/screen1.png)
+<table>
+<tr>
+  <td>
+    <img alt="Screen1" src="/Gh61/lovelace-hue-like-light-card/raw/main/doc/screen1.png" height="707" />
+  </td>
+  <td>
+    <img alt="Hue-Screen2" src="/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="707" />
+  </td>
+</tr>
+</table>
 
 \* *intensity of color, shadow and other UI properties may be subject of change*
 
@@ -121,7 +129,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td>no</td>
     <td>1.1.0</td>
     <td><i><a href="#scenes-detection">automatic detection</a></i></td>
-    <td>Scenes shown in <a>Hue dialog</a></td>
+    <td>Scenes shown in <a href="#hue-screen">Hue screen</a></td>
   </tr>
   <tr>
     <td><code>allowZero</code></td>
@@ -133,32 +141,21 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
   </tr>
   <tr>
     <td><code>defaultColor</code></td>
-    <td>string</td>
+    <td><a href="#color">Color</a></td>
     <td>no</td>
     <td>1.0.0</td>
     <td><code>'warm'</code></td>
     <td>
-      If selected light (or lights) don't has RGB mode,<br/>this value is color is used when the light is on.<br/>Possible format:
-      <ul>
-        <li>HEX: <code>'#fff'</code>, <code>'#ffffff'</code></li>
-        <li>RGB: <code>'rgb(255,255,255)'</code></li>
-        <li>WEB name: <code>'salmon'</code></li>
-        <li>predefined: <code>'warm'</code> or <code>'cold'</code></td></li>
-      </ul>
+      If selected light (or lights) doesn't have RGB mode,<br/>this value is used as color when the light is on.
   </tr>
   <tr>
     <td><code>offColor</code></td>
-    <td>string</td>
+    <td><a href="#color">Color</a></td>
     <td>no</td>
     <td>1.0.0</td>
     <td><code>'#666'</code></td>
     <td>
-      The color of the pane, when all lights are off.<br/>Possible format:
-      <ul>
-        <li>HEX: <code>'#fff'</code>, <code>'#ffffff'</code></li>
-        <li>RGB: <code>'rgb(255,255,255)'</code></li>
-        <li>WEB name: <code>'DarkSeaGreen'</code></li>
-      </ul>
+      The color of the pane, when all lights are off.
     </td>
   </tr>
   <tr>
@@ -197,6 +194,15 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     - If the entity has no icon, `mdi:lightbulb` (![lightbulb](https://user-images.githubusercontent.com/10837736/171443813-5e0dc16c-de15-43a1-9e96-0917c038e0a9.svg)) is used.
 - If the card has two lights `mdi:lightbulb-multiple` (![lightbulb-multiple](https://user-images.githubusercontent.com/10837736/171444016-4b571fcf-0e30-4eca-9baf-61a710c17c05.svg)) is used.
 - If the card has three or more lights attached, `mdi:lightbulb-group` (![lightbulb-group](https://user-images.githubusercontent.com/10837736/171444069-639d41d5-1dc7-4bd7-8104-b77f52df86fb.svg)) is used.
+
+## Color
+The color can be defined in following ways:
+<ul>
+  <li>HEX: <code>'#fff'</code>, <code>'#ffffff'</code></li>
+  <li>RGB: <code>'rgb(255,255,255)'</code></li>
+  <li>WEB name: <code>'red'</code>,<code>'salmon'</code>,<code>'DarkSeaGreen'</code>, etc.</li>
+  <li>predefined: <code>'warm'</code> or <code>'cold'</code> (in places where it does make sense)</td></li>
+</ul>
 
 ## Click action
 When the card is clicked, something can happen. This can be configured through configuration.
@@ -250,7 +256,12 @@ onClickAction: turn-off
     <td>yes (<code>entity</code>)</td>
     <td>no</td>
     <td>1.1.0</td>
-    <td>show system more-info dialog</td>
+    <td>
+      Shows system more-info dialog of one light.
+      If any light is on, the first lit light will be selected.
+      If all light are off, first light will be selected.
+      When action data are used, any entity can be selected.
+    </td>
   </tr>
   <tr>
     <td><code>scene</code></td>
@@ -269,22 +280,149 @@ onClickAction: turn-off
 </table>
 
 ### Action data
-TODO:
+Some actions can be configured using action data. Action data parameter can have name (as defined in table above) but it is not mandatory. Both styles are possible.
+
+*Action data without name:*
+```yaml
+type: custom:hue-like-light-card
+...
+onClickAction: more-info
+onClickData: media_player.television
+```
+
+*Action data with name:*
+```yaml
+type: custom:hue-like-light-card
+...
+offClickAction: scene
+offClickData:
+  scene: scene.tv_citron
+```
 
 ### Automatic click action
-TODO:
+Automatic action is detected based on this diagram.
+
+```
+               ┌─────────────────┐
+               │Is any light lit?├────────────┐
+               └───────┬─────────┘            │
+                       │NO                    │YES
+                       ▼                      ▼
+           YES┌──────────────────┐   ┌─────────────────┐YES
+ more-info◄───┤Is only one light?│   │Are there scenes?├───►hue-screen
+              └────────┬─────────┘   └────────┬────────┘
+                       │NO                    │NO
+                       ▼                      ▼
+           YES┌─────────────────┐   ┌──────────────────┐YES
+hue-screen◄───┤Are there scenes?│   │Is only one light?├───►more-info
+              └────────┬────────┘   └─────────┬────────┘
+                       │NO                    │NO
+                       ▼                      ▼
+                   turn-on                turn-off
+```
+*Will be changed in the future.*
 
 ## Scenes configuration
-TODO:
+To enable switching between scenes, you can configure scenes, that can be activated in [Hue Screen](#hue-screen).<br/>
+When no scenes are defined, we will try to [detect scenes automatically](#scenes-detection).
+### Scene parameters
+<table>
+  <tr>
+    <th>Key</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Since</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>entity</code></td>
+    <td>string</td>
+    <td>yes</td>
+    <td>1.1.0</td>
+    <td>-</td>
+    <td>Scene entity name (eg. <code>scene.tv_orange</code>)</td>
+  </tr>
+  <tr>
+    <td><code>title</code></td>
+    <td>string</td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><i>Scene name</i></td>
+    <td>Text on scene-button</td>
+  </tr>
+  <tr>
+    <td><code>icon</code></td>
+    <td>string</td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><i>Icon of scene</i> or <code>'mdi:palette'</code></td>
+    <td>Icon on scene-button</td>
+  </tr>
+  <tr>
+    <td><code>color</code></td>
+    <td><a href="#color">Color</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><code>'lightslategray'</code></td>
+    <td>Accent color current scene (shown on scene-button)</td>
+  </tr>
+</table>
+
+#### Example of scenes configuration
+```yaml
+type: custom:hue-like-light-card
+...
+scenes:
+  - scene.colors_bluered            # if only entity is used, it can be written directly
+  - entity: scene.colors_cyan
+    title: My really favorite scene
+    color: cyan
+  - entity: scene.colors_blue_xmass
+    icon: mdi:tree-outline
+  - entity: scene.colors_white
+    color: white
+    icon: ''                        # when you don't want the icon, you can set it to empty string
+```
+For the best experience, please fill in both `icon` and `color` for all scenes.
+
 ### Scenes detection
-TODO:
+Automatic scene detection will take place, when no scenes are configured.
+
+Scenes are detected from areas where lights are placed.<br/>
+All scenes from all areas, where configured lights are placed, are taken.
 
 ## Hue Screen
-TODO:
+Hue screen will allow you to activate [scenes](#scenes-configuration), *and in the future* set light colors (same functionality as Hue App).
 
-### Resources object
-TODO:
+![Hue-Screen](/doc/hue-screen1.png)
+<img alt="Hue-Screen2" src="/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="440" />
 
+## Resources object
+Using the configuration option `resources`, you can change all static texts used in this component.
+### Texts to change
+<table>
+  <tr>
+    <th>Key</th>
+    <th>Since</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>scenes</code></td>
+    <td>1.1.0</td>
+    <td>Scenes</td>
+    <td>Title of Scene picker in <a href="#hue-screen">Hue Screen</a></td>
+  </tr>
+</table>
+
+### Example of configuration
+```yaml
+type: custom:hue-like-light-card
+...
+resources:
+  scenes: My scenes
+```
 
 ## Examples of configuration
 #### Multiple lights
@@ -343,8 +481,8 @@ defaultColor: 'rgb(230,230,255)'
 
 
 ## Coming soon features
+- color picker in [Hue Screen](#hue-screen)
 - reactions on sliding event instead of on change (value will be changed in the moment of sliding, not after)
 - faster reactions between multiple cards (instant change of value on other cards)
-- click on the card (choosable action)
 - subtext under the main text (how many lights are on, ...)
 - ui editor?
