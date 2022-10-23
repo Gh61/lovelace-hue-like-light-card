@@ -136,7 +136,7 @@ export class LightContainer implements ILightContainer {
     }
 
     getTitle() {
-        return this._entity.attributes.friendly_name;
+        return this._entity.attributes.friendly_name ?? this._entity_id;
     }
 
     getBackground(): Background | null {

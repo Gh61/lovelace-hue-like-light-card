@@ -96,10 +96,20 @@ export class SceneData {
         this._hass.callService('scene', 'turn_on', { entity_id: this._config.entity });
     }
 
-    public getTitle() {
+    public getTitle(cardTitle: string) {
         this.ensureHass();
 
-        return this._config.title || this._entity.attributes.friendly_name;
+        if (this._config.title)
+            return this._config.title;
+
+        // try to remove prefix of cardTitle from friendly name
+        let friendlyName = this._entity.attributes.friendly_name;
+        if (cardTitle && friendlyName?.toLowerCase().indexOf(cardTitle.toLowerCase()) == 0) {
+            // remove the cardTitle prefix from this scene name
+            friendlyName = friendlyName.substring(cardTitle.length).trimStart();
+        }
+
+        return friendlyName;
     }
 
     /**
@@ -237,7 +247,7 @@ export interface ILightContainer {
     /**
      * @returns suggested title for card with lights in this container.
      */
-    getTitle(): string | undefined | null;
+    getTitle(): string;
 
     /**
      * @returns background style for card with lights in this container.

@@ -358,7 +358,7 @@ When no scenes are defined, we will try to [detect scenes automatically](#scenes
     <td>string</td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><i>Scene name</i></td>
+    <td><i>Scene name*</i></td>
     <td>Text on scene-button</td>
   </tr>
   <tr>
@@ -376,6 +376,11 @@ When no scenes are defined, we will try to [detect scenes automatically](#scenes
     <td>1.1.0</td>
     <td><code>'lightslategray'</code></td>
     <td>Accent color current scene (shown on scene-button)</td>
+  </tr>
+  <tr>
+    <td colspan="6">
+      <i>* If the scene name begins with the same text as the card title is, this text is removed.</i>
+    </td>
   </tr>
 </table>
 

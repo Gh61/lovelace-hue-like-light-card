@@ -1,4 +1,4 @@
-import { ClickAction, ClickActionData, HassSearchDeviceResult, HueLikeLightCardConfigInterface, SceneConfig } from './types';
+import { ClickAction, ClickActionData, HassSearchDeviceResult, HueLikeLightCardConfigInterface, ILightContainer, SceneConfig } from './types';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
@@ -122,6 +122,13 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     readonly disableOffShadow: boolean;
     readonly hueBorders: boolean;
     readonly resources: Resources;
+
+    /**
+     * @returns Title from config or from passed container.
+     */
+    public getTitle(lightContainer:ILightContainer) : string {
+        return this.title || lightContainer.getTitle();
+    }
 
     /**
      * Returns whether offColor was set in configuration.

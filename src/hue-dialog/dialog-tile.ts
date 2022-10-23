@@ -1,6 +1,6 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { html, css, LitElement, unsafeCSS } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
@@ -18,6 +18,8 @@ export class HueDialogTile extends LitElement {
     private _hass: HomeAssistant;
     private _sceneConfig: SceneConfig;
     private _scene: SceneData;
+
+    @property() public cardTitle:string;
 
     set hass(hass:HomeAssistant) {
         const oldHass = this._hass;
@@ -185,16 +187,18 @@ export class HueDialogTile extends LitElement {
     }
 
     private renderScene() {
+        const title = this._scene.getTitle(this.cardTitle);
+
         /*eslint-disable */
         return html`
-        <div class='hue-tile scene' title='${this._scene.getTitle()}' @click="${this.sceneClicked}">
+        <div class='hue-tile scene' title='${title}' @click="${this.sceneClicked}">
             <div class='icon-background'>
                 <div class='color'>
                     <ha-icon icon="${this._scene.getIcon('mdi:palette')}"></ha-icon>
                 </div>
             </div>
             <div class='title'>
-                <span>${this._scene.getTitle()}</span>
+                <span>${title}</span>
             </div>
         </div>
         `;
