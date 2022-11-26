@@ -160,6 +160,7 @@ export class HueDialog extends LitElement {
   `;
 
     private static readonly tileGap = 10;
+    private static readonly haPadding = 24;
 
     static get styles() {
         return [
@@ -236,14 +237,19 @@ export class HueDialog extends LitElement {
             max-width: 100%;
             overflow-x: auto;
             overflow-y: hidden;
-            padding: 0 24px;
-            margin: 0 -24px;
+            padding: 0 ${HueDialog.haPadding}px;
+            margin: 0 -${HueDialog.haPadding}px;
         }
         .tiles {
             display: flex;
             flex-flow: row;
             gap: ${HueDialog.tileGap}px;
             margin-bottom: ${HueDialog.tileGap}px;
+        }
+        .tiles::after {
+            /* Flex loosing right padding, when overflowing */
+            content: '';
+            min-width: ${HueDialog.haPadding - HueDialog.tileGap}px;
         }
         `];
     }
