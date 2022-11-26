@@ -86,10 +86,16 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         position:relative;
         box-shadow:var(--hue-box-shadow), var(--ha-default-shadow);
     }
+    ha-card.new-borders
+    {
+        /* since HA 2022.11 */
+        box-shadow:var(--hue-box-shadow);
+    }
     ha-card.hue-borders
     {
         border-radius:${Consts.HueBorderRadius}px;
         box-shadow:var(--hue-box-shadow), ${unsafeCSS(Consts.HueShadow)};
+        border:none;
     }
     ha-card div.tap-area
     {
@@ -132,11 +138,13 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     `;
 
-    private haShadow:string;
+    private haShadow:string | null;
 
     private updateStyles(): void {
+        const card = <Element>this.renderRoot.querySelector('ha-card');
+
         // get defaultShadow (when not using hueBorders)
-        if (!this._config.hueBorders && !this.haShadow) {
+        if (!this._config.hueBorders && this.haShadow == null) {
 
             // get default haShadow
             const c = document.createElement('ha-card');
@@ -145,6 +153,16 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             this.haShadow = s.boxShadow;
             c.remove();
 
+            if (this.haShadow == 'none') {
+                if (card == null) {
+                    // wait for card element
+                    this.haShadow = null;
+                } else {
+                    // since HA 2022.11 default ha-card has no shadow
+                    card.classList.add('new-borders');
+                }
+            }
+
             // set default shadow property
             this.style.setProperty(
                 '--ha-default-shadow',
@@ -152,7 +170,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             );
         }
 
-        const card = <Element>this.renderRoot.querySelector('ha-card');
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
         const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config);
 
