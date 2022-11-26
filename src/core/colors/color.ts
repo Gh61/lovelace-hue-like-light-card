@@ -1,18 +1,28 @@
-import { Consts } from '../../types/consts';
-
 export class Color {
-    private _red: number;
-    private _green: number;
-    private _blue: number;
+    protected _red: number;
+    protected _green: number;
+    protected _blue: number;
+    protected _opacity: number;
 
-    constructor(stringOrRed: string | number, green?: number, blue?: number) {
-        if (typeof stringOrRed == 'string') {
-            this.parse(stringOrRed);
+    public static readonly LuminanceBreakingPoint = 192; // hue breaking point is pretty high
+
+    constructor(colorOrRed: string | number, opacityOrGreen?: number, blue?: number, opacity = 1) {
+        if (typeof colorOrRed == 'string') {
+            this.parse(colorOrRed);
+            this._opacity = opacityOrGreen ?? 1;
         } else {
-            this._red = stringOrRed;
-            this._green = green ?? 0;
+            this._red = colorOrRed;
+            this._green = opacityOrGreen ?? 0;
             this._blue = blue ?? 0;
+            this._opacity = opacity;
         }
+    }
+
+    /**
+     * Gets opacity of this color.
+     */
+    public getOpacity(): number {
+        return this._opacity;
     }
 
     /**
@@ -28,7 +38,7 @@ export class Color {
      */
     public getForeground<T>(light: T, dark: T, offset: number): T {
         const luminance = this.getLuminance();
-        return (luminance + offset) < Consts.LuminanceBreakingPoint ? light : dark;
+        return (luminance + offset) < Color.LuminanceBreakingPoint ? light : dark;
     }
 
     /**
@@ -74,6 +84,10 @@ export class Color {
     }
 
     public toString(): string {
+        if (this._opacity < 1) {
+            return `rgba(${this._red}, ${this._green}, ${this._blue}, ${this._opacity})`;
+        }
+
         return `rgb(${this._red}, ${this._green}, ${this._blue})`;
     }
 }

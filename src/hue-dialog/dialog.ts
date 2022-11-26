@@ -184,6 +184,8 @@ export class HueDialog extends LitElement {
             border-bottom-left-radius: var(--ha-dialog-border-radius, 28px);
             border-bottom-right-radius: var(--ha-dialog-border-radius, 28px);
             padding-bottom: calc(var(--ha-dialog-border-radius, 28px) / 2);
+
+            overflow:hidden;
         }
         ha-header-bar {
             --mdc-theme-on-primary: var(--hue-text-color);
@@ -262,40 +264,42 @@ export class HueDialog extends LitElement {
 
         // ## Content styles
         if (isFirst) {
-            const contentBg = this._config.getHueScreenBgColor();
-            const contentFg = contentBg.getForeground(Consts.DialogFgLightColor, Consts.DarkColor, +120); // for most colors use dark
+            const configColor = this._config.getHueScreenBgColor();
+            let contentBg = null;
+            let contentFg = null;
+            if (!configColor.isThemeColor()) {
+                contentBg = configColor;
+                contentFg = contentBg.getForeground(Consts.DialogFgLightColor, Consts.DarkColor, +120); // for most colors use dark
 
-            this.style.setProperty(
-                '--mdc-theme-surface',
-                contentBg.toString()
-            );
-            this.style.setProperty(
-                '--primary-text-color',
-                contentFg.toString()
-            );
+                this.style.setProperty(
+                    '--mdc-theme-surface',
+                    contentBg.toString()
+                );
+                this.style.setProperty(
+                    '--primary-text-color',
+                    contentFg.toString()
+                );
+            } else {
+                this.style.removeProperty('--mdc-theme-surface');
+                this.style.removeProperty('--primary-text-color');
+            }
         }
 
         // ## Heading styles
         const heading = <Element>this.renderRoot.querySelector('.heading');
 
-        let offBackground:Background;
-        const recommendedOffFg:string | null = null;
+        let offBackground:Background | null;
         // if the user sets custom off color - use it
         if (this._config.wasOffColorSet) {
-            offBackground = new Background([this._config.getOffColor()]);
+            const offColor = this._config.getOffColor();
+            if (!offColor.isThemeColor()) {
+                offBackground = new Background([offColor.getBaseColor()]);
+            } else {
+                offBackground = null;
+            }
         } else {
             offBackground = new Background([new Color(Consts.DialogOffColor)]);
         }
-        
-        // TODO: theme color possibility
-        // else {
-        //     // take original theme colors
-        //     const computedStyle = getComputedStyle(this);
-        //     const cssBackground = computedStyle.getPropertyValue('--mdc-theme-surface');
-        //     recommendedOffFg = computedStyle.getPropertyValue('--primary-text-color');
-
-        //     offBackground = new Background([new Color(cssBackground)]);
-        // }
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
         const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config);
@@ -303,11 +307,6 @@ export class HueDialog extends LitElement {
         // when first rendered, clientHeight is 0, so no shadow is genered - plan new update:
         if (!shadow) {
             this.requestUpdate();
-        }
-
-        // default fg color if background is default from theme
-        if (bfg.background == offBackground && recommendedOffFg) {
-            bfg.foreground = recommendedOffFg;
         }
 
         if (this._config.hueBorders) {
@@ -319,7 +318,7 @@ export class HueDialog extends LitElement {
 
         this.style.setProperty(
             '--hue-background',
-            bfg.background.toString()
+            bfg.background?.toString() ?? 'var(--mdc-theme-surface)'
         );
         this.style.setProperty(
             '--hue-box-shadow',
@@ -327,7 +326,7 @@ export class HueDialog extends LitElement {
         );
         this.style.setProperty(
             '--hue-text-color',
-            bfg.foreground
+            bfg.foreground?.toString() ?? 'var(--primary-text-color)'
         );
     }
 

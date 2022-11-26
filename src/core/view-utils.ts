@@ -3,6 +3,7 @@ import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
 import { Action } from '../types/functions';
 import { Background } from './colors/background';
+import { Color } from './colors/color';
 import { LightController } from './light-controller';
 
 export class ViewUtils {
@@ -63,11 +64,20 @@ export class ViewUtils {
     /**
      * Calculates and returns background and foregound color (for actual light brightness).
      * Creates readable text on background with shadow based on current brightness.
+     * @param ctrl Light controller
+     * @param offBackground background used when all lights are off (null can be passed, and if used, null bg and fg will be returned)
      * @param assumeShadow If turned off, calculates foreground for max brightness (noShadow).
      */
-    public static calculateBackAndForeground(ctrl: LightController, offBackground:Background, assumeShadow = true) {
+    public static calculateBackAndForeground(ctrl: LightController, offBackground:Background | null, assumeShadow = true) {
         const currentBackground = ctrl.isOff() ? offBackground : (ctrl.getBackground() || offBackground);
-        const foreground = this.calculateForeground(ctrl, currentBackground, assumeShadow);
+
+        let foreground : Color | null;
+        if (currentBackground == null) {
+            foreground = null;
+        } else {
+            const fgx = this.calculateForeground(ctrl, currentBackground, assumeShadow);
+            foreground = fgx.foreground;
+        }
 
         return {
             background: currentBackground,
@@ -80,7 +90,7 @@ export class ViewUtils {
      * Creates readable text on background with shadow based on current brightness.
      * @param assumeShadow If turned off, calculates foreground for max brightness (noShadow).
      */
-    public static calculateForeground(ctrl: LightController, currentBackground:Background, assumeShadow = true) {
+    private static calculateForeground(ctrl: LightController, currentBackground:Background, assumeShadow = true) {
 
         let currentValue = ctrl.value;
         // if the shadow is not present, act like the value is on max.
@@ -88,21 +98,31 @@ export class ViewUtils {
             currentValue = 100;
         }
 
+        const opacity = 1;
         const offset = ctrl.isOn() && currentValue > 50
             ? -(10 - ((currentValue - 50) / 5)) // offset: -10-0
             : 0;
-        const foreground = ctrl.isOn() && currentValue <= 50 
+        let foreground = ctrl.isOn() && currentValue <= 50 
             ? Consts.LightColor // is on and under 50 => Light
             : currentBackground.getForeground(
                 Consts.LightColor, // should be light
-                ctrl.isOn() // should be dark
-                    ? Consts.DarkColor
-                    : Consts.DarkOffColor // make it little lighter, when isOff
-                ,
+                Consts.DarkColor, // should be dark
                 offset // offset for darker brightness
             );
 
-        return foreground;
+        // make the dark little lighter, when Off
+        if (ctrl.isOff()) {
+            if (foreground == Consts.DarkColor) {
+                foreground = Consts.DarkOffColor;
+            } else {
+                foreground = Consts.LightOffColor;
+            }
+        }
+
+        return {
+            foreground: foreground,
+            opacity: opacity
+        };
     }
 
     /**

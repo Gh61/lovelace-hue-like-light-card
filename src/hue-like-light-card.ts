@@ -34,7 +34,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _hass: HomeAssistant;
     private _ctrl: LightController;
     private _clickHandler: ClickHandler;
-    private _offBackground: Background;
+    private _offBackground: Background | null;
 
     set hass(hass:HomeAssistant) {
         const oldHass = this._hass;
@@ -58,8 +58,15 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         this._config = new HueLikeLightCardConfig(<HueLikeLightCardConfigInterface>plainConfig);
 
         this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor());
-        this._offBackground = new Background([this._config.getOffColor()]);
         this._clickHandler = new ClickHandler(this._config, this._ctrl, this);
+
+        // For theme color set background to null
+        const offColor = this._config.getOffColor();
+        if (!offColor.isThemeColor()) {
+            this._offBackground = new Background([offColor.getBaseColor()]);
+        } else {
+            this._offBackground = null;
+        }
     }
 
     // The height of your card. Home Assistant uses this to automatically
@@ -170,12 +177,20 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             );
         }
 
+        // Theme colors:
+        // BG: --card-background-color OR OLD: --paper-card-background-color
+        // FG: --primary-text-color (for off: --secondary-text-color)
+
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
         const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config);
 
         this.style.setProperty(
             '--hue-background',
-            bfg.background.toString()
+            bfg.background?.toString() ?? 'var(--card-background-color, --paper-card-background-color)'
+        );
+        this.style.setProperty(
+            '--hue-text-color',
+            bfg.foreground?.toString() ?? 'var(--secondary-text-color)'
         );
         this.style.setProperty(
             '--ha-card-box-shadow',
@@ -184,10 +199,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         this.style.setProperty(
             '--hue-box-shadow',
             shadow
-        );
-        this.style.setProperty(
-            '--hue-text-color',
-            bfg.foreground
         );
     }
 

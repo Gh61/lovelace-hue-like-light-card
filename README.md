@@ -143,7 +143,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
   </tr>
   <tr>
     <td><code>offColor</code></td>
-    <td><a href="#color">Color</a></td>
+    <td><a href="#colorextended">ColorExtended</a></td>
     <td>no</td>
     <td>1.0.0</td>
     <td><code>'#666'</code><br/>(<code>'#363636'</code> for <a href="#hue-screen">Hue Screen</a>)</td>
@@ -154,7 +154,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
   </tr>
   <tr>
     <td><code>hueScreenBgColor</code></td>
-    <td><a href="#color">Color</a></td>
+    <td><a href="#colorextended">ColorExtended</a></td>
     <td>no</td>
     <td>1.1.0</td>
     <td><code>'#171717'</code></td>
@@ -176,7 +176,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td>no</td>
     <td>1.0.0</td>
     <td><code>true</code></td>
-    <td>If turned off, the card will not have so much rounded edges. It will have default edge rounding instead.</td>
+    <td>If turned off, the card will take border settings from current Home Assistant theme.</td>
   </tr>
   <tr>
     <td><code>resources</code></td>
@@ -207,6 +207,15 @@ The color can be defined in following ways:
   <li>WEB name: <code>'red'</code>,<code>'salmon'</code>,<code>'DarkSeaGreen'</code>, etc.</li>
   <li>predefined: <code>'warm'</code> or <code>'cold'</code> (in places where it does make sense)</td></li>
 </ul>
+
+## ColorExtended
+*Since version 1.2.0*
+
+Same as [Color](#color) and can also be defined as
+<ul>
+  <li><code>theme-color</code></li>
+</ul>
+This will pick the color from currently used Home Assistant theme.
 
 ## Click action
 When the card is clicked, something can happen. This can be configured through configuration.
@@ -465,8 +474,8 @@ entities:
   - light.tvlight_color2
   - light.tvlight_color3
   - light.tvlight_color4
-offColor: white
-hueScreenBgColor: white
+offColor: theme-color
+hueScreenBgColor: theme-color
 disableOffShadow: true
 hueBorders: false
 ```

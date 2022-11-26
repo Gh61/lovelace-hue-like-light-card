@@ -1,15 +1,18 @@
 import { Consts } from '../../types/consts';
 import { Color } from './color';
+import { ColorExtended } from './color-extended';
 
 export class Background {
     private _colors: Color[];
 
-    constructor(backgroundOrColors: (Background | Color)[]) {
-        if (!(backgroundOrColors?.length > 0))
+    constructor(backgroundsOrColors: (Background | Color)[]) {
+        if (!(backgroundsOrColors?.length > 0))
             throw new Error('At least one background or color is needed for new Background(...).');
 
-        this._colors = backgroundOrColors.flatMap(b => {
-            if (b instanceof Color) {
+        this._colors = backgroundsOrColors.flatMap(b => {
+            if (b instanceof ColorExtended) {
+                throw new Error('ColorExtended cannot be used in Background. Resolve it first.');
+            } if (b instanceof Color) {
                 return [b];
             } else if (b instanceof Background) {
                 // eslint-disable-next-line no-underscore-dangle

@@ -5,6 +5,7 @@ import { ColorResolver } from '../core/colors/color-resolvers';
 import { Resources } from './resources';
 import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicites } from './extensions';
+import { ColorExtended } from '../core/colors/color-extended';
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     private _scenes : SceneConfig[];
@@ -158,15 +159,15 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     /**
      * @returns Off color as instance of Color.
      */
-    public getOffColor() : Color {
-        return new Color(this.offColor);
+    public getOffColor() : ColorExtended {
+        return new ColorExtended(this.offColor);
     }
 
     /**
      * @returns Background color for hue-screen dialog. 
      */
-    public getHueScreenBgColor() : Color {
-        return new Color(this.hueScreenBgColor);
+    public getHueScreenBgColor() : ColorExtended {
+        return new ColorExtended(this.hueScreenBgColor);
     }
 
     private scenesLoaded = false;
