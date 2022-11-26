@@ -1,22 +1,14 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/paygh61/)
-![Downloads](https://img.shields.io/github/downloads/Gh61/lovelace-hue-like-light-card/total.svg)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/paygh61/) ![Downloads](https://img.shields.io/github/downloads/Gh61/lovelace-hue-like-light-card/total.svg)
 
 
 # Hue-Like Light Card for Home Assistant
 
 This card is providing light control. It is inspired by original Philips Hue app.
 
-<table>
-<tr>
-  <td>
-    <img alt="Screen1" src="/doc/screen1.png" height="500" />
-  </td>
-  <td>
-    <img alt="Hue-Screen2" src="/doc/hue-screen2.png" height="500" />
-  </td>
-</tr>
-</table>
+<p>
+  <img alt="Screen1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/screen1.png" height="500" />
+  <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="500" />
+</p>
 
 \* *intensity of color, shadow and other UI properties may be subject of change*
 
@@ -413,7 +405,7 @@ All scenes from all areas, where configured lights are placed, are taken.
 Hue screen will allow you to activate [scenes](#scenes-configuration), *and in the future* set light colors (same functionality as Hue App).
 
 ![Hue-Screen](/doc/hue-screen1.png)
-<img alt="Hue-Screen2" src="/doc/hue-screen2.png" height="440" />
+<img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="440" />
 
 ## Resources object
 Using the configuration option `resources`, you can change all static texts used in this component.
