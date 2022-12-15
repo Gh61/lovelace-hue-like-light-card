@@ -4,6 +4,7 @@ import { ILightContainer } from '../types/types';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { GlobalLights } from './global-lights';
+import { StaticTextTemplate } from './hass-text-template';
 import { LightContainer } from './light-container';
 import { NotifyBase } from './notify-base';
 
@@ -144,7 +145,7 @@ export class LightController extends NotifyBase<LightController> implements ILig
         if (this._lights.length > 3)
             title += ', ...';
 
-        return title;
+        return new StaticTextTemplate(title);
     }
 
     getBackground(): Background | null {

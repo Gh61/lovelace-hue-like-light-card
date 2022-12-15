@@ -1,6 +1,7 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { html, css, LitElement, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { Color } from '../core/colors/color';
 import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
@@ -160,7 +161,7 @@ export class HueDialogTile extends LitElement {
             const accentColor = this._scene.getColor();
             if (accentColor) {
                 const fg = accentColor.getForeground(Consts.LightColor, Consts.DarkColor, 20); // offset:20 - lets make the text color light sooner
-                const textFg = accentColor.getForeground(Consts.LightColor, 'black', 20); // offset:20 - lets make the text color light sooner
+                const textFg = accentColor.getForeground(Consts.LightColor, new Color('black'), 20); // offset:20 - lets make the text color light sooner
 
                 this.style.setProperty(
                     '--hue-tile-accent-color',

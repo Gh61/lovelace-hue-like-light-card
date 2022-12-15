@@ -28,6 +28,14 @@
 
         "react/jsx-filename-extension": "off",
         "import/extensions": "off",
-        "import/no-extraneous-dependencies": "off"
+        "import/no-extraneous-dependencies": "off",
+
+        // unused variables for interface
+        "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+              "argsIgnorePattern": "^_" // dont_throw unused on arguments starting with underscore
+            }
+        ]
     }
 }

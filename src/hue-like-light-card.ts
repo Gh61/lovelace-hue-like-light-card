@@ -203,7 +203,9 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
 
     protected render() {
-        const title = this._config.getTitle(this._ctrl);
+        const titleTemplate = this._config.getTitle(this._ctrl);
+        const title = titleTemplate.resolveToString(this._hass);
+
         const onChangeCallback = () => {
             this.requestUpdate();
             this.updateStyles();

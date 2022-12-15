@@ -199,6 +199,36 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
 - If the card has two lights `mdi:lightbulb-multiple` (![lightbulb-multiple](https://user-images.githubusercontent.com/10837736/171444016-4b571fcf-0e30-4eca-9baf-61a710c17c05.svg)) is used.
 - If the card has three or more lights attached, `mdi:lightbulb-group` (![lightbulb-group](https://user-images.githubusercontent.com/10837736/171444069-639d41d5-1dc7-4bd7-8104-b77f52df86fb.svg)) is used.
 
+## Text template
+*Since version 1.2.0*
+
+The text supports showing entity states and attributes using double curly `{{` brackets `}}`.
+When you insert entity name inside these brackets, entity status will be resolved and shown on given place. You can also show attribute on this entity.
+
+#### Simple state
+```yaml
+type: custom:hue-like-light-card
+title: TV - {{ light.tv_backlight }}
+entity: light.tv_backlight
+```
+
+![Template usage](/doc/template-screen1.png)
+
+#### Attribute ussage
+```yaml
+type: custom:hue-like-light-card
+title: Kitchen - desk ({{ light.kitchen_desk1.brightness }}, {{light.kitchen_desk2.brightness}})
+icon: mdi:wall-sconce-flat
+offColor: '#363636'
+entities:
+  - light.kitchen_desk1
+  - light.kitchen_desk2
+```
+![Template attribute usage](/doc/template-screen2.png)
+
+When attribute is not available (or is empty) on entity, state of the entity will be shown instead. 
+
+
 ## Color
 The color can be defined in following ways:
 <ul>

@@ -5,6 +5,7 @@ import { ensureEntityDomain } from '../types/extensions';
 import { HassLightAttributes, ILightContainer } from '../types/types';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
+import { StaticTextTemplate } from './hass-text-template';
 import { TimeCache, TimeCacheValue } from './time-cache';
 
 export class LightContainer implements ILightContainer {
@@ -136,7 +137,7 @@ export class LightContainer implements ILightContainer {
     }
 
     getTitle() {
-        return this._entity.attributes.friendly_name ?? this._entity_id;
+        return new StaticTextTemplate(this._entity.attributes.friendly_name ?? this._entity_id);
     }
 
     getBackground(): Background | null {

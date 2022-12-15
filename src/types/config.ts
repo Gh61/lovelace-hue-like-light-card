@@ -1,4 +1,4 @@
-import { ClickAction, ClickActionData, HassSearchDeviceResult, HueLikeLightCardConfigInterface, ILightContainer, SceneConfig } from './types';
+import { ClickAction, ClickActionData, HassSearchDeviceResult, HueLikeLightCardConfigInterface, IHassTextTemplate, ILightContainer, SceneConfig } from './types';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
@@ -6,6 +6,7 @@ import { Resources } from './resources';
 import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
+import { HassTextTemplate } from '../core/hass-text-template';
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     private _scenes : SceneConfig[];
@@ -127,8 +128,10 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     /**
      * @returns Title from config or from passed container.
      */
-    public getTitle(lightContainer:ILightContainer) : string {
-        return this.title || lightContainer.getTitle();
+    public getTitle(lightContainer:ILightContainer) : IHassTextTemplate {
+        return !!this.title
+            ? new HassTextTemplate(this.title)
+            : lightContainer.getTitle();
     }
 
     /**

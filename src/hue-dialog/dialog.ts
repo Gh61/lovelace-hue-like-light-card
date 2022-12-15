@@ -335,7 +335,7 @@ export class HueDialog extends LitElement {
 
         // inspiration: https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/ha-more-info-dialog.ts
 
-        const name = this._config.title || this._ctrl.getTitle();
+        const cardTitle = this._config.getTitle(this._ctrl).resolveToString(this._ctrl.hass);
         const mdiClose = 'mdi:close';
 
         const onChangeCallback = () => {
@@ -343,14 +343,12 @@ export class HueDialog extends LitElement {
             this.updateStyles(false);
         };
 
-        const cardTitle = this._config.getTitle(this._ctrl);
-
         /*eslint-disable */
         return html`
         <ha-dialog
           open
           @closed=${this.onDialogClose}
-          .heading=${name}
+          .heading=${cardTitle}
           hideActions
         >
           <div slot="heading" class="heading">
@@ -368,9 +366,9 @@ export class HueDialog extends LitElement {
               <div
                 slot="title"
                 class="main-title"
-                .title=${name}
+                .title=${cardTitle}
               >
-                ${name}
+                ${cardTitle}
               </div>
               <div slot="actionItems">
               ${ViewUtils.createSwitch(this._ctrl, onChangeCallback)}

@@ -211,6 +211,13 @@ export interface HaDialog extends HTMLElement {
 
 // #endregion
 
+export interface IHassTextTemplate {
+    /**
+     * Resolves this template to string, using hass states.
+     */
+    resolveToString(hass:HomeAssistant | null):string;
+}
+
 export interface ILightContainer {
     /**
      * Sets current hass instance to this container.
@@ -255,7 +262,7 @@ export interface ILightContainer {
     /**
      * @returns suggested title for card with lights in this container.
      */
-    getTitle(): string;
+    getTitle(): IHassTextTemplate;
 
     /**
      * @returns background style for card with lights in this container.
