@@ -1,4 +1,4 @@
-import { ResourcesInterface } from './types';
+import { ResourcesInterface } from './types-config';
 
 export class Resources implements ResourcesInterface {
     /**

@@ -8,7 +8,8 @@ import { ViewUtils } from './core/view-utils';
 import { HueLikeLightCardConfig } from './types/config';
 import { Consts } from './types/consts';
 import { nameof } from './types/extensions';
-import { HueLikeLightCardConfigInterface, WindowWithCards } from './types/types';
+import { WindowWithCards } from './types/types';
+import { HueLikeLightCardConfigInterface } from './types/types-config';
 
 /* eslint no-console: 0 */
 console.info(

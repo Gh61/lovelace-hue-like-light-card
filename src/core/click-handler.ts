@@ -1,7 +1,7 @@
 import { fireEvent } from 'custom-card-helpers';
 import { HueDialog } from '../hue-dialog/dialog';
 import { HueLikeLightCardConfig } from '../types/config';
-import { ClickAction, ClickActionData, SceneData } from '../types/types';
+import { ClickAction, ClickActionData, SceneData } from '../types/types-config';
 import { LightController } from './light-controller';
 
 export class ClickHandler {

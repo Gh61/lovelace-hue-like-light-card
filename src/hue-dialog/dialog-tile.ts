@@ -5,7 +5,7 @@ import { Color } from '../core/colors/color';
 import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
-import { SceneConfig, SceneData } from '../types/types';
+import { SceneConfig, SceneData } from '../types/types-config';
 
 /**
  * Represents tile element in HueDialog (it can be Scene tile, Light tile, ...)

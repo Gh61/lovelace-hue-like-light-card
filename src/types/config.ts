@@ -1,4 +1,4 @@
-import { ClickAction, ClickActionData, HassSearchDeviceResult, HueLikeLightCardConfigInterface, IHassTextTemplate, ILightContainer, SceneConfig } from './types';
+import { HassSearchDeviceResult, IHassTextTemplate, ILightContainer } from './types';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
@@ -7,6 +7,7 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
+import { ClickAction, ClickActionData, HueLikeLightCardConfigInterface, SceneConfig } from './types-config';
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     private _scenes : SceneConfig[];
@@ -104,6 +105,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         result.title = plain.title;
         result.icon = plain.icon;
         result.color = plain.color;
+        result.activation = plain.activation;
+        result.activationData = plain.activationData;
 
         return result;
     }

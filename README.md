@@ -226,7 +226,7 @@ entities:
 ```
 ![Template attribute usage](/doc/template-screen2.png)
 
-When attribute is not available (or is empty) on entity, state of the entity will be shown instead. 
+*When attribute is not available (or is empty) on entity, state of the entity will be shown instead.*
 
 
 ## Color
@@ -315,7 +315,7 @@ onClickAction: turn-off
   </tr>
   <tr>
     <td><code>hue-screen</code></td>
-    <td>no<br/>(is using general <a href="#configuration"><code>scenes</code></a> config)</td>
+    <td>no<br/>(is using general <a href="#scenes-configuration"><code>scenes</code></a> config)</td>
     <td>no</td>
     <td>1.1.0</td>
     <td>show <a href="#hue-screen">Hue Screen</a></td>
@@ -411,8 +411,29 @@ When no scenes are defined, scenes will be detected [automatically](#scenes-dete
     <td>Accent color current scene (shown on scene-button)</td>
   </tr>
   <tr>
+    <td><code>activation</code></td>
+    <td><a href="https://www.home-assistant.io/docs/scripts/service-calls/">Service name</a></td>
+    <td>no</td>
+    <td>1.2.0</td>
+    <td><code>'scene.turn_on'</code></td>
+    <td>Service called when scene is activated</td>
+  </tr>
+  <tr>
+    <td><code>activationData</code></td>
+    <td>object</td>
+    <td>no</td>
+    <td>1.2.0</td>
+    <td>-</td>
+    <td>Data for <code>activation</code> service.**</td>
+  </tr>
+  <tr>
     <td colspan="6">
       <i>* If the scene name begins with the same text as the card title is, this text is removed.</i>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="6">
+      <i>** Data always have <code>entity_id</code> parameter filled with <code>entity</code> name. You can change this value, when another value is supplied with this name.</i>
     </td>
   </tr>
 </table>
@@ -439,6 +460,23 @@ Automatic scene detection will take place, when no scenes are configured.
 
 Scenes are detected from areas where lights are placed.<br/>
 All scenes from all areas, where configured lights are placed, are taken.
+
+### Custom activation example (Hue dynamic scene)
+```yaml
+type: custom:hue-like-light-card
+...
+scenes:
+  ...
+  - entity: scene.barvy_tokio
+    color: rgb(168, 25, 255)
+    icon: mdi:home-city
+    title: Tokio (dynamic)
+    activation: hue.activate_scene
+    activationData:
+      dynamic: true
+      brightness: 180
+      speed: 40
+```
 
 ## Hue Screen
 Hue screen will allow you to activate [scenes](#scenes-configuration), *and in the future* set light colors (same functionality as Hue App).
