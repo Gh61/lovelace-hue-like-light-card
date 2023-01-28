@@ -1,3 +1,4 @@
 TODO:
 - faster color detection after scene activation (request update over WS?)
 - long press on scene => more-info
+- change 'disableOffShadow' to 'offShadow' (and make the first obsolete)

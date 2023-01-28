@@ -166,6 +166,7 @@ export interface HueLikeLightCardConfigInterface {
     readonly entities?: string[];
     readonly title?: string;
     readonly icon?: string;
+    readonly showSwitch?: boolean;
     readonly scenes?: (string | SceneConfig)[];
     readonly offClickAction?: ClickAction;
     readonly offClickData?: string | Record<string, string> | ClickActionData;

@@ -1,6 +1,6 @@
 {
     "name": "hue-like-light-card",
-    "version": "v1.2.0",
+    "version": "v1.2.1",
     "description": "Hue-Like Light Card",
     "keywords": [
         "home-assistant",
@@ -12,7 +12,7 @@
     ],
     "module": "hue-like-light-card.js",
     "repository": "git@github.com:Gh61/lovelace-hue-like-light-card.git",
-    "author": "Tom Zenkner <t.zenkner@email.com>",
+    "author": "Tom Zenkner <t.zenkner@email.cz>",
     "license": "LGPLv2.1",
     "dependencies": {
         "custom-card-helpers": "^1.9.0",

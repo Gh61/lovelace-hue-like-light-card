@@ -1,5 +1,6 @@
 import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
 import { LitElement, css, html, unsafeCSS } from 'lit';
+import { classMap } from 'lit-html/directives/class-map.js';
 import { customElement } from 'lit/decorators.js';
 import { ClickHandler } from './core/click-handler';
 import { Background } from './core/colors/background';
@@ -37,7 +38,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _clickHandler: ClickHandler;
     private _offBackground: Background | null;
 
-    set hass(hass:HomeAssistant) {
+    set hass(hass: HomeAssistant) {
         const oldHass = this._hass;
 
         // first load hass - try load scenes
@@ -76,7 +77,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         return 3;
     }
 
-    private cardClicked() : void {
+    private cardClicked(): void {
         // handle the click
         this._clickHandler.handleClick();
 
@@ -132,6 +133,9 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         color:var(--hue-text-color);
         transition:all 0.3s ease-out 0s;
     }
+    h2.no-switch{
+        margin-right:10px;
+    }
     ha-switch
     {
         position:absolute;
@@ -146,7 +150,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     `;
 
-    private haShadow:string | null;
+    private haShadow: string | null;
 
     private updateStyles(): void {
         const card = <Element>this.renderRoot.querySelector('ha-card');
@@ -206,6 +210,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     protected render() {
         const titleTemplate = this._config.getTitle(this._ctrl);
         const title = titleTemplate.resolveToString(this._hass);
+        const showSwitch = this._config.showSwitch;
+        const h2Class = { 'no-switch': !showSwitch };
 
         const onChangeCallback = () => {
             this.requestUpdate();
@@ -215,9 +221,9 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         return html`<ha-card>
             <div class="tap-area" @click="${(): void => this.cardClicked()}">
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
-                <h2>${title}</h2>
+                <h2 class="${classMap(h2Class)}">${title}</h2>
             </div>
-            ${ViewUtils.createSwitch(this._ctrl, onChangeCallback)}
+            ${showSwitch ? ViewUtils.createSwitch(this._ctrl, onChangeCallback) : html``}
 
             ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
         </ha-card>`;

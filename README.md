@@ -85,6 +85,15 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td>Card icon</td>
   </tr>
   <tr>
+    <td><code>showSwitch</code></td>
+    <td>boolean</td>
+    <td>no</td>
+    <td>1.2.1</td>
+    <td><code>true</code></td>
+    <td>When set to <code>false</code>, toggle switch will not be visible on card. This will give more space for <code>title</code>.<br/>
+    (You can then use <code>offClickAction</code> and <code>onClickAction</code> to turn the lights on/off.)</td>
+  </tr>
+  <tr>
     <td><code>offClickAction</code></td>
     <td><a href="#click-action">Click Action</a></td>
     <td>no</td>
@@ -467,7 +476,7 @@ type: custom:hue-like-light-card
 ...
 scenes:
   ...
-  - entity: scene.barvy_tokio
+  - entity: scene.colors_tokio
     color: rgb(168, 25, 255)
     icon: mdi:home-city
     title: Tokio (dynamic)
@@ -530,6 +539,20 @@ type: custom:hue-like-light-card
 entity: light.livingroom_lamp
 title: Reading light
 icon: mdi:floor-lamp
+```
+
+#### No toggle switch
+![Screen7](/doc/screen7.png)
+```yaml
+type: custom:hue-like-light-card-test
+title: '[ TV - {{ light.tv_backlight }} ] No switch = more space for title'
+entity: light.tv_backlight
+icon: mdi:television
+showSwitch: false
+offClickAction: turn-on
+onClickAction: turn-off
+offColor: rgb(28,28,28)
+
 ```
 
 #### Home Assistant-like

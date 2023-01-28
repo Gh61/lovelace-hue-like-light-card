@@ -17,6 +17,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.entities = plainConfig.entities;
         this.title = plainConfig.title;
         this.icon = plainConfig.icon;
+        this.showSwitch = HueLikeLightCardConfig.getBoolean(plainConfig.showSwitch, true);
         this._scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
         this.offClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.offClickAction);
         this.offClickData = new ClickActionData(plainConfig.offClickData);
@@ -115,6 +116,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     readonly entities?: string[];
     readonly title?: string;
     readonly icon?: string;
+    readonly showSwitch: boolean;
     get scenes() { return this._scenes; }
     readonly offClickAction: ClickAction;
     readonly offClickData: ClickActionData;
