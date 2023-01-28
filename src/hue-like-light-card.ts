@@ -1,5 +1,5 @@
-import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
-import { LitElement, css, html, unsafeCSS } from 'lit';
+import { LovelaceCard, HomeAssistant, LovelaceCardConfig, applyThemesOnElement } from 'custom-card-helpers';
+import { LitElement, css, html, unsafeCSS, PropertyValues } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { customElement } from 'lit/decorators.js';
 import { ClickHandler } from './core/click-handler';
@@ -36,6 +36,11 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _hass: HomeAssistant;
     private _ctrl: LightController;
     private _clickHandler: ClickHandler;
+
+    /**
+     * Off background color.
+     * Null for theme color.
+     */
     private _offBackground: Background | null;
 
     set hass(hass: HomeAssistant) {
@@ -57,6 +62,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
 
     async setConfig(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
+        const oldConfig = this._config;
         this._config = new HueLikeLightCardConfig(<HueLikeLightCardConfigInterface>plainConfig);
 
         this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor());
@@ -69,6 +75,9 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         } else {
             this._offBackground = null;
         }
+
+        // custom @property() implementation
+        this.requestUpdate('_config', oldConfig);
     }
 
     // The height of your card. Home Assistant uses this to automatically
@@ -82,7 +91,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         this._clickHandler.handleClick();
 
         // update styles
-        this.updateStyles();
+        this.updateStylesInner();
     }
 
     // #### UI:
@@ -150,13 +159,33 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     `;
 
+    protected updated(changedProps: PropertyValues): void {
+        super.updated(changedProps);
+        this.updateStylesInner();
+
+        if (!this._config || !this.hass) {
+            return;
+        }
+
+        const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
+        const oldConfig = changedProps.get('_config') as HueLikeLightCardConfig | undefined;
+
+        if (!oldHass || !oldConfig || oldHass.themes !== this.hass.themes || oldConfig.theme !== this._config.theme) {
+            applyThemesOnElement(this, this.hass.themes, this._config.theme);
+
+            // Update styles
+            this.updateStylesInner(true);
+        }
+    }
+
     private haShadow: string | null;
 
-    private updateStyles(): void {
+    // Can't be named 'updateStyles', because HA search for that method and calls it instead of applying theme
+    private updateStylesInner(forceRefresh = false): void {
         const card = <Element>this.renderRoot.querySelector('ha-card');
 
         // get defaultShadow (when not using hueBorders)
-        if (!this._config.hueBorders && this.haShadow == null) {
+        if (!this._config.hueBorders && (this.haShadow == null || forceRefresh)) {
 
             // get default haShadow
             const c = document.createElement('ha-card');
@@ -191,11 +220,11 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
         this.style.setProperty(
             '--hue-background',
-            bfg.background?.toString() ?? 'var(--card-background-color, --paper-card-background-color)'
+            bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar
         );
         this.style.setProperty(
             '--hue-text-color',
-            bfg.foreground?.toString() ?? 'var(--secondary-text-color)'
+            bfg.foreground?.toString() ?? Consts.ThemeSecondaryTextColorVar
         );
         this.style.setProperty(
             '--ha-card-box-shadow',
@@ -215,7 +244,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
         const onChangeCallback = () => {
             this.requestUpdate();
-            this.updateStyles();
+            this.updateStylesInner();
         };
 
         return html`<ha-card>
@@ -231,23 +260,21 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     //#region updateStyles hooks
 
-    protected firstUpdated() {
+    protected firstUpdated(changedProps: PropertyValues) {
+        super.firstUpdated(changedProps);
+
         // CSS
         if (this._config.hueBorders) {
             (this.renderRoot.querySelector('ha-card') as Element).className = 'hue-borders';
         }
 
-        this.updated();
-    }
-
-    protected updated() {
-        this.updateStyles();
+        this.updated(changedProps);
     }
 
     connectedCallback(): void {
         super.connectedCallback();
         // CSS
-        this.updateStyles();
+        this.updateStylesInner();
     }
 
     //#endregion

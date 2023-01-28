@@ -173,6 +173,7 @@ export interface HueLikeLightCardConfigInterface {
     readonly onClickAction?: ClickAction;
     readonly onClickData?: string | Record<string, string> | ClickActionData;
     readonly allowZero?: boolean;
+    readonly theme?: string;
     readonly defaultColor?: string;
     readonly offColor?: string;
     readonly hueScreenBgColor?: string;

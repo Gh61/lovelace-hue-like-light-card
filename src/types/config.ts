@@ -24,6 +24,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.onClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.onClickAction);
         this.onClickData = new ClickActionData(plainConfig.onClickData);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
+        this.theme = plainConfig.theme || 'default';
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
         this.offColor = plainConfig.offColor || Consts.OffColor;
         this.wasOffColorSet = !!plainConfig.offColor;
@@ -123,6 +124,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     readonly onClickAction: ClickAction;
     readonly onClickData: ClickActionData;
     readonly allowZero: boolean;
+    readonly theme: string;
     readonly defaultColor: string;
     readonly offColor: string;
     readonly hueScreenBgColor: string;

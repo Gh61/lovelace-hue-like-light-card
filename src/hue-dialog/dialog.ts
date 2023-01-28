@@ -1,4 +1,5 @@
-import { css, LitElement } from 'lit';
+import { applyThemesOnElement } from 'custom-card-helpers';
+import { css, LitElement, PropertyValues, unsafeCSS } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
 import { customElement, state } from 'lit/decorators.js';
 import { cache } from 'lit/directives/cache.js';
@@ -10,6 +11,7 @@ import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
 import { HueDialogTile } from './dialog-tile';
 import { HaDialog } from '../types/types';
+import { ThemeHelper } from '../types/theme-helper';
 
 type Tab = 'colors' | 'scenes';
 
@@ -27,11 +29,11 @@ export class HueDialog extends LitElement {
     */
 
     private _isRendered = false;
-    private _config:HueLikeLightCardConfig;
-    private _ctrl:LightController;
-    private _id:string;
+    private _config: HueLikeLightCardConfig;
+    private _ctrl: LightController;
+    private _id: string;
 
-    constructor(config:HueLikeLightCardConfig, lightController:LightController) {
+    constructor(config: HueLikeLightCardConfig, lightController: LightController) {
         super();
 
         this._config = config;
@@ -43,7 +45,7 @@ export class HueDialog extends LitElement {
 
     private static maxDialogId = 1;
 
-    private onLightControllerChanged(propertyName:keyof LightController) {
+    private onLightControllerChanged(propertyName: keyof LightController) {
         // when LightController changed - update this
         if (propertyName == 'hass') {
             this.requestUpdate();
@@ -54,9 +56,9 @@ export class HueDialog extends LitElement {
 
     //#region Tabs
 
-    private static readonly colorsTab:Tab = 'colors';
-    private static readonly scenesTab:Tab = 'scenes';
-    private static readonly tabs = [ HueDialog.colorsTab, HueDialog.scenesTab ]; //TODO: Remove tabs, use css animation hide of scenes and show of colorpicker
+    private static readonly colorsTab: Tab = 'colors';
+    private static readonly scenesTab: Tab = 'scenes';
+    private static readonly tabs = [HueDialog.colorsTab, HueDialog.scenesTab]; //TODO: Remove tabs, use css animation hide of scenes and show of colorpicker
 
     @state()
     private _currTab = HueDialog.scenesTab;
@@ -90,12 +92,19 @@ export class HueDialog extends LitElement {
             return;
 
         // try to find dialog (if no success, call standard remove)
-        const haDialog = <HaDialog>this.renderRoot.querySelector('ha-dialog');
+        const haDialog = this.getDialogElement();
         if (haDialog && haDialog.close) {
             haDialog.close();
         } else {
             this.onDialogClose();
         }
+    }
+
+    private getDialogElement(): HaDialog | null {
+        if (!this._isRendered)
+            return null;
+
+        return this.renderRoot.querySelector('ha-dialog');
     }
 
     private readonly _onHistoryBackListener = () => this.close();
@@ -176,8 +185,8 @@ export class HueDialog extends LitElement {
 
         /* same color header */
         .heading {
-            color:var(--hue-text-color);
-            background:var(--hue-background);
+            color:var(--hue-text-color, ${unsafeCSS(Consts.ThemePrimaryTextColorVar)});
+            background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
             box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
             transition:all 0.3s ease-out 0s;
 
@@ -189,7 +198,7 @@ export class HueDialog extends LitElement {
         }
         ha-header-bar {
             --mdc-theme-on-primary: var(--hue-text-color);
-            --mdc-theme-primary: transparent;/*var(--hue-background);*/
+            --mdc-theme-primary: transparent;
             flex-shrink: 0;
             display: block;
         }
@@ -218,7 +227,7 @@ export class HueDialog extends LitElement {
             margin-bottom: 8px;
         }
         .header .title{
-            color: var(--mdc-dialog-content-ink-color);
+            color: ${unsafeCSS(Consts.ThemeSecondaryTextColorVar)};
             font-family: var(--paper-font-title_-_font-family);
             -webkit-font-smoothing: var( --paper-font-title_-_-webkit-font-smoothing );
             font-size: var(--paper-font-subhead_-_font-size);
@@ -256,14 +265,16 @@ export class HueDialog extends LitElement {
         `];
     }
 
-    private updateStyles(isFirst: boolean): void {
-        // default text-color: '--primary-text-color'
-        // default background: '--mdc-theme-surface'
-
-        // content text color: '--mdc-dialog-content-ink-color'
-
+    // Can't be named 'updateStyles', because HA search for that method and calls it instead of applying theme
+    private updateStylesInner(isFirst: boolean): void {
         // ## Content styles
         if (isFirst) {
+            // apply theme
+            applyThemesOnElement(this, this._ctrl.hass.themes, this._config.theme);
+
+            // To help change themes on the fly
+            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background');
+
             const configColor = this._config.getHueScreenBgColor();
             let contentBg = null;
             let contentFg = null;
@@ -272,23 +283,20 @@ export class HueDialog extends LitElement {
                 contentFg = contentBg.getForeground(Consts.DialogFgLightColor, Consts.DarkColor, +120); // for most colors use dark
 
                 this.style.setProperty(
-                    '--mdc-theme-surface',
+                    '--hue-screen-background',
                     contentBg.toString()
                 );
                 this.style.setProperty(
                     '--primary-text-color',
                     contentFg.toString()
                 );
-            } else {
-                this.style.removeProperty('--mdc-theme-surface');
-                this.style.removeProperty('--primary-text-color');
             }
         }
 
         // ## Heading styles
         const heading = <Element>this.renderRoot.querySelector('.heading');
 
-        let offBackground:Background | null;
+        let offBackground: Background | null;
         // if the user sets custom off color - use it
         if (this._config.wasOffColorSet) {
             const offColor = this._config.getOffColor();
@@ -318,16 +326,21 @@ export class HueDialog extends LitElement {
 
         this.style.setProperty(
             '--hue-background',
-            bfg.background?.toString() ?? 'var(--mdc-theme-surface)'
+            bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar
         );
         this.style.setProperty(
             '--hue-box-shadow',
             shadow
         );
-        this.style.setProperty(
-            '--hue-text-color',
-            bfg.foreground?.toString() ?? 'var(--primary-text-color)'
-        );
+
+        if (bfg.foreground != null) {
+            this.style.setProperty(
+                '--hue-text-color',
+                bfg.foreground.toString()
+            );
+        } else {
+            this.style.removeProperty('--hue-text-color');
+        }
     }
 
     protected render() {
@@ -340,7 +353,7 @@ export class HueDialog extends LitElement {
 
         const onChangeCallback = () => {
             this.requestUpdate();
-            this.updateStyles(false);
+            this.updateStylesInner(false);
         };
 
         /*eslint-disable */
@@ -378,7 +391,7 @@ export class HueDialog extends LitElement {
           </div>
           <div class="content" tabindex="-1" dialogInitialFocus>
             ${cache(
-              this._currTab === HueDialog.scenesTab
+            this._currTab === HueDialog.scenesTab
                 ? html`
                     <div class='header'>
                         <div class='title'>${this._config.resources.scenes}</div>
@@ -395,7 +408,7 @@ export class HueDialog extends LitElement {
                 : html`
                     <h3>Here for Colors</h3>
                   `
-            )}
+        )}
             <!--
             <div class='header'>
                 <div class='title'>${this._config.resources.lights}</div>
@@ -409,12 +422,16 @@ export class HueDialog extends LitElement {
 
     //#region updateStyles hooks
 
-    protected firstUpdated() {
-        this.updateStyles(true);
+    protected firstUpdated(changedProps: PropertyValues) {
+        super.firstUpdated(changedProps);
+
+        this.updateStylesInner(true);
     }
 
-    protected updated() {
-        this.updateStyles(false);
+    protected updated(changedProps: PropertyValues) {
+        super.updated(changedProps);
+
+        this.updateStylesInner(false);
     }
 
     //#endregion

@@ -1,7 +1,9 @@
 import { html, TemplateResult } from 'lit';
+import { styleMap } from 'lit-html/directives/style-map.js';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
 import { Action } from '../types/functions';
+import { ThemeHelper } from '../types/theme-helper';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { LightController } from './light-controller';
@@ -12,9 +14,16 @@ export class ViewUtils {
      * Creates switch for given lightController.
      * @param onChange Be careful - this function is called on different scope, better pack your function to arrow call.
      */
-    public static createSwitch(ctrl: LightController, onChange: Action, attributes: TemplateResult<1> = html``) {
-        return html`<ha-switch .checked=${ctrl.isOn()} .disabled=${ctrl.isUnavailable()} .haptic=true @change=${(ev:Event) => this.changed(ctrl, onChange, false, ev)}
-        ${attributes}
+    public static createSwitch(ctrl: LightController, onChange: Action) {
+        // To help change themes on the fly
+        const styles = ThemeHelper.getSwitchThemeStyle();
+
+        return html`<ha-switch
+        .checked=${ctrl.isOn()}
+        .disabled=${ctrl.isUnavailable()}
+        .haptic=true
+        style=${styleMap(styles)}
+        @change=${(ev:Event) => this.changed(ctrl, onChange, false, ev)}
         ></ha-switch>`;
     }
 

@@ -25,4 +25,9 @@ export class Consts {
     public static readonly DefaultTwoIcon = 'mdi:lightbulb-multiple';
     public static readonly DefaultMoreIcon = 'mdi:lightbulb-group';
     public static readonly TimeCacheInterval = 1500; // ms
+
+    // Theme colors
+    public static readonly ThemeCardBackgroundVar = 'var(--card-background-color, var(--paper-card-background-color, --primary-background-color))';
+    public static readonly ThemePrimaryTextColorVar = 'var(--primary-text-color)';
+    public static readonly ThemeSecondaryTextColorVar = 'var(--secondary-text-color)';
 }

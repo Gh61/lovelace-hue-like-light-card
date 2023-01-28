@@ -172,6 +172,14 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     </td>
   </tr>
   <tr>
+    <td><code>theme</code></td>
+    <td><i>Installed theme name</i></td>
+    <td>no</td>
+    <td>1.2.1</td>
+    <td><i>Global HA theme</i></td>
+    <td>Will use specific theme for this single card. Other than the current selected globally in Home Assistant.</td>
+  </tr>
+  <tr>
     <td><code>disableOffShadow</code></td>
     <td>boolean</td>
     <td>no</td>
@@ -569,6 +577,25 @@ offColor: theme-color
 hueScreenBgColor: theme-color
 disableOffShadow: true
 hueBorders: false
+```
+
+#### Custom theme
+![Screen8](/doc/screen8.png)
+```yaml
+type: custom:hue-like-light-card-test
+title: Living room
+icon: mdi:sofa
+offColor: theme-color
+hueScreenBgColor: theme-color
+disableOffShadow: true
+hueBorders: false
+allowZero: true
+entities:
+  - light.livingroom_light
+  - light.livingroom_color
+offClickAction: hue-screen
+onClickAction: hue-screen
+theme: synthwave
 ```
 
 #### Turnable with slider
