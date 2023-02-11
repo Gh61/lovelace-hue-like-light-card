@@ -5,16 +5,18 @@
 		}
 	],
 	"settings": {
-		// Exclode files from search
+		// Exclude files from search
 		"search.exclude": {
 			"**/node_modules": true,
-			"**/dist": true
+			"**/dist": true,
+			"**/release": true
 		},
 
 		// Exclude folders from Exlorer view
 		"files.exclude": {
 			"**/node_modules": true,
-			"**/dist": true
+			"**/dist": true,
+			"**/release": true
 		},
 	}
 }

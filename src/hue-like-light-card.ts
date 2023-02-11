@@ -2,6 +2,7 @@ import { LovelaceCard, HomeAssistant, LovelaceCardConfig, applyThemesOnElement }
 import { LitElement, css, html, unsafeCSS, PropertyValues } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { customElement } from 'lit/decorators.js';
+import { HueBrightnessRollup } from './controls/brightness-rollup';
 import { ClickHandler } from './core/click-handler';
 import { Background } from './core/colors/background';
 import { LightController } from './core/light-controller';
@@ -21,6 +22,8 @@ console.info(
     'font-weight:bold;color:white;background:#FF0032',
     'font-weight:bold;color:white;background:#FF8B00'
 );
+// TODO: Remove after testing
+console.log(HueBrightnessRollup.ElementName); // reference to Rollup
 
 // This puts card into the UI card picker dialog
 (window as WindowWithCards).customCards = (window as WindowWithCards).customCards || [];

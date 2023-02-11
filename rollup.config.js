@@ -31,7 +31,7 @@ export default {
     },
     input: ["src/hue-like-light-card.ts"],
     output: {
-        dir: "./dist",
+        dir: dev ? "./dist" : "/.release",
         format: "es",
     },
     plugins: [
