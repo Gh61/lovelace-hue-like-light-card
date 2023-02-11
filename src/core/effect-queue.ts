@@ -1,7 +1,7 @@
 import { Action } from '../types/functions';
 
 class QueueItem {
-    constructor(action:Action, waitBeforeMs:number) {
+    public constructor(action:Action, waitBeforeMs:number) {
         this._waitAfter = waitBeforeMs;
         this._action = action;
     }

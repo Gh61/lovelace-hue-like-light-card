@@ -5,7 +5,7 @@ export class ColorExtended extends Color {
 
     private static readonly themeColor = 'theme-color';
 
-    constructor(colorName: string) {
+    public constructor(colorName: string) {
         if (colorName == ColorExtended.themeColor) {
             super(0, 0, 0);
             this._isThemeColor = true;
@@ -26,21 +26,21 @@ export class ColorExtended extends Color {
         return this._isThemeColor;
     }
 
-    public getLuminance(): number {
+    public override getLuminance(): number {
         if (this._isThemeColor)
             throw new Error('Cannot getLuminance on ' + ColorExtended.themeColor);
 
         return super.getLuminance();
     }
 
-    public getForeground<T>(light: T, dark: T, offset: number): T {
+    public override getForeground<T>(light: T, dark: T, offset: number): T {
         if (this._isThemeColor)
             throw new Error('Cannot getLuminance on ' + ColorExtended.themeColor);
 
         return super.getForeground(light, dark, offset);
     }
 
-    public toString(): string {
+    public override toString(): string {
         if (this._isThemeColor)
             return 'var(--' + ColorExtended.themeColor + ')';
 

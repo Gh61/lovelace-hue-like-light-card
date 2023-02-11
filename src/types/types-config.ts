@@ -18,7 +18,7 @@ export class ClickActionData {
     private readonly _onlyValue : string;
     private readonly _valueStore : Record<string, string>;
 
-    constructor(plainConfig: string | Record<string, string> | ClickActionData | undefined) {
+    public constructor(plainConfig: string | Record<string, string> | ClickActionData | undefined) {
         if (typeof plainConfig == 'string') {
             this._onlyValue = plainConfig;
         } else if (plainConfig instanceof ClickActionData) {
@@ -43,20 +43,20 @@ export class ClickActionData {
 }
 
 export class SceneConfig {
-    constructor(entity: string) {
+    public constructor(entity: string) {
         ensureEntityDomain(entity, 'scene');
 
         this.entity = entity;
     }
 
-    entity: string;
-    title?: string;
-    icon?: string;
-    color?: string;
+    public entity: string;
+    public title?: string;
+    public icon?: string;
+    public color?: string;
     // TODO: add posibility to set color gradient
 
-    activation?: string;
-    activationData?: Record<string, unknown>;
+    public activation?: string;
+    public activationData?: Record<string, unknown>;
 
     public getActivationService() {
         const defaultService = 'scene.turn_on';
@@ -91,7 +91,7 @@ export class SceneData {
     private _hass:HomeAssistant;
     private _entity:HassEntity;
 
-    constructor(configOrEntityId:SceneConfig | string) {
+    public constructor(configOrEntityId:SceneConfig | string) {
         if (typeof configOrEntityId == 'string') {
             this._config = new SceneConfig(configOrEntityId);
         } else {
@@ -99,7 +99,7 @@ export class SceneData {
         }
     }
 
-    set hass(value: HomeAssistant) {
+    public set hass(value: HomeAssistant) {
         this._hass = value;
         this._entity = this._hass.states[this._config.entity];
     }

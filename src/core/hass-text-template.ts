@@ -5,7 +5,7 @@ class VariableTemplatePart implements IHassTextTemplate {
     private _textOrEntity:string;
     private _attribute:string | null = null;
 
-    constructor(templatePart:string) {
+    public constructor(templatePart:string) {
         // trim variable
         templatePart = templatePart.trim();
 
@@ -51,15 +51,15 @@ class VariableTemplatePart implements IHassTextTemplate {
 export class StaticTextTemplate implements IHassTextTemplate {
     private _text:string;
 
-    constructor(text:string) {
+    public constructor(text:string) {
         this._text = text;
     }
 
-    resolveToString(_hass: HomeAssistant | null = null): string {
+    public resolveToString(_hass: HomeAssistant | null = null): string {
         return this._text;
     }
 
-    toString() {
+    public toString() {
         return this.resolveToString();
     }
 }
@@ -73,7 +73,7 @@ export class HassTextTemplate implements IHassTextTemplate {
     /**
      * Creates Text template, that is dependend on hass states.
      */
-    constructor(templateText:string) {
+    public constructor(templateText:string) {
         this._templateParts = HassTextTemplate.parseTemplate(templateText);
     }
 

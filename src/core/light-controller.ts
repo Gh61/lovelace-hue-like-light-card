@@ -13,7 +13,7 @@ export class LightController extends NotifyBase<LightController> implements ILig
     private _lights: LightContainer[];
     private _defaultColor: Color;
 
-    constructor(entity_ids: string[], defaultColor: Color) {
+    public constructor(entity_ids: string[], defaultColor: Color) {
         super();
 
         // we need at least one
@@ -38,35 +38,35 @@ export class LightController extends NotifyBase<LightController> implements ILig
         return this._lights.filter(l => l.isOn());
     }
 
-    set hass(hass: HomeAssistant) {
+    public set hass(hass: HomeAssistant) {
         this._hass = hass;
         this._lights.forEach(l => l.hass = hass);
         this.raisePropertyChanged('hass');
     }
-    get hass() {
+    public get hass() {
         return this._hass;
     }
 
-    isOn(): boolean {
+    public isOn(): boolean {
         return this._lights.some(l => l.isOn());
     }
-    isOff(): boolean {
+    public isOff(): boolean {
         return this._lights.every(l => l.isOff());
     }
-    isUnavailable(): boolean {
+    public isUnavailable(): boolean {
         return this._lights.every(l => l.isUnavailable());
     }
-    turnOn(): void {
+    public turnOn(): void {
         this._lights.filter(l => l.isOff()).forEach(l => l.turnOn());
     }
-    turnOff(): void {
+    public turnOff(): void {
         this._lights.filter(l => l.isOn()).forEach(l => l.turnOff());
     }
 
-    get value() {
+    public get value() {
         return this.valueGetFactory();
     }
-    set value(value: number) {
+    public set value(value: number) {
         const litLights = this._lights.filter(l => l.isOn());
         // when only one light is on, set the value to that light
         if (litLights.length == 1) {
@@ -124,7 +124,7 @@ export class LightController extends NotifyBase<LightController> implements ILig
         return value;
     }
 
-    getIcon(): string {
+    public getIcon(): string {
         const lightIcon = this._lights.length > 2
             ? Consts.DefaultMoreIcon // 3 lightbulbs
             : this._lights.length > 1
@@ -134,7 +134,7 @@ export class LightController extends NotifyBase<LightController> implements ILig
         return lightIcon;
     }
 
-    getTitle() {
+    public getTitle() {
         let title = '';
         for (let i = 0; i < this._lights.length && i < 3; i++) {
             if (i > 0) {
@@ -148,14 +148,14 @@ export class LightController extends NotifyBase<LightController> implements ILig
         return new StaticTextTemplate(title);
     }
 
-    getBackground(): Background | null {
+    public getBackground(): Background | null {
         const backgrounds = this._lights.filter(l => l.isOn()).map(l => l.getBackground() || this._defaultColor);
         if (backgrounds.length == 0)
             return null;
         return new Background(backgrounds);
     }
 
-    getEntityId(): string {
+    public getEntityId(): string {
         throw Error('Cannot get entity id from LightController');
     }
 }

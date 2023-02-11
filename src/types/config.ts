@@ -12,7 +12,7 @@ import { ClickAction, ClickActionData, HueLikeLightCardConfigInterface, SceneCon
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     private _scenes : SceneConfig[];
 
-    constructor(plainConfig: HueLikeLightCardConfigInterface) {
+    public constructor(plainConfig: HueLikeLightCardConfigInterface) {
         this.entity = plainConfig.entity;
         this.entities = plainConfig.entities;
         this.title = plainConfig.title;
@@ -113,24 +113,24 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         return result;
     }
 
-    readonly entity?: string;
-    readonly entities?: string[];
-    readonly title?: string;
-    readonly icon?: string;
-    readonly showSwitch: boolean;
-    get scenes() { return this._scenes; }
-    readonly offClickAction: ClickAction;
-    readonly offClickData: ClickActionData;
-    readonly onClickAction: ClickAction;
-    readonly onClickData: ClickActionData;
-    readonly allowZero: boolean;
-    readonly theme: string;
-    readonly defaultColor: string;
-    readonly offColor: string;
-    readonly hueScreenBgColor: string;
-    readonly disableOffShadow: boolean;
-    readonly hueBorders: boolean;
-    readonly resources: Resources;
+    public readonly entity?: string;
+    public readonly entities?: string[];
+    public readonly title?: string;
+    public readonly icon?: string;
+    public readonly showSwitch: boolean;
+    public get scenes() { return this._scenes; }
+    public readonly offClickAction: ClickAction;
+    public readonly offClickData: ClickActionData;
+    public readonly onClickAction: ClickAction;
+    public readonly onClickData: ClickActionData;
+    public readonly allowZero: boolean;
+    public readonly theme: string;
+    public readonly defaultColor: string;
+    public readonly offColor: string;
+    public readonly hueScreenBgColor: string;
+    public readonly disableOffShadow: boolean;
+    public readonly hueBorders: boolean;
+    public readonly resources: Resources;
 
     /**
      * @returns Title from config or from passed container.
@@ -145,7 +145,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
      * Returns whether offColor was set in configuration.
      * Returns false, when offColor is taken from Consts.
      */
-    readonly wasOffColorSet: boolean;
+    public readonly wasOffColorSet: boolean;
 
     /**
      * @returns List of entity identifiers

@@ -1,4 +1,4 @@
-import { HueDialog } from '../hue-dialog/dialog';
+import { HueDialog } from '../controls/dialog';
 import { Consts } from './consts';
 
 /**

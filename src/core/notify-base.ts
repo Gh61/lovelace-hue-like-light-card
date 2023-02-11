@@ -3,7 +3,7 @@ import { Action1 } from '../types/functions';
 export abstract class NotifyBase<TThis> {
     private _propertyChangedCallbacks:Record<string, Action1<keyof TThis>>;
 
-    constructor() {
+    public constructor() {
         this._propertyChangedCallbacks = {};
     }
 

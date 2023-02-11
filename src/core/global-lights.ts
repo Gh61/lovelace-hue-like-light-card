@@ -6,7 +6,7 @@ import { LightContainer } from './light-container';
 export class GlobalLights {
     private static _containers:Record<string, LightContainer> = {};
 
-    static getLightContainer(entity_id: string): LightContainer {
+    public static getLightContainer(entity_id: string): LightContainer {
         let instance = this._containers[entity_id];
         if (!instance) {
             //console.log(`[GlobalLights] Creating instance for '${entity_id}'`);

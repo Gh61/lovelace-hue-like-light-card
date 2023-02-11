@@ -33,7 +33,7 @@ export class HueDialog extends LitElement {
     private _ctrl: LightController;
     private _id: string;
 
-    constructor(config: HueLikeLightCardConfig, lightController: LightController) {
+    public constructor(config: HueLikeLightCardConfig, lightController: LightController) {
         super();
 
         this._config = config;
@@ -130,7 +130,7 @@ export class HueDialog extends LitElement {
      * Default ha-dialog styles from HA.
      * See https://github.com/home-assistant/frontend/blob/dev/src/resources/styles.ts
      */
-    static haStyleDialog = css`
+    private static haStyleDialog = css`
     /* mwc-dialog (ha-dialog) styles */
     ha-dialog {
       --mdc-dialog-min-width: 400px;
@@ -171,7 +171,7 @@ export class HueDialog extends LitElement {
     private static readonly tileGap = 10;
     private static readonly haPadding = 24;
 
-    static get styles() {
+    public static override get styles() {
         return [
             HueDialog.haStyleDialog,
             css`
@@ -343,7 +343,7 @@ export class HueDialog extends LitElement {
         }
     }
 
-    protected render() {
+    protected override render() {
         this._isRendered = true;
 
         // inspiration: https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/ha-more-info-dialog.ts
@@ -422,13 +422,13 @@ export class HueDialog extends LitElement {
 
     //#region updateStyles hooks
 
-    protected firstUpdated(changedProps: PropertyValues) {
+    protected override firstUpdated(changedProps: PropertyValues) {
         super.firstUpdated(changedProps);
 
         this.updateStylesInner(true);
     }
 
-    protected updated(changedProps: PropertyValues) {
+    protected override updated(changedProps: PropertyValues) {
         super.updated(changedProps);
 
         this.updateStylesInner(false);

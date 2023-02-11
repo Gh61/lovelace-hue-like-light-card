@@ -43,7 +43,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
      */
     private _offBackground: Background | null;
 
-    set hass(hass: HomeAssistant) {
+    public set hass(hass: HomeAssistant) {
         const oldHass = this._hass;
 
         // first load hass - try load scenes
@@ -57,11 +57,11 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         // custom @property() implementation
         this.requestUpdate(nameof(this, 'hass'), oldHass);
     }
-    get hass() {
+    public get hass() {
         return this._hass;
     }
 
-    async setConfig(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
+    public async setConfig(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
         const oldConfig = this._config;
         this._config = new HueLikeLightCardConfig(<HueLikeLightCardConfigInterface>plainConfig);
 
@@ -82,7 +82,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     // The height of your card. Home Assistant uses this to automatically
     // distribute all cards over the available columns.
-    getCardSize(): number {
+    public getCardSize(): number {
         return 3;
     }
 
@@ -96,7 +96,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     // #### UI:
 
-    static styles = css`
+    public static override styles = css`
     ha-card
     {
         height:80px;
@@ -159,7 +159,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     `;
 
-    protected updated(changedProps: PropertyValues): void {
+    protected override updated(changedProps: PropertyValues): void {
         super.updated(changedProps);
         this.updateStylesInner();
 
@@ -236,7 +236,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         );
     }
 
-    protected render() {
+    protected override render() {
         const titleTemplate = this._config.getTitle(this._ctrl);
         const title = titleTemplate.resolveToString(this._hass);
         const showSwitch = this._config.showSwitch;
@@ -260,7 +260,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     //#region updateStyles hooks
 
-    protected firstUpdated(changedProps: PropertyValues) {
+    protected override firstUpdated(changedProps: PropertyValues) {
         super.firstUpdated(changedProps);
 
         // CSS
@@ -271,7 +271,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         this.updated(changedProps);
     }
 
-    connectedCallback(): void {
+    public override connectedCallback(): void {
         super.connectedCallback();
         // CSS
         this.updateStylesInner();

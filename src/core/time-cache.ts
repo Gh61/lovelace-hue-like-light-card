@@ -4,7 +4,7 @@ export class TimeCacheValue {
     /**
      * Will create value returned from propertyFactory, that can avoid being cached.
      */
-    constructor(value: unknown, dontCache = false) {
+    public constructor(value: unknown, dontCache = false) {
         this.value = value;
         this.dontCache = dontCache;
     }
@@ -22,14 +22,14 @@ export class TimeCache {
      * Will create time cache with specified interval in miliseconds.
      * When calling getValue or setValue, the value will be cached for given interval.
      */
-    constructor(cacheInterval: number) {
+    public constructor(cacheInterval: number) {
         this._cacheInterval = cacheInterval;
     }
 
     /**
      * Will register property with name and factory function factory.
      */
-    registerProperty(name: string, factory: ValueFactory) {
+    public registerProperty(name: string, factory: ValueFactory) {
         this._factories[name] = factory;
         delete this._lastValues[name];
     }
@@ -37,7 +37,7 @@ export class TimeCache {
     /**
      * Sets current value for some property.
      */
-    setValue(name: string, value: unknown) {
+    public setValue(name: string, value: unknown) {
         this.ensureExists(name);
 
         this._lastValues[name] = this.createCacheItem(value);
@@ -46,7 +46,7 @@ export class TimeCache {
     /**
      * Gets cached or current value of property
      */
-    getValue(name: string): unknown {
+    public getValue(name: string): unknown {
         this.ensureExists(name);
 
         const now = new Date().getTime();

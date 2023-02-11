@@ -22,7 +22,7 @@ export class HueDialogTile extends LitElement {
 
     @property() public cardTitle:string;
 
-    set hass(hass:HomeAssistant) {
+    public set hass(hass:HomeAssistant) {
         const oldHass = this._hass;
 
         this._hass = hass;
@@ -32,7 +32,7 @@ export class HueDialogTile extends LitElement {
         this.requestUpdate(nameof(this, 'hass'), oldHass);
     }
 
-    set sceneConfig(config:SceneConfig) {
+    public set sceneConfig(config:SceneConfig) {
         const oldSceneConfig = this._sceneConfig;
 
         this._sceneConfig = config;
@@ -76,7 +76,7 @@ export class HueDialogTile extends LitElement {
     private static readonly iconScale = (HueDialogTile.colorDimensions * 0.75) / 24; // 24 = default icon size
     private static readonly animationSeconds = 1.0;
 
-    static styles = css`
+    public static override styles = css`
     .hue-tile{
         background: ${unsafeCSS(Consts.OffColor)};
         width: ${HueDialogTile.width}px;
@@ -155,7 +155,7 @@ export class HueDialogTile extends LitElement {
     `;
 
     private _sceneAccentColorSet:boolean;
-    protected updated() {
+    protected override updated() {
         if (this._scene && !this._sceneAccentColorSet) {
             this._sceneAccentColorSet = true;
             const accentColor = this._scene.getColor();
@@ -179,7 +179,7 @@ export class HueDialogTile extends LitElement {
         }
     }
 
-    protected render() {
+    protected override render() {
         if (this._scene) {
             return this.renderScene();
         }

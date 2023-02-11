@@ -5,9 +5,9 @@ import { Background } from '../core/colors/background';
 export type ValueFactory = () => unknown;
 
 export class CustomCardInfo {
-    type: string;
-    name: string;
-    description: string;
+    public type: string;
+    public name: string;
+    public description: string;
 }
 
 export interface WindowWithCards extends Window {

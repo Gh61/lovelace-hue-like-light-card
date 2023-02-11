@@ -5,7 +5,7 @@ import { ColorExtended } from './color-extended';
 export class Background {
     private _colors: Color[];
 
-    constructor(backgroundsOrColors: (Background | Color)[]) {
+    public constructor(backgroundsOrColors: (Background | Color)[]) {
         if (!(backgroundsOrColors?.length > 0))
             throw new Error('At least one background or color is needed for new Background(...).');
 

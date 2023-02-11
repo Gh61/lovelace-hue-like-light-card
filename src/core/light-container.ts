@@ -13,7 +13,7 @@ export class LightContainer implements ILightContainer {
     private _hass: HomeAssistant;
     private _entity: HassEntity;
 
-    constructor(entity_id: string) {
+    public constructor(entity_id: string) {
         ensureEntityDomain(entity_id, 'light');
 
         this._entity_id = entity_id;
@@ -21,7 +21,7 @@ export class LightContainer implements ILightContainer {
         this.initTimeCache();
     }
 
-    set hass(value: HomeAssistant) {
+    public set hass(value: HomeAssistant) {
         this._hass = value;
         this._entity = this._hass.states[this._entity_id];
     }
@@ -80,22 +80,22 @@ export class LightContainer implements ILightContainer {
 
     //#endregion
 
-    isUnavailable(): boolean {
+    public isUnavailable(): boolean {
         return this._cache.getValue('state') == 'unavailable';
     }
-    isOn(): boolean {
+    public isOn(): boolean {
         return this._cache.getValue('state') == 'on';
     }
-    isOff(): boolean {
+    public isOff(): boolean {
         return !this.isOn();
     }
-    turnOn(): void {
+    public turnOn(): void {
         this.toggle(true);
     }
-    turnOff(): void {
+    public turnOff(): void {
         this.toggle(false);
     }
-    toggle(on: boolean) {
+    public toggle(on: boolean) {
         if (on) {
             this.notifyTurnOn();
         } else {
@@ -113,10 +113,10 @@ export class LightContainer implements ILightContainer {
         this._lastOnValue = Math.round((brightness * 100.0) / 255); // brightness is 0-255
         return this._lastOnValue;
     }
-    get value() {
+    public get value() {
         return <number>this._cache.getValue('value');
     }
-    set value(value: number) {
+    public set value(value: number) {
         // just to be sure
         if (value < 0) {
             value = 0;
@@ -132,15 +132,15 @@ export class LightContainer implements ILightContainer {
         });
     }
 
-    getIcon() {
+    public getIcon() {
         return this._entity && this._entity.attributes.icon;
     }
 
-    getTitle() {
+    public getTitle() {
         return new StaticTextTemplate(this._entity.attributes.friendly_name ?? this._entity_id);
     }
 
-    getBackground(): Background | null {
+    public getBackground(): Background | null {
         const attr = this.getAttributes();
         const rgb = <number[]>attr.rgb_color; // array with value r,g,b
 
@@ -156,7 +156,7 @@ export class LightContainer implements ILightContainer {
         return new Background([this._lastBackground]);
     }
 
-    getEntityId(): string {
+    public getEntityId(): string {
         return this._entity_id;
     }
 }

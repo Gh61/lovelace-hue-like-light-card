@@ -6,7 +6,7 @@ export class Color {
 
     public static readonly LuminanceBreakingPoint = 192; // hue breaking point is pretty high
 
-    constructor(colorOrRed: string | number, opacityOrGreen?: number, blue?: number, opacity = 1) {
+    public constructor(colorOrRed: string | number, opacityOrGreen?: number, blue?: number, opacity = 1) {
         if (typeof colorOrRed == 'string') {
             this.parse(colorOrRed);
             this._opacity = opacityOrGreen ?? 1;
