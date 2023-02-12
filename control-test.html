@@ -6,7 +6,28 @@
     </head>
     <body>
         <div class="container" style="width:200px;margin:auto;padding-top:200px;">
-            <hue-like-light-card-test-hue-brightness-rollup></hue-like-light-card-test-hue-brightness-rollup>
+            <hue-like-light-card-test-hue-brightness-rollup
+                id="rollup"
+                width="60" height="40" style="margin:auto"
+                value="65"
+                ></hue-like-light-card-test-hue-brightness-rollup>
         </div>
+        <script>
+            function onChange(ev){
+                console.log(`[Changed] ${ev.detail.newValue}`);
+            }
+            function onImmediateChange(ev){
+                console.log(`[Drag] ${ev.detail.newValue}`);
+            }
+            function onOpenClose(ev){
+                console.log(ev.detail.isOpen ? '[Open]' : '[Close]')
+            }
+
+            var rollup = document.getElementById("rollup");
+            rollup.addEventListener("change", onChange);
+            rollup.addEventListener("immediate-value-change", onImmediateChange);
+            rollup.addEventListener("open", onOpenClose);
+            rollup.addEventListener("close", onOpenClose);
+        </script>
     </body>
 </html>
