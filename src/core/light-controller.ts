@@ -1,16 +1,18 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { Consts } from '../types/consts';
-import { ILightContainer } from '../types/types';
+import { ILightContainer, ILightFeatures } from '../types/types';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { GlobalLights } from './global-lights';
 import { StaticTextTemplate } from './hass-text-template';
 import { LightContainer } from './light-container';
+import { LightFeaturesCombined } from './light-features';
 import { NotifyBase } from './notify-base';
 
 export class LightController extends NotifyBase<LightController> implements ILightContainer {
     private _hass: HomeAssistant;
     private _lights: LightContainer[];
+    private _lightsFeatures: LightFeaturesCombined;
     private _defaultColor: Color;
 
     public constructor(entity_ids: string[], defaultColor: Color) {
@@ -22,6 +24,7 @@ export class LightController extends NotifyBase<LightController> implements ILig
 
         this._defaultColor = defaultColor;
         this._lights = entity_ids.map(e => GlobalLights.getLightContainer(e));
+        this._lightsFeatures = new LightFeaturesCombined(() => this._lights.map(l => l.features));
     }
 
     /**
@@ -157,5 +160,9 @@ export class LightController extends NotifyBase<LightController> implements ILig
 
     public getEntityId(): string {
         throw Error('Cannot get entity id from LightController');
+    }
+
+    public get features(): ILightFeatures {
+        return this._lightsFeatures;
     }
 }

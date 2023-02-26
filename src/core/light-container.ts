@@ -1,17 +1,19 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { HassEntity } from 'home-assistant-js-websocket';
+import { HassLightEntity } from '../types/types-hass';
 import { Consts } from '../types/consts';
 import { ensureEntityDomain } from '../types/extensions';
-import { HassLightAttributes, ILightContainer } from '../types/types';
+import { ILightContainer, ILightFeatures } from '../types/types';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { StaticTextTemplate } from './hass-text-template';
+import { LightFeatures } from './light-features';
 import { TimeCache, TimeCacheValue } from './time-cache';
 
 export class LightContainer implements ILightContainer {
     private _entity_id: string;
     private _hass: HomeAssistant;
-    private _entity: HassEntity;
+    private _entity: HassLightEntity;
+    private _entityFeatures: LightFeatures;
 
     public constructor(entity_id: string) {
         ensureEntityDomain(entity_id, 'light');
@@ -23,11 +25,8 @@ export class LightContainer implements ILightContainer {
 
     public set hass(value: HomeAssistant) {
         this._hass = value;
-        this._entity = this._hass.states[this._entity_id];
-    }
-
-    private getAttributes(): HassLightAttributes {
-        return this._entity.attributes;
+        this._entity = <HassLightEntity>this._hass.states[this._entity_id];
+        this._entityFeatures = new LightFeatures(this._entity);
     }
 
     //#region TimeCache
@@ -96,6 +95,9 @@ export class LightContainer implements ILightContainer {
         this.toggle(false);
     }
     public toggle(on: boolean) {
+        if (this.isUnavailable())
+            return;
+
         if (on) {
             this.notifyTurnOn();
         } else {
@@ -108,9 +110,9 @@ export class LightContainer implements ILightContainer {
         if (this.isOff())
             return 0;
 
-        const attr = this.getAttributes();
-        const brightness = attr.brightness ?? 1;
-        this._lastOnValue = Math.round((brightness * 100.0) / 255); // brightness is 0-255
+        const attr = this._entity.attributes;
+        const brightness = attr.brightness ?? 255;
+        this._lastOnValue = Math.round((brightness / 255.0) * 100); // brightness is 0-255
         return this._lastOnValue;
     }
     public get value() {
@@ -125,7 +127,7 @@ export class LightContainer implements ILightContainer {
         }
 
         this.notifyValueChanged(value);
-        const brightness = Math.round((value / 100.0) * 255); // brightness is 0-255
+        const brightness = Math.round((value / 100.0) * 255); // value is 0-100
         this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
             ['brightness']: brightness
@@ -141,7 +143,7 @@ export class LightContainer implements ILightContainer {
     }
 
     public getBackground(): Background | null {
-        const attr = this.getAttributes();
+        const attr = this._entity.attributes;
         const rgb = <number[]>attr.rgb_color; // array with value r,g,b
 
         if (!rgb) {
@@ -158,6 +160,10 @@ export class LightContainer implements ILightContainer {
 
     public getEntityId(): string {
         return this._entity_id;
+    }
+
+    public get features(): ILightFeatures {
+        return this._entityFeatures;
     }
 }
 

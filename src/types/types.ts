@@ -1,5 +1,4 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { HassEntityAttributeBase } from 'home-assistant-js-websocket';
 import { Background } from '../core/colors/background';
 
 export type ValueFactory = () => unknown;
@@ -14,94 +13,18 @@ export interface WindowWithCards extends Window {
     customCards?: CustomCardInfo[];
 }
 
-// #region Hass
-
-export interface HassLightAttributes extends HassEntityAttributeBase {
-    brightness?: number;
-    rgb_color?: number[];
-}
-
-export interface HassAreaInfo {
-    area_id: string;
-    name: string;
-}
-
-export interface HassEntityInfo {
-    area_id?:string;
-    config_entry_id:string;
-    device_id:string;
-    disabled_by?:string;
-    entity_category?:string;
-    entity_id:string;
-    has_entity_name:boolean;
-    hidden_by?:string;
-    icon?:string;
-    id:string;
-    name?:string;
-    original_name?:string;
-    platform?:string;
-}
-
-export interface HassSearchDeviceResult {
-    area?:string[];
-    automation?:string[];
-    config_entry:string[];
-    scene?:string[];
-}
-
-export interface HomeAssistantEx extends HomeAssistant {
-    areas: Record<string, HassAreaInfo>;
-    entities: Record<string, HassEntityInfo>;
-}
-
-export interface HaDialog extends HTMLElement {
-    close?():void;
-}
-
-// #endregion
-
 export interface IHassTextTemplate {
     /**
      * Resolves this template to string, using hass states.
      */
-    resolveToString(hass:HomeAssistant | null):string;
+    resolveToString(hass: HomeAssistant | null): string;
 }
 
-export interface ILightContainer {
+export interface ILightConfig {
     /**
      * Sets current hass instance to this container.
      */
     set hass(hass: HomeAssistant);
-
-    /**
-     * Returns true if any light in this container is on.
-     */
-    isOn(): boolean;
-
-    /**
-     * Returns true if all lights in this container are off.
-     */
-    isOff(): boolean;
-
-    /**
-     * Returns true if all lights in this container are unavailable.
-     */
-    isUnavailable(): boolean;
-
-    /**
-     * Will turn all lights on.
-     */
-    turnOn(): void;
-
-    /**
-     * Will turn all lights off.
-     */
-    turnOff(): void;
-
-    /**
-     * Gets or sets current value of brightness of lights in this container.
-     */
-    value: number;
 
     /**
      * @returns icon for this container of lights.
@@ -123,4 +46,58 @@ export interface ILightContainer {
      * @throws Error when this container contains multiple lights.
      */
     getEntityId(): string;
+
+    /**
+     * Gets features of lights in this container.
+     */
+    get features(): ILightFeatures;
+}
+
+export interface ILightContainer extends ILightConfig {
+    /**
+     * @returns true if any light in this container is on.
+     */
+    isOn(): boolean;
+
+    /**
+     * @returns true if all lights in this container are off.
+     */
+    isOff(): boolean;
+
+    /**
+     * @returns true if all lights in this container are unavailable.
+     */
+    isUnavailable(): boolean;
+
+    /**
+     * Will turn all lights on.
+     */
+    turnOn(): void;
+
+    /**
+     * Will turn all lights off.
+     */
+    turnOff(): void;
+
+    /**
+     * Gets or sets current brightness (0 - 255) of lights in this container.
+     */
+    value: number;
+}
+
+export interface ILightFeatures {
+    /**
+     * Gets if it's possible to set the lights brightness.
+     */
+    get brightness(): boolean;
+
+    /**
+     * Gets if it's possible to set temperature of white color (warm, cold) in Kelvins.
+     */
+    get colorTemp(): boolean;
+
+    /**
+     * Gets if it's possible to set color of the light.
+     */
+    get color(): boolean;
 }

@@ -10,7 +10,7 @@ import { ViewUtils } from '../core/view-utils';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
 import { HueDialogTile } from './dialog-tile';
-import { HaDialog } from '../types/types';
+import { HaDialog } from '../types/types-hass';
 import { ThemeHelper } from '../types/theme-helper';
 
 type Tab = 'colors' | 'scenes';
