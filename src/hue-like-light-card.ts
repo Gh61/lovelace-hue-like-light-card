@@ -1,4 +1,4 @@
-import { LovelaceCard, HomeAssistant, LovelaceCardConfig, applyThemesOnElement } from 'custom-card-helpers';
+import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
 import { LitElement, css, html, unsafeCSS, PropertyValues } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { customElement } from 'lit/decorators.js';
@@ -10,6 +10,7 @@ import { ViewUtils } from './core/view-utils';
 import { HueLikeLightCardConfig } from './types/config';
 import { Consts } from './types/consts';
 import { nameof } from './types/extensions';
+import { ThemeHelper } from './types/theme-helper';
 import { WindowWithCards } from './types/types';
 import { HueLikeLightCardConfigInterface } from './types/types-config';
 
@@ -174,16 +175,18 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         const oldConfig = changedProps.get('_config') as HueLikeLightCardConfig | undefined;
 
         if (!oldHass || !oldConfig || oldHass.themes !== this.hass.themes || oldConfig.theme !== this._config.theme) {
-            applyThemesOnElement(this, this.hass.themes, this._config.theme);
 
-            // Update styles
-            this.updateStylesInner(true);
+            // Try apply theme
+            if (ThemeHelper.applyTheme(this, this.hass.themes, this._config.theme)) {
+                // Update styles - when theme changes
+                this.updateStylesInner(true);
+            }
         }
     }
 
     private haShadow: string | null;
 
-    // Can't be named 'updateStyles', because HA search for that method and calls it instead of applying theme
+    // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
     private updateStylesInner(forceRefresh = false): void {
         const card = <Element>this.renderRoot.querySelector('ha-card');
 
@@ -212,6 +215,11 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
                 '--ha-default-shadow',
                 this.haShadow
             );
+        }
+
+        // Detect theme color if needed
+        if (this._offBackground == null) {
+            ThemeHelper.detectThemeCardBackground(this, forceRefresh);
         }
 
         // Theme colors:

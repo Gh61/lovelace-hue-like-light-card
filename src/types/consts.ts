@@ -27,7 +27,15 @@ export class Consts {
     public static readonly TimeCacheInterval = 1500; // ms
 
     // Theme colors
-    public static readonly ThemeCardBackgroundVar = 'var(--card-background-color, var(--paper-card-background-color, --primary-background-color))';
+    public static readonly ThemeDefault = 'default';
+    public static readonly ThemeCardBackground = '--hue-detected-card-bg';
+    public static readonly ThemeCardBackgroundVar = `var(${Consts.ThemeCardBackground})`;
+    public static readonly ThemeCardPossibleBackgrounds = [
+        '--ha-card-background',
+        '--card-background-color',
+        '--paper-card-background-color',
+        '--primary-background-color'
+    ];
     public static readonly ThemePrimaryTextColorVar = 'var(--primary-text-color)';
     public static readonly ThemeSecondaryTextColorVar = 'var(--secondary-text-color)';
 }

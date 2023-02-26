@@ -1,4 +1,3 @@
-import { applyThemesOnElement } from 'custom-card-helpers';
 import { css, LitElement, PropertyValues, unsafeCSS } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
 import { customElement, state } from 'lit/decorators.js';
@@ -175,107 +174,108 @@ export class HueDialog extends LitElement {
         return [
             HueDialog.haStyleDialog,
             css`
-        /* icon centering */
-        .mdc-icon-button i,
-        .mdc-icon-button svg,
-        .mdc-icon-button img,
-        .mdc-icon-button ::slotted(*){
-            height:auto;
-        }
+    /* icon centering */
+    .mdc-icon-button i,
+    .mdc-icon-button svg,
+    .mdc-icon-button img,
+    .mdc-icon-button ::slotted(*){
+        height:auto;
+    }
 
-        /* same color header */
-        .heading {
-            color:var(--hue-text-color, ${unsafeCSS(Consts.ThemePrimaryTextColorVar)});
-            background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
-            box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
-            transition:all 0.3s ease-out 0s;
+    /* same color header */
+    .heading {
+        color:var(--hue-text-color, ${unsafeCSS(Consts.ThemePrimaryTextColorVar)});
+        background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
+        box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
+        transition:all 0.3s ease-out 0s;
 
-            border-bottom-left-radius: var(--ha-dialog-border-radius, 28px);
-            border-bottom-right-radius: var(--ha-dialog-border-radius, 28px);
-            padding-bottom: calc(var(--ha-dialog-border-radius, 28px) / 2);
+        border-bottom-left-radius: var(--ha-dialog-border-radius, 28px);
+        border-bottom-right-radius: var(--ha-dialog-border-radius, 28px);
+        padding-bottom: calc(var(--ha-dialog-border-radius, 28px) / 2);
 
-            overflow:hidden;
-        }
-        ha-header-bar {
-            --mdc-theme-on-primary: var(--hue-text-color);
-            --mdc-theme-primary: transparent;
-            flex-shrink: 0;
-            display: block;
-        }
-        .heading ha-switch {
-            margin-right: 10px;
-        }
-        .heading ha-slider {
-            width: 100%;
-        }
-        /* Disable the bottom border radius */
-        /* in default styles: --ha-border-radius=0 in this case */
-        /*
-        @media all and (max-width: 450px), all and (max-height: 500px) {
-            border-bottom-left-radius: none;
-            border-bottom-right-radius: none;
-            padding-bottom: none;
-        }
-        */
+        overflow:hidden;
+    }
+    ha-header-bar {
+        --mdc-theme-on-primary: var(--hue-text-color);
+        --mdc-theme-primary: transparent;
+        flex-shrink: 0;
+        display: block;
+    }
+    .heading ha-switch {
+        margin-right: 10px;
+    }
+    .heading ha-slider {
+        width: 100%;
+    }
+    /* Disable the bottom border radius */
+    /* in default styles: --ha-border-radius=0 in this case */
+    /*
+    @media all and (max-width: 450px), all and (max-height: 500px) {
+        border-bottom-left-radius: none;
+        border-bottom-right-radius: none;
+        padding-bottom: none;
+    }
+    */
 
-        /* titles */
-        .header{
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .header .title{
-            color: ${unsafeCSS(Consts.ThemeSecondaryTextColorVar)};
-            font-family: var(--paper-font-title_-_font-family);
-            -webkit-font-smoothing: var( --paper-font-title_-_-webkit-font-smoothing );
-            font-size: var(--paper-font-subhead_-_font-size);
-            font-weight: var(--paper-font-title_-_font-weight);
-            letter-spacing: var(--paper-font-title_-_letter-spacing);
-            line-height: var(--paper-font-title_-_line-height);
-        }
+    /* titles */
+    .header{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    .header .title{
+        color: ${unsafeCSS(Consts.ThemeSecondaryTextColorVar)};
+        font-family: var(--paper-font-title_-_font-family);
+        -webkit-font-smoothing: var( --paper-font-title_-_-webkit-font-smoothing );
+        font-size: var(--paper-font-subhead_-_font-size);
+        font-weight: var(--paper-font-title_-_font-weight);
+        letter-spacing: var(--paper-font-title_-_letter-spacing);
+        line-height: var(--paper-font-title_-_line-height);
+    }
 
-        .content {
-            outline: none;
-        }
+    .content {
+        outline: none;
+    }
 
-        /* tiles - scenes, lights */
-        .tile-scroller {
-            display: flex;
-            flex-flow: column;
-            /*gap: ${HueDialog.tileGap}px;*/
-            max-width: 100%;
-            overflow-x: auto;
-            overflow-y: hidden;
-            padding: 0 ${HueDialog.haPadding}px;
-            margin: 0 -${HueDialog.haPadding}px;
-        }
-        .tiles {
-            display: flex;
-            flex-flow: row;
-            gap: ${HueDialog.tileGap}px;
-            margin-bottom: ${HueDialog.tileGap}px;
-        }
-        .tiles::after {
-            /* Flex loosing right padding, when overflowing */
-            content: '';
-            min-width: ${HueDialog.haPadding - HueDialog.tileGap}px;
-        }
+    /* tiles - scenes, lights */
+    .tile-scroller {
+        display: flex;
+        flex-flow: column;
+        /*gap: ${HueDialog.tileGap}px;*/
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 ${HueDialog.haPadding}px;
+        margin: 0 -${HueDialog.haPadding}px;
+    }
+    .tiles {
+        display: flex;
+        flex-flow: row;
+        gap: ${HueDialog.tileGap}px;
+        margin-bottom: ${HueDialog.tileGap}px;
+    }
+    .tiles::after {
+        /* Flex loosing right padding, when overflowing */
+        content: '';
+        min-width: ${HueDialog.haPadding - HueDialog.tileGap}px;
+    }
         `];
     }
 
-    // Can't be named 'updateStyles', because HA search for that method and calls it instead of applying theme
+    // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
     private updateStylesInner(isFirst: boolean): void {
         // ## Content styles
         if (isFirst) {
             // apply theme
-            applyThemesOnElement(this, this._ctrl.hass.themes, this._config.theme);
-
-            // To help change themes on the fly
-            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background');
+            ThemeHelper.applyTheme(this, this._ctrl.hass.themes, this._config.theme);
 
             const configColor = this._config.getHueScreenBgColor();
+
+            // To help change themes on the fly
+            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configColor.isThemeColor());
+
             let contentBg = null;
             let contentFg = null;
             if (!configColor.isThemeColor()) {
