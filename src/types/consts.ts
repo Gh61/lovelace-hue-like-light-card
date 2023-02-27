@@ -36,6 +36,6 @@ export class Consts {
         '--paper-card-background-color',
         '--primary-background-color'
     ];
-    public static readonly ThemePrimaryTextColorVar = 'var(--primary-text-color)';
+    public static readonly ThemeDialogHeadingColorVar = 'var(--mdc-dialog-heading-ink-color)';
     public static readonly ThemeSecondaryTextColorVar = 'var(--secondary-text-color)';
 }

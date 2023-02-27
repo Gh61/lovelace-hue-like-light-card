@@ -184,7 +184,8 @@ export class HueDialog extends LitElement {
 
     /* same color header */
     .heading {
-        color:var(--hue-text-color, ${unsafeCSS(Consts.ThemePrimaryTextColorVar)});
+        --hue-heading-text-color: var(--hue-text-color, ${unsafeCSS(Consts.ThemeDialogHeadingColorVar)});
+        color:var(--hue-heading-text-color);
         background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
         box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
         transition:all 0.3s ease-out 0s;
@@ -196,7 +197,7 @@ export class HueDialog extends LitElement {
         overflow:hidden;
     }
     ha-header-bar {
-        --mdc-theme-on-primary: var(--hue-text-color);
+        --mdc-theme-on-primary: var(--hue-heading-text-color);
         --mdc-theme-primary: transparent;
         flex-shrink: 0;
         display: block;
