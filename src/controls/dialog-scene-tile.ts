@@ -1,5 +1,5 @@
 import { html, css, unsafeCSS, PropertyValues } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { Color } from '../core/colors/color';
 import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
@@ -17,7 +17,7 @@ export class HueDialogSceneTile extends HueDialogTile {
 
     private readonly _effectQueue = new HueEffectQueue();
     private _sceneConfig: SceneConfig | null = null;
-    private _scene: SceneData | null = null;
+    @property() private _scene: SceneData | null = null;
 
     public set sceneConfig(config: SceneConfig) {
         const oldSceneConfig = this._sceneConfig;
@@ -118,7 +118,7 @@ export class HueDialogSceneTile extends HueDialogTile {
     `];
     }
 
-    protected override update(changedProps: PropertyValues) {
+    protected override updated(changedProps: PropertyValues) {
         if (this._scene && changedProps.has(nameof(this, 'sceneConfig'))) {
             const accentColor = this._scene.getColor();
             if (accentColor) {

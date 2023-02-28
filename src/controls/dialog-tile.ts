@@ -72,7 +72,7 @@ export abstract class HueDialogTile extends IdLitElement {
     }
     `;
 
-    protected abstract override update(changedProps: PropertyValues): void;
+    protected abstract override updated(changedProps: PropertyValues): void;
 
     protected abstract override render(): TemplateResult;
 }

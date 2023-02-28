@@ -1,5 +1,5 @@
-import { html, css, TemplateResult, PropertyValues } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { html, css, PropertyValues } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { ViewUtils } from '../core/view-utils';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
@@ -17,16 +17,7 @@ export class HueDialogLightTile extends HueDialogTile {
      */
     public static override readonly ElementName = HueDialogTile.ElementName + '-light';
 
-    private _lightContainer: ILightContainer | null = null;
-
-    public set lightContainer(light: ILightContainer | null) {
-        const oldLight = this._lightContainer;
-
-        this._lightContainer = light;
-
-        // custom @property() implementation
-        this.requestUpdate(nameof(this, 'lightContainer'), oldLight);
-    }
+    @property() public lightContainer: ILightContainer | null = null;
 
     public static override get styles() {
         return [
@@ -35,7 +26,7 @@ export class HueDialogLightTile extends HueDialogTile {
         ];
     }
 
-    protected update(changedProps: PropertyValues): void {
+    protected updated(changedProps: PropertyValues): void {
 
         // register for changes on light
         if (changedProps.has(nameof(this, 'lightContainer'))) {
@@ -43,8 +34,8 @@ export class HueDialogLightTile extends HueDialogTile {
             if (oldValue) {
                 oldValue.unregisterOnPropertyChanged(this._id);
             }
-            if (this._lightContainer) {
-                this._lightContainer.registerOnPropertyChanged(this._id, () => this.lightUpdated());
+            if (this.lightContainer) {
+                this.lightContainer.registerOnPropertyChanged(this._id, () => this.lightUpdated());
             }
         }
 
@@ -55,12 +46,12 @@ export class HueDialogLightTile extends HueDialogTile {
         this.requestUpdate();
     }
 
-    protected override render(): TemplateResult {
-        if (!this._lightContainer)
+    protected override render() {
+        if (!this.lightContainer)
             return html``;
 
-        const title = this._lightContainer.getTitle().resolveToString(null);
-        const icon = this._lightContainer.getIcon() ?? Consts.DefaultOneIcon;
+        const title = this.lightContainer.getTitle().resolveToString(null);
+        const icon = this.lightContainer.getIcon() ?? Consts.DefaultOneIcon;
         const onChange = () => { };
 
         /*eslint-disable */
@@ -73,7 +64,7 @@ export class HueDialogLightTile extends HueDialogTile {
                 <span>${title}</span>
             </div>
             <div class='switch'>
-                ${ViewUtils.createSwitch(this._lightContainer, onChange)}
+                ${ViewUtils.createSwitch(this.lightContainer, onChange)}
             </div>
         </div>
         `;
