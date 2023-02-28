@@ -1,6 +1,6 @@
-import { css, LitElement, PropertyValues, unsafeCSS } from 'lit';
+import { css, PropertyValues, unsafeCSS } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 import { cache } from 'lit/directives/cache.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
@@ -8,14 +8,13 @@ import { LightController } from '../core/light-controller';
 import { ViewUtils } from '../core/view-utils';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
-import { HueDialogTile } from './dialog-tile';
 import { HaDialog } from '../types/types-hass';
 import { ThemeHelper } from '../types/theme-helper';
-
-type Tab = 'colors' | 'scenes';
+import { HueDialogSceneTile } from './dialog-scene-tile';
+import { IdLitElement } from '../core/id-lit-element';
 
 @customElement(HueDialog.ElementName)
-export class HueDialog extends LitElement {
+export class HueDialog extends IdLitElement {
 
     /**
      * Name of this Element
@@ -30,19 +29,15 @@ export class HueDialog extends LitElement {
     private _isRendered = false;
     private _config: HueLikeLightCardConfig;
     private _ctrl: LightController;
-    private _id: string;
 
     public constructor(config: HueLikeLightCardConfig, lightController: LightController) {
-        super();
+        super('HueDialog');
 
         this._config = config;
         this._ctrl = lightController;
-        this._id = 'HueDialog_' + HueDialog.maxDialogId++;
     }
 
     //#region Hass changes
-
-    private static maxDialogId = 1;
 
     private onLightControllerChanged(propertyName: keyof LightController) {
         // when LightController changed - update this
@@ -50,17 +45,6 @@ export class HueDialog extends LitElement {
             this.requestUpdate();
         }
     }
-
-    //#endregion
-
-    //#region Tabs
-
-    private static readonly colorsTab: Tab = 'colors';
-    private static readonly scenesTab: Tab = 'scenes';
-    private static readonly tabs = [HueDialog.colorsTab, HueDialog.scenesTab]; //TODO: Remove tabs, use css animation hide of scenes and show of colorpicker
-
-    @state()
-    private _currTab = HueDialog.scenesTab;
 
     //#endregion
 
@@ -188,7 +172,7 @@ export class HueDialog extends LitElement {
         color:var(--hue-heading-text-color);
         background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
         box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
-        transition:all 0.3s ease-out 0s;
+        transition:${unsafeCSS(Consts.TransitionDefault)};
 
         border-bottom-left-radius: var(--ha-dialog-border-radius, 28px);
         border-bottom-right-radius: var(--ha-dialog-border-radius, 28px);
@@ -392,24 +376,20 @@ export class HueDialog extends LitElement {
           </div>
           <div class="content" tabindex="-1" dialogInitialFocus>
             ${cache(
-            this._currTab === HueDialog.scenesTab
-                ? html`
+                html`
                     <div class='header'>
                         <div class='title'>${this._config.resources.scenes}</div>
                     </div>
                     <div class='tile-scroller'>
                         <div class='tiles'>
-                            ${(this._config.scenes.map((s, i) => i % 2 == 1 ? html`` : html`<${unsafeStatic(HueDialogTile.ElementName)} .cardTitle=${cardTitle} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogTile.ElementName)}>`))}
+                            ${(this._config.scenes.map((s, i) => i % 2 == 1 ? html`` : html`<${unsafeStatic(HueDialogSceneTile.ElementName)} .cardTitle=${cardTitle} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                         </div>
                         <div class='tiles'>
-                            ${(this._config.scenes.map((s, i) => i % 2 == 0 ? html`` : html`<${unsafeStatic(HueDialogTile.ElementName)} .cardTitle=${cardTitle} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogTile.ElementName)}>`))}
+                            ${(this._config.scenes.map((s, i) => i % 2 == 0 ? html`` : html`<${unsafeStatic(HueDialogSceneTile.ElementName)} .cardTitle=${cardTitle} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                         </div>
                     </div>
-                  `
-                : html`
-                    <h3>Here for Colors</h3>
-                  `
-        )}
+                `
+            )}
             <!--
             <div class='header'>
                 <div class='title'>${this._config.resources.lights}</div>

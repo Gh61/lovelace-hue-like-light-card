@@ -514,8 +514,14 @@ Using the configuration option `resources`, you can change all static texts used
   <tr>
     <td><code>scenes</code></td>
     <td>1.1.0</td>
-    <td>Scenes</td>
-    <td>Title of Scene picker in <a href="#hue-screen">Hue Screen</a></td>
+    <td>MY SCENES</td>
+    <td>Title of Scenes tiles in <a href="#hue-screen">Hue Screen</a></td>
+  </tr>
+  <tr>
+    <td><code>lights</code></td>
+    <td>1.3.0</td>
+    <td>LIGHTS</td>
+    <td>Title of Light tiles in <a href="#hue-screen">Hue Screen</a></td>
   </tr>
 </table>
 

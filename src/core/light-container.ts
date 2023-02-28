@@ -8,14 +8,17 @@ import { Color } from './colors/color';
 import { StaticTextTemplate } from './hass-text-template';
 import { LightFeatures } from './light-features';
 import { TimeCache, TimeCacheValue } from './time-cache';
+import { NotifyBase } from './notify-base';
 
-export class LightContainer implements ILightContainer {
+export class LightContainer extends NotifyBase<LightContainer> implements ILightContainer {
     private _entity_id: string;
     private _hass: HomeAssistant;
     private _entity: HassLightEntity;
     private _entityFeatures: LightFeatures;
 
     public constructor(entity_id: string) {
+        super();
+
         ensureEntityDomain(entity_id, 'light');
 
         this._entity_id = entity_id;
@@ -27,6 +30,7 @@ export class LightContainer implements ILightContainer {
         this._hass = value;
         this._entity = <HassLightEntity>this._hass.states[this._entity_id];
         this._entityFeatures = new LightFeatures(this._entity);
+        this.raisePropertyChanged('hass');
     }
 
     //#region TimeCache

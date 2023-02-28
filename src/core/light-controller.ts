@@ -35,10 +35,17 @@ export class LightController extends NotifyBase<LightController> implements ILig
     }
 
     /**
-     * @returns all lit lights
+     * @returns all lit lights.
      */
     public getLitLights() : ILightContainer[] {
         return this._lights.filter(l => l.isOn());
+    }
+
+    /**
+     * @returns all lights in this controller.
+     */
+    public getLights() : ILightContainer[] {
+        return this._lights.map(l => l); // map will cause creation of new array
     }
 
     public set hass(hass: HomeAssistant) {

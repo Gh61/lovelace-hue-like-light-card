@@ -131,7 +131,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         top:17px;
         transform:scale(2);
         color:var(--hue-text-color);
-        transition:all 0.3s ease-out 0s;
+        transition:${unsafeCSS(Consts.TransitionDefault)};
     }
     h2
     {
@@ -144,7 +144,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         overflow:hidden;
         white-space:nowrap;
         color:var(--hue-text-color);
-        transition:all 0.3s ease-out 0s;
+        transition:${unsafeCSS(Consts.TransitionDefault)};
     }
     h2.no-switch{
         margin-right:10px;

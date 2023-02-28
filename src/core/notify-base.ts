@@ -1,9 +1,10 @@
 import { Action1 } from '../types/functions';
+import { INotifyGeneric } from '../types/types';
 
-export abstract class NotifyBase<TThis> {
+export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
     private _propertyChangedCallbacks:Record<string, Action1<keyof TThis>>;
 
-    public constructor() {
+    protected constructor() {
         this._propertyChangedCallbacks = {};
     }
 

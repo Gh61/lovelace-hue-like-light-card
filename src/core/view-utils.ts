@@ -4,17 +4,17 @@ import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
 import { Action } from '../types/functions';
 import { ThemeHelper } from '../types/theme-helper';
+import { ILightContainer } from '../types/types';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
-import { LightController } from './light-controller';
 
 export class ViewUtils {
 
     /**
-     * Creates switch for given lightController.
+     * Creates switch for given ILightContainer.
      * @param onChange Be careful - this function is called on different scope, better pack your function to arrow call.
      */
-    public static createSwitch(ctrl: LightController, onChange: Action) {
+    public static createSwitch(ctrl: ILightContainer, onChange: Action) {
         // To help change themes on the fly
         const styles = ThemeHelper.getSwitchThemeStyle();
 
@@ -28,10 +28,10 @@ export class ViewUtils {
     }
 
     /**
-     * Creates slider for given lightController and config.
+     * Creates slider for given ILightContainer and config.
      * @param onChange Be careful - this function is called on different scope, better pack your function to arrow call.
      */
-    public static createSlider(ctrl: LightController, config: HueLikeLightCardConfig, onChange: Action) {
+    public static createSlider(ctrl: ILightContainer, config: HueLikeLightCardConfig, onChange: Action) {
 
         // If the controller doesn't support brightness change, the slider will not be created
         if (!ctrl.features.brightness)
@@ -47,7 +47,7 @@ export class ViewUtils {
         ></ha-slider>`;
     }
 
-    private static changed(ctrl: LightController, onChange: Action, isSlider: boolean, ev: Event) {
+    private static changed(ctrl: ILightContainer, onChange: Action, isSlider: boolean, ev: Event) {
 
         // TODO: try to update on sliding (use debounce) not only on change. (https://www.webcomponents.org/element/@polymer/paper-slider/elements/paper-slider#events)
 
@@ -81,7 +81,7 @@ export class ViewUtils {
      * @param offBackground background used when all lights are off (null can be passed, and if used, null bg and fg will be returned)
      * @param assumeShadow If turned off, calculates foreground for max brightness (noShadow).
      */
-    public static calculateBackAndForeground(ctrl: LightController, offBackground: Background | null, assumeShadow = true) {
+    public static calculateBackAndForeground(ctrl: ILightContainer, offBackground: Background | null, assumeShadow = true) {
         const currentBackground = ctrl.isOff() ? offBackground : (ctrl.getBackground() || offBackground);
 
         let foreground: Color | null;
@@ -103,7 +103,7 @@ export class ViewUtils {
      * Creates readable text on background with shadow based on current brightness.
      * @param assumeShadow If turned off, calculates foreground for max brightness (noShadow).
      */
-    private static calculateForeground(ctrl: LightController, currentBackground: Background, assumeShadow = true) {
+    private static calculateForeground(ctrl: ILightContainer, currentBackground: Background, assumeShadow = true) {
 
         let currentValue = ctrl.value;
         // if the shadow is not present, act like the value is on max.
@@ -139,9 +139,9 @@ export class ViewUtils {
     }
 
     /**
-     * Calculates default shadow for passed element, using passed lightController state and config.
+     * Calculates default shadow for passed element, using passed ILightContainer state and config.
      */
-    public static calculateDefaultShadow(element: Element, ctrl: LightController, config: HueLikeLightCardConfig): string {
+    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, config: HueLikeLightCardConfig): string {
         if (ctrl.isOff())
             return config.disableOffShadow ? '0px 0px 0px white' : 'inset 0px 0px 10px rgba(0,0,0,0.2)';
 

@@ -1,5 +1,6 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { Background } from '../core/colors/background';
+import { Action1 } from './functions';
 
 export type ValueFactory = () => unknown;
 
@@ -11,6 +12,30 @@ export class CustomCardInfo {
 
 export interface WindowWithCards extends Window {
     customCards?: CustomCardInfo[];
+}
+
+export interface INotify {
+    /**
+     * Will register callback on property change events. 
+     * @param id Id for this specific callback. If this id already exists, it's callback will be overwriten.
+     * @param callback Action that will be called when any supported property if changed (takes propertyName as parameter).
+     */
+    registerOnPropertyChanged(id: string, callback: Action1<string | number | symbol>): void;
+
+    /**
+     * Will unregister callback from property change events.
+     * @param id Id for specific callback
+     */
+    unregisterOnPropertyChanged(id: string): void;
+}
+
+export interface INotifyGeneric<TThis> extends INotify {
+    /**
+     * Will register callback on property change events. 
+     * @param id Id for this specific callback. If this id already exists, it's callback will be overwriten.
+     * @param callback Action that will be called when any supported property if changed (takes propertyName as parameter).
+     */
+    registerOnPropertyChanged(id: string, callback: Action1<keyof TThis>): void;
 }
 
 export interface IHassTextTemplate {
@@ -53,7 +78,7 @@ export interface ILightConfig {
     get features(): ILightFeatures;
 }
 
-export interface ILightContainer extends ILightConfig {
+export interface ILightContainer extends ILightConfig, INotify {
     /**
      * @returns true if any light in this container is on.
      */
