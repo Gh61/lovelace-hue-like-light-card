@@ -50,7 +50,7 @@ export abstract class HueDialogTile extends IdLitElement {
         box-shadow: ${unsafeCSS(Consts.HueShadow)};
         overflow:hidden;
     }
-    .scene .title {
+    .title {
         color:${unsafeCSS(Consts.LightColor)};
         font-size: 12px;
         line-height: 15px;
@@ -62,7 +62,7 @@ export abstract class HueDialogTile extends IdLitElement {
         justify-content: center;
         transition: ${unsafeCSS(Consts.TransitionDefault)};
     }
-    .scene .title span {
+    .title span {
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;

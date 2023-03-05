@@ -1,9 +1,12 @@
-import { html, css, PropertyValues } from 'lit';
+import { html, css, unsafeCSS, PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { Background } from '../core/colors/background';
+import { Color } from '../core/colors/color';
 import { ViewUtils } from '../core/view-utils';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { ILightContainer } from '../types/types';
+import { HueDialogSceneTile } from './dialog-scene-tile';
 import { HueDialogTile } from './dialog-tile';
 
 /**
@@ -18,12 +21,55 @@ export class HueDialogLightTile extends HueDialogTile {
     public static override readonly ElementName = HueDialogTile.ElementName + '-light';
 
     @property() public lightContainer: ILightContainer | null = null;
+    @property() public defaultColor: Color | null = null;
+
+    private static readonly titlePadding = 10;
+    private static readonly switchHeight = 45;
 
     public static override get styles() {
         return [
             HueDialogTile.hueDialogStyle,
-            css`` // TODO: add styles
-        ];
+            css`
+    .hue-tile.light{
+        height: ${HueDialogTile.height + HueDialogLightTile.switchHeight}px;
+        background:var(--hue-light-background, ${unsafeCSS(Consts.TileOffColor)});
+        box-shadow:var(--hue-light-box-shadow), ${unsafeCSS(Consts.HueShadow)};
+        transition:${unsafeCSS(Consts.TransitionDefault)};
+    }
+
+    .title{
+        color: var(--hue-light-text-color, ${unsafeCSS(Consts.LightColor)});
+        padding-bottom: ${HueDialogLightTile.titlePadding}px;
+    }
+
+    .icon-slot{
+        display: flex;
+        flex-flow: column;
+        text-align: center;
+        height: calc(100% - ${HueDialogLightTile.titleHeight}px - ${HueDialogLightTile.titlePadding}px - ${HueDialogLightTile.switchHeight}px);
+        justify-content: center;
+    }
+    .icon-slot ha-icon {
+        color: var(--hue-light-text-color, ${unsafeCSS(Consts.LightColor)});
+        transform: scale(${HueDialogSceneTile.iconScale});
+    }
+
+    .switch{
+        display:flex;
+        flex-flow:column;
+
+        height: ${HueDialogLightTile.switchHeight + HueDialogTile.padding}px;
+        justify-content: center;
+        background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
+        border-top: 1px solid rgba(80, 80, 80, 0.1);
+        box-sizing: content-box;
+        margin: 0 -${HueDialogTile.padding}px;
+    }
+    .switch ha-switch{
+        justify-content:center;
+    }
+
+    `];
     }
 
     protected updated(changedProps: PropertyValues): void {
@@ -39,7 +85,42 @@ export class HueDialogLightTile extends HueDialogTile {
             }
         }
 
-        // TODO: change shadow and color
+        if (this.lightContainer) {
+            if (this.lightContainer.isOn()) {
+                const defaultColorBg = this.defaultColor ? new Background([this.defaultColor]) : null;
+                const bfg = ViewUtils.calculateBackAndForeground(this.lightContainer, null, true, defaultColorBg);
+                const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, true);
+
+                if (bfg.background) {
+                    this.style.setProperty(
+                        '--hue-light-background',
+                        bfg.background.toString()
+                    );
+                }
+
+                if (bfg.foreground) {
+                    this.style.setProperty(
+                        '--hue-light-text-color',
+                        bfg.foreground.toString()
+                    );
+                }
+
+                this.style.setProperty(
+                    '--hue-light-box-shadow',
+                    shadow
+                );
+            } else {
+                this.style.removeProperty(
+                    '--hue-light-background'
+                );
+                this.style.removeProperty(
+                    '--hue-light-text-color'
+                );
+                this.style.removeProperty(
+                    '--hue-light-box-shadow'
+                );
+            }
+        }
     }
 
     private lightUpdated() {

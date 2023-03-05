@@ -59,8 +59,8 @@ export class HueDialogSceneTile extends HueDialogTile {
         }
     }
 
-    protected static readonly colorDimensions = HueDialogTile.height / 2; // px
-    private static readonly iconScale = (HueDialogSceneTile.colorDimensions * 0.75) / 24; // 24 = default icon size
+    private static readonly colorDimensions = HueDialogTile.height / 2; // px
+    public static readonly iconScale = (HueDialogSceneTile.colorDimensions * 0.75) / 24; // 24 = default icon size
     private static readonly animationSeconds = 1.0;
 
     public static override get styles() {

@@ -80,9 +80,10 @@ export class ViewUtils {
      * @param ctrl Light controller
      * @param offBackground background used when all lights are off (null can be passed, and if used, null bg and fg will be returned)
      * @param assumeShadow If turned off, calculates foreground for max brightness (noShadow).
+     * @param defaultColor Default color, if light does not provide his color.
      */
-    public static calculateBackAndForeground(ctrl: ILightContainer, offBackground: Background | null, assumeShadow = true) {
-        const currentBackground = ctrl.isOff() ? offBackground : (ctrl.getBackground() || offBackground);
+    public static calculateBackAndForeground(ctrl: ILightContainer, offBackground: Background | null, assumeShadow = true, defaultColor: Background | null = offBackground) {
+        const currentBackground = ctrl.isOff() ? offBackground : (ctrl.getBackground() || defaultColor || offBackground);
 
         let foreground: Color | null;
         if (currentBackground == null) {
@@ -141,9 +142,9 @@ export class ViewUtils {
     /**
      * Calculates default shadow for passed element, using passed ILightContainer state and config.
      */
-    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, config: HueLikeLightCardConfig): string {
+    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, disableOffShadow: boolean): string {
         if (ctrl.isOff())
-            return config.disableOffShadow ? '0px 0px 0px white' : 'inset 0px 0px 10px rgba(0,0,0,0.2)';
+            return disableOffShadow ? '0px 0px 0px white' : 'inset 0px 0px 10px rgba(0,0,0,0.2)';
 
         const card = element;
         if (!card || !card.clientHeight)

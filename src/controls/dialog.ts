@@ -348,7 +348,7 @@ export class HueDialog extends IdLitElement {
         }
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
-        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config);
+        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.disableOffShadow);
 
         // when first rendered, clientHeight is 0, so no shadow is genered - plan new update:
         if (!shadow) {
@@ -445,7 +445,7 @@ export class HueDialog extends IdLitElement {
             </div>
             <div class='tile-scroller'>
                 <div class='tiles'>
-                    ${(this._ctrl.getLights().map((l) => html`<${unsafeStatic(HueDialogLightTile.ElementName)} .cardTitle=${cardTitle} .lightContainer=${l} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogLightTile.ElementName)}>`))}
+                    ${(this._ctrl.getLights().map((l) => html`<${unsafeStatic(HueDialogLightTile.ElementName)} .cardTitle=${cardTitle} .lightContainer=${l} .defaultColor=${this._config.getDefaultColor()} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogLightTile.ElementName)}>`))}
                 </div>
             </div>
           </div>
