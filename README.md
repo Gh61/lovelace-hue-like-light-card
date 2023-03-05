@@ -522,13 +522,13 @@ Using the configuration option `resources`, you can change all static texts used
   <tr>
     <td><code>scenes</code></td>
     <td>1.1.0</td>
-    <td>MY SCENES</td>
+    <td>My scenes</td>
     <td>Title of Scenes tiles in <a href="#hue-screen">Hue Screen</a></td>
   </tr>
   <tr>
     <td><code>lights</code></td>
     <td>1.3.0</td>
-    <td>LIGHTS</td>
+    <td>Lights</td>
     <td>Title of Light tiles in <a href="#hue-screen">Hue Screen</a></td>
   </tr>
 </table>
