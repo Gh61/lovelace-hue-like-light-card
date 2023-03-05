@@ -49,6 +49,7 @@ export abstract class HueDialogTile extends IdLitElement {
         border-radius: ${Consts.HueBorderRadius}px;
         box-shadow: ${unsafeCSS(Consts.HueShadow)};
         overflow:hidden;
+        user-select: none;
     }
     .title {
         color:${unsafeCSS(Consts.LightColor)};
