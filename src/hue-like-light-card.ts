@@ -107,6 +107,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         background:var(--hue-background);
         position:relative;
         box-shadow:var(--hue-box-shadow), var(--ha-default-shadow);
+        background-origin: border-box;
     }
     ha-card.new-borders
     {
