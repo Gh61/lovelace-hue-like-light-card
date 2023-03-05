@@ -142,9 +142,9 @@ export class ViewUtils {
     /**
      * Calculates default shadow for passed element, using passed ILightContainer state and config.
      */
-    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, disableOffShadow: boolean): string {
+    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, useOffShadow: boolean): string {
         if (ctrl.isOff())
-            return disableOffShadow ? '0px 0px 0px white' : 'inset 0px 0px 10px rgba(0,0,0,0.2)';
+            return useOffShadow ? 'inset 0px 0px 10px rgba(0,0,0,0.2)' : '0px 0px 0px white';
 
         const card = element;
         if (!card || !card.clientHeight)

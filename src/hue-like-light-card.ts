@@ -227,7 +227,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         // FG: --primary-text-color (for off: --secondary-text-color)
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
-        const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config);
+        const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config.offShadow);
 
         this.style.setProperty(
             '--hue-background',

@@ -180,12 +180,20 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td>Will use specific theme for this single card. Other than the current selected globally in Home Assistant.</td>
   </tr>
   <tr>
-    <td><code>disableOffShadow</code></td>
+    <td><s><code>disableOffShadow</code></s></td>
     <td>boolean</td>
     <td>no</td>
-    <td>1.0.0</td>
+    <td><i>deprecated in 1.3.0</i></td>
     <td><code>false</code></td>
-    <td>If turned on, the card will not have inner shadow, when all lights are off.</td>
+    <td><s>If turned on, the card will not have inner shadow, when all lights are off.</s></td>
+  </tr>
+  <tr>
+    <td><code>offShadow</code></td>
+    <td>boolean</td>
+    <td>no</td>
+    <td>1.3.0</td>
+    <td><code>true</code></td>
+    <td>If turned off, the card will not have inner shadow, when all lights are off.</td>
   </tr>
   <tr>
     <td><code>hueBorders</code></td>
@@ -581,7 +589,7 @@ entities:
   - light.tvlight_color4
 offColor: theme-color
 hueScreenBgColor: theme-color
-disableOffShadow: true
+offShadow: false
 hueBorders: false
 ```
 
@@ -593,7 +601,7 @@ title: Living room
 icon: mdi:sofa
 offColor: theme-color
 hueScreenBgColor: theme-color
-disableOffShadow: true
+offShadow: false
 hueBorders: false
 allowZero: true
 entities:

@@ -348,7 +348,7 @@ export class HueDialog extends IdLitElement {
         }
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
-        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.disableOffShadow);
+        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.offShadow);
 
         // when first rendered, clientHeight is 0, so no shadow is genered - plan new update:
         if (!shadow) {

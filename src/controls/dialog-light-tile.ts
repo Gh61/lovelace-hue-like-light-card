@@ -89,7 +89,7 @@ export class HueDialogLightTile extends HueDialogTile {
             if (this.lightContainer.isOn()) {
                 const defaultColorBg = this.defaultColor ? new Background([this.defaultColor]) : null;
                 const bfg = ViewUtils.calculateBackAndForeground(this.lightContainer, null, true, defaultColorBg);
-                const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, true);
+                const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, false);
 
                 if (bfg.background) {
                     this.style.setProperty(
