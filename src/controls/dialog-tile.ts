@@ -36,10 +36,9 @@ export abstract class HueDialogTile extends IdLitElement {
     protected updateHassDependentProps() {}
 
     protected static readonly padding = 5; // px
-    protected static readonly height = 100; // px
+    protected static readonly height = 90; // px
     protected static readonly width = 85; // px
-    protected static readonly colorDimensions = HueDialogTile.height / 2; // px
-    protected static readonly iconScale = (HueDialogTile.colorDimensions * 0.75) / 24; // 24 = default icon size
+    protected static readonly titleHeight = 35; // px
 
     protected static hueDialogStyle = css`
     .hue-tile{
@@ -56,7 +55,7 @@ export abstract class HueDialogTile extends IdLitElement {
         font-size: 12px;
         line-height: 15px;
         font-weight:400;
-        height:30%;
+        height:${HueDialogTile.titleHeight}px;
         text-align: center;
         display: flex;
         flex-flow: column;

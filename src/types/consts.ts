@@ -8,7 +8,7 @@ export class Consts {
     public static readonly CardDescription = 'Hue-like way to control your lights';
 
     public static readonly HueBorderRadius = 10;
-    public static readonly HueShadow = '0px 2px 3px rgba(0,0,0,0.85)';
+    public static readonly HueShadow = '0px 2px 3px rgba(0,0,0,0.4)';
     public static readonly LightColor = new Color('#fff');
     public static readonly LightOffColor = new Color('#fff', 0.85);
     public static readonly DarkColor = new Color(0, 0, 0, 0.7);
@@ -17,7 +17,7 @@ export class Consts {
     public static readonly ColdColor = '#f5f5ff';
     public static readonly DefaultColor = 'warm';
     public static readonly OffColor = '#666';
-    public static readonly TileOffColor = 'rgba(102, 102, 102, 0.8)';
+    public static readonly TileOffColor = 'rgba(102, 102, 102, 0.6)';
     public static readonly DialogBgColor = '#171717';
     public static readonly DialogFgLightColor = new Color('#aaa');
     public static readonly DialogOffColor = '#363636';

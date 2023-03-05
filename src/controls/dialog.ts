@@ -238,6 +238,27 @@ export class HueDialog extends IdLitElement {
         padding: 0 ${HueDialog.haPadding}px;
         margin: 0 -${HueDialog.haPadding}px;
     }
+    /* width */
+    ::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: transparent;
+        /*background: #f1f1f1;*/
+    }
+    
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background: #888; 
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+    }
     .tiles {
         display: flex;
         flex-flow: row;
@@ -291,7 +312,7 @@ export class HueDialog extends IdLitElement {
             ThemeHelper.applyTheme(this, this._ctrl.hass.themes, this._config.theme);
 
             // To help change themes on the fly
-            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configBgColor.isThemeColor());
+            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configBgColor.isThemeColor() || this._config.getOffColor().isThemeColor());
 
             let contentBg = null;
             let contentFg = null;

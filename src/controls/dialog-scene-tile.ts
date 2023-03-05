@@ -59,6 +59,8 @@ export class HueDialogSceneTile extends HueDialogTile {
         }
     }
 
+    protected static readonly colorDimensions = HueDialogTile.height / 2; // px
+    private static readonly iconScale = (HueDialogSceneTile.colorDimensions * 0.75) / 24; // 24 = default icon size
     private static readonly animationSeconds = 1.0;
 
     public static override get styles() {
@@ -69,16 +71,17 @@ export class HueDialogSceneTile extends HueDialogTile {
         cursor: pointer;
     }
     .scene .icon-background {
-        height: 70%;
+        height: calc(100% - ${HueDialogTile.titleHeight}px);
         display: flex;
         align-items: center;
         justify-content: center;
     }
     .scene .icon-background .color {
         background: var(--hue-tile-accent-color, darkgoldenrod);
-        height: ${HueDialogTile.colorDimensions}px;
-        width: ${HueDialogTile.colorDimensions}px;
-        border-radius: ${HueDialogTile.colorDimensions / 2}px;
+        height: ${HueDialogSceneTile.colorDimensions}px;
+        width: ${HueDialogSceneTile.colorDimensions}px;
+        border-radius: ${HueDialogSceneTile.colorDimensions / 2}px;
+        box-shadow: ${unsafeCSS(Consts.HueShadow)}, inset rgba(0,0,0,0.1) -8px -8px 15px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -86,7 +89,7 @@ export class HueDialogSceneTile extends HueDialogTile {
     }
     .scene .icon-background .color ha-icon {
         color: var(--hue-tile-fg-color, ${unsafeCSS(Consts.LightColor)});
-        transform: scale(${HueDialogTile.iconScale});
+        transform: scale(${HueDialogSceneTile.iconScale});
     }
     .scene.clicked .icon-background .color {
         height: ${HueDialogTile.height * 2}px;
@@ -113,7 +116,7 @@ export class HueDialogSceneTile extends HueDialogTile {
     }
 
     @keyframes pop-icon{
-        50% { transform: scale(${HueDialogTile.iconScale * 2}); }
+        50% { transform: scale(${HueDialogSceneTile.iconScale * 2}); }
     }
     `];
     }
