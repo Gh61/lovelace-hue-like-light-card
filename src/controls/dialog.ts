@@ -259,6 +259,15 @@ export class HueDialog extends IdLitElement {
     ::-webkit-scrollbar-thumb:hover {
         background: #555; 
     }
+
+    @media screen and (max-width: 768px){
+        ::-webkit-scrollbar {
+            -webkit-appearance: none;
+            height: 0px;
+            background: transparent;
+        }
+    }
+
     .tiles {
         display: flex;
         flex-flow: row;
