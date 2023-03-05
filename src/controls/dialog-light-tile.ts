@@ -89,7 +89,6 @@ export class HueDialogLightTile extends HueDialogTile {
             if (this.lightContainer.isOn()) {
                 const defaultColorBg = this.defaultColor ? new Background([this.defaultColor]) : null;
                 const bfg = ViewUtils.calculateBackAndForeground(this.lightContainer, null, true, defaultColorBg);
-                const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, false);
 
                 if (bfg.background) {
                     this.style.setProperty(
@@ -104,11 +103,6 @@ export class HueDialogLightTile extends HueDialogTile {
                         bfg.foreground.toString()
                     );
                 }
-
-                this.style.setProperty(
-                    '--hue-light-box-shadow',
-                    shadow
-                );
             } else {
                 this.style.removeProperty(
                     '--hue-light-background'
@@ -116,10 +110,13 @@ export class HueDialogLightTile extends HueDialogTile {
                 this.style.removeProperty(
                     '--hue-light-text-color'
                 );
-                this.style.removeProperty(
-                    '--hue-light-box-shadow'
-                );
             }
+
+            const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, false);
+            this.style.setProperty(
+                '--hue-light-box-shadow',
+                shadow
+            );
         }
     }
 
