@@ -43,7 +43,7 @@ export abstract class HueDialogTile extends IdLitElement {
 
     protected static hueDialogStyle = css`
     .hue-tile{
-        background: ${unsafeCSS(Consts.OffColor)};
+        background: ${unsafeCSS(Consts.TileOffColor)};
         width: ${HueDialogTile.width}px;
         height: ${HueDialogTile.height}px;
         padding: ${HueDialogTile.padding}px;

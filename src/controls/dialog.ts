@@ -179,6 +179,9 @@ export class HueDialog extends IdLitElement {
         padding-bottom: calc(var(--ha-dialog-border-radius, 28px) / 2);
 
         overflow:hidden;
+
+        /* is above the backdrop */
+        z-index:1;
     }
     ha-header-bar {
         --mdc-theme-on-primary: var(--hue-heading-text-color);
@@ -249,22 +252,51 @@ export class HueDialog extends IdLitElement {
         `];
     }
 
+    private _backdropSet = false;
+
     // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
     private updateStylesInner(isFirst: boolean): void {
+        const configBgColor = this._config.getHueScreenBgColor();
+
+        // Allow gradient backdrop on dialog
+        if (/*!configBgColor.isThemeColor() && */!this._backdropSet) {
+            const dialogShadowRoot = this.shadowRoot?.querySelector('ha-dialog')?.shadowRoot;
+            if (dialogShadowRoot) {
+                const surface = <HTMLElement>dialogShadowRoot.querySelector('.mdc-dialog__surface');
+                if (surface) {
+                    const backdropElement = document.createElement('div');
+                    backdropElement.id = 'hue-backdrop';
+                    backdropElement.style.position = 'absolute';
+                    backdropElement.style.width = '100%';
+                    backdropElement.style.height = '100%';
+                    backdropElement.style.background = 'var(--hue-background)';
+                    const mask = 'linear-gradient(rgba(255, 255, 255, .25) 0%, transparent 70%)';
+                    backdropElement.style.mask = mask;
+                    backdropElement.style.webkitMask = mask;
+                    //backdropElement.style.zIndex = '0';
+
+                    // if the browser doesn't support mask - don't render the backdrop element
+                    if (backdropElement.style.mask || backdropElement.style.webkitMask) {
+                        surface.prepend(backdropElement);
+                    }
+
+                    this._backdropSet = true;
+                }
+            }
+        }
+
         // ## Content styles
         if (isFirst) {
             // apply theme
             ThemeHelper.applyTheme(this, this._ctrl.hass.themes, this._config.theme);
 
-            const configColor = this._config.getHueScreenBgColor();
-
             // To help change themes on the fly
-            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configColor.isThemeColor());
+            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configBgColor.isThemeColor());
 
             let contentBg = null;
             let contentFg = null;
-            if (!configColor.isThemeColor()) {
-                contentBg = configColor;
+            if (!configBgColor.isThemeColor()) {
+                contentBg = configBgColor;
                 contentFg = contentBg.getForeground(Consts.DialogFgLightColor, Consts.DarkColor, +120); // for most colors use dark
 
                 this.style.setProperty(

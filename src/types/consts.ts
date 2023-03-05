@@ -17,6 +17,7 @@ export class Consts {
     public static readonly ColdColor = '#f5f5ff';
     public static readonly DefaultColor = 'warm';
     public static readonly OffColor = '#666';
+    public static readonly TileOffColor = 'rgba(102, 102, 102, 0.8)';
     public static readonly DialogBgColor = '#171717';
     public static readonly DialogFgLightColor = new Color('#aaa');
     public static readonly DialogOffColor = '#363636';

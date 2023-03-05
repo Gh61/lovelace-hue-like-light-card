@@ -75,7 +75,7 @@ export class HueDialogSceneTile extends HueDialogTile {
         justify-content: center;
     }
     .scene .icon-background .color {
-        background: var(--hue-tile-accent-color, lightslategray);
+        background: var(--hue-tile-accent-color, darkgoldenrod);
         height: ${HueDialogTile.colorDimensions}px;
         width: ${HueDialogTile.colorDimensions}px;
         border-radius: ${HueDialogTile.colorDimensions / 2}px;
