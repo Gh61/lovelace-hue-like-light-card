@@ -432,7 +432,7 @@ When no scenes are defined, scenes will be detected [automatically](#scenes-dete
     <td><a href="#color">Color</a></td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><code>'lightslategray'</code></td>
+    <td><code>'darkgoldenrod'</code></td>
     <td>Accent color current scene (shown on scene-button)</td>
   </tr>
   <tr>
