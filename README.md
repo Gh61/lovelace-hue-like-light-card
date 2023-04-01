@@ -17,6 +17,12 @@ This card is providing light control. It is inspired by original Philips Hue app
 type: custom:hue-like-light-card
 entity: light.livingroom_color
 ```
+Where **livingroom_color** is the entity id of some existing light.
+
+For certain configurations (single light without scenes) you **might not get the [Hue Screen](#hue-screen)** on click.<br/>
+This is caused by the default [Click action](#automatic-click-action), you can override it by setting `onClickAction` and/or `offClickAction`.<br/>
+*This default behaviour is chosen because the Hue Screen is currently not supporting control of all light features. It will be changed, after the brightness and color change is implemented to the Hue Screen.*
+
 For more options see [Configuration](#configuration) or let yourself inspire in [Examples of configuration](#examples-of-configuration)
 
 ## Installation
@@ -98,7 +104,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><a href="#click-action">Click Action</a></td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><a href="#automatic-click-action"><code>default</code></a></td>
+    <td><a href="#automatic-click-action"><i>automatic</i></a></td>
     <td>Action when tile is clicked and all <b>lights are off</b></td>
   </tr>
   <tr>
@@ -114,7 +120,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><a href="#click-action">Click Action</a></td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><a href="#automatic-click-action"><code>default</code></a></td>
+    <td><a href="#automatic-click-action"><i>automatic</i></a></td>
     <td>Action when tile is clicked and any of <b>lights is on</b></td>
   </tr>
   <tr>
