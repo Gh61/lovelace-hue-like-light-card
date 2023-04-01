@@ -64,7 +64,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td>yes*</td>
     <td>1.0.0</td>
     <td>-</td>
-    <td>Light entity name (eg. <code>light.my_light</code>)</td>
+    <td><b>Light</b> entity name (eg. <code>light.my_light</code>)</td>
   </tr>
   <tr>
     <td><code>entities</code></td>
@@ -72,7 +72,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td>yes*</td>
     <td>1.0.0</td>
     <td>-</td>
-    <td>Multiple Light entity names</td>
+    <td>Multiple <b>Light</b> entity names</td>
   </tr>
   <tr>
     <td><code>title</code></td>
@@ -219,7 +219,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
   </tr>
   <tr>
     <td colspan="6">
-      <i>* At least one of this two must be filled in</i>
+      <i>* At least one of this two must be filled in. <b>Only entities of <code>light</code> domain are supported.</b></i>
     </td>
   </tr>
 </table>
@@ -438,7 +438,7 @@ When no scenes are defined, scenes will be detected [automatically](#scenes-dete
     <td><a href="#color">Color</a></td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><code>'lightslategray'</code></td>
+    <td><code>'darkgoldenrod'</code></td>
     <td>Accent color current scene (shown on scene-button)</td>
   </tr>
   <tr>
