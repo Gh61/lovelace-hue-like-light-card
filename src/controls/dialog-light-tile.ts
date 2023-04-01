@@ -22,9 +22,25 @@ export class HueDialogLightTile extends HueDialogTile {
 
     @property() public lightContainer: ILightContainer | null = null;
     @property() public defaultColor: Color | null = null;
+    @property() public selectedLightContainer: ILightContainer | null = null;
+    public get isSelected(): boolean {
+        if (!this.selectedLightContainer)
+            return false;
+
+        return this.selectedLightContainer == this.lightContainer;
+    }
+    public set isSelected(value: boolean) {
+        if (value) {
+            this.selectedLightContainer = this.lightContainer;
+        } else {
+            this.selectedLightContainer = null;
+        }
+    }
 
     private static readonly titlePadding = 10;
     private static readonly switchHeight = 45;
+    private static readonly selectorWidth = 2;
+    private static readonly selectorSpacing = 2;
 
     public static override get styles() {
         return [
@@ -37,6 +53,21 @@ export class HueDialogLightTile extends HueDialogTile {
         transition:${unsafeCSS(Consts.TransitionDefault)};
     }
 
+    .selector.active{
+        border: ${HueDialogLightTile.selectorWidth}px solid var(--hue-light-background, ${unsafeCSS(Consts.WarmColor)});
+        padding: ${HueDialogLightTile.selectorSpacing}px;
+        border-radius: ${Consts.HueBorderRadius + HueDialogLightTile.selectorWidth + HueDialogLightTile.selectorSpacing}px;
+        margin: -${HueDialogLightTile.selectorWidth + HueDialogLightTile.selectorSpacing}px
+    }
+
+    .hue-tile.light .tap-area{
+        display: flex;
+        flex-flow: column;
+        height: ${HueDialogTile.height}px;
+
+        cursor: pointer;
+    }
+
     .title{
         color: var(--hue-light-text-color, ${unsafeCSS(Consts.LightColor)});
         padding-bottom: ${HueDialogLightTile.titlePadding}px;
@@ -46,7 +77,8 @@ export class HueDialogLightTile extends HueDialogTile {
         display: flex;
         flex-flow: column;
         text-align: center;
-        height: calc(100% - ${HueDialogLightTile.titleHeight}px - ${HueDialogLightTile.titlePadding}px - ${HueDialogLightTile.switchHeight}px);
+        height: ${HueDialogTile.height - HueDialogLightTile.titleHeight - HueDialogLightTile.titlePadding}px;
+        /*height: calc(100% - ${HueDialogLightTile.titleHeight}px - ${HueDialogLightTile.titlePadding}px - ${HueDialogLightTile.switchHeight}px);*/
         justify-content: center;
     }
     .icon-slot ha-icon {
@@ -118,10 +150,20 @@ export class HueDialogLightTile extends HueDialogTile {
                 shadow
             );
         }
+
+        if (changedProps.has(nameof(this, 'selectedLightContainer'))) {
+            const selector = <Element>this.renderRoot.querySelector('.selector');
+            selector.classList.toggle('active', this.isSelected);
+        }
     }
 
     private lightUpdated() {
         this.requestUpdate();
+    }
+
+    private lightClicked(): void {
+        // toggle select this light
+        this.isSelected = !this.isSelected;
     }
 
     protected override render() {
@@ -134,15 +176,19 @@ export class HueDialogLightTile extends HueDialogTile {
 
         /*eslint-disable */
         return html`
-        <div class='hue-tile light' title='${title}'>
-            <div class='icon-slot'>
-                <ha-icon icon="${icon}"></ha-icon>
-            </div>
-            <div class='title'>
-                <span>${title}</span>
-            </div>
-            <div class='switch'>
-                ${ViewUtils.createSwitch(this.lightContainer, onChange)}
+        <div class='selector'>
+            <div class='hue-tile light' title='${title}'>
+                <div class="tap-area" @click="${(): void => this.lightClicked()}">
+                    <div class='icon-slot'>
+                        <ha-icon icon="${icon}"></ha-icon>
+                    </div>
+                    <div class='title'>
+                        <span>${title}</span>
+                    </div>
+                </div>
+                <div class='switch'>
+                    ${ViewUtils.createSwitch(this.lightContainer, onChange)}
+                </div>
             </div>
         </div>
         `;

@@ -1,6 +1,6 @@
 import { css, PropertyValues, unsafeCSS } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { LightController } from '../core/light-controller';
@@ -12,6 +12,7 @@ import { ThemeHelper } from '../types/theme-helper';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { IdLitElement } from '../core/id-lit-element';
 import { HueDialogLightTile } from './dialog-light-tile';
+import { ILightContainer } from '../types/types';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -29,6 +30,9 @@ export class HueDialog extends IdLitElement {
     private _isRendered = false;
     private _config: HueLikeLightCardConfig;
     private _ctrl: LightController;
+
+    @property()
+    private _selectedLight: ILightContainer | null;
 
     public constructor(config: HueLikeLightCardConfig, lightController: LightController) {
         super('HueDialog');
@@ -442,10 +446,20 @@ export class HueDialog extends IdLitElement {
             </div>
             <div class='tile-scroller'>
                 <div class='tiles'>
-                    ${(this._config.scenes.map((s, i) => i % 2 == 1 ? html`` : html`<${unsafeStatic(HueDialogSceneTile.ElementName)} .cardTitle=${cardTitle} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
+                    ${(this._config.scenes.map((s, i) => i % 2 == 1 ? html`` :
+                        html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
+                            .cardTitle=${cardTitle}
+                            .sceneConfig=${s}
+                            .hass=${this._ctrl.hass}>
+                        </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>
                 <div class='tiles'>
-                    ${(this._config.scenes.map((s, i) => i % 2 == 0 ? html`` : html`<${unsafeStatic(HueDialogSceneTile.ElementName)} .cardTitle=${cardTitle} .sceneConfig=${s} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
+                    ${(this._config.scenes.map((s, i) => i % 2 == 0 ? html`` :
+                        html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
+                            .cardTitle=${cardTitle}
+                            .sceneConfig=${s}
+                            .hass=${this._ctrl.hass}>
+                        </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>
             </div>
 
@@ -454,7 +468,14 @@ export class HueDialog extends IdLitElement {
             </div>
             <div class='tile-scroller'>
                 <div class='tiles'>
-                    ${(this._ctrl.getLights().map((l) => html`<${unsafeStatic(HueDialogLightTile.ElementName)} .cardTitle=${cardTitle} .lightContainer=${l} .defaultColor=${this._config.getDefaultColor()} .hass=${this._ctrl.hass}></${unsafeStatic(HueDialogLightTile.ElementName)}>`))}
+                    ${(this._ctrl.getLights().map((l) =>
+                        html`<${unsafeStatic(HueDialogLightTile.ElementName)}
+                            .cardTitle=${cardTitle}
+                            .lightContainer=${l}
+                            .selectedLightContainer=${this._selectedLight}
+                            .defaultColor=${this._config.getDefaultColor()}
+                            .hass=${this._ctrl.hass}>
+                        </${unsafeStatic(HueDialogLightTile.ElementName)}>`))}
                 </div>
             </div>
           </div>
