@@ -155,6 +155,7 @@ export class HueDialog extends IdLitElement {
     }
   `;
 
+    private static readonly headerMargin = 8;
     private static readonly tileGap = 10;
     private static readonly haPadding = 24;
 
@@ -215,7 +216,7 @@ export class HueDialog extends IdLitElement {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 0;
     }
     .header .title{
         color: ${unsafeCSS(Consts.ThemeSecondaryTextColorVar)};
@@ -277,6 +278,9 @@ export class HueDialog extends IdLitElement {
         flex-flow: row;
         gap: ${HueDialog.tileGap}px;
         margin-bottom: ${HueDialog.tileGap}px;
+    }
+    .tile-scroller .tiles:first-child{
+        margin-top: ${HueDialog.headerMargin}px;
     }
     .tiles::after {
         /* Flex loosing right padding, when overflowing */
