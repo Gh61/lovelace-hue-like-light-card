@@ -11,7 +11,7 @@ import { HaDialog } from '../types/types-hass';
 import { ThemeHelper } from '../types/theme-helper';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { IdLitElement } from '../core/id-lit-element';
-import { HueDialogLightTile } from './dialog-light-tile';
+import { HueDialogLightTile, LightSelectedEventDetail } from './dialog-light-tile';
 import { ILightContainer } from '../types/types';
 
 @customElement(HueDialog.ElementName)
@@ -398,6 +398,14 @@ export class HueDialog extends IdLitElement {
         }
     }
 
+    private onLightSelected(ev: CustomEvent<LightSelectedEventDetail>) {
+        if (ev.detail.isSelected) {
+            this._selectedLight = ev.detail.lightContainer;
+        } else if (this._selectedLight == ev.detail.lightContainer) {
+            this._selectedLight = null;
+        }
+    }
+
     protected override render() {
         this._isRendered = true;
 
@@ -476,7 +484,8 @@ export class HueDialog extends IdLitElement {
                         html`<${unsafeStatic(HueDialogLightTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .lightContainer=${l}
-                            .selectedLightContainer=${this._selectedLight}
+                            .isSelected=${this._selectedLight == l}
+                            @selected-change=${(e: CustomEvent) => this.onLightSelected(e)}
                             .defaultColor=${this._config.getDefaultColor()}
                             .hass=${this._ctrl.hass}>
                         </${unsafeStatic(HueDialogLightTile.ElementName)}>`))}

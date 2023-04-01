@@ -9,6 +9,11 @@ import { ILightContainer } from '../types/types';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { HueDialogTile } from './dialog-tile';
 
+export interface LightSelectedEventDetail {
+    isSelected: boolean;
+    lightContainer: ILightContainer | null;
+}
+
 /**
  * Represents Scene tile element in HueDialog.
  */
@@ -22,20 +27,7 @@ export class HueDialogLightTile extends HueDialogTile {
 
     @property() public lightContainer: ILightContainer | null = null;
     @property() public defaultColor: Color | null = null;
-    @property() public selectedLightContainer: ILightContainer | null = null;
-    public get isSelected(): boolean {
-        if (!this.selectedLightContainer)
-            return false;
-
-        return this.selectedLightContainer == this.lightContainer;
-    }
-    public set isSelected(value: boolean) {
-        if (value) {
-            this.selectedLightContainer = this.lightContainer;
-        } else {
-            this.selectedLightContainer = null;
-        }
-    }
+    @property() public isSelected = false;
 
     private static readonly titlePadding = 10;
     private static readonly switchHeight = 45;
@@ -151,9 +143,17 @@ export class HueDialogLightTile extends HueDialogTile {
             );
         }
 
-        if (changedProps.has(nameof(this, 'selectedLightContainer'))) {
+        if (changedProps.has(nameof(this, 'isSelected'))) {
             const selector = <Element>this.renderRoot.querySelector('.selector');
             selector.classList.toggle('active', this.isSelected);
+
+            // fire event on change
+            this.dispatchEvent(new CustomEvent<LightSelectedEventDetail>('selected-change', {
+                detail: {
+                    isSelected: this.isSelected,
+                    lightContainer: this.lightContainer
+                }
+            }));
         }
     }
 
