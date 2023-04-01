@@ -13,6 +13,7 @@ import { HueDialogSceneTile } from './dialog-scene-tile';
 import { IdLitElement } from '../core/id-lit-element';
 import { HueDialogLightTile, LightSelectedEventDetail } from './dialog-light-tile';
 import { ILightContainer } from '../types/types';
+import { TileEventDetail } from './dialog-tile';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -47,6 +48,62 @@ export class HueDialog extends IdLitElement {
         // when LightController changed - update this
         if (propertyName == 'hass') {
             this.requestUpdate();
+        }
+    }
+
+    //#endregion
+
+    //#region Tile interactions
+
+    private onLightSelected(ev: CustomEvent<LightSelectedEventDetail>) {
+        if (ev.detail.isSelected) {
+            this._selectedLight = ev.detail.lightContainer;
+
+            // scroll to selected light
+            HueDialog.tileScrollTo(ev.detail.tileElement);
+
+        } else if (this._selectedLight == ev.detail.lightContainer) {
+            this._selectedLight = null;
+        }
+    }
+
+    private afterSceneActivated(ev: CustomEvent<TileEventDetail>) {
+        // scroll to selected scene
+        HueDialog.tileScrollTo(ev.detail.tileElement);
+    }
+
+    //#endregion
+
+    //#region Tile-Scrollers
+
+    private static tileScrollTo(el: HTMLElement) {
+        if (!el)
+            return;
+
+        const tileScroller = <HTMLElement>el.closest('.tile-scroller');
+        if (tileScroller == null)
+            throw Error('Parent tile-scroller not found.');
+
+        // get tile scroller bounds
+        const tileScrollerStart = tileScroller.offsetLeft + tileScroller.scrollLeft;
+        const tileScrollerEnd = tileScroller.clientWidth + tileScrollerStart;
+
+        const minSpace = 10; // reasonable space before/after the element
+        const elStart = el.offsetLeft - minSpace;
+        const elEnd = el.offsetLeft + el.clientWidth + minSpace;
+
+        // is reasonably visible?
+        const isBefore = elStart < tileScrollerStart;
+        const isAfter = elEnd > tileScrollerEnd;
+
+        // if is inside or is outside on both sides (fail) - no scroll
+        if (isBefore == isAfter)
+            return;
+
+        if (isBefore) {
+            tileScroller.scrollBy({ left: elStart - tileScrollerStart, behavior: 'smooth' });
+        } else {
+            tileScroller.scrollBy({ left: elEnd - tileScrollerEnd, behavior: 'smooth' });
         }
     }
 
@@ -398,14 +455,6 @@ export class HueDialog extends IdLitElement {
         }
     }
 
-    private onLightSelected(ev: CustomEvent<LightSelectedEventDetail>) {
-        if (ev.detail.isSelected) {
-            this._selectedLight = ev.detail.lightContainer;
-        } else if (this._selectedLight == ev.detail.lightContainer) {
-            this._selectedLight = null;
-        }
-    }
-
     protected override render() {
         this._isRendered = true;
 
@@ -462,6 +511,7 @@ export class HueDialog extends IdLitElement {
                         html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
+                            @activated=${(e:CustomEvent) => this.afterSceneActivated(e)}
                             .hass=${this._ctrl.hass}>
                         </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>
@@ -470,6 +520,7 @@ export class HueDialog extends IdLitElement {
                         html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
+                            @activated=${(e:CustomEvent) => this.afterSceneActivated(e)}
                             .hass=${this._ctrl.hass}>
                         </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>

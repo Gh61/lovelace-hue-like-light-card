@@ -7,9 +7,9 @@ import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { ILightContainer } from '../types/types';
 import { HueDialogSceneTile } from './dialog-scene-tile';
-import { HueDialogTile } from './dialog-tile';
+import { HueDialogTile, TileEventDetail } from './dialog-tile';
 
-export interface LightSelectedEventDetail {
+export interface LightSelectedEventDetail extends TileEventDetail {
     isSelected: boolean;
     lightContainer: ILightContainer | null;
 }
@@ -151,7 +151,8 @@ export class HueDialogLightTile extends HueDialogTile {
             this.dispatchEvent(new CustomEvent<LightSelectedEventDetail>('selected-change', {
                 detail: {
                     isSelected: this.isSelected,
-                    lightContainer: this.lightContainer
+                    lightContainer: this.lightContainer,
+                    tileElement: this
                 }
             }));
         }

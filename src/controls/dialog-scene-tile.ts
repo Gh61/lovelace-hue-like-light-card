@@ -6,7 +6,7 @@ import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { SceneConfig, SceneData } from '../types/types-config';
-import { HueDialogTile } from './dialog-tile';
+import { HueDialogTile, TileEventDetail } from './dialog-tile';
 
 /**
  * Represents Scene tile element in HueDialog.
@@ -61,6 +61,13 @@ export class HueDialogSceneTile extends HueDialogTile {
             this._effectQueue.addEffect(50, () => { sceneElement.classList.remove('stop-color-animate', 'unclicked'); });
             this._effectQueue.start();
         }
+
+        // fire event on change
+        this.dispatchEvent(new CustomEvent<TileEventDetail>('activated', {
+            detail: {
+                tileElement: this
+            }
+        }));
     }
 
     private static readonly colorDimensions = HueDialogTile.height / 2; // px

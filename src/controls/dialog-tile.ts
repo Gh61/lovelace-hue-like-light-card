@@ -5,6 +5,10 @@ import { IdLitElement } from '../core/id-lit-element';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 
+export interface TileEventDetail {
+    tileElement: HueDialogTile;
+}
+
 /**
  * Base for tile element in HueDialog
  */
