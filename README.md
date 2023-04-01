@@ -3,7 +3,7 @@
 
 # Hue-Like Light Card for Home Assistant
 
-This card is providing light control. It is inspired by original Philips Hue app.
+This [dashboard](https://www.home-assistant.io/getting-started/concepts-terminology/#dashboards) card is providing light control. It is inspired by original Philips Hue app.
 
 <p>
   <img alt="Screen1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/screen1.png" height="500" />
@@ -17,7 +17,7 @@ This card is providing light control. It is inspired by original Philips Hue app
 type: custom:hue-like-light-card
 entity: light.livingroom_color
 ```
-Where **livingroom_color** is the entity id of some existing light.
+Where **livingroom_color** is the [entity](https://www.home-assistant.io/getting-started/concepts-terminology/#devices--entities) id of some existing light.
 
 For certain configurations (single light without scenes) you **might not get the [Hue Screen](#hue-screen)** on click.<br/>
 This is caused by the default [Click action](#automatic-click-action), you can override it by setting `onClickAction` and/or `offClickAction`.<br/>
