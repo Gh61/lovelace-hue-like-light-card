@@ -1,11 +1,11 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { computeStateDisplay, HomeAssistant } from 'custom-card-helpers';
 import { IHassTextTemplate } from '../types/types';
 
 class VariableTemplatePart implements IHassTextTemplate {
-    private _textOrEntity:string;
-    private _attribute:string | null = null;
+    private _textOrEntity: string;
+    private _attribute: string | null = null;
 
-    public constructor(templatePart:string) {
+    public constructor(templatePart: string) {
         // trim variable
         templatePart = templatePart.trim();
 
@@ -21,7 +21,7 @@ class VariableTemplatePart implements IHassTextTemplate {
         }
     }
 
-    public resolveToString(hass:HomeAssistant | null) {
+    public resolveToString(hass: HomeAssistant | null) {
         if (!hass) {
             return '';
         } else {
@@ -40,6 +40,11 @@ class VariableTemplatePart implements IHassTextTemplate {
                 // if not found, fallback to state
             }
 
+            // localize entity state
+            if (hass.localize != null) {
+                return computeStateDisplay(hass.localize, entity, hass.locale);
+            }
+
             return entity.state;
         }
     }
@@ -49,9 +54,9 @@ class VariableTemplatePart implements IHassTextTemplate {
  * Static text implementing IHassTextTemplate
  */
 export class StaticTextTemplate implements IHassTextTemplate {
-    private _text:string;
+    private _text: string;
 
-    public constructor(text:string) {
+    public constructor(text: string) {
         this._text = text;
     }
 
@@ -68,19 +73,19 @@ export class StaticTextTemplate implements IHassTextTemplate {
  * HassTextTemplate that allows templated strings - like 'Text {{type.entity}} with attribute: {{ type.entity.attr }}!'
  */
 export class HassTextTemplate implements IHassTextTemplate {
-    private _templateParts:IHassTextTemplate[];
+    private _templateParts: IHassTextTemplate[];
 
     /**
      * Creates Text template, that is dependend on hass states.
      */
-    public constructor(templateText:string) {
+    public constructor(templateText: string) {
         this._templateParts = HassTextTemplate.parseTemplate(templateText);
     }
 
     /**
      * Will create string value, where variable parts of this template will be resolved.
      */
-    public resolveToString(hass:HomeAssistant | null) {
+    public resolveToString(hass: HomeAssistant | null) {
 
         // for most cards will be no variable
         if (this._templateParts.length == 1) {
@@ -95,14 +100,14 @@ export class HassTextTemplate implements IHassTextTemplate {
         return result;
     }
 
-    private static parseTemplate(templateText:string):IHassTextTemplate[] {
+    private static parseTemplate(templateText: string): IHassTextTemplate[] {
         const result = new Array<IHassTextTemplate>();
 
         let lastIndex = 0;
         let insideVariable = false;
 
         while (lastIndex < templateText.length) {
-            let index:number;
+            let index: number;
             if (!insideVariable) {
                 // searching for start of variable part
                 index = templateText.indexOf('{{', lastIndex);
