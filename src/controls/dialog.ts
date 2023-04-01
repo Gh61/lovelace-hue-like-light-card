@@ -62,8 +62,18 @@ export class HueDialog extends IdLitElement {
             // scroll to selected light
             HueDialog.tileScrollTo(ev.detail.tileElement);
 
+            // show detail of selected light
+            if (this._lightDetailElement) {
+                this._lightDetailElement.style.display = 'block';
+            }
+
         } else if (this._selectedLight == ev.detail.lightContainer) {
             this._selectedLight = null;
+
+            // hide detail of selected light
+            if (this._lightDetailElement) {
+                this._lightDetailElement.style.display = 'none';
+            }
         }
     }
 
@@ -348,17 +358,23 @@ export class HueDialog extends IdLitElement {
     }
 
     private _backdropSet = false;
+    private _lightDetailElement: HTMLElement | null = null;
 
     // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
     private updateStylesInner(isFirst: boolean): void {
         const configBgColor = this._config.getHueScreenBgColor();
 
         // Allow gradient backdrop on dialog
-        if (/*!configBgColor.isThemeColor() && */!this._backdropSet) {
+        if (!this._backdropSet || !this._lightDetailElement) {
+
+            // Trying to find surface element (it's not available during first load)
             const dialogShadowRoot = this.shadowRoot?.querySelector('ha-dialog')?.shadowRoot;
-            if (dialogShadowRoot) {
-                const surface = <HTMLElement>dialogShadowRoot.querySelector('.mdc-dialog__surface');
-                if (surface) {
+            const surface = dialogShadowRoot && <HTMLElement>dialogShadowRoot.querySelector('.mdc-dialog__surface');
+
+            // finally got surface element, let's create backdrop and other stuff
+            if (surface) {
+
+                if (!this._backdropSet) {
                     const backdropElement = document.createElement('div');
                     backdropElement.id = 'hue-backdrop';
                     backdropElement.style.position = 'absolute';
@@ -376,6 +392,22 @@ export class HueDialog extends IdLitElement {
                     }
 
                     this._backdropSet = true;
+                }
+
+                if (!this._lightDetailElement) {
+                    // TODO: custom control element
+                    const detailElement = document.createElement('div');
+                    detailElement.id = 'hue-light-detail';
+                    detailElement.style.position = 'absolute';
+                    detailElement.style.width = '100%';
+                    detailElement.style.height = 'calc(100% - 200px)';
+                    detailElement.style.background = 'red';
+                    detailElement.style.zIndex = '2'; // over header
+                    detailElement.style.display = 'none';
+
+                    surface.prepend(detailElement);
+
+                    this._lightDetailElement = detailElement;
                 }
             }
         }
@@ -511,7 +543,7 @@ export class HueDialog extends IdLitElement {
                         html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
-                            @activated=${(e:CustomEvent) => this.afterSceneActivated(e)}
+                            @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
                             .hass=${this._ctrl.hass}>
                         </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>
@@ -520,7 +552,7 @@ export class HueDialog extends IdLitElement {
                         html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
-                            @activated=${(e:CustomEvent) => this.afterSceneActivated(e)}
+                            @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
                             .hass=${this._ctrl.hass}>
                         </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>
