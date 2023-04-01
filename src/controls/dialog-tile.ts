@@ -43,6 +43,7 @@ export abstract class HueDialogTile extends IdLitElement {
     protected static readonly height = 90; // px
     protected static readonly width = 85; // px
     protected static readonly titleHeight = 35; // px
+    protected static readonly clickTransition = 'transform .15s';
 
     protected static hueDialogStyle = css`
     .hue-tile{
@@ -54,6 +55,10 @@ export abstract class HueDialogTile extends IdLitElement {
         box-shadow: ${unsafeCSS(Consts.HueShadow)};
         overflow:hidden;
         user-select: none;
+        transition: ${unsafeCSS(HueDialogTile.clickTransition)};
+    }
+    .hue-tile:not(.no-click):active:hover{
+        transform: scale(0.95);
     }
     .title {
         color:${unsafeCSS(Consts.LightColor)};
@@ -75,6 +80,16 @@ export abstract class HueDialogTile extends IdLitElement {
         -webkit-box-orient: vertical;
     }
     `;
+
+    protected disableClickEffect():void {
+        const tile = <Element>this.renderRoot.querySelector('.hue-tile');
+        tile.classList.add('no-click');
+    }
+
+    protected enableClickEffect():void {
+        const tile = <Element>this.renderRoot.querySelector('.hue-tile');
+        tile.classList.remove('no-click');
+    }
 
     protected abstract override updated(changedProps: PropertyValues): void;
 

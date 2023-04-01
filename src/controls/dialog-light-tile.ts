@@ -42,7 +42,7 @@ export class HueDialogLightTile extends HueDialogTile {
         height: ${HueDialogTile.height + HueDialogLightTile.switchHeight}px;
         background:var(--hue-light-background, ${unsafeCSS(Consts.TileOffColor)});
         box-shadow:var(--hue-light-box-shadow), ${unsafeCSS(Consts.HueShadow)};
-        transition:${unsafeCSS(Consts.TransitionDefault)};
+        transition: ${unsafeCSS(Consts.TransitionDefault)}, ${unsafeCSS(HueDialogTile.clickTransition)};
     }
 
     .selector.active{
@@ -187,7 +187,7 @@ export class HueDialogLightTile extends HueDialogTile {
                         <span>${title}</span>
                     </div>
                 </div>
-                <div class='switch'>
+                <div class='switch' @mouseenter=${() => this.disableClickEffect()} @mouseleave=${() => this.enableClickEffect()}>
                     ${ViewUtils.createSwitch(this.lightContainer, onChange)}
                 </div>
             </div>
