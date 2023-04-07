@@ -1,6 +1,10 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity, HassEntityAttributeBase } from 'home-assistant-js-websocket';
 
+export interface IHassWindow {
+    customIcons: Record<string, object>;
+}
+
 export interface HassLightAttributes extends HassEntityAttributeBase {
     supported_color_modes?: HassLightColorMode[];
     color_mode: HassLightColorMode;

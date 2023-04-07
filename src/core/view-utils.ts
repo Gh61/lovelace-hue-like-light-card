@@ -7,6 +7,7 @@ import { ThemeHelper } from '../types/theme-helper';
 import { ILightContainer } from '../types/types';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
+import { IHassWindow } from '../types/types-hass';
 
 export class ViewUtils {
 
@@ -163,5 +164,12 @@ export class ViewUtils {
         }
 
         return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,${shadowDensity})`;
+    }
+
+    /** Will return whether hue custom icons (https://github.com/arallsopp/hass-hue-icons) are installed */
+    public static hasHueIcons(): boolean {
+        const haWindow = (<IHassWindow><unknown>window);
+
+        return typeof haWindow.customIcons.hue == 'object';
     }
 }

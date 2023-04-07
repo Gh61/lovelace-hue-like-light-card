@@ -2,6 +2,7 @@ import { html, css, LitElement, PropertyValues, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
+import { ViewUtils } from '../core/view-utils';
 
 /** Simple type for coordinates of MouseClick. */
 class MouseClickPoint {
@@ -346,7 +347,7 @@ export class HueBrightnessRollup extends LitElement {
     }
 
     protected override render() {
-        const icon = 'mdi:brightness-7';
+        const icon = ViewUtils.hasHueIcons() ? 'hue:scene-bright' : 'mdi:brightness-7';
 
         return html`
         <div id='wrapper'>
