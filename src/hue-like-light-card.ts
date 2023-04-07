@@ -277,6 +277,11 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             (this.renderRoot.querySelector('ha-card') as Element).className = 'hue-borders';
         }
 
+        // Detect switch colors
+        if (this._config.showSwitch) {
+            ThemeHelper.detectSwitchColors(this);
+        }
+
         this.updated(changedProps);
     }
 
