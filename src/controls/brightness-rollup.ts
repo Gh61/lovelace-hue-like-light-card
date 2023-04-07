@@ -1,4 +1,4 @@
-import { html, css, LitElement, PropertyValues } from 'lit';
+import { html, css, LitElement, PropertyValues, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
@@ -65,6 +65,14 @@ export class HueBrightnessRollup extends LitElement {
         return this._value;
     }
     public set value(newValue: number) {
+        this.setValue(newValue, false); // external value set, no event fired
+    }
+
+    /**
+     * Will set @param newValue as actual value to @property value.
+     * @param dispatchEvent When set, will dispatch 'change' event.
+     */
+    private setValue(newValue: number, dispatchEvent:boolean) {
         newValue = HueBrightnessRollup.cleanValue(newValue);
 
         if (newValue != this._value) {
@@ -74,10 +82,12 @@ export class HueBrightnessRollup extends LitElement {
             this.requestUpdate(nameof(this, 'value'), oldValue);
 
             // fire change event
-            const event = new CustomEvent<IRollupValueChangeEventDetail>('change', {
-                detail: { oldValue, newValue }
-            });
-            this.dispatchEvent(event);
+            if (dispatchEvent) {
+                const event = new CustomEvent<IRollupValueChangeEventDetail>('change', {
+                    detail: { oldValue, newValue }
+                });
+                this.dispatchEvent(event);
+            }
 
             // change Immediate value
             this.immediateValue = newValue;
@@ -126,13 +136,13 @@ export class HueBrightnessRollup extends LitElement {
 
     /** Will set actual @property immediateValue to @property value. */
     private applyImmediateValue() {
-        this.value = this.immediateValue;
+        this.setValue(this.immediateValue, true); // Set value and dispatch change event
     }
 
     // #region Mouse events
 
     private _isOpened = false;
-    private toggleWrapper(open: boolean, fast: boolean) {
+    private toggleBar(open: boolean, fast: boolean) {
         this._isOpened = open;
         this._wrapperElement.classList.toggle('fast', fast);
         this._wrapperElement.classList.toggle('open', this._isOpened);
@@ -151,7 +161,7 @@ export class HueBrightnessRollup extends LitElement {
     }
     private _hasMouseMoved = false;
 
-    private onWrapperMouseDown(ev: MouseEvent) {
+    private onBarMouseDown(ev: MouseEvent) {
         this._clickPosition = new MouseClickPoint(ev);
     }
 
@@ -159,9 +169,9 @@ export class HueBrightnessRollup extends LitElement {
     private onDocumentMouseUp() {
         if (this._isMouseDown) {
             if (!this._hasMouseMoved) {
-                this.toggleWrapper(!this._isOpened, false);
+                this.toggleBar(!this._isOpened, false);
             } else {
-                this.toggleWrapper(false, true);
+                this.toggleBar(false, true);
             }
         }
         this._clickPosition = null;
@@ -185,7 +195,7 @@ export class HueBrightnessRollup extends LitElement {
             // when moved by minimal of 5 pxs
             if (!this._hasMouseMoved && Math.abs(yDiff) > this._deadZone) {
                 if (!this._isOpened) {
-                    this.toggleWrapper(true, true);
+                    this.toggleBar(true, true);
                 }
                 this._hasMouseMoved = true;
                 // set new clickPoint after starting to move
@@ -219,7 +229,7 @@ export class HueBrightnessRollup extends LitElement {
 
             // Debounce of closing the control
             this._wheelCloseTimeoutId = setTimeout(() => {
-                this.toggleWrapper(false, false);
+                this.toggleBar(false, false);
             }, this._wheelCloseInterval);
         }
     }
@@ -244,31 +254,34 @@ export class HueBrightnessRollup extends LitElement {
     // #endregion
 
     public static override styles = css`
-    #wrapper{
+    #bar{
         position: relative;
         transition: all 0.25s linear;
 
         width: var(--rollup-width);
         height: var(--rollup-height);
 
-        border: 2px solid red;
+        /*border: 2px solid red;*/
 
         user-select: none;
         cursor: pointer;
     }
-    #wrapper.fast{
+    #bar, #desc span{
+        transition: all 0.25s linear;
+    }
+    .fast #bar,
+    .fast #desc span{
         transition: all 0.15s linear;
     }
-    #wrapper.open{
+    .open #bar{
         height: var(--rollup-height-opened);
+        /*
         margin-top: calc(var(--rollup-height) - var(--rollup-height-opened));
+        */
     }
     #desc{
-        position:absolute;
-        top: -24px;
-        width: 100%;
         text-align: center;
-        user-select: none;
+        margin: 4px;
     }
     #value{
         position:absolute;
@@ -276,8 +289,33 @@ export class HueBrightnessRollup extends LitElement {
         width: 100%;
         box-sizing: border-box;
 
-        border: 1px solid green;
-      }
+        /*border: 1px solid green;*/
+    }
+    #icon{
+        text-align: center;
+        position: absolute;
+        bottom: calc((var(--rollup-height) - 24px) / 2);
+        width: 100%;
+    }
+
+    /* Hue styling: */
+    #bar{
+        box-shadow: ${unsafeCSS(Consts.HueShadow)};
+        background: ${unsafeCSS(Consts.TileOffColor)};
+        border-radius: calc(var(--rollup-height) / 2);
+        overflow: hidden;
+    }
+    #value{
+        background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.1) 100%);
+    }
+    #desc span{
+        border-radius: 10px;
+        padding: 0 4px;
+    }
+    .open #desc span{
+        box-shadow: ${unsafeCSS(Consts.HueShadow)};
+        background: ${unsafeCSS(Consts.TileOffColor)};
+    }
     `;
 
     protected override updated(changedProps: PropertyValues<HueBrightnessRollup>) {
@@ -308,19 +346,30 @@ export class HueBrightnessRollup extends LitElement {
     }
 
     protected override render() {
+        const icon = 'mdi:brightness-7';
+
         return html`
         <div id='wrapper'>
-            <div id='desc'>${this.immediateValue} %</div>
-            <div id='value'></div>
+            <div id='desc'>
+                <span>${this.immediateValue} %</span>
+            </div>
+            <div id='bar'>
+                <div id='value'></div>
+                <div id='icon'>
+                    <ha-icon icon="${icon}"></ha-icon>
+                </div>
+            </div>
         </div>`;
     }
 
     protected override firstUpdated() {
         this._wrapperElement = <HTMLElement>this.renderRoot.querySelector('#wrapper');
-        this._wrapperElement.addEventListener('mousedown', (ev) => this.onWrapperMouseDown(ev));
+
+        const barElement = <HTMLElement>this._wrapperElement.querySelector('#bar');
+        barElement.addEventListener('mousedown', (ev) => this.onBarMouseDown(ev));
 
         // get value element
-        this._valueElement = <HTMLElement>this._wrapperElement.querySelector('#value');
+        this._valueElement = <HTMLElement>barElement.querySelector('#value');
 
         // register document events
         document.addEventListener('mouseup', this._onDocumentMouseUpDelegate);
