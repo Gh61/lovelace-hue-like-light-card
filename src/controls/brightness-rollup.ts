@@ -22,6 +22,15 @@ class MouseClickPoint {
     }
 }
 
+export interface IRollupValueChangeEventDetail {
+    oldValue:number;
+    newValue:number;
+}
+
+export interface IRollupOpenCloseEventDetail {
+    isOpen: boolean;
+}
+
 @customElement(HueBrightnessRollup.ElementName)
 export class HueBrightnessRollup extends LitElement {
     /**
@@ -65,7 +74,7 @@ export class HueBrightnessRollup extends LitElement {
             this.requestUpdate(nameof(this, 'value'), oldValue);
 
             // fire change event
-            const event = new CustomEvent('change', {
+            const event = new CustomEvent<IRollupValueChangeEventDetail>('change', {
                 detail: { oldValue, newValue }
             });
             this.dispatchEvent(event);
@@ -90,7 +99,7 @@ export class HueBrightnessRollup extends LitElement {
             this.requestUpdate(nameof(this, 'immediateValue'), oldValue);
 
             // fire event
-            const event = new CustomEvent('immediate-value-change', {
+            const event = new CustomEvent<IRollupValueChangeEventDetail>('immediate-value-change', {
                 detail: { oldValue, newValue }
             });
             this.dispatchEvent(event);
@@ -130,7 +139,7 @@ export class HueBrightnessRollup extends LitElement {
 
         // fire open or close event
         const eventType = this._isOpened ? 'open' : 'close';
-        const event = new CustomEvent(eventType, {
+        const event = new CustomEvent<IRollupOpenCloseEventDetail>(eventType, {
             detail: { isOpen: this._isOpened }
         });
         this.dispatchEvent(event);
@@ -243,6 +252,9 @@ export class HueBrightnessRollup extends LitElement {
         height: var(--rollup-height);
 
         border: 2px solid red;
+
+        user-select: none;
+        cursor: pointer;
     }
     #wrapper.fast{
         transition: all 0.15s linear;

@@ -96,8 +96,7 @@ export class HueDialogLightTile extends HueDialogTile {
     `];
     }
 
-    protected updated(changedProps: PropertyValues): void {
-
+    protected override updated(changedProps: PropertyValues): void {
         // register for changes on light
         if (changedProps.has(nameof(this, 'lightContainer'))) {
             const oldValue = changedProps.get(nameof(this, 'lightContainer')) as ILightContainer | null;

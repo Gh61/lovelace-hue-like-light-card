@@ -14,6 +14,7 @@ import { IdLitElement } from '../core/id-lit-element';
 import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-tile';
 import { ILightContainer } from '../types/types';
 import { ITileEventDetail } from './dialog-tile';
+import { HueLightDetail } from './light-detail';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -64,7 +65,8 @@ export class HueDialog extends IdLitElement {
 
             // show detail of selected light
             if (this._lightDetailElement) {
-                this._lightDetailElement.style.display = 'block';
+                this._lightDetailElement.show();
+                this.toggleUnderDetailControls(false);
             }
 
         } else if (this._selectedLight == ev.detail.lightContainer) {
@@ -72,9 +74,21 @@ export class HueDialog extends IdLitElement {
 
             // hide detail of selected light
             if (this._lightDetailElement) {
-                this._lightDetailElement.style.display = 'none';
+                this._lightDetailElement.hide();
+                this.toggleUnderDetailControls(true);
             }
         }
+
+        if (this._lightDetailElement) {
+            this._lightDetailElement.lightContainer = this._selectedLight;
+        }
+    }
+
+    private toggleUnderDetailControls(show: boolean) {
+        const controls = this.renderRoot.querySelectorAll('.detail-hide');
+        controls.forEach((el) => {
+            el.classList.toggle('hue-hidden', !show);
+        });
     }
 
     private afterSceneActivated(ev: CustomEvent<ITileEventDetail>) {
@@ -230,6 +244,16 @@ export class HueDialog extends IdLitElement {
         return [
             HueDialog.haStyleDialog,
             css`
+    /* hiding controls when light detail is open */
+    .detail-hide {
+        transition:${unsafeCSS(Consts.TransitionDefault)};
+    }
+
+    .hue-hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
     /* icon centering */
     .mdc-icon-button i,
     .mdc-icon-button svg,
@@ -358,7 +382,7 @@ export class HueDialog extends IdLitElement {
     }
 
     private _backdropSet = false;
-    private _lightDetailElement: HTMLElement | null = null;
+    private _lightDetailElement: HueLightDetail | null = null;
 
     // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
     private updateStylesInner(isFirst: boolean): void {
@@ -396,14 +420,11 @@ export class HueDialog extends IdLitElement {
 
                 if (!this._lightDetailElement) {
                     // TODO: custom control element
-                    const detailElement = document.createElement('div');
-                    detailElement.id = 'hue-light-detail';
+                    const detailElement = new HueLightDetail();
                     detailElement.style.position = 'absolute';
                     detailElement.style.width = '100%';
                     detailElement.style.height = 'calc(100% - 200px)';
-                    detailElement.style.background = 'red';
                     detailElement.style.zIndex = '2'; // over header
-                    detailElement.style.display = 'none';
 
                     surface.prepend(detailElement);
 
@@ -508,7 +529,7 @@ export class HueDialog extends IdLitElement {
           .heading=${cardTitle}
           hideActions
         >
-          <div slot="heading" class="heading">
+          <div slot="heading" class="heading detail-hide">
             <ha-header-bar>
               <ha-icon-button
                 slot="navigationIcon"
@@ -534,10 +555,10 @@ export class HueDialog extends IdLitElement {
             ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
           </div>
           <div class="content" tabindex="-1" dialogInitialFocus>
-            <div class='header'>
+            <div class='header detail-hide'>
                 <div class='title'>${this._config.resources.scenes}</div>
             </div>
-            <div class='tile-scroller'>
+            <div class='tile-scroller detail-hide'>
                 <div class='tiles'>
                     ${(this._config.scenes.map((s, i) => i % 2 == 1 ? html`` :
                         html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
@@ -558,7 +579,7 @@ export class HueDialog extends IdLitElement {
                 </div>
             </div>
 
-            <div class='header'>
+            <div class='header detail-hide'>
                 <div class='title'>${this._config.resources.lights}</div>
             </div>
             <div class='tile-scroller'>
