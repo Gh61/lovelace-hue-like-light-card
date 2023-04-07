@@ -27,7 +27,7 @@ export class HueBrightnessRollup extends LitElement {
     /**
      * Name of this Element
      */
-    public static readonly ElementName = Consts.CardElementName + '-hue-brightness-rollup';
+    public static readonly ElementName = 'hue-brightness-rollup' + Consts.ElementPostfix;
 
     private readonly _deadZone = 5;
     private readonly _wheelChange = 3;

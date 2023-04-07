@@ -4,6 +4,7 @@ export class Consts {
     public static readonly Version = 'v1.3.0';
     public static readonly Dev = true;
     public static readonly CardElementName = Consts.Dev ? 'hue-like-light-card-test' : 'hue-like-light-card';
+    public static readonly ElementPostfix = Consts.Dev ? '-test' : '';
     public static readonly CardName = 'Hue-Like Light Card';
     public static readonly CardDescription = 'Hue-like way to control your lights';
 

@@ -6,7 +6,7 @@ import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { SceneConfig, SceneData } from '../types/types-config';
-import { HueDialogTile, TileEventDetail } from './dialog-tile';
+import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 
 /**
  * Represents Scene tile element in HueDialog.
@@ -63,7 +63,7 @@ export class HueDialogSceneTile extends HueDialogTile {
         }
 
         // fire event on change
-        this.dispatchEvent(new CustomEvent<TileEventDetail>('activated', {
+        this.dispatchEvent(new CustomEvent<ITileEventDetail>('activated', {
             detail: {
                 tileElement: this
             }

@@ -11,9 +11,9 @@ import { HaDialog } from '../types/types-hass';
 import { ThemeHelper } from '../types/theme-helper';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { IdLitElement } from '../core/id-lit-element';
-import { HueDialogLightTile, LightSelectedEventDetail } from './dialog-light-tile';
+import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-tile';
 import { ILightContainer } from '../types/types';
-import { TileEventDetail } from './dialog-tile';
+import { ITileEventDetail } from './dialog-tile';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -21,7 +21,7 @@ export class HueDialog extends IdLitElement {
     /**
      * Name of this Element
      */
-    public static readonly ElementName = Consts.CardElementName + '-hue-dialog';
+    public static readonly ElementName = 'hue-dialog' + Consts.ElementPostfix;
 
     /*
     Doc:
@@ -55,7 +55,7 @@ export class HueDialog extends IdLitElement {
 
     //#region Tile interactions
 
-    private onLightSelected(ev: CustomEvent<LightSelectedEventDetail>) {
+    private onLightSelected(ev: CustomEvent<ILightSelectedEventDetail>) {
         if (ev.detail.isSelected) {
             this._selectedLight = ev.detail.lightContainer;
 
@@ -77,7 +77,7 @@ export class HueDialog extends IdLitElement {
         }
     }
 
-    private afterSceneActivated(ev: CustomEvent<TileEventDetail>) {
+    private afterSceneActivated(ev: CustomEvent<ITileEventDetail>) {
         // scroll to selected scene
         HueDialog.tileScrollTo(ev.detail.tileElement);
     }

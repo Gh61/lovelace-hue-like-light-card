@@ -7,9 +7,9 @@ import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { ILightContainer } from '../types/types';
 import { HueDialogSceneTile } from './dialog-scene-tile';
-import { HueDialogTile, TileEventDetail } from './dialog-tile';
+import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 
-export interface LightSelectedEventDetail extends TileEventDetail {
+export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
     lightContainer: ILightContainer | null;
 }
@@ -148,7 +148,7 @@ export class HueDialogLightTile extends HueDialogTile {
             selector.classList.toggle('active', this.isSelected);
 
             // fire event on change
-            this.dispatchEvent(new CustomEvent<LightSelectedEventDetail>('selected-change', {
+            this.dispatchEvent(new CustomEvent<ILightSelectedEventDetail>('selected-change', {
                 detail: {
                     isSelected: this.isSelected,
                     lightContainer: this.lightContainer,

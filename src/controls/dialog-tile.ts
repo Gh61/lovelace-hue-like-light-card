@@ -5,7 +5,7 @@ import { IdLitElement } from '../core/id-lit-element';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 
-export interface TileEventDetail {
+export interface ITileEventDetail {
     tileElement: HueDialogTile;
 }
 
@@ -17,7 +17,7 @@ export abstract class HueDialogTile extends IdLitElement {
     /**
      * Name of this Element
      */
-    protected static readonly ElementName = Consts.CardElementName + '-hue-dialog-tile';
+    protected static readonly ElementName = 'hue-dialog-tile' + Consts.ElementPostfix;
 
     protected _hass: HomeAssistant;
 
