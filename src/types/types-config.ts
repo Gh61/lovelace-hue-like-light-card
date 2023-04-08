@@ -184,6 +184,10 @@ export interface HueLikeLightCardConfigInterface {
     readonly disableOffShadow?: boolean;
     readonly hueBorders?: boolean;
     readonly resources?: ResourcesInterface;
+
+    /** Support for card-mod styling */
+    readonly style?: unknown;
+    readonly card_mod?: unknown;
 }
 
 export interface ResourcesInterface {

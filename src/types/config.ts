@@ -38,6 +38,9 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.offShadow = HueLikeLightCardConfig.getBoolean(plainConfig.offShadow, !HueLikeLightCardConfig.getBoolean(plainConfig.disableOffShadow, false));
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
         this.resources = new Resources(plainConfig.resources);
+
+        this.style = plainConfig.style;
+        this.card_mod = plainConfig.card_mod;
     }
 
     /**
@@ -143,6 +146,10 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     }
     public readonly hueBorders: boolean;
     public readonly resources: Resources;
+
+    /** Support for card-mod styling */
+    public readonly style?: unknown;
+    public readonly card_mod?: unknown;
 
     /**
      * @returns Title from config or from passed container.

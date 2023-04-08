@@ -218,6 +218,22 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td>Can change (localize) texts on this card</td>
   </tr>
   <tr>
+    <td><code>style</code></td>
+    <td></td>
+    <td>no</td>
+    <td>1.4.0</td>
+    <td>-</td>
+    <td>Support for the <a href="https://github.com/thomasloven/lovelace-card-mod">card-mod</a>.</td>
+  </tr>
+  <tr>
+    <td><code>card_mod</code></td>
+    <td></td>
+    <td>no</td>
+    <td>1.4.0</td>
+    <td>-</td>
+    <td>Support for the <a href="https://github.com/thomasloven/lovelace-card-mod">card-mod</a>.</td>
+  </tr>
+  <tr>
     <td colspan="6">
       <i>* At least one of this two must be filled in. <b>Only entities of <code>light</code> domain are supported.</b></i>
     </td>
