@@ -19,7 +19,7 @@ export class ColorExtended extends Color {
         if (this._isThemeColor)
             throw new Error('Cannot getBaseColor on ' + ColorExtended.themeColor);
 
-        return new Color(this._red, this._green, this._blue);
+        return new Color(this._red, this._green, this._blue, this._opacity);
     }
 
     public isThemeColor(): boolean {
@@ -35,7 +35,7 @@ export class ColorExtended extends Color {
 
     public override getForeground<T>(light: T, dark: T, offset: number): T {
         if (this._isThemeColor)
-            throw new Error('Cannot getLuminance on ' + ColorExtended.themeColor);
+            throw new Error('Cannot getForeground on ' + ColorExtended.themeColor);
 
         return super.getForeground(light, dark, offset);
     }

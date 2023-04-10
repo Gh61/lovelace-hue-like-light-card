@@ -1,17 +1,17 @@
-import { Color } from "../src/core/colors/color";
+import { Color } from '../src/core/colors/color';
 
 
-describe("Color", () => {
-    it("too short hex", () => {
-        const s = "#32";
+describe('Color', () => {
+    it('too short hex', () => {
+        const s = '#32';
         
         expect(() => {
             new Color(s);
         }).toThrowError('Hex color format should have 3 or 6 letters');
     });
 
-    it("simple hex", () => {
-        const s = "#abc";
+    it('simple hex', () => {
+        const s = '#abc';
         const color = new Color(s);
 
         expect(color.getRed()).toBe(170);
@@ -20,16 +20,16 @@ describe("Color", () => {
         expect(color.getOpacity()).toBe(1);
     });
 
-    it("invalid simple hex", () => {
-        const s = "#ffx";
+    it('invalid simple hex', () => {
+        const s = '#ffx';
 
         expect(() => {
             new Color(s);
         }).toThrowError('Hex color format contains non hex characters - \'x\'');
     });
 
-    it("full hex", () => {
-        const s = "#17f7ad";
+    it('full hex', () => {
+        const s = '#17f7ad';
         const color = new Color(s);
 
         expect(color.getRed()).toBe(23);
@@ -38,32 +38,32 @@ describe("Color", () => {
         expect(color.getOpacity()).toBe(1);
     });
 
-    it("too short full hex", () => {
-        const s = "#17fec";
+    it('too short full hex', () => {
+        const s = '#17fec';
         
         expect(() => {
             new Color(s);
         }).toThrowError('Hex color format should have 3 or 6 letters');
     });
 
-    it("invalid full hex", () => {
-        const s = "#17fgad";
+    it('invalid full hex', () => {
+        const s = '#17fgad';
         
         expect(() => {
             new Color(s);
         }).toThrowError('Hex color format contains non hex characters - \'g\'');
     });
 
-    it("unknown format", () => {
-        const s = "rga(84,68,43)";
+    it('unknown format', () => {
+        const s = 'rga(84,68,43)';
         
         expect(() => {
             new Color(s);
         }).toThrowError();
     });
 
-    it("rgb", () => {
-        const s = "rgb(1,234,56)";
+    it('rgb', () => {
+        const s = 'rgb(1,234,56)';
         const color = new Color(s);
 
         expect(color.getRed()).toBe(1);
@@ -72,8 +72,8 @@ describe("Color", () => {
         expect(color.getOpacity()).toBe(1);
     });
 
-    it("rgb spaces", () => {
-        const s = "rgb( 240,           89 ,38 )";
+    it('rgb spaces', () => {
+        const s = 'rgb( 240,           89 ,38 )';
         const color = new Color(s);
 
         expect(color.getRed()).toBe(240);
