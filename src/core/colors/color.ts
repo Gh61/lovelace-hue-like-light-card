@@ -2,20 +2,31 @@ export class Color {
     protected _red: number;
     protected _green: number;
     protected _blue: number;
-    protected _opacity: number;
+    protected _opacity = 1;
 
     public static readonly LuminanceBreakingPoint = 192; // hue breaking point is pretty high
 
     public constructor(colorOrRed: string | number, opacityOrGreen?: number, blue?: number, opacity = 1) {
         if (typeof colorOrRed == 'string') {
             this.parse(colorOrRed);
-            this._opacity = opacityOrGreen ?? 1;
+            this.setOpacity(opacityOrGreen ?? this._opacity);
         } else {
             this._red = colorOrRed;
             this._green = opacityOrGreen ?? 0;
             this._blue = blue ?? 0;
             this._opacity = opacity;
         }
+    }
+
+    /** Will validate and set new value to opacity. */
+    protected setOpacity(value: number) {
+        if (value < 0)
+            throw new Error('Minimal value for opacity is 0.');
+        if (value > 1)
+            throw new Error('Maximal value for opacity is 1.');
+
+        // Round to 2 decimal places
+        this._opacity = Math.round(value * 100) / 100;
     }
 
     /**
@@ -70,10 +81,12 @@ export class Color {
             colorId = colorId.substring(1);
 
             const isHex3 = colorId.length == 3;
+            const isHex4 = colorId.length == 4;
             const isHex6 = colorId.length == 6;
+            const isHex8 = colorId.length == 8;
 
-            if (!isHex3 && !isHex6) {
-                throw new Error('Hex color format should have 3 or 6 letters');
+            if (!isHex3 && !isHex6 && !isHex4 && !isHex8) {
+                throw new Error('Hex color format should have 3/6 letters or 4/8 letters for transparency.');
             }
 
             // parse all chars to integers
@@ -81,19 +94,24 @@ export class Color {
             for (let i = 0; i < colorId.length; i++) {
                 const value = parseInt(colorId[i], 16);
                 if (isNaN(value))
-                    throw new Error(`Hex color format contains non hex characters - '${colorId[i]}'`);
+                    throw new Error(`Hex color format contains non hex characters - '${colorId[i]}'.`);
 
                 colorValues.push(value);
             }
 
-            if (isHex3) {
-                this._red =   colorValues[0] * 16 + colorValues[0];
+            if (isHex3 || isHex4) {
+                this._red = colorValues[0] * 16 + colorValues[0];
                 this._green = colorValues[1] * 16 + colorValues[1];
-                this._blue =  colorValues[2] * 16 + colorValues[2];
-            } else if (isHex6) {
-                this._red =   colorValues[0] * 16 + colorValues[1];
+                this._blue = colorValues[2] * 16 + colorValues[2];
+                if (isHex4)
+                    this.setOpacity((colorValues[3] * 16 + colorValues[3]) / 255);
+
+            } else if (isHex6 || isHex8) {
+                this._red = colorValues[0] * 16 + colorValues[1];
                 this._green = colorValues[2] * 16 + colorValues[3];
-                this._blue =  colorValues[4] * 16 + colorValues[5];
+                this._blue = colorValues[4] * 16 + colorValues[5];
+                if (isHex8)
+                    this.setOpacity((colorValues[6] * 16 + colorValues[7]) / 255);
             }
 
         } else if (colorId.startsWith('rgb')) {
@@ -105,6 +123,9 @@ export class Color {
                 this._red = parseInt(parts[1]);
                 this._green = parseInt(parts[2]);
                 this._blue = parseInt(parts[3]);
+                if (parts[4]?.length > 0) {
+                    this.setOpacity(parseFloat(parts[4]));
+                }
             }
         } else {
             if (allowNames) {
@@ -123,9 +144,9 @@ export class Color {
 
     public toString(): string {
         if (this._opacity < 1) {
-            return `rgba(${this._red}, ${this._green}, ${this._blue}, ${this._opacity})`;
+            return `rgba(${this._red},${this._green},${this._blue},${this._opacity})`;
         }
 
-        return `rgb(${this._red}, ${this._green}, ${this._blue})`;
+        return `rgb(${this._red},${this._green},${this._blue})`;
     }
 }

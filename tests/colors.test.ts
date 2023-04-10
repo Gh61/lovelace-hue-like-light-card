@@ -1,13 +1,12 @@
 import { Color } from '../src/core/colors/color';
 
-
 describe('Color', () => {
     it('too short hex', () => {
         const s = '#32';
         
         expect(() => {
             new Color(s);
-        }).toThrowError('Hex color format should have 3 or 6 letters');
+        }).toThrowError('Hex color format should have 3/6 letters or 4/8 letters for transparency.');
     });
 
     it('simple hex', () => {
@@ -18,6 +17,7 @@ describe('Color', () => {
         expect(color.getGreen()).toBe(187);
         expect(color.getBlue()).toBe(204);
         expect(color.getOpacity()).toBe(1);
+        expect(color.toString()).toBe('rgb(170,187,204)');
     });
 
     it('invalid simple hex', () => {
@@ -36,6 +36,7 @@ describe('Color', () => {
         expect(color.getGreen()).toBe(247);
         expect(color.getBlue()).toBe(173);
         expect(color.getOpacity()).toBe(1);
+        expect(color.toString()).toBe('rgb(23,247,173)');
     });
 
     it('too short full hex', () => {
@@ -43,7 +44,7 @@ describe('Color', () => {
         
         expect(() => {
             new Color(s);
-        }).toThrowError('Hex color format should have 3 or 6 letters');
+        }).toThrowError('Hex color format should have 3/6 letters or 4/8 letters for transparency.');
     });
 
     it('invalid full hex', () => {
@@ -70,6 +71,7 @@ describe('Color', () => {
         expect(color.getGreen()).toBe(234);
         expect(color.getBlue()).toBe(56);
         expect(color.getOpacity()).toBe(1);
+        expect(color.toString()).toBe('rgb(1,234,56)');
     });
 
     it('rgb spaces', () => {
@@ -80,7 +82,8 @@ describe('Color', () => {
         expect(color.getGreen()).toBe(89);
         expect(color.getBlue()).toBe(38);
         expect(color.getOpacity()).toBe(1);
+        expect(color.toString()).toBe('rgb(240,89,38)');
     });
 
-    // named colors cannot be tested, because in test environment is no document canvas
+    // named colors cannot be tested, because in test environment is no document or canvas object
 });

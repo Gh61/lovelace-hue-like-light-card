@@ -280,7 +280,9 @@ entities:
 The color can be defined in following ways:
 <ul>
   <li>HEX: <code>'#fff'</code>, <code>'#ffffff'</code></li>
+  <li>HEX (with alpha): <code>'#fffa'</code>, <code>'#ffffffaa'</code> <i>(since version 1.4.0)</i></li>
   <li>RGB: <code>'rgb(255,255,255)'</code></li>
+  <li>RGBA: <code>'rgba(255,255,255,0.9)'</code> <i>(since version 1.4.0)</i></li>
   <li>WEB name: <code>'red'</code>,<code>'salmon'</code>,<code>'DarkSeaGreen'</code>, etc.</li>
   <li>predefined: <code>'warm'</code> or <code>'cold'</code> (in places where it does make sense)</td></li>
 </ul>
