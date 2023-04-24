@@ -5,12 +5,11 @@
         <script type="module" src="/dist/hue-like-light-card.js"></script>
     </head>
     <body>
-        <div class="container" style="width:200px;margin:auto;padding-top:200px;">
-            <hue-like-light-card-test-hue-brightness-rollup
-                id="rollup"
-                width="60" height="40" style="margin:auto"
-                value="65"
-                ></hue-like-light-card-test-hue-brightness-rollup>
+        <div class="container" style="padding-top:200px;background: #333;height: 100%;margin: 0;position: fixed;top: 0;bottom: 0;left: 0;right: 0;">
+            <hue-color-temp-picker-test
+                id="picker"
+                mode="color"
+                ></hue-color-temp-picker-test>
         </div>
         <script>
             function onChange(ev){
@@ -19,15 +18,10 @@
             function onImmediateChange(ev){
                 console.log(`[Drag] ${ev.detail.newValue}`);
             }
-            function onOpenClose(ev){
-                console.log(ev.detail.isOpen ? '[Open]' : '[Close]')
-            }
 
-            var rollup = document.getElementById("rollup");
+            var rollup = document.getElementById("picker");
             rollup.addEventListener("change", onChange);
             rollup.addEventListener("immediate-value-change", onImmediateChange);
-            rollup.addEventListener("open", onOpenClose);
-            rollup.addEventListener("close", onOpenClose);
         </script>
     </body>
 </html>
