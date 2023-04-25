@@ -19,10 +19,10 @@ export class HueColorTempPicker extends LitElement {
     }
 
     @property()
-    public width = 500;
+    public width = 600;
 
     @property()
-    public height = 500;
+    public height = 600;
 
     @property()
     public mode: HueColorTempPickerMode = 'color';
@@ -38,12 +38,12 @@ export class HueColorTempPicker extends LitElement {
     private _canvas: HTMLDivElement;
     private _backgroundLayer: HTMLCanvasElement;
     private _interactionLayer: SVGElement;
+    private _markers = new Array<ColorMarker>();
 
     protected override firstUpdated(): void {
         this.setupLayers();
         this.drawWheel();
-
-        this._interactionLayer.style.color = 'rgb(240,120,60)';
+        this.renderMarkers();
     }
 
     /**
@@ -54,17 +54,17 @@ export class HueColorTempPicker extends LitElement {
         this._backgroundLayer = <HTMLCanvasElement>this.renderRoot.querySelector('#backgroundLayer');
         this._interactionLayer = <SVGElement>this.renderRoot.querySelector('#interactionLayer');
 
-        // coordinate origin position (center of the wheel)
-        const originX = this.width / 2;
-        const originY = originX;
-
         // synchronise width/height coordinates
         this._backgroundLayer.width = this.width;
         this._backgroundLayer.height = this.height;
-        this._interactionLayer.setAttribute(
-            'viewBox',
-            `${-originX} ${-originY} ${this.width} ${this.height}`
-        );
+    }
+
+    /**
+     * Draws markers.
+     */
+    private renderMarkers() {
+        const m = new ColorMarker(this._canvas, this._interactionLayer);
+        this._markers.push(m);
     }
 
     /*
@@ -289,7 +289,7 @@ export class HueColorTempPicker extends LitElement {
     #canvas {
         position: relative;
         width: 100%;
-        max-width: 330px;
+        max-width: 400px;
         margin: auto;
     }
     #canvas > * {
@@ -298,7 +298,6 @@ export class HueColorTempPicker extends LitElement {
     #interactionLayer {
         color: white;
         position: absolute;
-        cursor: crosshair;
         width: 100%;
         height: 100%;
         overflow: visible;
@@ -310,11 +309,11 @@ export class HueColorTempPicker extends LitElement {
         box-shadow: ${unsafeCSS(Consts.HueShadow)}
     }
 
-    #marker {
+    .marker {
         fill: currentColor;
-        stroke: white;
-        stroke-width: 2;
-        filter: url(#marker-shadow);
+        filter: url(#new-shadow);
+        transform: scale(2);
+        cursor: pointer;
     }
     `;
 
@@ -323,38 +322,79 @@ export class HueColorTempPicker extends LitElement {
         <div id='canvas'>
             <svg id="interactionLayer">
                 <defs>
-                    <filter
-                    id="marker-shadow"
-                    x="-50%"
-                    y="-50%"
-                    width="200%"
-                    height="200%"
-                    filterUnits="objectBoundingBox"
-                    >
-                        <feOffset
-                            result="offOut"
-                            in="SourceAlpha"
-                            dx="2"
-                            dy="2"
-                        ></feOffset>
-                        <feGaussianBlur
-                            result="blurOut"
-                            in="offOut"
-                            stdDeviation="2"
-                        ></feGaussianBlur>
-                        <feComponentTransfer in="blurOut" result="alphaOut">
-                            <feFuncA type="linear" slope="0.3"></feFuncA>
-                        </feComponentTransfer>
-                        <feBlend
-                            in="SourceGraphic"
-                            in2="alphaOut"
-                            mode="normal"
-                        ></feBlend>
+                    <filter id="new-shadow">
+                        <feDropShadow dx="0" dy="0.4" stdDeviation="0.5" flood-opacity="1"></feDropShadow>
                     </filter>
                 </defs>
-                <circle id="marker" r="18" transform="translate(76.33899625105616,72.09270178999559)"></circle>
             </svg>
             <canvas id="backgroundLayer"></canvas>
         </div>`;
     }
+}
+
+class ColorMarker {
+    private readonly _canvas: HTMLElement;
+    private readonly _markerG: SVGElement;
+
+    public constructor(canvas:HTMLElement, svgLayer: SVGElement) {
+        this._canvas = canvas;
+        this._markerG = ColorMarker.drawMarker(svgLayer);
+        this.setColor('cyan');
+        this.makeDraggable();
+    }
+
+    /**
+     * Draws and returns marker element.
+     */
+    private static drawMarker(svgLayer: SVGElement): SVGElement {
+        const g = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'g'
+        );
+
+        const m = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'path'
+        );
+
+        m.setAttribute('class', 'marker');
+        m.setAttribute('d', 'm 12,2 c -4.418278,0 -8,3.581722 -8,8 0,5.4 7,11.5 7.35,11.76 L 12,22.32 12.65,21.76 C 13,21.5 20,15.4 20,10 20,5.581722 16.418278,2 12,2 Z');
+
+        g.appendChild(m);
+        svgLayer.appendChild(g);
+
+        return g;
+    }
+
+    public setColor(color: string) {
+        this._markerG.style.color = color;
+    }
+
+    // #region Drag
+
+    private makeDraggable() {
+        this._markerG.addEventListener('mousedown', () => this.onDragStart());
+    }
+
+    private onDragStart() {
+        document.addEventListener('mousemove', this._onDragDelegate);
+        document.addEventListener('mouseup', this._onDragStopDelegate);
+    }
+
+    private _onDragDelegate = (ev: MouseEvent) => this.onDrag(ev);
+    private onDrag(ev: MouseEvent) {
+        console.log(ev);
+
+        const dragX = ev.clientX - this._canvas.offsetLeft;
+        const dragY = ev.clientY - this._canvas.offsetTop;
+        this._markerG.style.transform = `translate(${dragX}px,${dragY}px)`;
+    }
+
+    private _onDragStopDelegate = () => this.onDragStop();
+    private onDragStop() {
+        document.removeEventListener('mousemove', this._onDragDelegate);
+        document.removeEventListener('mouseup', this._onDragStopDelegate);
+    }
+
+    // #endregion
 }

@@ -37,6 +37,13 @@
             {
               "argsIgnorePattern": "^_" // dont_throw unused on arguments starting with underscore
             }
-        ]
+        ],
+
+        "@typescript-eslint/no-use-before-define": ["error", {
+            "functions": true,
+            "classes": false, // Allow use of classes defined under
+            "variables": true,
+            "allowNamedExports": false
+        }]
     }
 }
