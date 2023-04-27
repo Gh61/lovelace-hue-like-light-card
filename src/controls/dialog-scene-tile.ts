@@ -1,6 +1,6 @@
 import { forwardHaptic } from 'custom-card-helpers';
 import { html, css, unsafeCSS, PropertyValues } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 import { Color } from '../core/colors/color';
 import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
@@ -18,7 +18,7 @@ export class HueDialogSceneTile extends HueDialogTile {
 
     private readonly _effectQueue = new HueEffectQueue();
     private _sceneConfig: SceneConfig | null = null;
-    @property() private _scene: SceneData | null = null;
+    @state() private _scene: SceneData | null = null;
 
     public set sceneConfig(config: SceneConfig) {
         const oldSceneConfig = this._sceneConfig;
@@ -132,8 +132,8 @@ export class HueDialogSceneTile extends HueDialogTile {
     `];
     }
 
-    protected override updated(changedProps: PropertyValues) {
-        if (this._scene && changedProps.has(nameof(this, 'sceneConfig'))) {
+    protected override updated(changedProps: PropertyValues<HueDialogSceneTile>) {
+        if (this._scene && changedProps.has('sceneConfig')) {
             const accentColor = this._scene.getColor();
             if (accentColor) {
                 const fg = accentColor.getForeground(Consts.LightColor, Consts.DarkColor, 20); // offset:20 - lets make the text color light sooner

@@ -2,7 +2,8 @@ import { LitElement, css, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Consts } from '../types/consts';
 import { Color } from '../core/colors/color';
-import { Point } from '../types/point';
+import { MousePoint, Point, TouchPoint } from '../types/point';
+import { PointerDragHelper } from './pointer-drag-helper';
 
 export type HueColorTempPickerMode = 'color' | 'temp';
 
@@ -72,7 +73,7 @@ export class HueColorTempPicker extends LitElement {
         this.requestUpdate('_markers');
     }
 
-    /*
+    /**
      * Draws temp or color wheel depending on the selected mode.
      */
     private drawWheel() {
@@ -216,6 +217,9 @@ export class HueColorTempPicker extends LitElement {
             return (max - min) * t + min;
         },
 
+        /**
+         * From X and Y coordinates @returns [length from center, angle in RAD].
+         */
         xy2polar: function (x: number, y: number) {
             const r = Math.sqrt(x * x + y * y);
             const phi = Math.atan2(y, x);
@@ -336,11 +340,16 @@ export class HueColorTempPicker extends LitElement {
             <canvas id="backgroundLayer"></canvas>
         </div>`;
     }
+
+    public override disconnectedCallback() {
+        // remove document events
+        this._markers.forEach(m => m.removeAllListeners());
+    }
 }
 
 class ColorMarker {
     private readonly _canvas: HTMLElement;
-    private readonly _markerG: SVGElement;
+    private readonly _markerG: SVGGraphicsElement;
 
     private _color: Color = new Color('cyan');
     private _position: Point = new Point(125, 125);
@@ -354,7 +363,7 @@ class ColorMarker {
     public get color() {
         return this._color;
     }
-    public set color(val:Color) {
+    public set color(val: Color) {
         this._color = val;
         this._markerG.style.color = this.color.toString();
     }
@@ -362,11 +371,33 @@ class ColorMarker {
     public get position() {
         return this._position;
     }
-    public set position(pos:Point) {
-        this._position = pos;
-        
+    public set position(pos: Point) {
+        const radius = this._canvas.clientWidth / 2;
+        this._position = ColorMarker.limitCoordinates(pos, radius);
+
         const offset = this.getMarkerOffset();
-        this._markerG.style.transform = `translate(${this.position.X - offset.X}px,${this.position.Y - offset.Y}px)`;
+        const x = this.position.X - offset.X;
+        const y = this.position.Y - offset.Y;
+
+        this._markerG.style.transform = `translate(${x}px,${y}px)`;
+    }
+
+    private static limitCoordinates(pointFromTopLeft: Point, radius: number) {
+        // get coordinates from center
+        const x1 = pointFromTopLeft.X - radius;
+        const y1 = pointFromTopLeft.Y - radius;
+
+        const vect1 = Math.abs(Math.sqrt(x1 * x1 + y1 * y1));
+        // it's outside - make it inside
+        if (vect1 > radius) {
+            const coef = radius / vect1;
+            const x2 = x1 * coef + radius;
+            const y2 = y1 * coef + radius;
+            return new Point(x2, y2);
+        }
+
+        // it's inside
+        return pointFromTopLeft;
     }
 
     public render() {
@@ -381,34 +412,51 @@ class ColorMarker {
      * @returns offset of marker tip (point where color is taken).
      */
     private getMarkerOffset() {
-        const x = this._markerG.clientWidth / 2;
-        const y = this._markerG.clientHeight;
+        const rect = this._markerG.getBBox();
+
+        // init fallback
+        if (rect.width == 0) {
+            rect.width = 32;
+            rect.height = 40;
+        }
+
+        const x = rect.width / 2;
+        const y = rect.height;
         return new Point(x, y);
     }
 
     // #region Drag
 
+    private _dragHelper: PointerDragHelper;
+
     private makeDraggable() {
-        this._markerG.addEventListener('mousedown', (ev: MouseEvent) => this.onDragStart(ev));
+        this._dragHelper = new PointerDragHelper(
+            this._markerG,
+            (ev) => this.onDragStart(ev),
+            (ev) => this.onDrag(ev)
+        );
     }
 
     private _dragOffset?: Point;
-    private onDragStart(ev: MouseEvent) {
+    private onDragStart(ev: MouseEvent | TouchEvent) {
         const mousePoint = this.getCanvasMousePoint(ev);
         this._dragOffset = mousePoint.getDiff(this.position);
-
-        document.addEventListener('mousemove', this._onDragDelegate);
-        document.addEventListener('mouseup', this._onDragStopDelegate);
     }
 
-    private _onDragDelegate = (ev: MouseEvent) => this.onDrag(ev);
-    private onDrag(ev: MouseEvent) {
+    private onDrag(ev: MouseEvent | TouchEvent) {
         this.position = this.getCanvasMousePoint(ev, this._dragOffset);
     }
 
-    private getCanvasMousePoint(ev: MouseEvent, offset?: Point) {
-        let x = ev.clientX - this._canvas.offsetLeft;
-        let y = ev.clientY - this._canvas.offsetTop;
+    private getCanvasMousePoint(ev: MouseEvent | TouchEvent, offset?: Point) {
+        let point;
+        if ('changedTouches' in ev) {
+            point = new TouchPoint(ev.changedTouches[0]);
+        } else {
+            point = new MousePoint(ev);
+        }
+
+        let x = point.X - this._canvas.offsetLeft;
+        let y = point.Y - this._canvas.offsetTop;
         if (offset) {
             x -= offset.X;
             y -= offset.Y;
@@ -416,10 +464,8 @@ class ColorMarker {
         return new Point(x, y);
     }
 
-    private _onDragStopDelegate = () => this.onDragStop();
-    private onDragStop() {
-        document.removeEventListener('mousemove', this._onDragDelegate);
-        document.removeEventListener('mouseup', this._onDragStopDelegate);
+    public removeAllListeners() {
+        this._dragHelper?.removeAllListeners();
     }
 
     // #endregion
@@ -427,7 +473,7 @@ class ColorMarker {
     /**
      * Draws and returns marker element.
      */
-    private static drawMarker(): SVGElement {
+    private static drawMarker(): SVGGraphicsElement {
         const g = document.createElementNS(
             'http://www.w3.org/2000/svg',
             'g'

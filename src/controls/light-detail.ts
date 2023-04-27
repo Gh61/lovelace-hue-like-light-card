@@ -5,7 +5,6 @@ import { Consts } from '../types/consts';
 import { ILightContainer } from '../types/types-interface';
 import { PropertyValues, css, unsafeCSS } from 'lit';
 import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness-rollup';
-import { nameof } from '../types/extensions';
 
 @customElement(HueLightDetail.ElementName)
 export class HueLightDetail extends IdLitElement {
@@ -70,10 +69,10 @@ export class HueLightDetail extends IdLitElement {
         }
     }
 
-    protected override updated(changedProps: PropertyValues): void {
+    protected override updated(changedProps: PropertyValues<HueLightDetail>): void {
         // register for changes on light
-        if (changedProps.has(nameof(this, 'lightContainer'))) {
-            const oldValue = changedProps.get(nameof(this, 'lightContainer')) as ILightContainer | null;
+        if (changedProps.has('lightContainer')) {
+            const oldValue = changedProps.get('lightContainer') as ILightContainer | null;
             if (oldValue) {
                 oldValue.unregisterOnPropertyChanged(this._id);
             }

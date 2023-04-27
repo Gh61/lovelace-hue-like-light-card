@@ -4,7 +4,6 @@ import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { ViewUtils } from '../core/view-utils';
 import { Consts } from '../types/consts';
-import { nameof } from '../types/extensions';
 import { ILightContainer } from '../types/types-interface';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
@@ -96,10 +95,10 @@ export class HueDialogLightTile extends HueDialogTile {
     `];
     }
 
-    protected override updated(changedProps: PropertyValues): void {
+    protected override updated(changedProps: PropertyValues<HueDialogLightTile>): void {
         // register for changes on light
-        if (changedProps.has(nameof(this, 'lightContainer'))) {
-            const oldValue = changedProps.get(nameof(this, 'lightContainer')) as ILightContainer | null;
+        if (changedProps.has('lightContainer')) {
+            const oldValue = changedProps.get('lightContainer') as ILightContainer | null;
             if (oldValue) {
                 oldValue.unregisterOnPropertyChanged(this._id);
             }
@@ -142,7 +141,7 @@ export class HueDialogLightTile extends HueDialogTile {
             );
         }
 
-        if (changedProps.has(nameof(this, 'isSelected'))) {
+        if (changedProps.has('isSelected')) {
             const selector = <Element>this.renderRoot.querySelector('.selector');
             selector.classList.toggle('active', this.isSelected);
 

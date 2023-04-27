@@ -27,9 +27,16 @@ export class Point {
     }
 }
 
-/** Simple type for coordinates of MouseClick. */
-export class MouseClickPoint extends Point {
+/** Simple type for coordinates from Mouse. */
+export class MousePoint extends Point {
     public constructor(mouseEvent: MouseEvent) {
         super(mouseEvent.clientX, mouseEvent.clientY);
+    }
+}
+
+/** Simple type for coordinates from Touch. */
+export class TouchPoint extends Point {
+    public constructor(touch: Touch) {
+        super(touch.clientX, touch.clientY);
     }
 }

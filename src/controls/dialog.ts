@@ -1,6 +1,6 @@
 import { css, PropertyValues, unsafeCSS } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { LightController } from '../core/light-controller';
@@ -33,7 +33,7 @@ export class HueDialog extends IdLitElement {
     private _config: HueLikeLightCardConfig;
     private _ctrl: LightController;
 
-    @property()
+    @state()
     private _selectedLight: ILightContainer | null;
 
     public constructor(config: HueLikeLightCardConfig, lightController: LightController) {

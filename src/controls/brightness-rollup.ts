@@ -3,11 +3,12 @@ import { customElement, property } from 'lit/decorators.js';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { ViewUtils } from '../core/view-utils';
-import { MouseClickPoint } from '../types/point';
+import { MousePoint, Point, TouchPoint } from '../types/point';
+import { PointerDragHelper } from './pointer-drag-helper';
 
 export interface IRollupValueChangeEventDetail {
-    oldValue:number;
-    newValue:number;
+    oldValue: number;
+    newValue: number;
 }
 
 export interface IRollupOpenCloseEventDetail {
@@ -27,6 +28,7 @@ export class HueBrightnessRollup extends LitElement {
     private readonly _wheelCloseInterval = 800;// ms
     private _wrapperElement: HTMLElement;
     private _valueElement: HTMLElement;
+    private _dragHelper: PointerDragHelper;
     private _value = 100;
     private _immediateValue = this._value;
 
@@ -55,7 +57,7 @@ export class HueBrightnessRollup extends LitElement {
      * Will set @param newValue as actual value to @property value.
      * @param dispatchEvent When set, will dispatch 'change' event.
      */
-    private setValue(newValue: number, dispatchEvent:boolean) {
+    private setValue(newValue: number, dispatchEvent: boolean) {
         newValue = HueBrightnessRollup.cleanValue(newValue);
 
         if (newValue != this._value) {
@@ -130,6 +132,11 @@ export class HueBrightnessRollup extends LitElement {
         this._wrapperElement.classList.toggle('fast', fast);
         this._wrapperElement.classList.toggle('open', this._isOpened);
 
+        // remove document events when bar is closed (could be closed by timer)
+        if (!open) {
+            this.removeDocumentListeners();
+        }
+
         // fire open or close event
         const eventType = this._isOpened ? 'open' : 'close';
         const event = new CustomEvent<IRollupOpenCloseEventDetail>(eventType, {
@@ -138,14 +145,31 @@ export class HueBrightnessRollup extends LitElement {
         this.dispatchEvent(event);
     }
 
-    private _clickPosition: MouseClickPoint | null = null;
+    private _clickPosition: Point | null = null;
     private get _isMouseDown() {
         return this._clickPosition != null;
     }
     private _hasMouseMoved = false;
 
-    private onBarMouseDown(ev: MouseEvent) {
-        this._clickPosition = new MouseClickPoint(ev);
+    private onBarMouseDown(ev: MouseEvent | TouchEvent, isTouch: boolean) {
+        if (isTouch) {
+            this._clickPosition = new TouchPoint((<TouchEvent>ev).changedTouches[0]);
+        } else {
+            this._clickPosition = new MousePoint((<MouseEvent>ev));
+        }
+
+        // register wheel document events
+        if (!isTouch) {
+            document.addEventListener('wheel', this._onDocumentWheelDelegate);
+        }
+    }
+
+    private removeDocumentListeners() {
+        // remove document events
+        if (this._dragHelper) {
+            this._dragHelper.removeDocumentListeners();
+        }
+        document.removeEventListener('wheel', this._onDocumentWheelDelegate);
     }
 
     private _onDocumentMouseUpDelegate = () => this.onDocumentMouseUp();
@@ -169,11 +193,17 @@ export class HueBrightnessRollup extends LitElement {
         }
     }
 
-    private _onDocumentMouseMoveDelegate = (ev: MouseEvent) => this.onDocumentMouseMove(ev);
-    private onDocumentMouseMove(ev: MouseEvent) {
+    private _onDocumentMouseMoveDelegate = (ev: MouseEvent | TouchEvent, isTouch:boolean) => this.onDocumentMouseMove(ev, isTouch);
+    private onDocumentMouseMove(ev: MouseEvent | TouchEvent, isTouch:boolean) {
         if (this._isMouseDown) {
-            const currentPos = new MouseClickPoint(ev);
-            let yDiff = currentPos.getYDiff(<MouseClickPoint>this._clickPosition);
+            let currentPos: Point;
+            if (isTouch) {
+                currentPos = new TouchPoint((<TouchEvent>ev).changedTouches[0]);
+            } else {
+                currentPos = new MousePoint(<MouseEvent>ev);
+            }
+
+            let yDiff = currentPos.getYDiff(<Point>this._clickPosition);
 
             // when moved by minimal of 5 pxs
             if (!this._hasMouseMoved && Math.abs(yDiff) > this._deadZone) {
@@ -184,7 +214,7 @@ export class HueBrightnessRollup extends LitElement {
                 // set new clickPoint after starting to move
                 this._clickPosition = currentPos;
                 // compute new diff
-                yDiff = currentPos.getYDiff(<MouseClickPoint>this._clickPosition);
+                yDiff = currentPos.getYDiff(<Point>this._clickPosition);
             }
             if (this._hasMouseMoved && this._isOpened) {
                 // stop potential wheel close or set (and apply its value right now)
@@ -237,6 +267,14 @@ export class HueBrightnessRollup extends LitElement {
     // #endregion
 
     public static override styles = css`
+    :host {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    #wrapper{
+        color: white;
+    }
     #bar{
         position: relative;
         transition: all 0.25s linear;
@@ -244,9 +282,6 @@ export class HueBrightnessRollup extends LitElement {
         width: var(--rollup-width);
         height: var(--rollup-height);
 
-        /*border: 2px solid red;*/
-
-        user-select: none;
         cursor: pointer;
     }
     #bar, #desc span{
@@ -271,8 +306,6 @@ export class HueBrightnessRollup extends LitElement {
         bottom: 0;
         width: 100%;
         box-sizing: border-box;
-
-        /*border: 1px solid green;*/
     }
     #icon{
         text-align: center;
@@ -301,7 +334,7 @@ export class HueBrightnessRollup extends LitElement {
     }
     `;
 
-    protected override updated(changedProps: PropertyValues<HueBrightnessRollup>) {
+    protected override updated(changedProps: PropertyValues<HueBrightnessRollup>, isFirst = false) {
         super.updated(changedProps);
 
         if (changedProps.has('width')) {
@@ -323,7 +356,7 @@ export class HueBrightnessRollup extends LitElement {
             );
         }
 
-        if (changedProps.has('immediateValue')) {
+        if (changedProps.has('immediateValue') || isFirst) {
             this._valueElement.style.height = this.immediateValue + '%';
         }
     }
@@ -345,25 +378,27 @@ export class HueBrightnessRollup extends LitElement {
         </div>`;
     }
 
-    protected override firstUpdated() {
+    protected override firstUpdated(changedProps: PropertyValues<HueBrightnessRollup>) {
         this._wrapperElement = <HTMLElement>this.renderRoot.querySelector('#wrapper');
 
         const barElement = <HTMLElement>this._wrapperElement.querySelector('#bar');
-        barElement.addEventListener('mousedown', (ev) => this.onBarMouseDown(ev));
+        this._dragHelper = new PointerDragHelper(
+            barElement,
+            (ev, t) => this.onBarMouseDown(ev, t),
+            this._onDocumentMouseMoveDelegate,
+            this._onDocumentMouseUpDelegate
+        );
 
         // get value element
         this._valueElement = <HTMLElement>barElement.querySelector('#value');
 
-        // register document events
-        document.addEventListener('mouseup', this._onDocumentMouseUpDelegate);
-        document.addEventListener('mousemove', this._onDocumentMouseMoveDelegate);
-        document.addEventListener('wheel', this._onDocumentWheelDelegate);
+        // manually call update with isFirst flag
+        this.updated(changedProps, true);
     }
 
     public override disconnectedCallback() {
         // remove document events
-        document.removeEventListener('mouseup', this._onDocumentMouseUpDelegate);
-        document.removeEventListener('mousemove', this._onDocumentMouseMoveDelegate);
-        document.removeEventListener('wheel', this._onDocumentWheelDelegate);
+        this.removeDocumentListeners();
+        this._dragHelper?.removeAllListeners();
     }
 }
