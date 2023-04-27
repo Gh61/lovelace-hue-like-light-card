@@ -1,4 +1,4 @@
-import { ValueFactory } from '../types/types';
+import { ValueFactory } from '../types/types-interface';
 
 export class TimeCacheValue {
     /**

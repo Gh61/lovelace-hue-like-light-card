@@ -5,7 +5,7 @@ import { Color } from '../core/colors/color';
 import { ViewUtils } from '../core/view-utils';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
-import { ILightContainer } from '../types/types';
+import { ILightContainer } from '../types/types-interface';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 

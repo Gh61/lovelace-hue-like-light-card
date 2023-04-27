@@ -1,5 +1,5 @@
 import { Func } from '../types/functions';
-import { ILightFeatures } from '../types/types';
+import { ILightFeatures } from '../types/types-interface';
 import { HassLightColorMode, HassLightEntity } from '../types/types-hass';
 
 export class LightFeatures implements ILightFeatures {

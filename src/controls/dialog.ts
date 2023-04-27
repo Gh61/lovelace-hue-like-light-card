@@ -12,7 +12,7 @@ import { ThemeHelper } from '../types/theme-helper';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { IdLitElement } from '../core/id-lit-element';
 import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-tile';
-import { ILightContainer } from '../types/types';
+import { ILightContainer } from '../types/types-interface';
 import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
 

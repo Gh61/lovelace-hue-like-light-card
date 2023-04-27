@@ -1,8 +1,15 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity, HassEntityAttributeBase } from 'home-assistant-js-websocket';
 
-export interface IHassWindow {
-    customIcons: Record<string, object>;
+export class HassCustomCardInfo {
+    public type: string;
+    public name: string;
+    public description: string;
+}
+
+export interface IHassWindow extends Window {
+    customCards?: HassCustomCardInfo[];
+    customIcons?: Record<string, object>;
 }
 
 export interface HassLightAttributes extends HassEntityAttributeBase {

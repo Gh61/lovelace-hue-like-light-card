@@ -2,7 +2,7 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { HassLightEntity } from '../types/types-hass';
 import { Consts } from '../types/consts';
 import { ensureEntityDomain } from '../types/extensions';
-import { ILightContainer, ILightFeatures } from '../types/types';
+import { ILightContainer, ILightFeatures } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { StaticTextTemplate } from './hass-text-template';

@@ -1,5 +1,5 @@
 import { computeStateDisplay, HomeAssistant } from 'custom-card-helpers';
-import { IHassTextTemplate } from '../types/types';
+import { IHassTextTemplate } from '../types/types-interface';
 
 class VariableTemplatePart implements IHassTextTemplate {
     private _textOrEntity: string;

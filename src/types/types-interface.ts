@@ -4,16 +4,6 @@ import { Action1 } from './functions';
 
 export type ValueFactory = () => unknown;
 
-export class CustomCardInfo {
-    public type: string;
-    public name: string;
-    public description: string;
-}
-
-export interface WindowWithCards extends Window {
-    customCards?: CustomCardInfo[];
-}
-
 export interface INotify {
     /**
      * Will register callback on property change events. 

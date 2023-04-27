@@ -2,9 +2,13 @@ import { LitElement, css, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Consts } from '../types/consts';
 import { Color } from '../core/colors/color';
+import { Point } from '../types/point';
 
 export type HueColorTempPickerMode = 'color' | 'temp';
 
+/**
+ * Color marker used in HueColorTempPicker
+ */
 @customElement(HueColorTempPicker.ElementName)
 export class HueColorTempPicker extends LitElement {
     /**
@@ -63,8 +67,9 @@ export class HueColorTempPicker extends LitElement {
      * Draws markers.
      */
     private renderMarkers() {
-        const m = new ColorMarker(this._canvas, this._interactionLayer);
+        const m = new ColorMarker(this._canvas);
         this._markers.push(m);
+        this.requestUpdate('_markers');
     }
 
     /*
@@ -326,6 +331,7 @@ export class HueColorTempPicker extends LitElement {
                         <feDropShadow dx="0" dy="0.4" stdDeviation="0.5" flood-opacity="1"></feDropShadow>
                     </filter>
                 </defs>
+                ${this._markers.map(m => m.render())}
             </svg>
             <canvas id="backgroundLayer"></canvas>
         </div>`;
@@ -336,17 +342,92 @@ class ColorMarker {
     private readonly _canvas: HTMLElement;
     private readonly _markerG: SVGElement;
 
-    public constructor(canvas:HTMLElement, svgLayer: SVGElement) {
+    private _color: Color = new Color('cyan');
+    private _position: Point = new Point(125, 125);
+
+    public constructor(canvas: HTMLElement) {
         this._canvas = canvas;
-        this._markerG = ColorMarker.drawMarker(svgLayer);
-        this.setColor('cyan');
+        this._markerG = ColorMarker.drawMarker();
         this.makeDraggable();
     }
+
+    public get color() {
+        return this._color;
+    }
+    public set color(val:Color) {
+        this._color = val;
+        this._markerG.style.color = this.color.toString();
+    }
+
+    public get position() {
+        return this._position;
+    }
+    public set position(pos:Point) {
+        this._position = pos;
+        
+        const offset = this.getMarkerOffset();
+        this._markerG.style.transform = `translate(${this.position.X - offset.X}px,${this.position.Y - offset.Y}px)`;
+    }
+
+    public render() {
+        // set properties
+        this.color = this.color;
+        this.position = this.position;
+
+        return this._markerG;
+    }
+
+    /**
+     * @returns offset of marker tip (point where color is taken).
+     */
+    private getMarkerOffset() {
+        const x = this._markerG.clientWidth / 2;
+        const y = this._markerG.clientHeight;
+        return new Point(x, y);
+    }
+
+    // #region Drag
+
+    private makeDraggable() {
+        this._markerG.addEventListener('mousedown', (ev: MouseEvent) => this.onDragStart(ev));
+    }
+
+    private _dragOffset?: Point;
+    private onDragStart(ev: MouseEvent) {
+        const mousePoint = this.getCanvasMousePoint(ev);
+        this._dragOffset = mousePoint.getDiff(this.position);
+
+        document.addEventListener('mousemove', this._onDragDelegate);
+        document.addEventListener('mouseup', this._onDragStopDelegate);
+    }
+
+    private _onDragDelegate = (ev: MouseEvent) => this.onDrag(ev);
+    private onDrag(ev: MouseEvent) {
+        this.position = this.getCanvasMousePoint(ev, this._dragOffset);
+    }
+
+    private getCanvasMousePoint(ev: MouseEvent, offset?: Point) {
+        let x = ev.clientX - this._canvas.offsetLeft;
+        let y = ev.clientY - this._canvas.offsetTop;
+        if (offset) {
+            x -= offset.X;
+            y -= offset.Y;
+        }
+        return new Point(x, y);
+    }
+
+    private _onDragStopDelegate = () => this.onDragStop();
+    private onDragStop() {
+        document.removeEventListener('mousemove', this._onDragDelegate);
+        document.removeEventListener('mouseup', this._onDragStopDelegate);
+    }
+
+    // #endregion
 
     /**
      * Draws and returns marker element.
      */
-    private static drawMarker(svgLayer: SVGElement): SVGElement {
+    private static drawMarker(): SVGElement {
         const g = document.createElementNS(
             'http://www.w3.org/2000/svg',
             'g'
@@ -358,43 +439,10 @@ class ColorMarker {
         );
 
         m.setAttribute('class', 'marker');
-        m.setAttribute('d', 'm 12,2 c -4.418278,0 -8,3.581722 -8,8 0,5.4 7,11.5 7.35,11.76 L 12,22.32 12.65,21.76 C 13,21.5 20,15.4 20,10 20,5.581722 16.418278,2 12,2 Z');
+        m.setAttribute('d', 'M 8,0 C 3.581722,0 0,3.5253169 0,7.8740157 0,13.188976 7,19.192913 7.35,19.448819 L 8,20 8.65,19.448819 C 9,19.192913 16,13.188976 16,7.8740157 16,3.5253169 12.418278,0 8,0 Z');
 
         g.appendChild(m);
-        svgLayer.appendChild(g);
 
         return g;
     }
-
-    public setColor(color: string) {
-        this._markerG.style.color = color;
-    }
-
-    // #region Drag
-
-    private makeDraggable() {
-        this._markerG.addEventListener('mousedown', () => this.onDragStart());
-    }
-
-    private onDragStart() {
-        document.addEventListener('mousemove', this._onDragDelegate);
-        document.addEventListener('mouseup', this._onDragStopDelegate);
-    }
-
-    private _onDragDelegate = (ev: MouseEvent) => this.onDrag(ev);
-    private onDrag(ev: MouseEvent) {
-        console.log(ev);
-
-        const dragX = ev.clientX - this._canvas.offsetLeft;
-        const dragY = ev.clientY - this._canvas.offsetTop;
-        this._markerG.style.transform = `translate(${dragX}px,${dragY}px)`;
-    }
-
-    private _onDragStopDelegate = () => this.onDragStop();
-    private onDragStop() {
-        document.removeEventListener('mousemove', this._onDragDelegate);
-        document.removeEventListener('mouseup', this._onDragStopDelegate);
-    }
-
-    // #endregion
 }

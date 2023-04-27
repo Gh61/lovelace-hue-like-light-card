@@ -10,7 +10,7 @@ import { HueLikeLightCardConfig } from './types/config';
 import { Consts } from './types/consts';
 import { nameof } from './types/extensions';
 import { ThemeHelper } from './types/theme-helper';
-import { WindowWithCards } from './types/types';
+import { IHassWindow } from './types/types-hass';
 import { HueLikeLightCardConfigInterface } from './types/types-config';
 import { HueColorTempPicker } from './controls/color-temp-picker';
 
@@ -28,8 +28,8 @@ console.info(
 console.log(HueColorTempPicker.ElementName);
 
 // This puts card into the UI card picker dialog
-(window as WindowWithCards).customCards = (window as WindowWithCards).customCards || [];
-(window as WindowWithCards).customCards!.push({
+(window as IHassWindow).customCards = (window as IHassWindow).customCards || [];
+(window as IHassWindow).customCards!.push({
     type: Consts.CardElementName,
     name: Consts.CardName,
     description: Consts.CardDescription

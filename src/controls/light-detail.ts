@@ -2,7 +2,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { html, unsafeStatic } from 'lit/static-html.js';
 import { IdLitElement } from '../core/id-lit-element';
 import { Consts } from '../types/consts';
-import { ILightContainer } from '../types/types';
+import { ILightContainer } from '../types/types-interface';
 import { PropertyValues, css, unsafeCSS } from 'lit';
 import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness-rollup';
 import { nameof } from '../types/extensions';

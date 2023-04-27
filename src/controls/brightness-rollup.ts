@@ -3,25 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { ViewUtils } from '../core/view-utils';
-
-/** Simple type for coordinates of MouseClick. */
-class MouseClickPoint {
-    public constructor(mouseEvent: MouseEvent) {
-        this.X = mouseEvent.clientX;
-        this.Y = mouseEvent.clientY;
-    }
-
-    public readonly X: number;
-    public readonly Y: number;
-
-    public getYDiff(startPoint: MouseClickPoint) {
-        return this.Y - startPoint.Y;
-    }
-
-    public toString() {
-        return `[${this.X},${this.Y}]`;
-    }
-}
+import { MouseClickPoint } from '../types/point';
 
 export interface IRollupValueChangeEventDetail {
     oldValue:number;

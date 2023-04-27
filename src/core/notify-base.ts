@@ -1,5 +1,5 @@
 import { Action1 } from '../types/functions';
-import { INotifyGeneric } from '../types/types';
+import { INotifyGeneric } from '../types/types-interface';
 
 export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
     private _propertyChangedCallbacks:Record<string, Action1<keyof TThis>>;

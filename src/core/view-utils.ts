@@ -4,7 +4,7 @@ import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
 import { Action } from '../types/functions';
 import { ThemeHelper } from '../types/theme-helper';
-import { ILightContainer } from '../types/types';
+import { ILightContainer } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { IHassWindow } from '../types/types-hass';
@@ -168,8 +168,8 @@ export class ViewUtils {
 
     /** Will return whether hue custom icons (https://github.com/arallsopp/hass-hue-icons) are installed */
     public static hasHueIcons(): boolean {
-        const haWindow = (<IHassWindow><unknown>window);
+        const haWindow = (window as IHassWindow);
 
-        return typeof haWindow.customIcons.hue == 'object';
+        return !!haWindow.customIcons && typeof haWindow.customIcons.hue == 'object';
     }
 }

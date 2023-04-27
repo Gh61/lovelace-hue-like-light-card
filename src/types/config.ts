@@ -1,4 +1,4 @@
-import { IHassTextTemplate, ILightContainer } from './types';
+import { IHassTextTemplate, ILightContainer } from './types-interface';
 import { HassSearchDeviceResult } from './types-hass';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
