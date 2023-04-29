@@ -1,27 +1,44 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Testing index</title>
-        <script type="module" src="/dist/hue-like-light-card.js"></script>
-    </head>
-    <body>
-        <div class="container" style="padding-top:8%;background: #333;height: 100%;margin: 0;position: fixed;top: 0;bottom: 0;left: 0;right: 0;">
-            <hue-color-temp-picker-test
-                id="picker"
-                mode="color"
-                ></hue-color-temp-picker-test>
-        </div>
-        <script>
-            function onChange(ev){
-                console.log(`[Changed] ${ev.detail.newValue}`);
-            }
-            function onImmediateChange(ev){
-                console.log(`[Drag] ${ev.detail.newValue}`);
-            }
 
-            var rollup = document.getElementById("picker");
-            rollup.addEventListener("change", onChange);
-            rollup.addEventListener("immediate-value-change", onImmediateChange);
-        </script>
-    </body>
+<head>
+    <title>Testing index</title>
+    <script type="module" src="/dist/hue-like-light-card.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <div class="container"
+        style="padding-top:8%;background: #333;height: 100%;margin: 0;position: fixed;top: 0;bottom: 0;left: 0;right: 0;">
+        <hue-color-temp-picker-test id="picker" mode="color"></hue-color-temp-picker-test>
+        <div style="width: 200px; margin:20px auto">
+            <label for="mc">Color</label>
+            <input type="radio" name="m" id="mc" value="color" checked="checked" onclick="changeMode" />
+            <label for="mt">Temp</label>
+            <input type="radio" name="m" id="mt" value="temp" onclick="changeMode" />
+        </div>
+    </div>
+    <script>
+        function onChange(ev) {
+            console.log(`[Changed] ${ev.detail.newValue}`);
+        }
+        function onImmediateChange(ev) {
+            console.log(`[Drag] ${ev.detail.newValue}`);
+        }
+
+        var rollup = document.getElementById("picker");
+        rollup.addEventListener("change", onChange);
+        rollup.addEventListener("immediate-value-change", onImmediateChange);
+
+        document.querySelectorAll("input[name='m']").forEach((input) => {
+            input.addEventListener('change', changeMode);
+        });
+
+        function changeMode() {
+            var newMode = this.value;
+            rollup.mode = newMode;
+        }
+    </script>
+</body>
+
 </html>
