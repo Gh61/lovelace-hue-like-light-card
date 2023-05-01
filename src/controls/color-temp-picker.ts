@@ -370,7 +370,7 @@ class ColorMarker {
     public constructor(parent: HueColorTempPicker, canvas: HTMLElement) {
         this._parent = parent;
         this._canvas = canvas;
-        this._markerG = ColorMarker.drawMarker();
+        [this._markerG, this._iconPath] = ColorMarker.drawMarker();
         this.position = new Point(canvas.clientWidth / 3, 2 * canvas.clientHeight / 3);
         this.makeDraggable();
     }
@@ -530,7 +530,7 @@ class ColorMarker {
     /**
      * Draws and returns marker element.
      */
-    private static drawMarker(): SVGGraphicsElement {
+    private static drawMarker(): [SVGGraphicsElement, SVGPathElement] {
         const g = document.createElementNS(
             'http://www.w3.org/2000/svg',
             'g'
@@ -555,7 +555,7 @@ class ColorMarker {
         g.appendChild(m);
         g.appendChild(i);
 
-        return g;
+        return [g, i];
     }
 
     /**
