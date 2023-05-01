@@ -117,3 +117,9 @@ export interface HomeAssistantEx extends HomeAssistant {
 export interface HaDialog extends HTMLElement {
     close?(): void;
 }
+
+export interface HaIcon extends HTMLElement {
+    icon: string;
+    /* private */ _loadIcon(): Promise<void>;
+    /* private */ _path: string;
+}

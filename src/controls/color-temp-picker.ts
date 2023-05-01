@@ -4,6 +4,7 @@ import { Consts } from '../types/consts';
 import { Color } from '../core/colors/color';
 import { MousePoint, Point, TouchPoint } from '../types/point';
 import { PointerDragHelper } from './pointer-drag-helper';
+import { HaIcon } from '../types/types-hass';
 
 export type HueColorTempPickerMode = 'color' | 'temp';
 
@@ -325,6 +326,10 @@ export class HueColorTempPicker extends LitElement {
         filter: url(#new-shadow);
         cursor: pointer;
     }
+    .icon {
+        transform: scale(1.5) translate(4px, 4px);
+        fill: white;
+    }
     `;
 
     protected override render() {
@@ -352,10 +357,15 @@ class ColorMarker {
     private readonly _parent: HueColorTempPicker;
     private readonly _canvas: HTMLElement;
     private readonly _markerG: SVGGraphicsElement;
+    private readonly _iconPath: SVGPathElement;
 
     private _color: Color = new Color('black');
     private _position: Point;
     private _mode: HueColorTempPickerMode = 'color';
+    private _icon: string = ColorMarker.DefaultIconName;
+
+    private static readonly DefaultIconName = 'default';
+    private static readonly DefaultIcon = 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
 
     public constructor(parent: HueColorTempPicker, canvas: HTMLElement) {
         this._parent = parent;
@@ -389,6 +399,38 @@ class ColorMarker {
             this._mode = this._parent.mode;
             this.renderMode();
         }
+    }
+
+    public get icon() {
+        return this._icon;
+    }
+    public set icon(ico: string) {
+        this._icon = ico;
+        this.getIcon(ico).then(path => {
+            if (!path) {
+                this._icon = ColorMarker.DefaultIconName;
+                path = ColorMarker.DefaultIcon;
+            }
+
+            // Apply icon
+            this._iconPath.setAttribute('d', path);
+        });
+    }
+
+    private async getIcon(name: string) {
+        if (!name)
+            return null;
+
+        const iconType = customElements.get('ha-icon');
+        if (!iconType)
+            return null;
+
+        const haIcon = new iconType() as HaIcon;
+        haIcon.icon = name;
+        /* eslint-disable no-underscore-dangle */
+        await haIcon._loadIcon();
+        return haIcon._path;
+        /* eslint-enable no-underscore-dangle */
     }
 
     /**
@@ -503,7 +545,15 @@ class ColorMarker {
         m.setAttribute('d', 'M 24,0 C 10.745166,0 0,10.575951 0,23.622046 0,39.566928 21,57.578739 22.05,58.346457 L 24,60 25.95,58.346457 C 27,57.578739 48,39.566928 48,23.622046 48,10.575951 37.254834,0 24,0 Z');
         // 48x60 px
 
+        const i = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'path'
+        );
+        i.setAttribute('class', 'icon');
+        i.setAttribute('d', this.DefaultIcon);
+
         g.appendChild(m);
+        g.appendChild(i);
 
         return g;
     }
