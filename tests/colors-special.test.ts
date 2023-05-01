@@ -45,5 +45,5 @@ describe('Color Special', () => {
         expect(color.getGreen()).toBe(2);
         expect(color.getBlue()).toBe(3);
         expect(color.getOpacity()).toBe(1);
-    })
+    });
 });

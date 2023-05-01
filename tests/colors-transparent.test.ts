@@ -1,4 +1,4 @@
-import { Color } from "../src/core/colors/color";
+import { Color } from '../src/core/colors/color';
 
 describe('Color Transparent', () => {
     it('simple hex opacity param', () => {

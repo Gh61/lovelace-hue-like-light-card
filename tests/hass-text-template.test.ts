@@ -1,4 +1,4 @@
-import { HassTextTemplate, StaticTextTemplate } from '../src/core/hass-text-template'
+import { HassTextTemplate, StaticTextTemplate } from '../src/core/hass-text-template';
 import { nullString } from './mockup-general';
 import { hassMockup } from './mockup-hass-states';
 
@@ -133,22 +133,22 @@ describe('HassTextTemplate', () => {
 describe('StaticTextTemplate', () => {
 
     it('simpleText', () => {
-        var text = 'Test ';
-        var template = new StaticTextTemplate(text);
+        const text = 'Test ';
+        const template = new StaticTextTemplate(text);
 
         expect(template.resolveToString()).toBe(text);
     });
 
     it('should resolve toString', () => {
-        var text = 'Test 2';
-        var template = new StaticTextTemplate(text);
+        const text = 'Test 2';
+        const template = new StaticTextTemplate(text);
 
         expect(template + '').toBe(text);
     });
 
     it('should return null', () => {
-        var template = new StaticTextTemplate(nullString);
+        const template = new StaticTextTemplate(nullString);
 
         expect(template.resolveToString()).toBe(nullString);
     });
-})
+});

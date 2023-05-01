@@ -1,5 +1,5 @@
-import { HomeAssistant } from "custom-card-helpers";
-import { HassEntities, HassEntity, HassEntityAttributeBase } from "home-assistant-js-websocket";
+import { HomeAssistant } from 'custom-card-helpers';
+import { HassEntities, HassEntity, HassEntityAttributeBase } from 'home-assistant-js-websocket';
 
 export const hassMockup = <HomeAssistant>{
     states: <HassEntities>{

@@ -117,7 +117,7 @@ export class HueColorTempPicker extends LitElement {
      * Gets color and value of coordinate point depending on selected mode.
      * @param x coordinate X [-radius, radius]
      * @param y coordinate Y [-radius, radius]
-     * @param radius Radius of circle
+     * @param radius Radius of color wheel
      */
     public getColorAndValue(x: number, y: number, radius: number) {
         if (this.mode == 'color') {
@@ -137,28 +137,14 @@ export class HueColorTempPicker extends LitElement {
             return null;
         }
 
-        let deg = HueColorTempPicker.utils.rad2deg(phi);
-
-        // rotate to Hue position
-        deg -= 70;
-        if (deg < 0)
-            deg += 360;
-
         // Figure out the starting index of this pixel in the image data array.
         const index = HueColorTempPicker.computeIndex(x, y, radius)[0];
 
-        const hue = deg;
-        const exp = 1.9;
-        let saturation = Math.pow(r, exp) / Math.pow(radius, exp);
-        // = (r * r) / (radius * radius);
-        // saturation = r/radius;
+        const deg = HueColorTempPicker.utils.rad2deg(phi);
+        const hue = HueColorTempPicker.utils.getHue(deg);
+        const saturation = HueColorTempPicker.utils.getSaturation(r, radius);
 
-        let value = 0.95;
-        [saturation, value] = HueColorTempPicker.utils.fixSaturationAndValue(saturation, value, r, radius, deg, 60, true);
-        [saturation, value] = HueColorTempPicker.utils.fixSaturationAndValue(saturation, value, r, radius, deg, 180, true);
-        [saturation, value] = HueColorTempPicker.utils.fixSaturationAndValue(saturation, value, r, radius, deg, 240, false);
-        [saturation, value] = HueColorTempPicker.utils.fixSaturationAndValue(saturation, value, r, radius, deg, 300, true);
-
+        const value = HueColorTempPicker.utils.getHSvalue(hue, r, radius);
         const color = Color.hsv2rgb(hue, saturation, value);
 
         return {
@@ -192,6 +178,7 @@ export class HueColorTempPicker extends LitElement {
     }
 
     private static computeIndex(x: number, y: number, radius: number) {
+
         const rowLength = 2 * radius;
         const adjustedX = x + radius; // convert x from [-50, 50] to [0, 100] (the coordinates of the image data array)
         const adjustedY = y + radius; // convert y from [-50, 50] to [0, 100] (the coordinates of the image data array)
@@ -201,14 +188,95 @@ export class HueColorTempPicker extends LitElement {
         return [index, adjustedX, adjustedY, rowLength];
     }
 
+    /**
+     * Gets coordinates (from center) of given kelvin temperature on temp wheel.
+     * @param kelvin Color temperature
+     * @param radius Radius of color wheel
+     * @param currentCoordinates Actual coordinates on wheel. (May be used for setting the marker close to it.)
+     */
+    public getCoordinatesAndTemp(kelvin: number, radius: number, currentCoordinates?: Point) {
+        if (kelvin < this.tempMin)
+            kelvin = this.tempMin;
+        else if (kelvin > this.tempMax)
+            kelvin = this.tempMax;
+
+        const rowLength = 2 * radius;
+        const n = HueColorTempPicker.utils.invertedLogarithmicalScale(kelvin, this.tempMin, this.tempMax);
+        const adjustedY = n * rowLength;
+        let y = adjustedY - radius;
+
+        // clean y
+        y = Math.round(y);
+
+        // easiest X is in the middle (full range)
+        let x = 0;
+
+        if (currentCoordinates) {
+            // currentCoordinates is passed, try to find valid X closest to given coords
+            // get min and max possible X for given Y
+            const maxX = Math.ceil(Math.sqrt(radius * radius - y * y));
+            const minX = -maxX;
+
+            // limit x in range [minX, maxX]
+            x = currentCoordinates.X;
+            if (x < minX)
+                x = minX;
+            else if (x > maxX)
+                x = maxX;
+        }
+
+        const color = HueColorTempPicker.utils.hueTempToRgb(kelvin);
+
+        return {
+            position: new Point(x, y),
+            color: color
+        };
+    }
+
+    /**
+     * Gets coordinates (from center) of given kelvin temperature on temp wheel.
+     * @param hue Hue value of color
+     * @param saturation Saturation value of color
+     * @param radius Radius of color wheel
+     */
+    public getCoordinatesAndColor(hue: number, saturation: number, radius: number) {
+
+        const deg = HueColorTempPicker.utils.getDeg(hue);
+        const phi = HueColorTempPicker.utils.deg2rad(deg);
+        const r = HueColorTempPicker.utils.getR(saturation, radius);
+        let [x, y] = HueColorTempPicker.utils.polar2xy(r, phi);
+
+        // clean x and y values
+        y = Math.round(y);
+        x = Math.round(x);
+
+        const value = HueColorTempPicker.utils.getHSvalue(hue, r, radius);
+        const color = Color.hsv2rgb(hue, saturation, value);
+
+        return {
+            position: new Point(x, y),
+            color: color
+        };
+    }
+
     private static utils = {
         /**
+         * Returns value in range from @param min to @param max with logarithmical distribution.
          * @param t normalized value 0 - 1
          * @param min Minimal returned value
          * @param max Maximal returned value
          */
         logarithmicalScale: function (t: number, min: number, max: number): number {
             return Math.pow(max / min, t) * min;
+        },
+        /**
+         * Returns normalized value 0 - 1 with position of y on logarithmical scale from @param min to @param max.
+         * @param y Value in range from @param min to @param max with logarithmical distribution
+         * @param min Minimal given value
+         * @param max Maximal given value
+         */
+        invertedLogarithmicalScale: function (y: number, min: number, max: number): number {
+            return Math.log(y / min) / Math.log(max / min);
         },
 
         /**
@@ -228,6 +296,11 @@ export class HueColorTempPicker extends LitElement {
             const phi = Math.atan2(y, x);
             return [r, phi];
         },
+        polar2xy: function (r: number, phi: number): [number, number] {
+            const x = r * Math.cos(phi);
+            const y = r * Math.sin(phi);
+            return [x, y];
+        },
 
         /**
          * @param rad in [-π, π] range
@@ -236,16 +309,52 @@ export class HueColorTempPicker extends LitElement {
         rad2deg: function (rad: number) {
             return ((rad + Math.PI) / (2 * Math.PI)) * 360;
         },
+        deg2rad: function (deg: number): number {
+            return (deg / 360) * 2 * Math.PI - Math.PI;
+        },
 
-        fixSaturationAndValue: function (saturation: number, value: number, r: number, radius: number, deg: number, fixPoint: number, lower: boolean, maxOffset = 5) {
-            //return [saturation, value];
+        getHue: function (deg: number) {
+            // rotate to Hue position
+            deg -= 70;
+            if (deg < 0)
+                deg += 360;
 
+            return deg;
+        },
+        getDeg: function (hue: number) {
+            hue += 70;
+            if (hue > 360)
+                hue -= 360;
+
+            return hue;
+        },
+
+        getSaturation: function (r: number, radius: number) {
+            const exp = 1.9;
+            const saturation = Math.pow(r, exp) / Math.pow(radius, exp);
+            return saturation;
+        },
+        getR: function (saturation:number, radius: number) {
+            const exp = 1.9;
+            const r = Math.pow(saturation * Math.pow(radius, exp), 1 / exp);
+            return r;
+        },
+
+        getHSvalue: function (hue: number, r: number, radius: number) {
+            let value = 0.95;
+            value = HueColorTempPicker.utils.fixHSValue(value, r, radius, hue, 60, true);
+            value = HueColorTempPicker.utils.fixHSValue(value, r, radius, hue, 180, true);
+            value = HueColorTempPicker.utils.fixHSValue(value, r, radius, hue, 240, false);
+            value = HueColorTempPicker.utils.fixHSValue(value, r, radius, hue, 300, true);
+            return value;
+        },
+        fixHSValue: function (value: number, r: number, radius: number, hue: number, fixPoint: number, lower: boolean, maxOffset = 5) {
             const precondition = lower
                 ? r > (radius / 2)
                 : r < (3 * radius / 4) && r > (radius / 4);
 
-            if (precondition && deg >= (fixPoint - maxOffset) && deg <= (fixPoint + maxOffset)) {
-                let offset = fixPoint - deg;
+            if (precondition && hue >= (fixPoint - maxOffset) && hue <= (fixPoint + maxOffset)) {
+                let offset = fixPoint - hue;
                 if (offset < 0) {
                     offset = - offset;
                 }
@@ -257,7 +366,7 @@ export class HueColorTempPicker extends LitElement {
                 }
             }
 
-            return [saturation, value];
+            return value;
         },
 
         hueTempToRgb: function (kelvin: number) {
@@ -324,11 +433,13 @@ export class HueColorTempPicker extends LitElement {
     .marker {
         fill: currentColor;
         filter: url(#new-shadow);
-        cursor: pointer;
     }
     .icon {
         transform: scale(1.5) translate(4px, 4px);
         fill: white;
+    }
+    .marker, .icon{
+        cursor: pointer;
     }
     `;
 
