@@ -263,7 +263,7 @@ export class HueDialog extends IdLitElement {
     }
 
     /* same color header */
-    .heading {
+    .hue-heading {
         --hue-heading-text-color: var(--hue-text-color, ${unsafeCSS(Consts.ThemeDialogHeadingColorVar)});
         color:var(--hue-heading-text-color);
         background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
@@ -274,21 +274,25 @@ export class HueDialog extends IdLitElement {
         border-bottom-right-radius: var(--ha-dialog-border-radius, 28px);
         padding-bottom: calc(var(--ha-dialog-border-radius, 28px) / 2);
 
+        /* HA will show bottom border when scrolled down */
+        border-bottom-width: 0;
+
         overflow:hidden;
 
         /* is above the backdrop */
         z-index:1;
     }
-    ha-header-bar {
+    ha-dialog-header {
         --mdc-theme-on-primary: var(--hue-heading-text-color);
         --mdc-theme-primary: transparent;
         flex-shrink: 0;
         display: block;
     }
-    .heading ha-switch {
-        margin-right: 10px;
+    .hue-heading ha-switch {
+        padding: 12px;
+        margin: 4px 0;
     }
-    .heading ha-slider {
+    .hue-heading ha-slider {
         width: 100%;
     }
     /* Disable the bottom border radius */
@@ -459,7 +463,9 @@ export class HueDialog extends IdLitElement {
         }
 
         // ## Heading styles
-        const heading = <Element>this.renderRoot.querySelector('.heading');
+        const heading = <Element>this.renderRoot.querySelector('.hue-heading');
+        if (!heading)
+            throw new Error('Hue heading not found!');
 
         let offBackground: Background | null;
         // if the user sets custom off color - use it
@@ -529,31 +535,29 @@ export class HueDialog extends IdLitElement {
           .heading=${cardTitle}
           hideActions
         >
-          <div slot="heading" class="heading detail-hide">
-            <ha-header-bar>
-              <ha-icon-button
-                slot="navigationIcon"
-                dialogAction="cancel"
+          <ha-dialog-header slot="heading" class="hue-heading detail-hide">
+            <ha-icon-button
+              slot="navigationIcon"
+              dialogAction="cancel"
+            >
+              <ha-icon
+                icon=${mdiClose}
+                style="height:auto"
               >
-                <ha-icon
-                  icon=${mdiClose}
-                  style="height:auto"
-                >
-                </ha-icon>
-              </ha-icon-button>
-              <div
-                slot="title"
-                class="main-title"
-                .title=${cardTitle}
-              >
-                ${cardTitle}
-              </div>
-              <div slot="actionItems">
+              </ha-icon>
+            </ha-icon-button>
+            <div
+              slot="title"
+              class="main-title"
+              .title=${cardTitle}
+            >
+              ${cardTitle}
+            </div>
+            <div slot="actionItems">
               ${ViewUtils.createSwitch(this._ctrl, onChangeCallback)}
-              </div>
-            </ha-header-bar>
+            </div>
             ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
-          </div>
+          </ha-dialog-header>
           <div class="content" tabindex="-1" dialogInitialFocus>
             <div class='header detail-hide'>
                 <div class='title'>${this._config.resources.scenes}</div>
