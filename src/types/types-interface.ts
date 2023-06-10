@@ -95,9 +95,9 @@ export interface ILightContainer extends ILightConfig, INotify {
     turnOff(): void;
 
     /**
-     * Gets or sets current brightness (0 - 255) of lights in this container.
+     * Gets or sets current brightness percentage (0 - 100) of lights in this container.
      */
-    value: number;
+    brightnessValue: number;
 }
 
 export interface ILightFeatures {

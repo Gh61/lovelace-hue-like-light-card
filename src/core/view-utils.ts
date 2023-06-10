@@ -42,7 +42,7 @@ export class ViewUtils {
         const max = 100;
         const step = 1;
 
-        return html`<ha-slider .min=${min} .max=${max} .step=${step} .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()} .value=${ctrl.value}
+        return html`<ha-slider .min=${min} .max=${max} .step=${step} .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()} .value=${ctrl.brightnessValue}
         pin @change=${(ev: Event) => this.changed(ctrl, onChange, true, ev)}
         ignore-bar-touch
         ></ha-slider>`;
@@ -59,7 +59,7 @@ export class ViewUtils {
         if (isSlider) {
             const value = (target as HTMLInputElement).value;
             if (value != null) {
-                ctrl.value = parseInt(value);
+                ctrl.brightnessValue = parseInt(value);
             }
         } else { // isToggle
             const checked = (target as HTMLInputElement).checked;
@@ -107,7 +107,7 @@ export class ViewUtils {
      */
     private static calculateForeground(ctrl: ILightContainer, currentBackground: Background, assumeShadow = true) {
 
-        let currentValue = ctrl.value;
+        let currentValue = ctrl.brightnessValue;
         // if the shadow is not present, act like the value is on max.
         if (!assumeShadow) {
             currentValue = 100;
@@ -150,7 +150,7 @@ export class ViewUtils {
         const card = element;
         if (!card || !card.clientHeight)
             return '';
-        const darkness = 100 - ctrl.value;
+        const darkness = 100 - ctrl.brightnessValue;
         const coef = (card.clientHeight / 100);
         const spread = 20;
         const position = spread + (darkness * 0.95) * coef;

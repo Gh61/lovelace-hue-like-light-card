@@ -76,7 +76,7 @@ export class HueLightDetail extends IdLitElement {
 
     private valueChanged(ev: CustomEvent<IRollupValueChangeEventDetail>) {
         if (this.lightContainer) {
-            this.lightContainer.value = ev.detail.newValue;
+            this.lightContainer.brightnessValue = ev.detail.newValue;
         }
     }
 
@@ -96,7 +96,7 @@ export class HueLightDetail extends IdLitElement {
     private _lastRenderedContainer: ILightContainer | null;
     protected override render() {
         this._lastRenderedContainer = this.lightContainer || this._lastRenderedContainer;
-        const value = this._lastRenderedContainer?.value || 100;
+        const value = this._lastRenderedContainer?.brightnessValue || 100;
 
         return html`
         <div>

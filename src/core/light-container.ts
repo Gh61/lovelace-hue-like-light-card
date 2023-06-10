@@ -51,7 +51,7 @@ export class LightContainer extends NotifyBase<LightContainer> implements ILight
     private initTimeCache(): void {
         this._cache = new TimeCache(Consts.TimeCacheInterval);// ms
         this._cache.registerProperty('state', () => new TimeCacheValue(this._entity?.state, this.getDontCacheState()));
-        this._cache.registerProperty('value', () => new TimeCacheValue(this.valueGetFactory(), this.getDontCacheValue()));
+        this._cache.registerProperty('brightnessValue', () => new TimeCacheValue(this.valueGetFactory(), this.getDontCacheValue()));
     }
 
     private getDontCacheState(): boolean {
@@ -64,20 +64,20 @@ export class LightContainer extends NotifyBase<LightContainer> implements ILight
     private notifyTurnOn(): void {
         this._cache.setValue('state', 'on');
         if (this._lastOnValue) {
-            this._cache.setValue('value', this._lastOnValue);
+            this._cache.setValue('brightnessValue', this._lastOnValue);
         }
     }
 
     private notifyTurnOff(): void {
         this._cache.setValue('state', 'off');
-        this._cache.setValue('value', 0);
+        this._cache.setValue('brightnessValue', 0);
     }
 
     private notifyValueChanged(value: number): void {
         if (value > 0) {
             this._lastOnValue = value;
         }
-        this._cache.setValue('value', value);
+        this._cache.setValue('brightnessValue', value);
         this._cache.setValue('state', value > 0 ? 'on' : 'off');
     }
 
@@ -119,10 +119,10 @@ export class LightContainer extends NotifyBase<LightContainer> implements ILight
         this._lastOnValue = Math.round((brightness / 255.0) * 100); // brightness is 0-255
         return this._lastOnValue;
     }
-    public get value() {
-        return <number>this._cache.getValue('value');
+    public get brightnessValue() {
+        return <number>this._cache.getValue('brightnessValue');
     }
-    public set value(value: number) {
+    public set brightnessValue(value: number) {
         // just to be sure
         if (value < 0) {
             value = 0;

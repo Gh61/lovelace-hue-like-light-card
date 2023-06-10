@@ -73,47 +73,47 @@ export class LightController extends NotifyBase<LightController> implements ILig
         this._lights.filter(l => l.isOn()).forEach(l => l.turnOff());
     }
 
-    public get value() {
+    public get brightnessValue() {
         return this.valueGetFactory();
     }
-    public set value(value: number) {
+    public set brightnessValue(value: number) {
         const litLights = this._lights.filter(l => l.isOn());
         // when only one light is on, set the value to that light
         if (litLights.length == 1) {
-            litLights[0].value = value;
+            litLights[0].brightnessValue = value;
             return;
         } else if (litLights.length == 0) { // when no light is on, set value to all lights
-            this._lights.forEach(l => l.value = value);
+            this._lights.forEach(l => l.brightnessValue = value);
             return;
         }
 
         // get percentage change of remaining value
-        const oldValue = this.value;
+        const oldValue = this.brightnessValue;
         const valueChange = value - oldValue;
-        const remainingValue = valueChange > 0 ? (100 - this.value) : this.value;
+        const remainingValue = valueChange > 0 ? (100 - this.brightnessValue) : this.brightnessValue;
         const percentualChange = valueChange / remainingValue; // percentual of remaining
 
         // calculate the value for each light
         this._lights.filter(l => l.isOn()).forEach(l => {
-            const lightOldValue = l.value;
+            const lightOldValue = l.brightnessValue;
             // of value of this light is the same asi value of controller, set it exactly to value
             if (lightOldValue == oldValue) {
-                l.value = value;
+                l.brightnessValue = value;
                 return;
             }
 
             // get remaining part of this one light
-            const remainingLightValue = valueChange > 0 ? (100 - l.value) : l.value;
+            const remainingLightValue = valueChange > 0 ? (100 - l.brightnessValue) : l.brightnessValue;
             // compute value increment
             const lightValueChange = Math.round(remainingLightValue * percentualChange);
             // get new value
-            let newValue = l.value + lightValueChange;
+            let newValue = l.brightnessValue + lightValueChange;
 
             // don't let the value drop to zero, if the target value isn't exactly zero
             if (newValue < 1 && value > 0) {
                 newValue = 1;
             }
-            l.value = newValue;
+            l.brightnessValue = newValue;
         });
     }
 
@@ -124,7 +124,7 @@ export class LightController extends NotifyBase<LightController> implements ILig
         this._lights.forEach(e => {
             if (e.isOn()) {
                 count++;
-                total += e.value;
+                total += e.brightnessValue;
             }
         });
         if (count == 0)
