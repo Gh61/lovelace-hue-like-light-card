@@ -1,6 +1,6 @@
 import { HueColorTempPicker } from '../src/controls/color-temp-picker';
 
-describe('HueTempPicker ', () => {
+describe('HueTempPicker', () => {
     it('should match kelvin and position', () => {
 
         const picker = new HueColorTempPicker();
@@ -32,6 +32,7 @@ describe('HueTempPicker ', () => {
 
         const radius = 777;
         const increment = 7;
+        const maxDiff = 0.005 * radius;
         for (let x = -radius; x <= radius; x += increment) {
             for (let y = -radius; y <= radius; y += increment) {
                 const data = picker.getColorAndValue(x, y, radius);
@@ -39,14 +40,18 @@ describe('HueTempPicker ', () => {
                 if (!data)
                     continue;
 
-                expect(data).toHaveProperty('hs');
+                expect(data).toHaveProperty('hsv');
 
-                if ('hs' in data) {
-                    const [hue, saturation] = data.hs;
+                if ('hsv' in data) {
+                    const [hue, saturation] = data.hsv;
 
                     const coords = picker.getCoordinatesAndColor(hue, saturation, radius);
-                    expect(coords.position.Y).toBe(y);
-                    expect(coords.position.X).toBe(x);
+                    const yDiff = Math.abs(coords.position.Y - y);
+                    const xDiff = Math.abs(coords.position.X - x);
+
+                    // the coordinates may not be the same, because we are cutting everthing over saturation 1 (previous possible value was 1.0003)
+                    expect(yDiff).toBeLessThan(maxDiff);
+                    expect(xDiff).toBeLessThan(maxDiff);
                 }
             }
         }
