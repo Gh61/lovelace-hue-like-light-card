@@ -19,16 +19,21 @@ export class HueColorTempPicker extends LitElement {
     public static readonly ElementName = 'hue-color-temp-picker' + Consts.ElementPostfix;
 
     private static readonly overRender = 2;
+    private static readonly maxWidth = 400;
+    private static readonly renderWidthHeight = 600;
+
+    private readonly ro: ResizeObserver | null;
 
     public constructor() {
         super();
+
+        // if browser (or test engine) not support ResizeObserver
+        if (typeof ResizeObserver == 'undefined') {
+            this.ro = null;
+        } else {
+            this.ro = new ResizeObserver(() => this.onResize());
+        }
     }
-
-    @property()
-    public width = 600;
-
-    @property()
-    public height = 600;
 
     @property()
     public mode: HueColorTempPickerMode = 'color';
@@ -38,6 +43,20 @@ export class HueColorTempPicker extends LitElement {
 
     @property()
     public tempMax = 6500;
+
+    //#region Resizing
+
+    public override connectedCallback(): void {
+        super.connectedCallback();
+        this.ro?.observe(this);
+        this.onResize();
+    }
+
+    private onResize(): void {
+        this._markers.forEach(m => m.refresh());
+    }
+
+    //#endregion
 
     // #region Rendering
 
@@ -67,8 +86,8 @@ export class HueColorTempPicker extends LitElement {
         this._interactionLayer = <SVGElement>this.renderRoot.querySelector('#interactionLayer');
 
         // synchronise width/height coordinates
-        this._backgroundLayer.width = this.width;
-        this._backgroundLayer.height = this.height;
+        this._backgroundLayer.width = HueColorTempPicker.renderWidthHeight;
+        this._backgroundLayer.height = HueColorTempPicker.renderWidthHeight;
     }
 
     /**
@@ -88,7 +107,7 @@ export class HueColorTempPicker extends LitElement {
         if (ctx == null)
             throw Error('Cannot create convas context!');
 
-        const radius = Math.min(this.width, this.height) / 2;
+        const radius = HueColorTempPicker.renderWidthHeight / 2;
 
         const image = ctx.createImageData(2 * radius, 2 * radius);
         const data = image.data;
@@ -111,6 +130,18 @@ export class HueColorTempPicker extends LitElement {
         }
 
         ctx.putImageData(image, 0, 0);
+    }
+
+    /**
+     * Returns current rendered or expected radius. 
+     */
+    public getRadius(): number {
+        let width = this._canvas.clientWidth;
+        if (width == 0) { // not visible
+            width = Math.min(HueColorTempPicker.maxWidth, HueColorTempPicker.renderWidthHeight);
+        }
+
+        return width / 2;
     }
 
     /**
@@ -234,7 +265,7 @@ export class HueColorTempPicker extends LitElement {
     }
 
     /**
-     * Gets coordinates (from center) of given kelvin temperature on temp wheel.
+     * Gets coordinates (from center) of given HSV color on color wheel.
      * @param hue Hue value of color
      * @param saturation Saturation value of color
      * @param radius Radius of color wheel
@@ -334,7 +365,7 @@ export class HueColorTempPicker extends LitElement {
             const saturation = Math.pow(r, exp) / Math.pow(radius, exp);
             return saturation;
         },
-        getR: function (saturation:number, radius: number) {
+        getR: function (saturation: number, radius: number) {
             const exp = 1.9;
             const r = Math.pow(saturation * Math.pow(radius, exp), 1 / exp);
             return r;
@@ -410,7 +441,7 @@ export class HueColorTempPicker extends LitElement {
     #canvas {
         position: relative;
         width: 100%;
-        max-width: 400px;
+        max-width: ${HueColorTempPicker.maxWidth}px;
         margin: auto;
     }
     #canvas > * {
@@ -459,6 +490,9 @@ export class HueColorTempPicker extends LitElement {
     }
 
     public override disconnectedCallback() {
+        super.disconnectedCallback();
+        this.ro?.unobserve(this);
+
         // remove document events
         this._markers.forEach(m => m.removeAllListeners());
     }
@@ -471,35 +505,41 @@ class ColorMarker {
     private readonly _iconPath: SVGPathElement;
 
     private _color: Color = new Color('black');
+    private _temp = 0;
     private _position: Point;
     private _mode: HueColorTempPickerMode = 'color';
-    private _icon: string = ColorMarker.DefaultIconName;
+    private _icon: string = ColorMarker.defaultIconName;
 
-    private static readonly DefaultIconName = 'default';
-    private static readonly DefaultIcon = 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
+    private static readonly defaultIconName = 'default';
+    private static readonly defaultIcon = 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
 
     public constructor(parent: HueColorTempPicker, canvas: HTMLElement) {
         this._parent = parent;
         this._canvas = canvas;
         [this._markerG, this._iconPath] = ColorMarker.drawMarker();
-        this.position = new Point(canvas.clientWidth / 3, 2 * canvas.clientHeight / 3);
+        this.position = new Point(this.getRadius() * 0.3, this.getRadius() * 0.6);
         this.makeDraggable();
     }
 
-    public get position() {
+    private getRadius() {
+        return this._parent.getRadius();
+    }
+
+    private get position() {
         return this._position;
     }
     private set position(pos: Point) {
-        const radius = this._canvas.clientWidth / 2;
+        const radius = this.getRadius();
         this._position = ColorMarker.limitCoordinates(pos, radius);
 
         // refresh position of marker
         this.renderPosition();
 
         // Get color and value from parent
+        const centerPos = this.getPositionFromCenter(radius);
         const colorAndValue = this._parent.getColorAndValue(
-            this._position.X - radius,
-            this._position.Y - radius,
+            centerPos.X,
+            centerPos.Y,
             radius);
 
         if (colorAndValue) {
@@ -507,9 +547,88 @@ class ColorMarker {
             this._color = new Color(red, green, blue);
             this.renderColor();
 
-            this._mode = this._parent.mode;
-            this.renderMode();
+            this.mode = this._parent.mode;
+
+            // save temp, if present
+            if ('kelvin' in colorAndValue) {
+                this._temp = colorAndValue.kelvin;
+            }
         }
+    }
+    private setPositionFromCenter(posCenter: Point, radius: number) {
+        const newPos = new Point(
+            posCenter.X + radius,
+            posCenter.Y + radius
+        );
+        this._position = ColorMarker.limitCoordinates(newPos, radius);
+        this.renderPosition();
+    }
+    private getPositionFromCenter(radius: number | null = null) {
+        radius = radius ?? this.getRadius();
+        return new Point(
+            this._position.X - radius,
+            this._position.Y - radius
+        );
+    }
+
+    public get mode() {
+        return this._mode;
+    }
+    private set mode(mod: HueColorTempPickerMode) {
+        this._mode = mod;
+        this.renderMode();
+    }
+
+    /**
+     * Will refresh position and then render all values.
+     */
+    public refresh() {
+        if (this.mode == 'temp') {
+            this.temp = this.temp;
+        } else {
+            this.color = this.color;
+        }
+    }
+
+    public get color() {
+        return this._color;
+    }
+    public set color(col: Color) {
+        // set and render color
+        this._color = col;
+        this.renderColor();
+
+        // change mode to color
+        this.mode = 'color';
+
+        // get position of marker:
+        const radius = this.getRadius();
+        const coordsAndColor = this._parent.getCoordinatesAndColor(col.getHue(), col.getSaturation(), radius);
+
+        // set and render position
+        this.setPositionFromCenter(coordsAndColor.position, radius);
+    }
+
+    public get temp() {
+        return this._temp;
+    }
+    public set temp(tmp: number) {
+        this._temp = tmp;
+
+        // change mode to temp
+        this.mode = 'temp';
+
+        // get position (and color) of marker
+        const radius = this.getRadius();
+        const centerPos = this.getPositionFromCenter(radius);
+        const coordsAndColor = this._parent.getCoordinatesAndTemp(this._temp, radius, centerPos);
+
+        // set and render position 
+        this.setPositionFromCenter(coordsAndColor.position, radius);
+
+        // and color
+        const [r, g, b] = coordsAndColor.color;
+        this._color = new Color(r, g, b);
     }
 
     public get icon() {
@@ -519,8 +638,8 @@ class ColorMarker {
         this._icon = ico;
         this.getIcon(ico).then(path => {
             if (!path) {
-                this._icon = ColorMarker.DefaultIconName;
-                path = ColorMarker.DefaultIcon;
+                this._icon = ColorMarker.defaultIconName;
+                path = ColorMarker.defaultIcon;
             }
 
             // Apply icon
@@ -544,6 +663,8 @@ class ColorMarker {
         /* eslint-enable no-underscore-dangle */
     }
 
+    // #region Rendering
+
     /**
      * @returns offset of marker tip (point where color is taken).
      */
@@ -561,14 +682,12 @@ class ColorMarker {
         return new Point(x, y);
     }
 
-    // #region Rendering
-
     private renderColor() {
         this._markerG.style.color = this._color.toString();
     }
 
     private renderMode() {
-        this._markerG.style.opacity = this._mode == this._parent.mode ? '1.0' : '0.6';
+        this._markerG.style.opacity = this.mode == this._parent.mode ? '1.0' : '0.6';
     }
 
     private renderPosition() {
@@ -661,7 +780,7 @@ class ColorMarker {
             'path'
         );
         i.setAttribute('class', 'icon');
-        i.setAttribute('d', this.DefaultIcon);
+        i.setAttribute('d', this.defaultIcon);
 
         g.appendChild(m);
         g.appendChild(i);
@@ -674,6 +793,9 @@ class ColorMarker {
      * @returns Given point or updated from inside the radius.
      */
     private static limitCoordinates(pointFromTopLeft: Point, radius: number): Point {
+        if (radius <= 0)
+            return pointFromTopLeft;
+
         // get coordinates from center
         const x1 = pointFromTopLeft.X - radius;
         const y1 = pointFromTopLeft.Y - radius;

@@ -397,6 +397,8 @@ export class HueBrightnessRollup extends LitElement {
     }
 
     public override disconnectedCallback() {
+        super.disconnectedCallback();
+
         // remove document events
         this.removeDocumentListeners();
         this._dragHelper?.removeAllListeners();

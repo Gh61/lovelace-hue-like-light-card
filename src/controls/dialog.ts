@@ -66,7 +66,7 @@ export class HueDialog extends IdLitElement {
             // show detail of selected light
             if (this._lightDetailElement) {
                 this._lightDetailElement.show();
-                this.toggleUnderDetailControls(false);
+                this.toggleUnderDetailControls(true);
             }
 
         } else if (this._selectedLight == ev.detail.lightContainer) {
@@ -75,7 +75,7 @@ export class HueDialog extends IdLitElement {
             // hide detail of selected light
             if (this._lightDetailElement) {
                 this._lightDetailElement.hide();
-                this.toggleUnderDetailControls(true);
+                this.toggleUnderDetailControls(false);
             }
         }
 
@@ -87,8 +87,21 @@ export class HueDialog extends IdLitElement {
     private toggleUnderDetailControls(show: boolean) {
         const controls = this.renderRoot.querySelectorAll('.detail-hide');
         controls.forEach((el) => {
-            el.classList.toggle('hue-hidden', !show);
+            el.classList.toggle('hue-hidden', show);
         });
+
+        const dialogShadowRoot = this.shadowRoot?.querySelector('ha-dialog')?.shadowRoot;
+        if (dialogShadowRoot) {
+            const contentDiv = dialogShadowRoot.getElementById('content');
+            if (contentDiv) {
+                if (show) {
+                    contentDiv.style.overflowY = 'hidden';
+                    contentDiv.scrollBy({ top: contentDiv.scrollHeight, behavior: 'smooth' });
+                } else {
+                    contentDiv.style.overflowY = '';
+                }
+            }
+        }
     }
 
     private afterSceneActivated(ev: CustomEvent<ITileEventDetail>) {
@@ -423,7 +436,6 @@ export class HueDialog extends IdLitElement {
                 }
 
                 if (!this._lightDetailElement) {
-                    // TODO: custom control element
                     const detailElement = new HueLightDetail();
                     detailElement.style.position = 'absolute';
                     detailElement.style.width = '100%';

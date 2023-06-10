@@ -19,7 +19,7 @@ export class ColorExtended extends Color {
         if (this._isThemeColor)
             throw new Error('Cannot getBaseColor on ' + ColorExtended.themeColor);
 
-        return new Color(this._red, this._green, this._blue, this._opacity);
+        return new Color(this.getRed(), this.getGreen(), this.getBlue(), this.getOpacity());
     }
 
     public isThemeColor(): boolean {

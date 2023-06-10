@@ -5,21 +5,33 @@ import { Consts } from '../types/consts';
 import { ILightContainer } from '../types/types-interface';
 import { PropertyValues, css, unsafeCSS } from 'lit';
 import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness-rollup';
+import { HueColorTempPicker } from './color-temp-picker';
+
+/*
+ * TODO:
+ * - disabled brightness control when light is off
+ * - hide (brightness, color, temp) controls when light doesn't support it
+ * - get/set light color for ILightContainer
+ * - color/temp picker mode changer
+ * - bind light to picker
+ */
 
 @customElement(HueLightDetail.ElementName)
 export class HueLightDetail extends IdLitElement {
     /**
      * Name of this Element
      */
-    protected static readonly ElementName = 'hue-light-detail' + Consts.ElementPostfix;
+    public static readonly ElementName = 'hue-light-detail' + Consts.ElementPostfix;
 
-    @property() public lightContainer: ILightContainer | null = null;
+    private static readonly colorPickerMargin = 12;
 
     public constructor() {
         super('HueLightDetail');
 
         this.hide(true);
     }
+
+    @property() public lightContainer: ILightContainer | null = null;
 
     public static override styles = css`
     :host {
@@ -33,10 +45,8 @@ export class HueLightDetail extends IdLitElement {
     }
 
     .color-picker {
-        width: 35vh;
-        height: 35vh;
-        background-color: green;
-        border-radius: 50%;
+        display: block;
+        margin: ${HueLightDetail.colorPickerMargin}px auto;
     }
     .brightness-picker {
         position: absolute;
@@ -49,6 +59,7 @@ export class HueLightDetail extends IdLitElement {
     public show() {
         this.style.removeProperty('display');
         setTimeout(() => this.classList.add('visible'));
+        this.updateColorPickerSize();
     }
 
     /** Will hide this element (with animation). */
@@ -89,14 +100,28 @@ export class HueLightDetail extends IdLitElement {
 
         return html`
         <div>
+            <${unsafeStatic(HueColorTempPicker.ElementName)} class='color-picker'
+                mode='color'
+            >
+            </${unsafeStatic(HueColorTempPicker.ElementName)}>
             <div class='color-picker'></div>
             <${unsafeStatic(HueBrightnessRollup.ElementName)} class='brightness-picker'
                 width='60'
                 height='40'
                 .value=${value}
-                @change=${(ev:CustomEvent) => this.valueChanged(ev)}
+                @change=${(ev: CustomEvent) => this.valueChanged(ev)}
             >
             </${unsafeStatic(HueBrightnessRollup.ElementName)}>
         </div>`;
+    }
+
+    private updateColorPickerSize(): void {
+        const colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
+        const maxSize = Math.min(this.clientHeight, this.clientWidth);
+        if (maxSize == 0) // not rendered
+            return;
+        const size = maxSize - 2 * HueLightDetail.colorPickerMargin;
+        colorPicker.style.width = size + 'px';
+        colorPicker.style.height = size + 'px';
     }
 }

@@ -1,5 +1,10 @@
 export class Point {
     public constructor(x: number, y: number) {
+        if (isNaN(x))
+            x = 0;
+        if (isNaN(y))
+            y = 0;
+
         this.X = x;
         this.Y = y;
     }
