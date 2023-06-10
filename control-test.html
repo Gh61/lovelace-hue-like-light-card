@@ -12,9 +12,9 @@
         <hue-color-temp-picker-test id="picker" mode="color"></hue-color-temp-picker-test>
         <div style="width: 200px; margin:20px auto">
             <label for="mc">Color</label>
-            <input type="radio" name="m" id="mc" value="color" checked="checked" onclick="changeMode" />
+            <input type="radio" name="m" id="mc" value="color" checked="checked" />
             <label for="mt">Temp</label>
-            <input type="radio" name="m" id="mt" value="temp" onclick="changeMode" />
+            <input type="radio" name="m" id="mt" value="temp" />
         </div>
         <div style="width: 100px; margin: 10px auto;">
             <input type="color" id="c" />
@@ -22,10 +22,10 @@
     </div>
     <script>
         function onChange(ev) {
-            console.log(`[Changed] ${ev.detail.newValue}`);
+            console.log(`[Changed] ${ev.detail.newColor}/${ev.detail.newTemp}`);
         }
         function onImmediateChange(ev) {
-            console.log(`[Drag] ${ev.detail.newValue}`);
+            console.log(`[Drag] ${ev.detail.newColor}/${ev.detail.newTemp}`);
         }
 
         document.addEventListener("DOMContentLoaded", () => {

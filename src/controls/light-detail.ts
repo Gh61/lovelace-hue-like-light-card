@@ -5,7 +5,7 @@ import { Consts } from '../types/consts';
 import { ILightContainer } from '../types/types-interface';
 import { PropertyValues, css, unsafeCSS } from 'lit';
 import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness-rollup';
-import { HueColorTempPicker, HueColorTempPickerMarker } from './color-temp-picker';
+import { HueColorTempPicker, HueColorTempPickerMarker, IHueColorTempPickerEventDetail } from './color-temp-picker';
 
 /*
  * TODO:
@@ -140,6 +140,11 @@ export class HueLightDetail extends IdLitElement {
 
         this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
         this._colorMarker = this._colorPicker.addMarker();
+
+        const listener = (ev:CustomEvent<IHueColorTempPickerEventDetail>) => {
+            console.log(ev.detail.mode + ' changed to ' + (ev.detail.newTemp ?? ev.detail.newColor));
+        };
+        this._colorPicker.addEventListener('change', <EventListenerOrEventListenerObject>listener);
     }
 
     private updateColorPickerSize(): void {

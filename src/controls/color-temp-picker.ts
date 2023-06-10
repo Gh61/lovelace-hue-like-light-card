@@ -6,6 +6,13 @@ import { MousePoint, Point, TouchPoint } from '../types/point';
 import { PointerDragHelper } from './pointer-drag-helper';
 import { HaIcon } from '../types/types-hass';
 
+export interface IHueColorTempPickerEventDetail {
+    marker: HueColorTempPickerMarker;
+    mode: HueColorTempPickerMode;
+    newColor: Color;
+    newTemp: number | null;
+}
+
 export type HueColorTempPickerMode = 'color' | 'temp';
 
 /**
@@ -135,6 +142,8 @@ export class HueColorTempPicker extends LitElement {
         ctx.putImageData(image, 0, 0);
     }
 
+    //#region Marker methods
+
     /**
      * @returns current rendered or expected radius.
      */
@@ -167,6 +176,8 @@ export class HueColorTempPicker extends LitElement {
         }
         return new Point(x, y);
     }
+
+    //#endregion
 
     /**
      * Gets color and value of coordinate point depending on selected mode.
@@ -221,7 +232,7 @@ export class HueColorTempPicker extends LitElement {
         const [index, , adjustedY, rowLength] = HueColorTempPicker.computeIndex(x, y, radius);
 
         const n = adjustedY / rowLength;
-        const kelvin = HueColorTempPicker.utils.logarithmicalScale(n, this.tempMin, this.tempMax);
+        const kelvin = Math.round(HueColorTempPicker.utils.logarithmicalScale(n, this.tempMin, this.tempMax));
 
         const color = HueColorTempPicker.utils.hueTempToRgb(kelvin);
 
@@ -443,13 +454,21 @@ export class HueColorTempPicker extends LitElement {
                 const r1 = this.linearScale(k, startRgb[0], tresRgb[0]);
                 const g1 = this.linearScale(k, startRgb[1], tresRgb[1]);
                 const b1 = this.linearScale(k, startRgb[2], tresRgb[2]);
-                return [r1, g1, b1];
+                return [
+                    Math.round(r1),
+                    Math.round(g1),
+                    Math.round(b1)
+                ];
             } else {
                 const k = (kelvin - tres) / (end - tres); // normalize
                 const r2 = this.linearScale(k, tresRgb[0], endRgb[0]);
                 const g2 = this.linearScale(k, tresRgb[1], endRgb[1]);
                 const b2 = this.linearScale(k, tresRgb[2], endRgb[2]);
-                return [r2, g2, b2];
+                return [
+                    Math.round(r2),
+                    Math.round(g2),
+                    Math.round(b2)
+                ];
             }
         }
     };
@@ -548,6 +567,18 @@ export class HueColorTempPickerMarker {
         return this._parent.getRadius();
     }
 
+    private dispatchChangeEvent(immediate: boolean) {
+        const type = immediate ? 'immediate-value-change' : 'change';
+        this._parent.dispatchEvent(new CustomEvent<IHueColorTempPickerEventDetail>(type, {
+            detail: {
+                marker: this,
+                mode: this.mode,
+                newColor: this._color,
+                newTemp: this.mode == 'temp' ? this.temp : null
+            }
+        }));
+    }
+
     private get position() {
         return this._position;
     }
@@ -581,6 +612,8 @@ export class HueColorTempPickerMarker {
             if ('kelvin' in colorAndValue) {
                 this._temp = colorAndValue.kelvin;
             }
+
+            this.dispatchChangeEvent(true);
         }
     }
     private setPositionFromCenter(posCenter: Point, radius: number) {
@@ -717,7 +750,9 @@ export class HueColorTempPickerMarker {
     private renderColor() {
         this._markerG.style.color = this._color.toString();
 
-        const foreground = this._color.getForeground(Consts.LightColor, Consts.DarkColor, 0);
+        // for temp view I want only one change in the middle of the wheel
+        const luminanceOffset = this.mode == 'temp' ? -25 : 0;
+        const foreground = this._color.getForeground(Consts.LightColor, Consts.DarkColor, luminanceOffset);
         this._iconPath.style.fill = foreground.toString();
     }
 
@@ -755,7 +790,8 @@ export class HueColorTempPickerMarker {
         this._dragHelper = new PointerDragHelper(
             this._markerG,
             (ev) => this.onDragStart(ev),
-            (ev) => this.onDrag(ev)
+            (ev) => this.onDrag(ev),
+            () => this.onDragEnd()
         );
     }
 
@@ -767,6 +803,10 @@ export class HueColorTempPickerMarker {
 
     private onDrag(ev: MouseEvent | TouchEvent) {
         this.position = this._parent.getCanvasMousePoint(ev, this._dragOffset);
+    }
+
+    private onDragEnd() {
+        this.dispatchChangeEvent(false);
     }
 
     public removeAllListeners() {
