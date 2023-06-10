@@ -63,12 +63,11 @@ export class HueColorTempPicker extends LitElement {
     private _canvas: HTMLDivElement;
     private _backgroundLayer: HTMLCanvasElement;
     private _interactionLayer: SVGElement;
-    private _markers = new Array<ColorMarker>();
+    private _markers = new Array<HueColorTempPickerMarker>();
 
     protected override firstUpdated(): void {
         this.setupLayers();
         this.drawWheel();
-        this.renderMarkers();
     }
 
     protected override updated(_changedProperties: PropertyValues<HueColorTempPicker>): void {
@@ -91,12 +90,14 @@ export class HueColorTempPicker extends LitElement {
     }
 
     /**
-     * Draws markers.
+     * Will add new marker to rendering.
+     * @returns Reference to the marker (so you can set icon, color, temp, etc. and also get events when something changes)
      */
-    private renderMarkers() {
-        const m = new ColorMarker(this, this._canvas);
+    public addMarker(): HueColorTempPickerMarker {
+        const m = new HueColorTempPickerMarker(this, this._canvas);
         this._markers.push(m);
         this.requestUpdate('_markers');
+        return m;
     }
 
     /**
@@ -498,7 +499,7 @@ export class HueColorTempPicker extends LitElement {
     }
 }
 
-class ColorMarker {
+export class HueColorTempPickerMarker {
     private readonly _parent: HueColorTempPicker;
     private readonly _canvas: HTMLElement;
     private readonly _markerG: SVGGraphicsElement;
@@ -508,7 +509,7 @@ class ColorMarker {
     private _temp = 0;
     private _position: Point;
     private _mode: HueColorTempPickerMode = 'color';
-    private _icon: string = ColorMarker.defaultIconName;
+    private _icon: string = HueColorTempPickerMarker.defaultIconName;
 
     private static readonly defaultIconName = 'default';
     private static readonly defaultIcon = 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
@@ -516,7 +517,7 @@ class ColorMarker {
     public constructor(parent: HueColorTempPicker, canvas: HTMLElement) {
         this._parent = parent;
         this._canvas = canvas;
-        [this._markerG, this._iconPath] = ColorMarker.drawMarker();
+        [this._markerG, this._iconPath] = HueColorTempPickerMarker.drawMarker();
         this.position = new Point(this.getRadius() * 0.3, this.getRadius() * 0.6);
         this.makeDraggable();
     }
@@ -530,7 +531,7 @@ class ColorMarker {
     }
     private set position(pos: Point) {
         const radius = this.getRadius();
-        this._position = ColorMarker.limitCoordinates(pos, radius);
+        this._position = HueColorTempPickerMarker.limitCoordinates(pos, radius);
 
         // refresh position of marker
         this.renderPosition();
@@ -560,7 +561,7 @@ class ColorMarker {
             posCenter.X + radius,
             posCenter.Y + radius
         );
-        this._position = ColorMarker.limitCoordinates(newPos, radius);
+        this._position = HueColorTempPickerMarker.limitCoordinates(newPos, radius);
         this.renderPosition();
     }
     private getPositionFromCenter(radius: number | null = null) {
@@ -593,7 +594,11 @@ class ColorMarker {
     public get color() {
         return this._color;
     }
-    public set color(col: Color) {
+    public set color(col: Color | string) {
+        if (typeof col == 'string') {
+            col = new Color(col);
+        }
+
         // set and render color
         this._color = col;
         this.renderColor();
@@ -638,8 +643,8 @@ class ColorMarker {
         this._icon = ico;
         this.getIcon(ico).then(path => {
             if (!path) {
-                this._icon = ColorMarker.defaultIconName;
-                path = ColorMarker.defaultIcon;
+                this._icon = HueColorTempPickerMarker.defaultIconName;
+                path = HueColorTempPickerMarker.defaultIcon;
             }
 
             // Apply icon

@@ -8,14 +8,16 @@
 </head>
 
 <body>
-    <div class="container"
-        style="padding-top:8%;background: #333;height: 100%;margin: 0;position: fixed;top: 0;bottom: 0;left: 0;right: 0;">
+    <div class="container" style="padding-top:8%;background: #333;height: 100%;margin: 0;position: fixed;top: 0;bottom: 0;left: 0;right: 0;">
         <hue-color-temp-picker-test id="picker" mode="color"></hue-color-temp-picker-test>
         <div style="width: 200px; margin:20px auto">
             <label for="mc">Color</label>
             <input type="radio" name="m" id="mc" value="color" checked="checked" onclick="changeMode" />
             <label for="mt">Temp</label>
             <input type="radio" name="m" id="mt" value="temp" onclick="changeMode" />
+        </div>
+        <div style="width: 100px; margin: 10px auto;">
+            <input type="color" id="c" />
         </div>
     </div>
     <script>
@@ -26,18 +28,29 @@
             console.log(`[Drag] ${ev.detail.newValue}`);
         }
 
-        var rollup = document.getElementById("picker");
-        rollup.addEventListener("change", onChange);
-        rollup.addEventListener("immediate-value-change", onImmediateChange);
+        document.addEventListener("DOMContentLoaded", () => {
+            var picker = document.getElementById("picker");
+            picker.addEventListener("change", onChange);
+            picker.addEventListener("immediate-value-change", onImmediateChange);
 
-        document.querySelectorAll("input[name='m']").forEach((input) => {
-            input.addEventListener('change', changeMode);
+            var marker = picker.addMarker();
+
+            document.getElementById("c");
+            c.addEventListener("input", (ev) => {
+                marker.color = c.value;
+            });
+
+            document.querySelectorAll("input[name='m']").forEach((input) => {
+                input.addEventListener('change', changeMode);
+            });
+
+            function changeMode() {
+                var newMode = this.value;
+                picker.mode = newMode;
+            }
         });
 
-        function changeMode() {
-            var newMode = this.value;
-            rollup.mode = newMode;
-        }
+        
     </script>
 </body>
 
