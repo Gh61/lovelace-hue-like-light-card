@@ -421,6 +421,7 @@ export class HueDialog extends IdLitElement {
                     backdropElement.style.position = 'absolute';
                     backdropElement.style.width = '100%';
                     backdropElement.style.height = '100%';
+                    backdropElement.style.borderRadius = 'var(--ha-dialog-border-radius, 28px)'; // same as dialog
                     backdropElement.style.background = 'var(--hue-background)';
                     const mask = 'linear-gradient(rgba(255, 255, 255, .25) 0%, transparent 70%)';
                     backdropElement.style.mask = mask;

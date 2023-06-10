@@ -60,6 +60,11 @@ export class HueLightDetail extends IdLitElement {
         this.style.removeProperty('display');
         setTimeout(() => this.classList.add('visible'));
         this.updateColorPickerSize();
+
+        // to allow the color marker to overflow parent div
+        if (this.parentElement) {
+            this.parentElement.style.overflow = 'visible';
+        }
     }
 
     /** Will hide this element (with animation). */
@@ -71,6 +76,11 @@ export class HueLightDetail extends IdLitElement {
             setTimeout(() => {
                 this.style.display = 'none';
             }, 300);
+        }
+
+        // remove temporary overflow allowing
+        if (this.parentElement) {
+            this.parentElement.style.overflow = '';
         }
     }
 
