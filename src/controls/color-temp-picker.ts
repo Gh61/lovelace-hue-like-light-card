@@ -67,7 +67,7 @@ export class HueColorTempPicker extends LitElement {
 
     protected override firstUpdated(changedProps: PropertyValues) {
         super.firstUpdated(changedProps);
-        
+
         this.setupLayers();
         this.drawWheel();
     }
@@ -176,7 +176,7 @@ export class HueColorTempPicker extends LitElement {
      */
     public getColorAndValue(x: number, y: number, radius: number) {
         if (this.mode == 'color') {
-            return this.getColorAndHS(x, y, radius);
+            return this.getColorAndHSV(x, y, radius);
         } else if (this.mode == 'temp') {
             return this.getTempAndKelvin(x, y, radius);
         }
@@ -184,7 +184,7 @@ export class HueColorTempPicker extends LitElement {
         return null;
     }
 
-    private getColorAndHS(x: number, y: number, radius: number) {
+    private getColorAndHSV(x: number, y: number, radius: number) {
         const [r, phi] = HueColorTempPicker.utils.xy2polar(x, y);
 
         if (r - HueColorTempPicker.overRender > radius) {
@@ -205,7 +205,7 @@ export class HueColorTempPicker extends LitElement {
         return {
             index: index,
             color: color,
-            hs: [hue, saturation]
+            hsv: [hue, saturation, value]
         };
     }
 
@@ -387,7 +387,7 @@ export class HueColorTempPicker extends LitElement {
         getSaturation: function (r: number, radius: number) {
             const exp = 1.9;
             const saturation = Math.pow(r, exp) / Math.pow(radius, exp);
-            return saturation;
+            return saturation > 1 ? 1 : saturation;
         },
         getR: function (saturation: number, radius: number) {
             const exp = 1.9;
@@ -401,7 +401,7 @@ export class HueColorTempPicker extends LitElement {
             value = HueColorTempPicker.utils.fixHSValue(value, r, radius, hue, 180, true);
             value = HueColorTempPicker.utils.fixHSValue(value, r, radius, hue, 240, false);
             value = HueColorTempPicker.utils.fixHSValue(value, r, radius, hue, 300, true);
-            return value;
+            return value > 1 ? 1 : value;
         },
         fixHSValue: function (value: number, r: number, radius: number, hue: number, fixPoint: number, lower: boolean, maxOffset = 5) {
             const precondition = lower
@@ -566,13 +566,18 @@ export class HueColorTempPickerMarker {
             radius);
 
         if (colorAndValue) {
-            const [red, green, blue] = colorAndValue.color;
-            this._color = new Color(red, green, blue);
+            if ('hsv' in colorAndValue) {
+                const [hue, saturation, value] = colorAndValue.hsv;
+                this._color = new Color(hue, saturation, value, 1, 'hsv');
+            } else {
+                const [red, green, blue] = colorAndValue.color;
+                this._color = new Color(red, green, blue);
+            }
             this.renderColor();
 
             this.mode = this._parent.mode;
 
-            // save temp, if present
+            // save temp, if given
             if ('kelvin' in colorAndValue) {
                 this._temp = colorAndValue.kelvin;
             }

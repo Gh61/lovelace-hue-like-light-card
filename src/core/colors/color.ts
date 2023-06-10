@@ -55,6 +55,9 @@ export class Color {
 
         this._hsv = [h, s, v];
 
+        // set also rgb
+        const [r, g, b] = Color.hsv2rgb(h, s, v);
+        this.setRgb(r, g, b);
     }
 
     /** Will validate and set new value to opacity. */
