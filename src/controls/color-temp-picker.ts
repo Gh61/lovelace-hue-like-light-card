@@ -22,16 +22,16 @@ export class HueColorTempPicker extends LitElement {
     private static readonly maxWidth = 400;
     private static readonly renderWidthHeight = 600;
 
-    private readonly ro: ResizeObserver | null;
+    private readonly _ro: ResizeObserver | null;
 
     public constructor() {
         super();
 
         // if browser (or test engine) not support ResizeObserver
         if (typeof ResizeObserver == 'undefined') {
-            this.ro = null;
+            this._ro = null;
         } else {
-            this.ro = new ResizeObserver(() => this.onResize());
+            this._ro = new ResizeObserver(() => this.onResize());
         }
     }
 
@@ -48,7 +48,7 @@ export class HueColorTempPicker extends LitElement {
 
     public override connectedCallback(): void {
         super.connectedCallback();
-        this.ro?.observe(this);
+        this._ro?.observe(this);
         this.onResize();
     }
 
@@ -65,7 +65,9 @@ export class HueColorTempPicker extends LitElement {
     private _interactionLayer: SVGElement;
     private _markers = new Array<HueColorTempPickerMarker>();
 
-    protected override firstUpdated(): void {
+    protected override firstUpdated(changedProps: PropertyValues) {
+        super.firstUpdated(changedProps);
+        
         this.setupLayers();
         this.drawWheel();
     }
@@ -94,7 +96,7 @@ export class HueColorTempPicker extends LitElement {
      * @returns Reference to the marker (so you can set icon, color, temp, etc. and also get events when something changes)
      */
     public addMarker(): HueColorTempPickerMarker {
-        const m = new HueColorTempPickerMarker(this, this._canvas);
+        const m = new HueColorTempPickerMarker(this);
         this._markers.push(m);
         this.requestUpdate('_markers');
         return m;
@@ -134,15 +136,36 @@ export class HueColorTempPicker extends LitElement {
     }
 
     /**
-     * Returns current rendered or expected radius. 
+     * @returns current rendered or expected radius.
      */
     public getRadius(): number {
-        let width = this._canvas.clientWidth;
-        if (width == 0) { // not visible
+        let width = this._canvas?.clientWidth;
+        if (!width) { // not visible
             width = Math.min(HueColorTempPicker.maxWidth, HueColorTempPicker.renderWidthHeight);
         }
 
         return width / 2;
+    }
+
+    /**
+     * @retuns the point on the canvas wich has been touched or clicked.
+     * @param offset Use this offset if you want to adjust the result.
+     */
+    public getCanvasMousePoint(ev: MouseEvent | TouchEvent, offset?: Point) {
+        let point;
+        if ('changedTouches' in ev) {
+            point = new TouchPoint(ev.changedTouches[0]);
+        } else {
+            point = new MousePoint(ev);
+        }
+
+        let x = point.X - this._canvas.offsetLeft;
+        let y = point.Y - this._canvas.offsetTop;
+        if (offset) {
+            x -= offset.X;
+            y -= offset.Y;
+        }
+        return new Point(x, y);
     }
 
     /**
@@ -467,7 +490,7 @@ export class HueColorTempPicker extends LitElement {
         filter: url(#new-shadow);
     }
     .icon {
-        transform: scale(1.5) translate(4px, 4px);
+        transform: scale(1.2) translate(8px, 8px);
         fill: white;
     }
     .marker, .icon{
@@ -492,7 +515,7 @@ export class HueColorTempPicker extends LitElement {
 
     public override disconnectedCallback() {
         super.disconnectedCallback();
-        this.ro?.unobserve(this);
+        this._ro?.unobserve(this);
 
         // remove document events
         this._markers.forEach(m => m.removeAllListeners());
@@ -501,7 +524,6 @@ export class HueColorTempPicker extends LitElement {
 
 export class HueColorTempPickerMarker {
     private readonly _parent: HueColorTempPicker;
-    private readonly _canvas: HTMLElement;
     private readonly _markerG: SVGGraphicsElement;
     private readonly _iconPath: SVGPathElement;
 
@@ -514,9 +536,8 @@ export class HueColorTempPickerMarker {
     private static readonly defaultIconName = 'default';
     private static readonly defaultIcon = 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
 
-    public constructor(parent: HueColorTempPicker, canvas: HTMLElement) {
+    public constructor(parent: HueColorTempPicker) {
         this._parent = parent;
-        this._canvas = canvas;
         [this._markerG, this._iconPath] = HueColorTempPickerMarker.drawMarker();
         this.position = new Point(this.getRadius() * 0.3, this.getRadius() * 0.6);
         this.makeDraggable();
@@ -731,29 +752,12 @@ export class HueColorTempPickerMarker {
 
     private _dragOffset?: Point;
     private onDragStart(ev: MouseEvent | TouchEvent) {
-        const mousePoint = this.getCanvasMousePoint(ev);
+        const mousePoint = this._parent.getCanvasMousePoint(ev);
         this._dragOffset = mousePoint.getDiff(this.position);
     }
 
     private onDrag(ev: MouseEvent | TouchEvent) {
-        this.position = this.getCanvasMousePoint(ev, this._dragOffset);
-    }
-
-    private getCanvasMousePoint(ev: MouseEvent | TouchEvent, offset?: Point) {
-        let point;
-        if ('changedTouches' in ev) {
-            point = new TouchPoint(ev.changedTouches[0]);
-        } else {
-            point = new MousePoint(ev);
-        }
-
-        let x = point.X - this._canvas.offsetLeft;
-        let y = point.Y - this._canvas.offsetTop;
-        if (offset) {
-            x -= offset.X;
-            y -= offset.Y;
-        }
-        return new Point(x, y);
+        this.position = this._parent.getCanvasMousePoint(ev, this._dragOffset);
     }
 
     public removeAllListeners() {

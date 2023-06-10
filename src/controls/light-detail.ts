@@ -5,7 +5,7 @@ import { Consts } from '../types/consts';
 import { ILightContainer } from '../types/types-interface';
 import { PropertyValues, css, unsafeCSS } from 'lit';
 import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness-rollup';
-import { HueColorTempPicker } from './color-temp-picker';
+import { HueColorTempPicker, HueColorTempPickerMarker } from './color-temp-picker';
 
 /*
  * TODO:
@@ -13,7 +13,8 @@ import { HueColorTempPicker } from './color-temp-picker';
  * - hide (brightness, color, temp) controls when light doesn't support it
  * - get/set light color for ILightContainer
  * - color/temp picker mode changer
- * - bind light to picker
+ * - bind light to marker
+ * - closing the colorpicker (back button or ESC)
  */
 
 @customElement(HueLightDetail.ElementName)
@@ -22,8 +23,10 @@ export class HueLightDetail extends IdLitElement {
      * Name of this Element
      */
     public static readonly ElementName = 'hue-light-detail' + Consts.ElementPostfix;
-
     private static readonly colorPickerMargin = 12;
+
+    private _colorPicker:HueColorTempPicker;
+    private _colorMarker:HueColorTempPickerMarker;
 
     public constructor() {
         super('HueLightDetail');
@@ -33,27 +36,12 @@ export class HueLightDetail extends IdLitElement {
 
     @property() public lightContainer: ILightContainer | null = null;
 
-    public static override styles = css`
-    :host {
-        margin-top: -30px;
-        opacity: 0;
-        transition:${unsafeCSS(Consts.TransitionDefault)};
+    /**
+     * Called after new lightContainer is set.
+     */
+    private onLightContainerChanged() {
+        this._colorMarker.icon = this.lightContainer?.getIcon() || Consts.DefaultOneIcon;
     }
-    :host(.visible) {
-        margin-top: 0;
-        opacity: 1;
-    }
-
-    .color-picker {
-        display: block;
-        margin: ${HueLightDetail.colorPickerMargin}px auto;
-    }
-    .brightness-picker {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-    }
-    `;
 
     /** Will show this element (with animation). */
     public show() {
@@ -84,7 +72,7 @@ export class HueLightDetail extends IdLitElement {
         }
     }
 
-    private valueChanged(ev: CustomEvent<IRollupValueChangeEventDetail>) {
+    private brightnessValueChanged(ev: CustomEvent<IRollupValueChangeEventDetail>) {
         if (this.lightContainer) {
             this.lightContainer.brightnessValue = ev.detail.newValue;
         }
@@ -99,9 +87,32 @@ export class HueLightDetail extends IdLitElement {
             }
             if (this.lightContainer) {
                 this.lightContainer.registerOnPropertyChanged(this._id, () => this.requestUpdate());
+                this.onLightContainerChanged();
             }
         }
     }
+
+    public static override styles = css`
+    :host {
+        margin-top: -30px;
+        opacity: 0;
+        transition:${unsafeCSS(Consts.TransitionDefault)};
+    }
+    :host(.visible) {
+        margin-top: 0;
+        opacity: 1;
+    }
+
+    .color-picker {
+        display: block;
+        margin: ${HueLightDetail.colorPickerMargin}px auto;
+    }
+    .brightness-picker {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+    }
+    `;
 
     private _lastRenderedContainer: ILightContainer | null;
     protected override render() {
@@ -114,15 +125,21 @@ export class HueLightDetail extends IdLitElement {
                 mode='color'
             >
             </${unsafeStatic(HueColorTempPicker.ElementName)}>
-            <div class='color-picker'></div>
             <${unsafeStatic(HueBrightnessRollup.ElementName)} class='brightness-picker'
                 width='60'
                 height='40'
                 .value=${value}
-                @change=${(ev: CustomEvent) => this.valueChanged(ev)}
+                @change=${(ev: CustomEvent) => this.brightnessValueChanged(ev)}
             >
             </${unsafeStatic(HueBrightnessRollup.ElementName)}>
         </div>`;
+    }
+
+    protected override firstUpdated(changedProps: PropertyValues) {
+        super.firstUpdated(changedProps);
+
+        this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
+        this._colorMarker = this._colorPicker.addMarker();
     }
 
     private updateColorPickerSize(): void {

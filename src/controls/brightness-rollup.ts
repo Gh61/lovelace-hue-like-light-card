@@ -379,6 +379,8 @@ export class HueBrightnessRollup extends LitElement {
     }
 
     protected override firstUpdated(changedProps: PropertyValues<HueBrightnessRollup>) {
+        super.firstUpdated(changedProps);
+
         this._wrapperElement = <HTMLElement>this.renderRoot.querySelector('#wrapper');
 
         const barElement = <HTMLElement>this._wrapperElement.querySelector('#bar');
