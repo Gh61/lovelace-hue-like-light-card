@@ -491,6 +491,7 @@ export class HueColorTempPicker extends LitElement {
     }
     .icon {
         transform: scale(1.2) translate(8px, 8px);
+        transition: all .3s linear;
         fill: white;
     }
     .marker, .icon{
@@ -710,6 +711,9 @@ export class HueColorTempPickerMarker {
 
     private renderColor() {
         this._markerG.style.color = this._color.toString();
+
+        const foreground = this._color.getForeground(Consts.LightColor, Consts.DarkColor, 0);
+        this._iconPath.style.fill = foreground.toString();
     }
 
     private renderMode() {
