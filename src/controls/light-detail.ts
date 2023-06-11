@@ -12,7 +12,6 @@ import { LightContainer } from '../core/light-container';
  * - disabled brightness control when light is off
  * - hide (brightness, color, temp) controls when light doesn't support it
  * - color/temp picker mode changer
- * - bind light to marker
  * - closing the colorpicker (back button or ESC)
  */
 
@@ -55,6 +54,17 @@ export class HueLightDetail extends IdLitElement {
             if (this.lightContainer.colorTemp) {
                 this._colorMarker.temp = this.lightContainer.colorTemp;
             }
+        }
+    }
+
+    private onColorChanged(ev: CustomEvent<IHueColorTempPickerEventDetail>) {
+        if (!this.lightContainer)
+            return;
+
+        if (ev.detail.mode == 'temp') {
+            this.lightContainer.colorTemp = ev.detail.newTemp;
+        } else if (ev.detail.mode == 'color') {
+            this.lightContainer.color = ev.detail.newColor;
         }
     }
 
@@ -138,6 +148,7 @@ export class HueLightDetail extends IdLitElement {
         <div>
             <${unsafeStatic(HueColorTempPicker.ElementName)} class='color-picker'
                 mode='color'
+                @change=${(ev: CustomEvent) => this.onColorChanged(ev)}
             >
             </${unsafeStatic(HueColorTempPicker.ElementName)}>
             <${unsafeStatic(HueBrightnessRollup.ElementName)} class='brightness-picker'
@@ -155,11 +166,6 @@ export class HueLightDetail extends IdLitElement {
 
         this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
         this._colorMarker = this._colorPicker.addMarker();
-
-        const listener = (ev: CustomEvent<IHueColorTempPickerEventDetail>) => {
-            console.log(ev.detail.mode + ' changed to ' + (ev.detail.newTemp ?? ev.detail.newColor));
-        };
-        this._colorPicker.addEventListener('change', <EventListenerOrEventListenerObject>listener);
     }
 
     private updateColorPickerSize(): void {

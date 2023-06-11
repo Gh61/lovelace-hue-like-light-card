@@ -15,6 +15,7 @@ import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-ti
 import { ILightContainer } from '../types/types-interface';
 import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
+import { LightContainer } from '../core/light-container';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -80,7 +81,7 @@ export class HueDialog extends IdLitElement {
         }
 
         if (this._lightDetailElement) {
-            this._lightDetailElement.lightContainer = this._selectedLight;
+            this._lightDetailElement.lightContainer = <LightContainer>this._selectedLight;
         }
     }
 
@@ -90,6 +91,7 @@ export class HueDialog extends IdLitElement {
             el.classList.toggle('hue-hidden', show);
         });
 
+        // scroll content down to lights
         const dialogShadowRoot = this.shadowRoot?.querySelector('ha-dialog')?.shadowRoot;
         if (dialogShadowRoot) {
             const contentDiv = dialogShadowRoot.getElementById('content');
@@ -423,6 +425,8 @@ export class HueDialog extends IdLitElement {
                     backdropElement.style.height = '100%';
                     backdropElement.style.borderRadius = 'var(--ha-dialog-border-radius, 28px)'; // same as dialog
                     backdropElement.style.background = 'var(--hue-background)';
+                    backdropElement.style.transition = Consts.TransitionDefault;
+
                     const mask = 'linear-gradient(rgba(255, 255, 255, .25) 0%, transparent 70%)';
                     backdropElement.style.mask = mask;
                     backdropElement.style.webkitMask = mask;
