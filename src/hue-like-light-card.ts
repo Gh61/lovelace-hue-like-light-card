@@ -250,13 +250,18 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         const title = titleTemplate.resolveToString(this._hass);
         const showSwitch = this._config.showSwitch;
         const h2Class = { 'no-switch': !showSwitch };
+        const cardClass = {
+            'state-on' : this._ctrl.isOn(),
+            'state-off' : this._ctrl.isOff(),
+            'state-unavailable': this._ctrl.isUnavailable()
+        };
 
         const onChangeCallback = () => {
             this.requestUpdate();
             this.updateStylesInner();
         };
 
-        return html`<ha-card>
+        return html`<ha-card class="${classMap(cardClass)}">
             <div class="tap-area" @click="${(): void => this.cardClicked()}">
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
                 <h2 class="${classMap(h2Class)}">${title}</h2>
