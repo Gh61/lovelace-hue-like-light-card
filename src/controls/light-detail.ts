@@ -12,7 +12,7 @@ import { HueColorTempModeSelector } from './color-temp-mode-selector';
  * TODO:
  * - disabled brightness control when light is off
  * - hide (brightness, color, temp) controls when light doesn't support it
- * - closing the colorpicker (back button or ESC)
+ * - closing the colorpicker (back button)
  */
 
 @customElement(HueLightDetail.ElementName)
@@ -87,7 +87,16 @@ export class HueLightDetail extends IdLitElement {
         if (this.parentElement) {
             this.parentElement.style.overflow = 'visible';
         }
+
+        // Allow close detail by going back in browser
+        window.history.pushState({ dialog: 'hue-dialog-light-detail', open: true }, '');
+        window.addEventListener('popstate', this._onHistoryBackListener);
+
+        // fire show event
+        this.dispatchEvent(new CustomEvent('show'));
     }
+
+    private readonly _onHistoryBackListener = () => this.hide();
 
     /** Will hide this element (with animation). */
     public hide(instant = false) {
@@ -104,6 +113,12 @@ export class HueLightDetail extends IdLitElement {
         if (this.parentElement) {
             this.parentElement.style.overflow = '';
         }
+
+        // unregister popstate
+        window.removeEventListener('popstate', this._onHistoryBackListener);
+
+        // fire hide event
+        this.dispatchEvent(new CustomEvent('hide'));
     }
 
     private brightnessValueChanged(ev: CustomEvent<IRollupValueChangeEventDetail>) {

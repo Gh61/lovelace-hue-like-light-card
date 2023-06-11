@@ -17,6 +17,11 @@ import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
 import { LightContainer } from '../core/light-container';
 
+interface HueDialogHistoryState {
+    dialog?: 'hue-dialog' | 'other-dialog';
+    open?: boolean;
+}
+
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
 
@@ -65,19 +70,13 @@ export class HueDialog extends IdLitElement {
             HueDialog.tileScrollTo(ev.detail.tileElement);
 
             // show detail of selected light
-            if (this._lightDetailElement) {
-                this._lightDetailElement.show();
-                this.toggleUnderDetailControls(true);
-            }
+            this._lightDetailElement?.show();
 
         } else if (this._selectedLight == ev.detail.lightContainer) {
             this._selectedLight = null;
 
             // hide detail of selected light
-            if (this._lightDetailElement) {
-                this._lightDetailElement.hide();
-                this.toggleUnderDetailControls(false);
-            }
+            this._lightDetailElement?.hide();
         }
 
         if (this._lightDetailElement) {
@@ -157,10 +156,14 @@ export class HueDialog extends IdLitElement {
         if (this._isRendered)
             throw new Error('Already rendered!');
 
-        window.history.pushState(
-            { dialog: 'hue-dialog', open: true },
-            ''
-        );
+        const closedState = <HueDialogHistoryState>{ dialog: 'hue-dialog', open: false };
+        const openState = <HueDialogHistoryState>{ dialog: 'hue-dialog', open: true };
+
+        // add closed state, so we can find, if the dialog should be closed
+        window.history.pushState(closedState, '');
+        // add open state
+        window.history.pushState(openState, '');
+        // register for change in state
         window.addEventListener('popstate', this._onHistoryBackListener);
 
         // append to DOM
@@ -190,7 +193,13 @@ export class HueDialog extends IdLitElement {
         return this.renderRoot.querySelector('ha-dialog');
     }
 
-    private readonly _onHistoryBackListener = () => this.close();
+    private readonly _onHistoryBackListener = (ev: PopStateEvent) => {
+        const s = <HueDialogHistoryState | null>ev.state;
+        // only close if it's for this dialog
+        if (s?.dialog == 'hue-dialog' && s?.open == false) {
+            this.close();
+        }
+    };
 
     /** When the dialog is closed. Removes itself from the DOM. */
     private onDialogClose() {
@@ -446,6 +455,14 @@ export class HueDialog extends IdLitElement {
                     detailElement.style.width = '100%';
                     detailElement.style.height = 'calc(100% - 200px)';
                     detailElement.style.zIndex = '2'; // over header
+
+                    // action for show and hide
+                    detailElement.addEventListener('show', () => {
+                        this.toggleUnderDetailControls(true);
+                    });
+                    detailElement.addEventListener('hide', () => {
+                        this.toggleUnderDetailControls(false);
+                    });
 
                     surface.prepend(detailElement);
 
