@@ -42,6 +42,7 @@ export class HueColorTempModeSelector extends LitElement {
     private static readonly totalHeight = 40;
     private static readonly totalPadding = 6;
     private static readonly wrapperHeight = HueColorTempModeSelector.totalHeight - 2 * HueColorTempModeSelector.totalPadding;
+    private static readonly wrapperGap = 6;
     private static readonly wrapperPadding = 2;
     private static readonly wrapperBorder = 2;
     private static readonly wheelHeight = HueColorTempModeSelector.wrapperHeight - 2 * (HueColorTempModeSelector.wrapperPadding + HueColorTempModeSelector.wrapperBorder);
@@ -57,7 +58,7 @@ export class HueColorTempModeSelector extends LitElement {
         display: flex;
         height: ${HueColorTempModeSelector.totalHeight}px;
         padding: ${HueColorTempModeSelector.totalPadding}px;
-        gap: ${Math.round(HueColorTempModeSelector.wrapperHeight / 3)}px;
+        gap: ${HueColorTempModeSelector.wrapperGap}px;
         border-radius: ${HueColorTempModeSelector.totalHeight / 2}px;
         box-shadow: ${unsafeCSS(Consts.HueShadow)};
         background: ${unsafeCSS(Consts.TileOffColor)};
