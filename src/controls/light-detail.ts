@@ -6,12 +6,12 @@ import { PropertyValues, css, unsafeCSS } from 'lit';
 import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness-rollup';
 import { HueColorTempPicker, HueColorTempPickerMarker, IHueColorTempPickerEventDetail } from './color-temp-picker';
 import { LightContainer } from '../core/light-container';
+import { HueColorTempModeSelector } from './color-temp-mode-selector';
 
 /*
  * TODO:
  * - disabled brightness control when light is off
  * - hide (brightness, color, temp) controls when light doesn't support it
- * - color/temp picker mode changer
  * - closing the colorpicker (back button or ESC)
  */
 
@@ -21,9 +21,10 @@ export class HueLightDetail extends IdLitElement {
      * Name of this Element
      */
     public static readonly ElementName = 'hue-light-detail' + Consts.ElementPostfix;
-    private static readonly colorPickerMargin = 12;
+    private static readonly colorPickerMarginTop = 40;
+    private static readonly colorPickerMarginBottom = 20;
 
-    private _colorPicker: HueColorTempPicker;
+    private _modeSelector: HueColorTempModeSelector;
     private _colorMarker: HueColorTempPickerMarker;
 
     public constructor() {
@@ -44,13 +45,21 @@ export class HueLightDetail extends IdLitElement {
         // TODO: light features
 
         this._colorMarker.icon = this.lightContainer.getIcon() || Consts.DefaultOneIcon;
+
+        this.onLightContainerColorChanged();
+    }
+
+    private onLightContainerColorChanged() {
+        if (!this.lightContainer)
+            return;
+
         if (this.lightContainer.isColorModeColor()) {
-            this._colorPicker.mode = 'color';
+            this._modeSelector.mode = 'color';
             if (this.lightContainer.color) {
                 this._colorMarker.color = this.lightContainer.color;
             }
         } else if (this.lightContainer.isColorModeTemp()) {
-            this._colorPicker.mode = 'temp';
+            this._modeSelector.mode = 'temp';
             if (this.lightContainer.colorTemp) {
                 this._colorMarker.temp = this.lightContainer.colorTemp;
             }
@@ -111,7 +120,10 @@ export class HueLightDetail extends IdLitElement {
                 oldValue.unregisterOnPropertyChanged(this._id);
             }
             if (this.lightContainer) {
-                this.lightContainer.registerOnPropertyChanged(this._id, () => this.requestUpdate());
+                this.lightContainer.registerOnPropertyChanged(this._id, () => {
+                    this.onLightContainerColorChanged();
+                    this.requestUpdate();
+                });
                 this.onLightContainerChanged();
             }
         }
@@ -130,7 +142,12 @@ export class HueLightDetail extends IdLitElement {
 
     .color-picker {
         display: block;
-        margin: ${HueLightDetail.colorPickerMargin}px auto;
+        margin: ${HueLightDetail.colorPickerMarginTop}px auto ${HueLightDetail.colorPickerMarginBottom}px auto;
+    }
+    .mode-selector {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
     }
     .brightness-picker {
         position: absolute;
@@ -151,6 +168,8 @@ export class HueLightDetail extends IdLitElement {
                 @change=${(ev: CustomEvent) => this.onColorChanged(ev)}
             >
             </${unsafeStatic(HueColorTempPicker.ElementName)}>
+            <${unsafeStatic(HueColorTempModeSelector.ElementName)} class='mode-selector'>
+            </${unsafeStatic(HueColorTempModeSelector.ElementName)}>
             <${unsafeStatic(HueBrightnessRollup.ElementName)} class='brightness-picker'
                 width='60'
                 height='40'
@@ -164,8 +183,12 @@ export class HueLightDetail extends IdLitElement {
     protected override firstUpdated(changedProps: PropertyValues) {
         super.firstUpdated(changedProps);
 
-        this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
-        this._colorMarker = this._colorPicker.addMarker();
+        const colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
+        this._colorMarker = colorPicker.addMarker();
+
+        // get mode-selector and give it colorPicker
+        this._modeSelector = <HueColorTempModeSelector>this.renderRoot.querySelector('.mode-selector');
+        this._modeSelector.colorPicker = colorPicker;
     }
 
     private updateColorPickerSize(): void {
@@ -173,7 +196,7 @@ export class HueLightDetail extends IdLitElement {
         const maxSize = Math.min(this.clientHeight, this.clientWidth);
         if (maxSize == 0) // not rendered
             return;
-        const size = maxSize - 2 * HueLightDetail.colorPickerMargin;
+        const size = maxSize - (HueLightDetail.colorPickerMarginTop + HueLightDetail.colorPickerMarginBottom);
         colorPicker.style.width = size + 'px';
         colorPicker.style.height = size + 'px';
     }
