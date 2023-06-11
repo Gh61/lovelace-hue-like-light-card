@@ -12,7 +12,6 @@ import { HueColorTempModeSelector } from './color-temp-mode-selector';
  * TODO:
  * - disabled brightness control when light is off
  * - hide (brightness, color, temp) controls when light doesn't support it
- * - closing the colorpicker (back button)
  */
 
 @customElement(HueLightDetail.ElementName)
@@ -24,6 +23,7 @@ export class HueLightDetail extends IdLitElement {
     private static readonly colorPickerMarginTop = 40;
     private static readonly colorPickerMarginBottom = 20;
 
+    private _colorPicker: HueColorTempPicker;
     private _modeSelector: HueColorTempModeSelector;
     private _colorMarker: HueColorTempPickerMarker;
 
@@ -33,7 +33,8 @@ export class HueLightDetail extends IdLitElement {
         this.hide(true);
     }
 
-    @property() public lightContainer: LightContainer | null = null;
+    @property()
+    public lightContainer: LightContainer | null = null;
 
     /**
      * Called after new lightContainer is set.
@@ -155,6 +156,12 @@ export class HueLightDetail extends IdLitElement {
         opacity: 1;
     }
 
+    .back-button {
+        color: white;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
     .color-picker {
         display: block;
         margin: ${HueLightDetail.colorPickerMarginTop}px auto ${HueLightDetail.colorPickerMarginBottom}px auto;
@@ -178,6 +185,7 @@ export class HueLightDetail extends IdLitElement {
 
         return html`
         <div>
+            <ha-icon-button-prev class='back-button' @click=${() => this.hide()}></ha-icon-button-prev>
             <${unsafeStatic(HueColorTempPicker.ElementName)} class='color-picker'
                 mode='color'
                 @change=${(ev: CustomEvent) => this.onColorChanged(ev)}
@@ -195,15 +203,21 @@ export class HueLightDetail extends IdLitElement {
         </div>`;
     }
 
-    protected override firstUpdated(changedProps: PropertyValues) {
-        super.firstUpdated(changedProps);
+    public override connectedCallback(): void {
+        super.connectedCallback();
 
-        const colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
-        this._colorMarker = colorPicker.addMarker();
-
-        // get mode-selector and give it colorPicker
-        this._modeSelector = <HueColorTempModeSelector>this.renderRoot.querySelector('.mode-selector');
-        this._modeSelector.colorPicker = colorPicker;
+        this.updateComplete.then(() => {
+            if (!this._colorPicker) {
+                this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
+                this._colorMarker = this._colorPicker.addMarker();
+            }
+    
+            // get mode-selector and give it colorPicker
+            if (!this._modeSelector) {
+                this._modeSelector = <HueColorTempModeSelector>this.renderRoot.querySelector('.mode-selector');
+                this._modeSelector.colorPicker = this._colorPicker;
+            }
+        });
     }
 
     private updateColorPickerSize(): void {

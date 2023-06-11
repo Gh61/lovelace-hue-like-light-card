@@ -80,7 +80,7 @@ export class HueDialog extends IdLitElement {
         }
 
         if (this._lightDetailElement) {
-            this._lightDetailElement.lightContainer = <LightContainer>this._selectedLight;
+            this._lightDetailElement.lightContainer = <LightContainer | null>this._selectedLight;
         }
     }
 
@@ -412,10 +412,7 @@ export class HueDialog extends IdLitElement {
     private _backdropSet = false;
     private _lightDetailElement: HueLightDetail | null = null;
 
-    // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
-    private updateStylesInner(isFirst: boolean): void {
-        const configBgColor = this._config.getHueScreenBgColor();
-
+    private tryCreateBackdropAndLightDetail(throwError = false) {
         // Allow gradient backdrop on dialog
         if (!this._backdropSet || !this._lightDetailElement) {
 
@@ -462,14 +459,22 @@ export class HueDialog extends IdLitElement {
                     });
                     detailElement.addEventListener('hide', () => {
                         this.toggleUnderDetailControls(false);
+                        this._selectedLight = null;
                     });
 
                     surface.prepend(detailElement);
 
                     this._lightDetailElement = detailElement;
                 }
+            } else if (throwError) {
+                throw new Error('Cannot create backdrop and lightDetail. Surface not found.');
             }
         }
+    }
+
+    // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
+    private updateStylesInner(isFirst: boolean): void {
+        const configBgColor = this._config.getHueScreenBgColor();
 
         // ## Content styles
         if (isFirst) {
@@ -651,6 +656,14 @@ export class HueDialog extends IdLitElement {
         super.updated(changedProps);
 
         this.updateStylesInner(false);
+    }
+
+    public override connectedCallback(): void {
+        super.connectedCallback();
+        // insert custom HTML elements
+        this.updateComplete.then(() => {
+            this.tryCreateBackdropAndLightDetail(true);
+        });
     }
 
     //#endregion

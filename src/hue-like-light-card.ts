@@ -287,8 +287,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         if (this._config.showSwitch) {
             ThemeHelper.detectSwitchColors(this);
         }
-
-        this.updated(changedProps);
     }
 
     public override connectedCallback(): void {
