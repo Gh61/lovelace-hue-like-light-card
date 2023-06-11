@@ -12,6 +12,7 @@ import { nameof } from './types/extensions';
 import { ThemeHelper } from './types/theme-helper';
 import { IHassWindow } from './types/types-hass';
 import { HueLikeLightCardConfigInterface } from './types/types-config';
+import { HueColorTempModeSelector } from './controls/color-temp-mode-selector';
 
 /* eslint no-console: 0 */
 console.info(
@@ -22,6 +23,9 @@ console.info(
     'font-weight:bold;color:white;background:#FF0032',
     'font-weight:bold;color:white;background:#FF8B00'
 );
+
+//TODO: remove after testing
+console.log(HueColorTempModeSelector.ElementName);
 
 // This puts card into the UI card picker dialog
 (window as IHassWindow).customCards = (window as IHassWindow).customCards || [];

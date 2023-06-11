@@ -16,7 +16,7 @@ export interface IHueColorTempPickerEventDetail {
 export type HueColorTempPickerMode = 'color' | 'temp';
 
 /**
- * Color marker used in HueColorTempPicker
+ * Color and Temp picker.
  */
 @customElement(HueColorTempPicker.ElementName)
 export class HueColorTempPicker extends LitElement {
