@@ -1,5 +1,5 @@
 import { forwardHaptic } from 'custom-card-helpers';
-import { html, css, unsafeCSS, PropertyValues } from 'lit';
+import { html, css, nothing, unsafeCSS, PropertyValues } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { Color } from '../core/colors/color';
 import { HueEffectQueue } from '../core/effect-queue';
@@ -157,7 +157,7 @@ export class HueDialogSceneTile extends HueDialogTile {
 
     protected override render() {
         if (!this._scene)
-            return html``;
+            return nothing;
 
         const title = this._scene.getTitle(this.cardTitle);
 

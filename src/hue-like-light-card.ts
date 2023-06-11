@@ -1,5 +1,5 @@
 import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
-import { LitElement, css, html, unsafeCSS, PropertyValues } from 'lit';
+import { LitElement, css, html, nothing, unsafeCSS, PropertyValues } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { customElement } from 'lit/decorators.js';
 import { ClickHandler } from './core/click-handler';
@@ -270,7 +270,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
                 <h2 class="${classMap(h2Class)}">${title}</h2>
             </div>
-            ${showSwitch ? ViewUtils.createSwitch(this._ctrl, onChangeCallback) : html``}
+            ${showSwitch ? ViewUtils.createSwitch(this._ctrl, onChangeCallback) : nothing}
 
             ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
         </ha-card>`;

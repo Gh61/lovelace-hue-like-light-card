@@ -1,5 +1,5 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { css, PropertyValues, TemplateResult, unsafeCSS } from 'lit';
+import { css, nothing, PropertyValues, TemplateResult, unsafeCSS } from 'lit';
 import { property } from 'lit/decorators.js';
 import { IdLitElement } from '../core/id-lit-element';
 import { Consts } from '../types/consts';
@@ -93,5 +93,5 @@ export abstract class HueDialogTile extends IdLitElement {
 
     protected abstract override updated(changedProps: PropertyValues): void;
 
-    protected abstract override render(): TemplateResult;
+    protected abstract override render(): TemplateResult | typeof nothing;
 }

@@ -1,4 +1,4 @@
-import { html, css, unsafeCSS, PropertyValues } from 'lit';
+import { html, css, nothing, unsafeCSS, PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
@@ -167,7 +167,7 @@ export class HueDialogLightTile extends HueDialogTile {
 
     protected override render() {
         if (!this.lightContainer)
-            return html``;
+            return nothing;
 
         const title = this.lightContainer.getTitle().resolveToString(null);
         const icon = this.lightContainer.getIcon() ?? Consts.DefaultOneIcon;

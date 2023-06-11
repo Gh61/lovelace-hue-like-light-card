@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { html, nothing } from 'lit';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
@@ -36,7 +36,7 @@ export class ViewUtils {
 
         // If the controller doesn't support brightness change, the slider will not be created
         if (!ctrl.features.brightness)
-            return html``;
+            return nothing;
 
         const min = config.allowZero ? 0 : 1;
         const max = 100;
