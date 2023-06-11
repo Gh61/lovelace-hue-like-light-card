@@ -2,16 +2,15 @@ import { customElement, property } from 'lit/decorators.js';
 import { html, unsafeStatic } from 'lit/static-html.js';
 import { IdLitElement } from '../core/id-lit-element';
 import { Consts } from '../types/consts';
-import { ILightContainer } from '../types/types-interface';
 import { PropertyValues, css, unsafeCSS } from 'lit';
 import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness-rollup';
 import { HueColorTempPicker, HueColorTempPickerMarker, IHueColorTempPickerEventDetail } from './color-temp-picker';
+import { LightContainer } from '../core/light-container';
 
 /*
  * TODO:
  * - disabled brightness control when light is off
  * - hide (brightness, color, temp) controls when light doesn't support it
- * - get/set light color for ILightContainer
  * - color/temp picker mode changer
  * - bind light to marker
  * - closing the colorpicker (back button or ESC)
@@ -25,8 +24,8 @@ export class HueLightDetail extends IdLitElement {
     public static readonly ElementName = 'hue-light-detail' + Consts.ElementPostfix;
     private static readonly colorPickerMargin = 12;
 
-    private _colorPicker:HueColorTempPicker;
-    private _colorMarker:HueColorTempPickerMarker;
+    private _colorPicker: HueColorTempPicker;
+    private _colorMarker: HueColorTempPickerMarker;
 
     public constructor() {
         super('HueLightDetail');
@@ -34,13 +33,29 @@ export class HueLightDetail extends IdLitElement {
         this.hide(true);
     }
 
-    @property() public lightContainer: ILightContainer | null = null;
+    @property() public lightContainer: LightContainer | null = null;
 
     /**
      * Called after new lightContainer is set.
      */
     private onLightContainerChanged() {
-        this._colorMarker.icon = this.lightContainer?.getIcon() || Consts.DefaultOneIcon;
+        if (!this.lightContainer)
+            return;
+
+        // TODO: light features
+
+        this._colorMarker.icon = this.lightContainer.getIcon() || Consts.DefaultOneIcon;
+        if (this.lightContainer.isColorModeColor()) {
+            this._colorPicker.mode = 'color';
+            if (this.lightContainer.color) {
+                this._colorMarker.color = this.lightContainer.color;
+            }
+        } else if (this.lightContainer.isColorModeTemp()) {
+            this._colorPicker.mode = 'temp';
+            if (this.lightContainer.colorTemp) {
+                this._colorMarker.temp = this.lightContainer.colorTemp;
+            }
+        }
     }
 
     /** Will show this element (with animation). */
@@ -81,7 +96,7 @@ export class HueLightDetail extends IdLitElement {
     protected override updated(changedProps: PropertyValues<HueLightDetail>): void {
         // register for changes on light
         if (changedProps.has('lightContainer')) {
-            const oldValue = changedProps.get('lightContainer') as ILightContainer | null;
+            const oldValue = changedProps.get('lightContainer') as LightContainer | null;
             if (oldValue) {
                 oldValue.unregisterOnPropertyChanged(this._id);
             }
@@ -114,7 +129,7 @@ export class HueLightDetail extends IdLitElement {
     }
     `;
 
-    private _lastRenderedContainer: ILightContainer | null;
+    private _lastRenderedContainer: LightContainer | null;
     protected override render() {
         this._lastRenderedContainer = this.lightContainer || this._lastRenderedContainer;
         const value = this._lastRenderedContainer?.brightnessValue || 100;
@@ -141,7 +156,7 @@ export class HueLightDetail extends IdLitElement {
         this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
         this._colorMarker = this._colorPicker.addMarker();
 
-        const listener = (ev:CustomEvent<IHueColorTempPickerEventDetail>) => {
+        const listener = (ev: CustomEvent<IHueColorTempPickerEventDetail>) => {
             console.log(ev.detail.mode + ' changed to ' + (ev.detail.newTemp ?? ev.detail.newColor));
         };
         this._colorPicker.addEventListener('change', <EventListenerOrEventListenerObject>listener);

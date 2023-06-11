@@ -1,6 +1,8 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { Background } from '../core/colors/background';
 import { Action1 } from './functions';
+import { Color } from '../core/colors/color';
+import { HassLightColorMode } from './types-hass';
 
 export type ValueFactory = () => unknown;
 
@@ -95,9 +97,41 @@ export interface ILightContainer extends ILightConfig, INotify {
     turnOff(): void;
 
     /**
+     * If supported.
      * Gets or sets current brightness percentage (0 - 100) of lights in this container.
      */
     brightnessValue: number;
+}
+
+export interface ISingleLightContainer extends ILightContainer {
+    /**
+     * @returns if light is in COLOR color mode.
+     */
+    isColorModeColor(): boolean;
+
+    /**
+     * @returns if light is in TEMP color mode.
+     */
+    isColorModeTemp(): boolean;
+
+    /**
+     * Gets current color mode.
+     */
+    get colorMode(): HassLightColorMode;
+
+    /**
+     * If supported.
+     * Gets or sets light temperature in kelvin (typically between 2000 and 6500 K).
+     * When set, causes mode to switch.
+     */
+    colorTemp: number | null;
+
+    /**
+     * If supported.
+     * Gets or sets light color.
+     * When set, causes mode to switch.
+     */
+    color: Color | null;
 }
 
 export interface ILightFeatures {

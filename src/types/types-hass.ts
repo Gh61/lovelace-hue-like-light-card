@@ -14,9 +14,35 @@ export interface IHassWindow extends Window {
 
 export interface HassLightAttributes extends HassEntityAttributeBase {
     supported_color_modes?: HassLightColorMode[];
-    color_mode: HassLightColorMode;
+
+    /** Actual color mode */
+    color_mode?: HassLightColorMode;
+
+    /** Minimal color temperature in Kelvins */
+    min_color_temp_kelvin?: number;
+    /** Maximal color temperature in Kelvins */
+    max_color_temp_kelvin?: number;
+    /** Current color temperature in Kelvins */
+    color_temp_kelvin?: number;
+
+    /** Minimal color temperature in Mireds */
+    min_mireds?: number;
+    /** Maximal color temperature in Mireds */
+    max_mireds?: number;
+    /** Current color temperature in Mireds */
+    color_temp?: number;
+
+    /** Brightness 0-255 */
     brightness?: number;
+
+    /** Array [red, green, blue] */
     rgb_color?: number[];
+
+    /** Array [hue, saturation] */
+    hs_color?: number[];
+
+    /** Array [x, y] */
+    xy_color?: number[];
 }
 
 export interface HassAreaInfo {

@@ -13,7 +13,7 @@ export class TimeCacheValue {
     public dontCache: boolean;
 }
 
-export class TimeCache {
+export class TimeCache<TKey extends string> {
     private readonly _cacheInterval: number;
     private _factories:Record<string, ValueFactory> = {};
     private _lastValues:Record<string, TimeCacheItem> = {};
@@ -29,7 +29,7 @@ export class TimeCache {
     /**
      * Will register property with name and factory function factory.
      */
-    public registerProperty(name: string, factory: ValueFactory) {
+    public registerProperty(name: TKey, factory: ValueFactory) {
         this._factories[name] = factory;
         delete this._lastValues[name];
     }
@@ -37,7 +37,7 @@ export class TimeCache {
     /**
      * Sets current value for some property.
      */
-    public setValue(name: string, value: unknown) {
+    public setValue(name: TKey, value: unknown) {
         this.ensureExists(name);
 
         this._lastValues[name] = this.createCacheItem(value);
@@ -46,7 +46,7 @@ export class TimeCache {
     /**
      * Gets cached or current value of property
      */
-    public getValue(name: string): unknown {
+    public getValue(name: TKey): unknown {
         this.ensureExists(name);
 
         const now = new Date().getTime();
@@ -69,7 +69,7 @@ export class TimeCache {
         return value;
     }
 
-    private ensureExists(name: string) {
+    private ensureExists(name: TKey) {
         if (!this._factories[name])
             throw Error(`Property with name ${name} is not registered in TimeCache.`);
     }

@@ -72,6 +72,13 @@ export class Color {
     }
 
     /**
+     * @returns the original mode in which was this color created.
+     */
+    public getOriginalMode(): ColorMode {
+        return this._originalMode;
+    }
+
+    /**
      * @returns red color component of this color (value in range 0 - 255).
      */
     public getRed(): number {
@@ -308,6 +315,52 @@ export class Color {
             percentRoundFn(s),
             percentRoundFn(v)
         ];
+    }
+
+    public static hueTempToRgb(kelvin: number) {
+        const start = 2000;
+        const tres = 5300;
+        const end = 6500;
+
+        const startRgb = [255, 180, 55];
+        const tresRgb = [255, 255, 255];
+        const endRgb = [190, 228, 243];
+
+        /**
+         * @param t normalized value 0 - 1
+         * @param min Minimal returned value
+         * @param max Maximal returned value
+         */
+        const linearScale = function (t: number, min: number, max: number): number {
+            return (max - min) * t + min;
+        };
+
+        if (kelvin < start)
+            kelvin = start;
+        if (kelvin > end)
+            kelvin = end;
+
+        if (kelvin < tres) {
+            const k = (kelvin - start) / (tres - start); // normalize
+            const r1 = linearScale(k, startRgb[0], tresRgb[0]);
+            const g1 = linearScale(k, startRgb[1], tresRgb[1]);
+            const b1 = linearScale(k, startRgb[2], tresRgb[2]);
+            return [
+                Math.round(r1),
+                Math.round(g1),
+                Math.round(b1)
+            ];
+        } else {
+            const k = (kelvin - tres) / (end - tres); // normalize
+            const r2 = linearScale(k, tresRgb[0], endRgb[0]);
+            const g2 = linearScale(k, tresRgb[1], endRgb[1]);
+            const b2 = linearScale(k, tresRgb[2], endRgb[2]);
+            return [
+                Math.round(r2),
+                Math.round(g2),
+                Math.round(b2)
+            ];
+        }
     }
 
     // #endregion

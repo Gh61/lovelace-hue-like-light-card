@@ -234,7 +234,7 @@ export class HueColorTempPicker extends LitElement {
         const n = adjustedY / rowLength;
         const kelvin = Math.round(HueColorTempPicker.utils.logarithmicalScale(n, this.tempMin, this.tempMax));
 
-        const color = HueColorTempPicker.utils.hueTempToRgb(kelvin);
+        const color = Color.hueTempToRgb(kelvin);
 
         return {
             index: index,
@@ -291,7 +291,7 @@ export class HueColorTempPicker extends LitElement {
                 x = maxX;
         }
 
-        const color = HueColorTempPicker.utils.hueTempToRgb(kelvin);
+        const color = Color.hueTempToRgb(kelvin);
 
         return {
             position: new Point(x, y),
@@ -433,43 +433,6 @@ export class HueColorTempPicker extends LitElement {
             }
 
             return value;
-        },
-
-        hueTempToRgb: function (kelvin: number) {
-            const start = 2000;
-            const tres = 5300;
-            const end = 6500;
-
-            const startRgb = [255, 180, 55];
-            const tresRgb = [255, 255, 255];
-            const endRgb = [190, 228, 243];
-
-            if (kelvin < start)
-                kelvin = start;
-            if (kelvin > end)
-                kelvin = end;
-
-            if (kelvin < tres) {
-                const k = (kelvin - start) / (tres - start); // normalize
-                const r1 = this.linearScale(k, startRgb[0], tresRgb[0]);
-                const g1 = this.linearScale(k, startRgb[1], tresRgb[1]);
-                const b1 = this.linearScale(k, startRgb[2], tresRgb[2]);
-                return [
-                    Math.round(r1),
-                    Math.round(g1),
-                    Math.round(b1)
-                ];
-            } else {
-                const k = (kelvin - tres) / (end - tres); // normalize
-                const r2 = this.linearScale(k, tresRgb[0], endRgb[0]);
-                const g2 = this.linearScale(k, tresRgb[1], endRgb[1]);
-                const b2 = this.linearScale(k, tresRgb[2], endRgb[2]);
-                return [
-                    Math.round(r2),
-                    Math.round(g2),
-                    Math.round(b2)
-                ];
-            }
         }
     };
 
