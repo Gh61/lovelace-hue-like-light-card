@@ -1,5 +1,5 @@
 import typescript from "rollup-plugin-typescript2";
-import { terser } from "@rollup/plugin-terser";
+import terser from '@rollup/plugin-terser';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 const LCERROR = '\x1b[31m%s\x1b[0m'; //red
 
