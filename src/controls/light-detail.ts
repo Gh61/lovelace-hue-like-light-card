@@ -12,6 +12,7 @@ import { HueColorTempModeSelector } from './color-temp-mode-selector';
  * TODO:
  * - disabled brightness control when light is off
  * - hide (brightness, color, temp) controls when light doesn't support it
+ * - tweek automatic click action to always open hue-screen
  */
 
 @customElement(HueLightDetail.ElementName)
@@ -180,7 +181,7 @@ export class HueLightDetail extends IdLitElement {
     private _lastRenderedContainer: LightContainer | null;
     protected override render() {
         this._lastRenderedContainer = this.lightContainer || this._lastRenderedContainer;
-        const value = this._lastRenderedContainer?.brightnessValue || 100;
+        const value = this._lastRenderedContainer?.brightnessValue ?? 100;
 
         return html`
         <div>
