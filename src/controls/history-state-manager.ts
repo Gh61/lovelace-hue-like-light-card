@@ -1,3 +1,4 @@
+import { Consts } from '../types/consts';
 import { Action } from '../types/functions';
 
 interface HueWindowHistoryState {
@@ -5,10 +6,17 @@ interface HueWindowHistoryState {
     hueId: string, // identificator
 }
 
+const logMessage = (message: string) => {
+    if (Consts.Dev) {
+        console.log('[HueHistory] ' + message);
+    }
+};
+
 export class HueHistoryStep {
     private static lastGeneratedId = 0;
 
     private readonly _id: string;
+    private readonly _type: string | null;
     private readonly _onEnter: Action;
     private readonly _onExit: Action;
     private _isEntered: boolean;
@@ -17,8 +25,9 @@ export class HueHistoryStep {
      * Creates step new step in history.
      * @param onEnter Callback that will be called when this state is entered ()
      */
-    public constructor(onEnter: Action, onExit: Action, idPrefix: string | null = null) {
-        this._id = (idPrefix ?? '') + (++HueHistoryStep.lastGeneratedId);
+    public constructor(onEnter: Action, onExit: Action, type: string | null = null) {
+        this._type = type;
+        this._id = (type ?? 's') + '-' + (++HueHistoryStep.lastGeneratedId);
         this._onEnter = onEnter;
         this._onExit = onExit;
     }
@@ -27,8 +36,12 @@ export class HueHistoryStep {
         return this._id;
     }
 
+    public get type() {
+        return this._type;
+    }
+
     /** Gets or sets 1-based position in window.history. */
-    public position: number;
+    public position: number | undefined;
 
     public get isEntered() {
         return this._isEntered;
@@ -36,7 +49,7 @@ export class HueHistoryStep {
 
     public enter() {
         if (!this._isEntered) {
-            console.log('Entering ' + this._id);
+            logMessage('Entering ' + this._id);
             this._onEnter();
             this._isEntered = true;
         }
@@ -44,7 +57,7 @@ export class HueHistoryStep {
 
     public exit() {
         if (this._isEntered) {
-            console.log('Exiting ' + this._id);
+            logMessage('Exiting ' + this._id);
             this._onExit();
             this._isEntered = false;
         }
@@ -71,6 +84,18 @@ class HistoryStack {
 
     public constructor() {
         this._stack = [];
+    }
+
+    private logState(message: string) {
+        logMessage(message);
+        logMessage('Stack: ' + this._stack.length);
+        if (this._pointer < 0) {
+            logMessage('[x]');
+        }
+        for (let i = 0; i < this._stack.length; i++) {
+            const m = (i == this._pointer ? '[x] ' : '[ ] ') + this._stack[i].id;
+            logMessage(m);
+        }
     }
 
     /** Will set the pointer before first state */
@@ -101,6 +126,30 @@ class HistoryStack {
         // push new items
         this._stack.push(item);
         this._pointer = this._stack.length - 1;
+
+        this.logState('Pushed ' + item.id);
+    }
+
+    /** Will check if types are compatible, if so, will replace current item with the given one. */
+    public replaceIfPossible(item: HueHistoryStep) {
+        // check if replace is possible
+        if (item.type && this._pointer >= 0) {
+            const oldItem = this._stack[this._pointer];
+            if (oldItem.type == item.type) {
+                this._stack[this._pointer] = item;
+                this.logState('Replaced ' + oldItem.id + ' with ' + item.id);
+                return {
+                    replaced: true,
+                    oldItem
+                };
+            }
+        }
+
+        logMessage('Replace not possible for ' + item.id);
+        return {
+            replaced: false,
+            oldItem: undefined
+        };
     }
 
     /** Will try to find given id */
@@ -126,6 +175,7 @@ class HistoryStack {
             // clear items
             toExit.length = 0;
         } else {
+            this.logState('Moved to ' + id);
             return {
                 found,
                 toExit,
@@ -150,6 +200,9 @@ class HistoryStack {
         if (!found) {
             // clear items
             toEnter.length = 0;
+            logMessage('NOT moved to ' + id);
+        } else {
+            this.logState('Moved to ' + id);
         }
 
         return {
@@ -166,7 +219,9 @@ class HistoryStack {
         for (let i = this._pointer; i >= 0; i--) {
             const item = this._stack[i];
             if (item.id == id) {
-                return this._pointer - i + 1; // +1 => we want to go one step before this item
+                const result = this._pointer - i + 1; // +1 => we want to go one step before this item;
+                this.logState(result + ' steps back needed to go before ' + id);
+                return result;
             }
         }
         return null;
@@ -231,15 +286,28 @@ export class HueHistoryStateManager {
             window.history.replaceState(baseItem.getHistoryState(), '');
         }
 
-        // push it to stack
-        this._states.push(newStep);
-
-        // add it to the history
         const historyState = newStep.getHistoryState();
-        window.history.pushState(historyState, '');
 
-        // save position
-        newStep.position = window.history.length; // new state has been pushed, our state is latest
+        // try to replace
+        const replaceResult = this._states.replaceIfPossible(newStep);
+        if (replaceResult.replaced) { // state replaced
+
+            // do replace in history
+            window.history.replaceState(historyState, '');
+
+            // save oldItem's position into newItem
+            newStep.position = replaceResult.oldItem?.position;
+        } else { // replace not possible, classic push
+
+            // push it to stack
+            this._states.push(newStep);
+
+            // add it to the history
+            window.history.pushState(historyState, '');
+
+            // save position
+            newStep.position = window.history.length; // new state has been pushed, our state is latest
+        }
 
         // call enter function
         newStep.enter();

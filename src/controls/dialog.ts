@@ -58,25 +58,44 @@ export class HueDialog extends IdLitElement {
 
     //#region Tile interactions
 
+    // lightDetail as history step
+    private _lightDetailHistoryStep: HueHistoryStep | undefined;
+
     private onLightSelected(ev: CustomEvent<ILightSelectedEventDetail>) {
         if (ev.detail.isSelected) {
-            this._selectedLight = ev.detail.lightContainer;
 
-            // scroll to selected light
-            HueDialog.tileScrollTo(ev.detail.tileElement);
+            const show = () => {
+                this._selectedLight = ev.detail.lightContainer;
 
-            // show detail of selected light
-            this._lightDetailElement?.show();
+                // scroll to selected light
+                HueDialog.tileScrollTo(ev.detail.tileElement);
+
+                // set light into detail
+                if (this._lightDetailElement) {
+                    this._lightDetailElement.lightContainer = <LightContainer>this._selectedLight;
+                    this._lightDetailElement.show();
+                }
+            };
+            const hide = () => {
+                this._selectedLight = null;
+
+                // hide detail of selected light
+                this._lightDetailElement?.hide();
+            };
+
+            // show with history
+            this._lightDetailHistoryStep = new HueHistoryStep(show, hide, HueLightDetail.ElementName);
+            HueHistoryStateManager.instance.addStep(this._lightDetailHistoryStep);
 
         } else if (this._selectedLight == ev.detail.lightContainer) {
-            this._selectedLight = null;
-
-            // hide detail of selected light
-            this._lightDetailElement?.hide();
+            this.hideLightDetail();
         }
+    }
 
-        if (this._lightDetailElement) {
-            this._lightDetailElement.lightContainer = <LightContainer | null>this._selectedLight;
+    private hideLightDetail() {
+        // hide with history
+        if (this._lightDetailHistoryStep) {
+            HueHistoryStateManager.instance.goBefore(this._lightDetailHistoryStep);
         }
     }
 
@@ -164,6 +183,14 @@ export class HueDialog extends IdLitElement {
     }
 
     private showInternal() {
+        this._isRendered = true;
+
+        // try to render ha-dialog as open
+        const haDialog = this.getDialogElement();
+        if (haDialog) {
+            haDialog.open = true;
+        }
+
         // append to DOM
         document.body.appendChild(this);
 
@@ -187,7 +214,7 @@ export class HueDialog extends IdLitElement {
     }
 
     private getDialogElement(): HaDialog | null {
-        if (!this._isRendered)
+        if (!this._isRendered || !this.renderRoot)
             return null;
 
         return this.renderRoot.querySelector('ha-dialog');
@@ -453,7 +480,7 @@ export class HueDialog extends IdLitElement {
                     });
                     detailElement.addEventListener('hide', () => {
                         this.toggleUnderDetailControls(false);
-                        this._selectedLight = null;
+                        this.hideLightDetail();
                     });
 
                     surface.prepend(detailElement);
@@ -560,7 +587,6 @@ export class HueDialog extends IdLitElement {
         <ha-dialog
           open
           @closed=${() => this.onDialogClose()}
-          @opened=${() => this.updateStylesInner(false)}
           .heading=${cardTitle}
           hideActions
         >
@@ -646,11 +672,6 @@ export class HueDialog extends IdLitElement {
         super.connectedCallback();
 
         this.updateComplete.then(() => {
-            const haDialog = this.getDialogElement();
-            if (haDialog?.open == false) {
-                haDialog.show();
-            }
-
             this.tryCreateBackdropAndLightDetail(true);
             this.updateStylesInner(true);
         });
