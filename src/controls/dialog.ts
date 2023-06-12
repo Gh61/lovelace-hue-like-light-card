@@ -17,11 +17,6 @@ import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
 import { LightContainer } from '../core/light-container';
 
-interface HueDialogHistoryState {
-    dialog?: 'hue-dialog' | 'other-dialog';
-    open?: boolean;
-}
-
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
 
@@ -156,16 +151,6 @@ export class HueDialog extends IdLitElement {
         if (this._isRendered)
             throw new Error('Already rendered!');
 
-        const closedState = <HueDialogHistoryState>{ dialog: 'hue-dialog', open: false };
-        const openState = <HueDialogHistoryState>{ dialog: 'hue-dialog', open: true };
-
-        // add closed state, so we can find, if the dialog should be closed
-        window.history.pushState(closedState, '');
-        // add open state
-        window.history.pushState(openState, '');
-        // register for change in state
-        window.addEventListener('popstate', this._onHistoryBackListener);
-
         // append to DOM
         document.body.appendChild(this);
 
@@ -193,21 +178,10 @@ export class HueDialog extends IdLitElement {
         return this.renderRoot.querySelector('ha-dialog');
     }
 
-    private readonly _onHistoryBackListener = (ev: PopStateEvent) => {
-        const s = <HueDialogHistoryState | null>ev.state;
-        // only close if it's for this dialog
-        if (s?.dialog == 'hue-dialog' && s?.open == false) {
-            this.close();
-        }
-    };
-
     /** When the dialog is closed. Removes itself from the DOM. */
     private onDialogClose() {
         if (this._isRendered) {
             this.remove();
-
-            // unregister popstate
-            window.removeEventListener('popstate', this._onHistoryBackListener);
 
             // unregister update delegate
             this._ctrl.unregisterOnPropertyChanged(this._id);

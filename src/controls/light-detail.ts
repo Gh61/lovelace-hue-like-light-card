@@ -80,6 +80,11 @@ export class HueLightDetail extends IdLitElement {
 
     /** Will show this element (with animation). */
     public show() {
+        if (this._hideTimeout) {
+            clearTimeout(this._hideTimeout);
+            this._hideTimeout = null;
+        }
+
         this.style.removeProperty('display');
         setTimeout(() => this.classList.add('visible'));
         this.updateColorPickerSize();
@@ -89,15 +94,11 @@ export class HueLightDetail extends IdLitElement {
             this.parentElement.style.overflow = 'visible';
         }
 
-        // Allow close detail by going back in browser
-        window.history.pushState({ dialog: 'hue-dialog-light-detail', open: true }, '');
-        window.addEventListener('popstate', this._onHistoryBackListener);
-
         // fire show event
         this.dispatchEvent(new CustomEvent('show'));
     }
 
-    private readonly _onHistoryBackListener = () => this.hide();
+    private _hideTimeout: NodeJS.Timeout | null;
 
     /** Will hide this element (with animation). */
     public hide(instant = false) {
@@ -105,7 +106,8 @@ export class HueLightDetail extends IdLitElement {
         if (instant) {
             this.style.display = 'none';
         } else {
-            setTimeout(() => {
+            this._hideTimeout = setTimeout(() => {
+                this._hideTimeout = null;
                 this.style.display = 'none';
             }, 300);
         }
@@ -114,9 +116,6 @@ export class HueLightDetail extends IdLitElement {
         if (this.parentElement) {
             this.parentElement.style.overflow = '';
         }
-
-        // unregister popstate
-        window.removeEventListener('popstate', this._onHistoryBackListener);
 
         // fire hide event
         this.dispatchEvent(new CustomEvent('hide'));
@@ -211,7 +210,7 @@ export class HueLightDetail extends IdLitElement {
                 this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
                 this._colorMarker = this._colorPicker.addMarker();
             }
-    
+
             // get mode-selector and give it colorPicker
             if (!this._modeSelector) {
                 this._modeSelector = <HueColorTempModeSelector>this.renderRoot.querySelector('.mode-selector');
