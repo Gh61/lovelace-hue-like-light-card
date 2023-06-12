@@ -16,6 +16,7 @@ import { ILightContainer } from '../types/types-interface';
 import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
 import { LightContainer } from '../core/light-container';
+import { HueHistoryStateManager, HueHistoryStep } from './history-state-manager';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -144,6 +145,8 @@ export class HueDialog extends IdLitElement {
 
     //#region show/hide
 
+    private _historyStep: HueHistoryStep | undefined;
+
     /**
      * Insert and renders this dialog into <home-assistant>.
      */
@@ -151,6 +154,16 @@ export class HueDialog extends IdLitElement {
         if (this._isRendered)
             throw new Error('Already rendered!');
 
+        // open with history
+        this._historyStep = new HueHistoryStep(
+            () => this.showInternal(),
+            () => this.close(),
+            HueDialog.ElementName
+        );
+        HueHistoryStateManager.instance.addStep(this._historyStep);
+    }
+
+    private showInternal() {
         // append to DOM
         document.body.appendChild(this);
 
@@ -162,11 +175,13 @@ export class HueDialog extends IdLitElement {
         if (!this._isRendered)
             return;
 
-        // try to find dialog (if no success, call standard remove)
+        // try to find dialog
         const haDialog = this.getDialogElement();
-        if (haDialog && haDialog.close) {
+        if (haDialog) {
+            // if dialog closed - will call onDialogClose event
             haDialog.close();
         } else {
+            // no haDialog found - use legacy way
             this.onDialogClose();
         }
     }
@@ -187,6 +202,11 @@ export class HueDialog extends IdLitElement {
             this._ctrl.unregisterOnPropertyChanged(this._id);
 
             this._isRendered = false;
+        }
+
+        // go back in history
+        if (this._historyStep) {
+            HueHistoryStateManager.instance.goBefore(this._historyStep);
         }
     }
 
@@ -496,11 +516,6 @@ export class HueDialog extends IdLitElement {
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
         const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.offShadow);
 
-        // when first rendered, clientHeight is 0, so no shadow is genered - plan new update:
-        if (!shadow) {
-            this.requestUpdate();
-        }
-
         if (this._config.hueBorders) {
             this.style.setProperty(
                 '--ha-dialog-border-radius',
@@ -544,7 +559,8 @@ export class HueDialog extends IdLitElement {
         return html`
         <ha-dialog
           open
-          @closed=${this.onDialogClose}
+          @closed=${() => this.onDialogClose()}
+          @opened=${() => this.updateStylesInner(false)}
           .heading=${cardTitle}
           hideActions
         >
@@ -578,7 +594,7 @@ export class HueDialog extends IdLitElement {
             <div class='tile-scroller detail-hide'>
                 <div class='tiles'>
                     ${(this._config.scenes.map((s, i) => i % 2 == 1 ? nothing :
-                        html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
+            html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
                             @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
@@ -587,7 +603,7 @@ export class HueDialog extends IdLitElement {
                 </div>
                 <div class='tiles'>
                     ${(this._config.scenes.map((s, i) => i % 2 == 0 ? nothing :
-                        html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
+                html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
                             @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
@@ -602,7 +618,7 @@ export class HueDialog extends IdLitElement {
             <div class='tile-scroller'>
                 <div class='tiles'>
                     ${(this._ctrl.getLights().map((l) =>
-                        html`<${unsafeStatic(HueDialogLightTile.ElementName)}
+                    html`<${unsafeStatic(HueDialogLightTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .lightContainer=${l}
                             .isSelected=${this._selectedLight == l}
@@ -620,12 +636,6 @@ export class HueDialog extends IdLitElement {
 
     //#region updateStyles hooks
 
-    protected override firstUpdated(changedProps: PropertyValues) {
-        super.firstUpdated(changedProps);
-
-        this.updateStylesInner(true);
-    }
-
     protected override updated(changedProps: PropertyValues) {
         super.updated(changedProps);
 
@@ -634,9 +644,15 @@ export class HueDialog extends IdLitElement {
 
     public override connectedCallback(): void {
         super.connectedCallback();
-        // insert custom HTML elements
+
         this.updateComplete.then(() => {
+            const haDialog = this.getDialogElement();
+            if (haDialog?.open == false) {
+                haDialog.show();
+            }
+
             this.tryCreateBackdropAndLightDetail(true);
+            this.updateStylesInner(true);
         });
     }
 

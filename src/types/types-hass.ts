@@ -141,7 +141,10 @@ export interface HomeAssistantEx extends HomeAssistant {
 }
 
 export interface HaDialog extends HTMLElement {
-    close?(): void;
+    open: boolean;
+    close(): void;
+    show(): void;
+    updateComplete: Promise<boolean>;
 }
 
 export interface HaIcon extends HTMLElement {
