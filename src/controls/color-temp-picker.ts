@@ -641,13 +641,15 @@ export class HueColorTempPickerMarker {
     public set temp(tmp: number) {
         this._temp = tmp;
 
+        const wasColorMode = this.mode == 'color';
+
         // change mode to temp
         this.mode = 'temp';
 
         // get position (and color) of marker
         const radius = this.getRadius();
         const centerPos = this.getPositionFromCenter(radius);
-        const coordsAndColor = this._parent.getCoordinatesAndTemp(this._temp, radius, centerPos);
+        const coordsAndColor = this._parent.getCoordinatesAndTemp(this._temp, radius, wasColorMode ? undefined : centerPos);
 
         // set and render position 
         this.setPositionFromCenter(coordsAndColor.position, radius);
