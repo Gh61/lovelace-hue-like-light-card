@@ -47,11 +47,13 @@ export class HueLightDetail extends IdLitElement {
         // TODO: light features
 
         this._colorMarker.icon = this.lightContainer.getIcon() || Consts.DefaultOneIcon;
+        this._modeSelector.showColor = this.lightContainer.features.color;
+        this._modeSelector.showTemp = this.lightContainer.features.colorTemp;
 
-        this.onLightContainerColorChanged();
+        this.onLightContainerState();
     }
 
-    private onLightContainerColorChanged() {
+    private onLightContainerState() {
         if (!this.lightContainer)
             return;
 
@@ -137,7 +139,7 @@ export class HueLightDetail extends IdLitElement {
             }
             if (this.lightContainer) {
                 this.lightContainer.registerOnPropertyChanged(this._id, () => {
-                    this.onLightContainerColorChanged();
+                    this.onLightContainerState();
                     this.requestUpdate();
                 });
                 this.onLightContainerChanged();
