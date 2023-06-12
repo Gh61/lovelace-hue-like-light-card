@@ -398,6 +398,13 @@ export class HueBrightnessRollup extends LitElement {
         this.updated(changedProps, true);
     }
 
+    public override connectedCallback(): void {
+        super.connectedCallback();
+
+        // connect listeners back
+        this._dragHelper?.connectListeners();
+    }
+
     public override disconnectedCallback() {
         super.disconnectedCallback();
 

@@ -12,6 +12,7 @@ export class PointerDragHelper {
     private readonly _onDragMove;
     private readonly _onDragEnd;
     private _currentMode: Mode = null;
+    private _isConnected = false;
 
     public constructor(element: HTMLElement | SVGGraphicsElement, onDragStart: DragEventCallback, onDragMove: DragEventCallback, onDragEnd?: DragEventCallback) {
         this._element = element;
@@ -19,12 +20,7 @@ export class PointerDragHelper {
         this._onDragMove = this.createDragMoveDelegate(onDragMove);
         this._onDragEnd = this.createDragEndDelegate(onDragEnd);
 
-        this.registerInitEvents();
-    }
-
-    private registerInitEvents() {
-        this._element.addEventListener('mousedown', this._onDragStart);
-        this._element.addEventListener('touchstart', this._onDragStart);
+        this.connectListeners();
     }
 
     private createDragStartDelegate(callback: DragEventCallback) {
@@ -68,6 +64,15 @@ export class PointerDragHelper {
         };
     }
 
+    /** Register element listeners */
+    public connectListeners() {
+        if (!this._isConnected) {
+            this._isConnected = true;
+            this._element.addEventListener('mousedown', this._onDragStart);
+            this._element.addEventListener('touchstart', this._onDragStart);
+        }
+    }
+
     /**
      * Removes document listeners.
      */
@@ -87,6 +92,7 @@ export class PointerDragHelper {
 
         this._element.removeEventListener('mousedown', this._onDragStart);
         this._element.removeEventListener('touchstart', this._onDragStart);
+        this._isConnected = false;
     }
 
     private static isTouchEvent(ev: Event) {

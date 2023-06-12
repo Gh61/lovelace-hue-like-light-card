@@ -51,19 +51,9 @@ export class HueColorTempPicker extends LitElement {
     @property()
     public tempMax = 6500;
 
-    //#region Resizing
-
-    public override connectedCallback(): void {
-        super.connectedCallback();
-        this._ro?.observe(this);
-        this.onResize();
-    }
-
     private onResize(): void {
         this._markers.forEach(m => m.refresh());
     }
-
-    //#endregion
 
     // #region Rendering
 
@@ -496,6 +486,14 @@ export class HueColorTempPicker extends LitElement {
         </div>`;
     }
 
+    public override connectedCallback(): void {
+        super.connectedCallback();
+        this._ro?.observe(this);
+        this.onResize();
+
+        this._markers.forEach(m => m.connectAllListeners());
+    }
+
     public override disconnectedCallback() {
         super.disconnectedCallback();
         this._ro?.unobserve(this);
@@ -770,6 +768,10 @@ export class HueColorTempPickerMarker {
 
     private onDragEnd() {
         this.dispatchChangeEvent(false);
+    }
+
+    public connectAllListeners() {
+        this._dragHelper?.connectListeners();
     }
 
     public removeAllListeners() {
