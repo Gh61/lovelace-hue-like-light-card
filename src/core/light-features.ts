@@ -5,10 +5,6 @@ import { HassLightColorMode, HassLightEntity } from '../types/types-hass';
 export class LightFeatures implements ILightFeatures {
     public constructor(lightEntity: HassLightEntity) {
 
-        // FOR TESTING ONLY TODO: REMOVE
-        if (lightEntity.entity_id == 'light.pracovna')
-            return;
-
         // no modes
         if (lightEntity.attributes.supported_color_modes == null ||
             lightEntity.attributes.supported_color_modes.length == 0) {
