@@ -137,9 +137,9 @@ export class HueColorTempModeSelector extends LitElement {
         this.mode == 'brightness'
             ? this.createBrightnessWheel()
             : html`
-                    ${this.createWheel('color')}
-                    ${this.createWheel('temp')}
-                `
+                ${this.createWheel('color')}
+                ${this.createWheel('temp')}
+            `
     )}
         </div>`;
     }

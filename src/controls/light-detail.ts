@@ -1,5 +1,7 @@
 import { customElement, property } from 'lit/decorators.js';
 import { html, unsafeStatic } from 'lit/static-html.js';
+import { cache } from 'lit/directives/cache.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import { IdLitElement } from '../core/id-lit-element';
 import { Consts } from '../types/consts';
 import { PropertyValues, css, unsafeCSS } from 'lit';
@@ -7,13 +9,15 @@ import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness
 import { HueColorTempPicker, HueColorTempPickerMarker, IHueColorTempPickerEventDetail } from './color-temp-picker';
 import { LightContainer } from '../core/light-container';
 import { HueColorTempModeSelector } from './color-temp-mode-selector';
+import { HaControlSwitch } from '../types/types-hass';
+import { HueBigSwitch } from './big-switch';
 
 /*
  * TODO:
  * - hide (brightness, color, temp) controls when light doesn't support it
+ * - fix mobile design
  * - improve performance of color/temp picker (cache generated canvas)
  * - tweek automatic click action to always open hue-screen
- * - fix mobile design
  * - change documentation + add screenshot
  */
 
@@ -50,7 +54,12 @@ export class HueLightDetail extends IdLitElement {
         if (!this.lightContainer)
             return;
 
-        // TODO: light features
+        // render will solve this
+        if (this.lightContainer.features.isEmpty()) {
+            // only adjust size
+            this.updateBigSwitchSize();
+            return;
+        }
 
         this._colorMarker.icon = this.lightContainer.getIcon() || Consts.DefaultOneIcon;
         this._modeSelector.showColor = this.lightContainer.features.color;
@@ -214,16 +223,68 @@ export class HueLightDetail extends IdLitElement {
         display:block;
         margin: ${HueLightDetail.colorPickerMarginTop - 25}px auto ${HueLightDetail.colorPickerMarginBottom}px auto;
     }
+    .light-switch {
+        margin: ${HueLightDetail.colorPickerMarginTop}px auto ${HueLightDetail.colorPickerMarginBottom}px auto;
+    }
     `;
 
     private _lastRenderedContainer: LightContainer | null;
     protected override render() {
         this._lastRenderedContainer = this.lightContainer || this._lastRenderedContainer;
-        const value = this._lastRenderedContainer?.brightnessValue ?? 100;
+        const onlySwitch = this._lastRenderedContainer?.features.isEmpty() == true;
 
         return html`
         <div>
             <ha-icon-button-prev class='back-button' @click=${() => this.hide()}></ha-icon-button-prev>
+            ${cache(
+                onlySwitch
+                    ? this.createSwitchDetail()
+                    : this.createFullDetail()
+            )}
+        </div>`;
+    }
+
+    private onSwitch(ctrl: LightContainer, ev: Event) {
+        const target = <HaControlSwitch>ev.target;
+        if (!target)
+            return;
+
+        const checked = target.checked;
+        if (checked) {
+            ctrl.turnOn();
+        } else {
+            ctrl.turnOff();
+        }
+    }
+
+    private createSwitchDetail() {
+        const light = this._lastRenderedContainer!;
+        const offColor = Consts.OffColor;
+        const onColor = Consts.WarmColor;
+
+        return html`
+            <${unsafeStatic(HueBigSwitch.ElementName)} class='light-switch'
+                vertical
+                reversed
+                .checked=${light.isOn()}
+                .showHandle=${!light.isUnavailable()}
+                @change=${(ev: Event) => this.onSwitch(light, ev)}
+                style=${styleMap({
+                    '--control-switch-on-color': onColor,
+                    '--control-switch-off-color': offColor
+                })}
+                .disabled=${light.isUnavailable()}
+            >
+                <ha-icon icon="mdi:power-on" slot="icon-on"></ha-icon>
+                <ha-icon icon="mdi:power-off" slot="icon-off"></ha-icon>
+            </${unsafeStatic(HueBigSwitch.ElementName)}>
+        `;
+    }
+
+    private createFullDetail() {
+        const value = this._lastRenderedContainer?.brightnessValue ?? 100;
+
+        return html`
             <${unsafeStatic(HueColorTempPicker.ElementName)} class='color-picker'
                 mode='color'
                 @change=${(ev: CustomEvent) => this.onColorChanged(ev)}
@@ -239,7 +300,7 @@ export class HueLightDetail extends IdLitElement {
                 @change=${(ev: CustomEvent) => this.brightnessValueChanged(ev)}
             >
             </${unsafeStatic(HueBrightnessRollup.ElementName)}>
-        </div>`;
+        `;
     }
 
     public override connectedCallback(): void {
@@ -265,6 +326,9 @@ export class HueLightDetail extends IdLitElement {
 
     private updateColorPickerSize(): void {
         const colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
+        if (!colorPicker)
+            return;
+
         const size = this.getPickerSize();
         if (!size) // not rendered
             return;
@@ -275,6 +339,9 @@ export class HueLightDetail extends IdLitElement {
 
     private updateBrightnessRollupSize(setFullSize: boolean): void {
         const rollup = <HueBrightnessRollup>this.renderRoot.querySelector('.brightness-rollup');
+        if (!rollup)
+            return;
+
         const size = this.getPickerSize();
         if (!size) // not rendered
             return;
@@ -290,6 +357,24 @@ export class HueLightDetail extends IdLitElement {
             rollup.height = HueLightDetail.rollupHeight;
             rollup.heightOpened = HueLightDetail.rollupHeightOpen;
         }
+    }
+
+    private updateBigSwitchSize(): void {
+        const lightSwitch = <HueBrightnessRollup>this.renderRoot.querySelector('.light-switch');
+        if (!lightSwitch)
+            return;
+
+        const size = this.getPickerSize();
+        if (!size) // not rendered
+            return;
+
+        const w = size / 3 + 'px';
+        lightSwitch.style.width = w;
+        lightSwitch.style.setProperty(
+            '--control-switch-thickness',
+            w
+        );
+        lightSwitch.style.height = size + 'px';
     }
 
     private getPickerSize(): number | null {

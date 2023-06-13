@@ -15,6 +15,7 @@
     "author": "Tom Zenkner <t.zenkner@email.cz>",
     "license": "LGPLv2.1",
     "dependencies": {
+        "@egjs/hammerjs": "^2.0.17",
         "custom-card-helpers": "^1.9.0",
         "home-assistant-js-websocket": "^8.0.1",
         "lit": "^2.2.4"

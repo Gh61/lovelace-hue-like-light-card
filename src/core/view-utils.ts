@@ -50,7 +50,7 @@ export class ViewUtils {
 
     private static changed(ctrl: ILightContainer, onChange: Action, isSlider: boolean, ev: Event) {
 
-        // TODO: try to update on sliding (use debounce) not only on change. (https://www.webcomponents.org/element/@polymer/paper-slider/elements/paper-slider#events)
+        // TODO: try to update on sliding (use throttle) not only on change. (https://www.webcomponents.org/element/@polymer/paper-slider/elements/paper-slider#events)
 
         const target = ev.target;
         if (!target)

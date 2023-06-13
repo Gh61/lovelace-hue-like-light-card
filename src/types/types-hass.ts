@@ -152,3 +152,7 @@ export interface HaIcon extends LitElement {
     /* private */ _loadIcon(): Promise<void>;
     /* private */ _path: string;
 }
+
+export interface HaControlSwitch extends LitElement {
+    checked?: boolean;
+}

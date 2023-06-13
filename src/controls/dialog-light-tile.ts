@@ -7,6 +7,7 @@ import { Consts } from '../types/consts';
 import { ILightContainer } from '../types/types-interface';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
+import { noop } from '../types/functions';
 
 export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
@@ -171,7 +172,6 @@ export class HueDialogLightTile extends HueDialogTile {
 
         const title = this.lightContainer.getTitle().resolveToString(null);
         const icon = this.lightContainer.getIcon() ?? Consts.DefaultOneIcon;
-        const onChange = () => { };
 
         /*eslint-disable */
         return html`
@@ -186,7 +186,7 @@ export class HueDialogLightTile extends HueDialogTile {
                     </div>
                 </div>
                 <div class='switch' @mouseenter=${() => this.disableClickEffect()} @mouseleave=${() => this.enableClickEffect()}>
-                    ${ViewUtils.createSwitch(this.lightContainer, onChange)}
+                    ${ViewUtils.createSwitch(this.lightContainer, noop)}
                 </div>
             </div>
         </div>
