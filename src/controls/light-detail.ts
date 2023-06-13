@@ -10,7 +10,6 @@ import { HueColorTempModeSelector } from './color-temp-mode-selector';
 
 /*
  * TODO:
- * - black marker, if light is off
  * - hide (brightness, color, temp) controls when light doesn't support it
  * - improve performance of color/temp picker (cache generated canvas)
  * - tweek automatic click action to always open hue-screen
@@ -94,6 +93,10 @@ export class HueLightDetail extends IdLitElement {
                 this._colorMarker.temp = this.lightContainer.colorTemp;
             }
         }
+
+        // show marker as off
+        this._colorMarker.isOff = !this.lightContainer.isOn(); // unavailable state will be also off
+
         // enable or disable brightness rollup
         this._brightnessRollup.enabled = this.lightContainer.isOn();
     }

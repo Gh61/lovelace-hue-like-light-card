@@ -12,6 +12,7 @@ export class PointerDragHelper {
     private readonly _onDragMove;
     private readonly _onDragEnd;
     private _currentMode: Mode = null;
+    private _isMoving = false;
     private _isConnected = false;
 
     public constructor(element: HTMLElement | SVGGraphicsElement, onDragStart: DragEventCallback, onDragMove: DragEventCallback, onDragEnd?: DragEventCallback) {
@@ -21,6 +22,10 @@ export class PointerDragHelper {
         this._onDragEnd = this.createDragEndDelegate(onDragEnd);
 
         this.connectListeners();
+    }
+
+    public get isMoving() {
+        return this._isMoving;
     }
 
     private createDragStartDelegate(callback: DragEventCallback) {
@@ -48,12 +53,15 @@ export class PointerDragHelper {
 
     private createDragMoveDelegate(callback: DragEventCallback) {
         return (ev: MouseEvent | TouchEvent) => {
+            this._isMoving = true;
             callback(ev, PointerDragHelper.isTouchEvent(ev));
         };
     }
 
     private createDragEndDelegate(callback?: DragEventCallback) {
         return (ev: MouseEvent | TouchEvent) => {
+            this._isMoving = false;
+
             // drag end is not needed
             if (callback) {
                 callback(ev, PointerDragHelper.isTouchEvent(ev));

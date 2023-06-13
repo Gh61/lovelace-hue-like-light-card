@@ -508,11 +508,12 @@ export class HueColorTempPickerMarker {
     private readonly _markerG: SVGGraphicsElement;
     private readonly _iconPath: SVGPathElement;
 
-    private _color: Color = new Color('black');
+    private _color: Color = new Color(0, 0, 0);
     private _temp = 0;
     private _position: Point;
     private _mode: HueColorTempPickerMode = 'color';
     private _icon: string = HueColorTempPickerMarker.defaultIconName;
+    private _isOff = false;
 
     private static readonly defaultIconName = 'default';
     private static readonly defaultIcon = 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
@@ -544,6 +545,12 @@ export class HueColorTempPickerMarker {
         return this._position;
     }
     private set position(pos: Point) {
+
+        // if is position from mousemove - turn on
+        if (this._dragHelper?.isMoving) {
+            this._isOff = false;
+        }
+
         const radius = this.getRadius();
         this._position = HueColorTempPickerMarker.limitCoordinates(pos, radius);
 
@@ -610,6 +617,15 @@ export class HueColorTempPickerMarker {
         } else {
             this.color = this.color;
         }
+    }
+
+    /** Gets or sets whether light with this marker is currently off. */
+    public get isOff() {
+        return this._isOff;
+    }
+    public set isOff(value: boolean) {
+        this._isOff = value;
+        this.renderColor();
     }
 
     public get color() {
@@ -711,12 +727,17 @@ export class HueColorTempPickerMarker {
     }
 
     private renderColor() {
-        this._markerG.style.color = this._color.toString();
+        if (this._isOff) {
+            this._markerG.style.color = 'rgb(0,0,0)';
+            this._iconPath.style.fill = Consts.LightColor.toString();
+        } else {
+            this._markerG.style.color = this._color.toString();
 
-        // for temp view I want only one change in the middle of the wheel
-        const luminanceOffset = this.mode == 'temp' ? -25 : 0;
-        const foreground = this._color.getForeground(Consts.LightColor, Consts.DarkColor, luminanceOffset);
-        this._iconPath.style.fill = foreground.toString();
+            // for temp view I want only one change of foreground in the middle of the wheel
+            const luminanceOffset = this.mode == 'temp' ? -25 : 0;
+            const foreground = this._color.getForeground(Consts.LightColor, Consts.DarkColor, luminanceOffset);
+            this._iconPath.style.fill = foreground.toString();
+        }
     }
 
     private renderMode() {
