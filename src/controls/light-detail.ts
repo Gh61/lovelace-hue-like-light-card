@@ -14,8 +14,6 @@ import { HueBigSwitch } from './big-switch';
 
 /*
  * TODO:
- * - hide (brightness, color, temp) controls when light doesn't support it
- * - fix mobile design
  * - improve performance of color/temp picker (cache generated canvas)
  * - tweek automatic click action to always open hue-screen
  * - change documentation + add screenshot

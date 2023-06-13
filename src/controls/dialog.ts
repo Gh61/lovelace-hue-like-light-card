@@ -1,6 +1,7 @@
 import { css, nothing, PropertyValues, unsafeCSS } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
 import { customElement, state } from 'lit/decorators.js';
+import { classMap } from 'lit-html/directives/class-map.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { LightController } from '../core/light-controller';
@@ -427,7 +428,21 @@ export class HueDialog extends IdLitElement {
         content: '';
         min-width: ${HueDialog.haPadding - HueDialog.tileGap}px;
     }
-        `];
+
+    /* Light tiles */
+    .tile-scroller.light-tiles{
+        transition: ${unsafeCSS(Consts.TransitionDefault)};
+        bottom: 100px;
+    }
+
+    @media all and (max-width: 450px), all and (max-height: 500px){
+        .detail-active .tile-scroller.light-tiles{
+            position: absolute;
+            bottom: 30px;
+            width: calc(100% - ${2 * this.haPadding}px);
+        }
+    }
+    `];
     }
 
     private _backdropSet = false;
@@ -613,7 +628,10 @@ export class HueDialog extends IdLitElement {
             </div>
             ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
           </ha-dialog-header>
-          <div class="content" tabindex="-1" dialogInitialFocus>
+          <div class="${classMap({
+            'content': true,
+            'detail-active': !!this._selectedLight
+        })}" tabindex="-1" dialogInitialFocus>
             <div class='header detail-hide'>
                 <div class='title'>${this._config.resources.scenes}</div>
             </div>
@@ -641,7 +659,7 @@ export class HueDialog extends IdLitElement {
             <div class='header detail-hide'>
                 <div class='title'>${this._config.resources.lights}</div>
             </div>
-            <div class='tile-scroller'>
+            <div class='tile-scroller light-tiles'>
                 <div class='tiles'>
                     ${(this._ctrl.getLights().map((l) =>
                     html`<${unsafeStatic(HueDialogLightTile.ElementName)}
