@@ -1,5 +1,6 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity, HassEntityAttributeBase } from 'home-assistant-js-websocket';
+import { LitElement } from 'lit';
 
 export class HassCustomCardInfo {
     public type: string;
@@ -140,14 +141,13 @@ export interface HomeAssistantEx extends HomeAssistant {
     entities: Record<string, HassEntityInfo>;
 }
 
-export interface HaDialog extends HTMLElement {
+export interface HaDialog extends LitElement {
     open: boolean;
     close(): void;
     show(): void;
-    updateComplete: Promise<boolean>;
 }
 
-export interface HaIcon extends HTMLElement {
+export interface HaIcon extends LitElement {
     icon: string;
     /* private */ _loadIcon(): Promise<void>;
     /* private */ _path: string;

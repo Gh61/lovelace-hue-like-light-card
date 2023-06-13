@@ -12,7 +12,10 @@ import { HueColorTempModeSelector } from './color-temp-mode-selector';
  * TODO:
  * - disabled brightness control when light is off
  * - hide (brightness, color, temp) controls when light doesn't support it
+ * - improve performance of color/temp picker (cache generated canvas)
  * - tweek automatic click action to always open hue-screen
+ * - fix mobile design
+ * - change documentation + add screenshot
  */
 
 @customElement(HueLightDetail.ElementName)
@@ -23,6 +26,9 @@ export class HueLightDetail extends IdLitElement {
     public static readonly ElementName = 'hue-light-detail' + Consts.ElementPostfix;
     private static readonly colorPickerMarginTop = 40;
     private static readonly colorPickerMarginBottom = 20;
+    private static readonly rollupWidth = 60;
+    private static readonly rollupHeight = 40;
+    private static readonly rollupHeightOpen = 200;
 
     private _colorPicker: HueColorTempPicker;
     private _modeSelector: HueColorTempModeSelector;
@@ -50,7 +56,26 @@ export class HueLightDetail extends IdLitElement {
         this._modeSelector.showColor = this.lightContainer.features.color;
         this._modeSelector.showTemp = this.lightContainer.features.colorTemp;
 
+        // show full-sized brightness picker
+        if (this.lightContainer.features.isOnlyBrightness()) {
+            this._modeSelector.mode = 'brightness';
+            this.toggleFullSizedBrightness(true);
+        } else {
+            this._modeSelector.selectPossibleMode();
+            this.toggleFullSizedBrightness(false);
+        }
+
         this.onLightContainerState();
+    }
+
+    private toggleFullSizedBrightness(show: boolean) {
+        if (show) {
+            this._colorPicker.style.display = 'none';
+        }
+        this.updateBrightnessRollupSize(show);
+        if (!show) {
+            this._colorPicker.style.display = '';
+        }
     }
 
     private onLightContainerState() {
@@ -178,6 +203,11 @@ export class HueLightDetail extends IdLitElement {
         bottom: 10px;
         right: 10px;
     }
+    .brightness-picker.full-size {
+        position:static;
+        display:block;
+        margin: ${HueLightDetail.colorPickerMarginTop - 25}px auto ${HueLightDetail.colorPickerMarginBottom}px auto;
+    }
     `;
 
     private _lastRenderedContainer: LightContainer | null;
@@ -196,8 +226,9 @@ export class HueLightDetail extends IdLitElement {
             <${unsafeStatic(HueColorTempModeSelector.ElementName)} class='mode-selector'>
             </${unsafeStatic(HueColorTempModeSelector.ElementName)}>
             <${unsafeStatic(HueBrightnessRollup.ElementName)} class='brightness-picker'
-                width='60'
-                height='40'
+                width='${HueLightDetail.rollupWidth}'
+                height='${HueLightDetail.rollupHeight}'
+                heightOpened='${HueLightDetail.rollupHeightOpen}'
                 .value=${value}
                 @change=${(ev: CustomEvent) => this.brightnessValueChanged(ev)}
             >
@@ -224,11 +255,38 @@ export class HueLightDetail extends IdLitElement {
 
     private updateColorPickerSize(): void {
         const colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
-        const maxSize = Math.min(this.clientHeight, this.clientWidth);
-        if (maxSize == 0) // not rendered
+        const size = this.getPickerSize();
+        if (!size) // not rendered
             return;
-        const size = maxSize - (HueLightDetail.colorPickerMarginTop + HueLightDetail.colorPickerMarginBottom);
+
         colorPicker.style.width = size + 'px';
         colorPicker.style.height = size + 'px';
+    }
+
+    private updateBrightnessRollupSize(setFullSize: boolean): void {
+        const rollup = <HueBrightnessRollup>this.renderRoot.querySelector('.brightness-picker');
+        const size = this.getPickerSize();
+        if (!size) // not rendered
+            return;
+
+        rollup.classList.toggle('full-size', setFullSize);
+        if (setFullSize) {
+            rollup.style.width = size / 3 + 'px';
+            rollup.width = size / 3;
+            rollup.height = rollup.heightOpened = size;
+        } else {
+            rollup.style.width = '';
+            rollup.width = HueLightDetail.rollupWidth;
+            rollup.height = HueLightDetail.rollupHeight;
+            rollup.heightOpened = HueLightDetail.rollupHeightOpen;
+        }
+    }
+
+    private getPickerSize(): number | null {
+        const maxSize = Math.min(this.clientHeight, this.clientWidth);
+        if (maxSize == 0) // not rendered
+            return null;
+        const size = maxSize - (HueLightDetail.colorPickerMarginTop + HueLightDetail.colorPickerMarginBottom);
+        return size;
     }
 }

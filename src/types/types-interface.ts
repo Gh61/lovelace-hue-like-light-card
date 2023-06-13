@@ -136,6 +136,16 @@ export interface ISingleLightContainer extends ILightContainer {
 
 export interface ILightFeatures {
     /**
+     * @returns whether no extended light feature is supported.
+     */
+    isEmpty(): boolean;
+
+    /**
+     * @returns whether the only feature is brightness.
+     */
+    isOnlyBrightness(): boolean;
+
+    /**
      * Gets if it's possible to set the lights brightness.
      */
     get brightness(): boolean;

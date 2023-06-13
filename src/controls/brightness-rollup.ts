@@ -5,6 +5,7 @@ import { nameof } from '../types/extensions';
 import { ViewUtils } from '../core/view-utils';
 import { MousePoint, Point, TouchPoint } from '../types/point';
 import { PointerDragHelper } from './pointer-drag-helper';
+import { Action, noop } from '../types/functions';
 
 export interface IRollupValueChangeEventDetail {
     oldValue: number;
@@ -36,10 +37,10 @@ export class HueBrightnessRollup extends LitElement {
         super();
     }
 
-    @property()
+    @property({ reflect: true })
     public width = 100;
 
-    @property()
+    @property({ reflect: true })
     public height = 60;
 
     @property()
@@ -193,8 +194,8 @@ export class HueBrightnessRollup extends LitElement {
         }
     }
 
-    private _onDocumentMouseMoveDelegate = (ev: MouseEvent | TouchEvent, isTouch:boolean) => this.onDocumentMouseMove(ev, isTouch);
-    private onDocumentMouseMove(ev: MouseEvent | TouchEvent, isTouch:boolean) {
+    private _onDocumentMouseMoveDelegate = (ev: MouseEvent | TouchEvent, isTouch: boolean) => this.onDocumentMouseMove(ev, isTouch);
+    private onDocumentMouseMove(ev: MouseEvent | TouchEvent, isTouch: boolean) {
         if (this._isMouseDown) {
             let currentPos: Point;
             if (isTouch) {
@@ -291,6 +292,9 @@ export class HueBrightnessRollup extends LitElement {
     .fast #desc span{
         transition: all 0.15s linear;
     }
+    .instant #bar{
+        transition: none;
+    }
     .open #bar{
         height: var(--rollup-height-opened);
         /*
@@ -337,23 +341,37 @@ export class HueBrightnessRollup extends LitElement {
     protected override updated(changedProps: PropertyValues<HueBrightnessRollup>, isFirst = false) {
         super.updated(changedProps);
 
+        const instant = (a: Action) => {
+            this._wrapperElement.classList.add('instant');
+            a();
+            noop(this._wrapperElement.offsetHeight); // Trigger a reflow, flushing the CSS changes
+            this._wrapperElement.classList.remove('instant');
+        };
+
         if (changedProps.has('width')) {
-            this.style.setProperty(
-                '--rollup-width',
-                this.width + 'px'
-            );
+            instant(() => {
+                this.style.setProperty(
+                    '--rollup-width',
+                    this.width + 'px'
+                );
+            });
+
         }
         if (changedProps.has('height')) {
-            this.style.setProperty(
-                '--rollup-height',
-                this.height + 'px'
-            );
+            instant(() => {
+                this.style.setProperty(
+                    '--rollup-height',
+                    this.height + 'px'
+                );
+            });
         }
         if (changedProps.has('heightOpened')) {
-            this.style.setProperty(
-                '--rollup-height-opened',
-                this.heightOpened + 'px'
-            );
+            instant(() => {
+                this.style.setProperty(
+                    '--rollup-height-opened',
+                    this.heightOpened + 'px'
+                );
+            });
         }
 
         if (changedProps.has('immediateValue') || isFirst) {

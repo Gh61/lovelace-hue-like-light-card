@@ -40,6 +40,14 @@ export class LightFeatures implements ILightFeatures {
         }
     }
 
+    public isEmpty(): boolean {
+        return !this.color && !this.colorTemp && !this.brightness;
+    }
+
+    public isOnlyBrightness(): boolean {
+        return !this.color && !this.colorTemp && this.brightness;
+    }
+
     public readonly brightness: boolean = false;
     public readonly colorTemp: boolean = false;
     public readonly color: boolean = false;
@@ -54,6 +62,27 @@ export class LightFeaturesCombined implements ILightFeatures {
      */
     public constructor(features: Func<ILightFeatures[]>) {
         this._features = features;
+    }
+
+    public isEmpty(): boolean {
+        return this._features().every(f => f.isEmpty());
+    }
+
+    public isOnlyBrightness(): boolean {
+        let isBrightness = false;
+        const features = this._features();
+        for (let i = 0; i < features.length; i++) {
+            const f = features[i];
+            if (f.isOnlyBrightness()) {
+                isBrightness = true;
+            } else if (!f.isEmpty()) {
+                // not brightness and not empty
+                return false;
+            }
+        }
+
+        // return if at least one feature has only brightness (and the rest can be empty)
+        return isBrightness;
     }
 
     public get brightness(): boolean {

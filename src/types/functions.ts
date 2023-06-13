@@ -1,3 +1,5 @@
+export function noop(..._args:unknown[]) {}
+
 export interface Action {
     ():void;
 }

@@ -1,5 +1,5 @@
 import { Consts } from '../types/consts';
-import { Action } from '../types/functions';
+import { Action, noop } from '../types/functions';
 
 interface HueWindowHistoryState {
     isHue?: boolean, // indicate, that theese states is are for us
@@ -278,7 +278,6 @@ export class HueHistoryStateManager {
     public addStep(newStep: HueHistoryStep) {
         // first step - setup baseStep
         if (this._states.isEmpty()) {
-            const noop = () => { };
             const baseItem = new HueHistoryStep(noop, noop, 'startStep');
             this._states.push(baseItem);
 
