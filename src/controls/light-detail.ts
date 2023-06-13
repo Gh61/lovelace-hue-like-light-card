@@ -234,11 +234,7 @@ export class HueLightDetail extends IdLitElement {
         return html`
         <div>
             <ha-icon-button-prev class='back-button' @click=${() => this.hide()}></ha-icon-button-prev>
-            ${cache(
-                onlySwitch
-                    ? this.createSwitchDetail()
-                    : this.createFullDetail()
-            )}
+            ${cache(onlySwitch ? this.createSwitchDetail() : this.createFullDetail())}
         </div>`;
     }
 
@@ -257,8 +253,10 @@ export class HueLightDetail extends IdLitElement {
 
     private createSwitchDetail() {
         const light = this._lastRenderedContainer!;
-        const offColor = Consts.OffColor;
-        const onColor = Consts.WarmColor;
+        const colors = {
+            '--control-switch-on-color': Consts.WarmColor,
+            '--control-switch-off-color': Consts.OffColor
+        };
 
         return html`
             <${unsafeStatic(HueBigSwitch.ElementName)} class='light-switch'
@@ -267,10 +265,7 @@ export class HueLightDetail extends IdLitElement {
                 .checked=${light.isOn()}
                 .showHandle=${!light.isUnavailable()}
                 @change=${(ev: Event) => this.onSwitch(light, ev)}
-                style=${styleMap({
-                    '--control-switch-on-color': onColor,
-                    '--control-switch-off-color': offColor
-                })}
+                style=${styleMap(colors)}
                 .disabled=${light.isUnavailable()}
             >
                 <ha-icon icon="mdi:power-on" slot="icon-on"></ha-icon>
