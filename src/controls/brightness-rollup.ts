@@ -1,4 +1,4 @@
-import { html, css, LitElement, PropertyValues, unsafeCSS } from 'lit';
+import { html, css, LitElement, PropertyValues, unsafeCSS, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
@@ -36,6 +36,9 @@ export class HueBrightnessRollup extends LitElement {
     public constructor() {
         super();
     }
+
+    @property({ reflect: true })
+    public enabled = true;
 
     @property({ reflect: true })
     public width = 100;
@@ -318,6 +321,17 @@ export class HueBrightnessRollup extends LitElement {
         width: 100%;
     }
 
+    /* Disabled */
+    #wrapper.disabled{
+        opacity: 0.6;
+    }
+    .disabled #bar{
+        cursor: default;
+    }
+    .disabled #bar #value{
+        height: 2px !important;
+    }
+
     /* Hue styling: */
     #bar{
         box-shadow: ${unsafeCSS(Consts.HueShadow)};
@@ -374,6 +388,19 @@ export class HueBrightnessRollup extends LitElement {
             });
         }
 
+        if (changedProps.has('enabled')) {
+            this._wrapperElement.classList.toggle('disabled', !this.enabled);
+            if (!this.enabled) {
+                // disable control
+                this.clearWheelTimeouts(false);
+                this.disconnectListeners();
+                this.toggleBar(false, true); // close bar
+            } else {
+                // enable back
+                this.connectListeners();
+            }
+        }
+
         if (changedProps.has('immediateValue') || isFirst) {
             this._valueElement.style.height = this.immediateValue + '%';
         }
@@ -385,7 +412,13 @@ export class HueBrightnessRollup extends LitElement {
         return html`
         <div id='wrapper'>
             <div id='desc'>
-                <span>${this.immediateValue} %</span>
+                <span>
+                ${
+    this.enabled
+        ? html`${this.immediateValue} %`
+        : nothing
+}
+                </span>
             </div>
             <div id='bar'>
                 <div id='value'></div>
@@ -420,12 +453,21 @@ export class HueBrightnessRollup extends LitElement {
         super.connectedCallback();
 
         // connect listeners back
+        this.connectListeners();
+    }
+
+    private connectListeners() {
         this._dragHelper?.connectListeners();
     }
 
     public override disconnectedCallback() {
         super.disconnectedCallback();
 
+        // disconnect all listeners
+        this.disconnectListeners();
+    }
+
+    private disconnectListeners() {
         // remove document events
         this.removeDocumentListeners();
         this._dragHelper?.removeAllListeners();

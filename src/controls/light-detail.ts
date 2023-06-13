@@ -10,7 +10,7 @@ import { HueColorTempModeSelector } from './color-temp-mode-selector';
 
 /*
  * TODO:
- * - disabled brightness control when light is off
+ * - black marker, if light is off
  * - hide (brightness, color, temp) controls when light doesn't support it
  * - improve performance of color/temp picker (cache generated canvas)
  * - tweek automatic click action to always open hue-screen
@@ -33,6 +33,7 @@ export class HueLightDetail extends IdLitElement {
     private _colorPicker: HueColorTempPicker;
     private _modeSelector: HueColorTempModeSelector;
     private _colorMarker: HueColorTempPickerMarker;
+    private _brightnessRollup: HueBrightnessRollup;
 
     public constructor() {
         super('HueLightDetail');
@@ -93,6 +94,8 @@ export class HueLightDetail extends IdLitElement {
                 this._colorMarker.temp = this.lightContainer.colorTemp;
             }
         }
+        // enable or disable brightness rollup
+        this._brightnessRollup.enabled = this.lightContainer.isOn();
     }
 
     private onColorChanged(ev: CustomEvent<IHueColorTempPickerEventDetail>) {
@@ -198,12 +201,12 @@ export class HueLightDetail extends IdLitElement {
         bottom: 10px;
         left: 10px;
     }
-    .brightness-picker {
+    .brightness-rollup {
         position: absolute;
         bottom: 10px;
         right: 10px;
     }
-    .brightness-picker.full-size {
+    .brightness-rollup.full-size {
         position:static;
         display:block;
         margin: ${HueLightDetail.colorPickerMarginTop - 25}px auto ${HueLightDetail.colorPickerMarginBottom}px auto;
@@ -225,7 +228,7 @@ export class HueLightDetail extends IdLitElement {
             </${unsafeStatic(HueColorTempPicker.ElementName)}>
             <${unsafeStatic(HueColorTempModeSelector.ElementName)} class='mode-selector'>
             </${unsafeStatic(HueColorTempModeSelector.ElementName)}>
-            <${unsafeStatic(HueBrightnessRollup.ElementName)} class='brightness-picker'
+            <${unsafeStatic(HueBrightnessRollup.ElementName)} class='brightness-rollup'
                 width='${HueLightDetail.rollupWidth}'
                 height='${HueLightDetail.rollupHeight}'
                 heightOpened='${HueLightDetail.rollupHeightOpen}'
@@ -250,6 +253,10 @@ export class HueLightDetail extends IdLitElement {
                 this._modeSelector = <HueColorTempModeSelector>this.renderRoot.querySelector('.mode-selector');
                 this._modeSelector.colorPicker = this._colorPicker;
             }
+
+            if (!this._brightnessRollup) {
+                this._brightnessRollup = <HueBrightnessRollup>this.renderRoot.querySelector('.brightness-rollup');
+            }
         });
     }
 
@@ -264,7 +271,7 @@ export class HueLightDetail extends IdLitElement {
     }
 
     private updateBrightnessRollupSize(setFullSize: boolean): void {
-        const rollup = <HueBrightnessRollup>this.renderRoot.querySelector('.brightness-picker');
+        const rollup = <HueBrightnessRollup>this.renderRoot.querySelector('.brightness-rollup');
         const size = this.getPickerSize();
         if (!size) // not rendered
             return;
