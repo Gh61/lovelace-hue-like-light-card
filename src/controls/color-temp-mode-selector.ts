@@ -59,23 +59,17 @@ export class HueColorTempModeSelector extends LitElement {
 
         if (changedProps.has('mode') && this.mode == 'brightness') {
             const haIcon = <HaIcon>this.renderRoot.querySelector('.wheel.brightness ha-icon');
-            if (haIcon) {
-                // wait for render
-                haIcon.updateComplete.then(() => {
-                    const innerIcon = <HTMLElement>haIcon.renderRoot.children[0];
-                    innerIcon.style.setProperty('--mdc-icon-size', '20px');
-                });
-            }
+            ViewUtils.setIconSize(haIcon, HueColorTempModeSelector.wheelHeight);
         }
     }
 
-    private static readonly totalHeight = 40;
-    private static readonly totalPadding = 6;
-    private static readonly wrapperHeight = HueColorTempModeSelector.totalHeight - 2 * HueColorTempModeSelector.totalPadding;
-    private static readonly wrapperGap = 6;
-    private static readonly wrapperPadding = 2;
-    private static readonly wrapperBorder = 2;
-    private static readonly wheelHeight = HueColorTempModeSelector.wrapperHeight - 2 * (HueColorTempModeSelector.wrapperPadding + HueColorTempModeSelector.wrapperBorder);
+    private static readonly wheelHeight = 24; // same as default icon size
+    private static readonly wheelSpace = 2;
+    private static readonly wheelBorderWidth = 2;
+    private static readonly wrapperHeight = HueColorTempModeSelector.wheelHeight + 2 * (HueColorTempModeSelector.wheelSpace + HueColorTempModeSelector.wheelBorderWidth);
+    private static readonly totalPadding = 8;
+    private static readonly wrapperGap = HueColorTempModeSelector.totalPadding;
+    public static readonly totalHeight = HueColorTempModeSelector.wrapperHeight + 2 * HueColorTempModeSelector.totalPadding;
 
     public static override styles = css`
     :host{
@@ -97,9 +91,9 @@ export class HueColorTempModeSelector extends LitElement {
         box-sizing: border-box;
         width: ${HueColorTempModeSelector.wrapperHeight}px;
         height: ${HueColorTempModeSelector.wrapperHeight}px;
-        padding: ${HueColorTempModeSelector.wrapperPadding}px;
+        padding: ${HueColorTempModeSelector.wheelSpace}px;
         border-radius: ${HueColorTempModeSelector.wrapperHeight / 2}px;
-        border: ${HueColorTempModeSelector.wrapperBorder}px solid transparent;
+        border: ${HueColorTempModeSelector.wheelBorderWidth}px solid transparent;
         cursor: pointer;
     }
     .controls .wheel-wrapper:hover,

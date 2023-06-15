@@ -7,7 +7,7 @@ import { ThemeHelper } from '../types/theme-helper';
 import { ILightContainer } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
-import { IHassWindow } from '../types/types-hass';
+import { HaIcon, IHassWindow } from '../types/types-hass';
 
 export class ViewUtils {
 
@@ -171,5 +171,17 @@ export class ViewUtils {
         const haWindow = (window as IHassWindow);
 
         return !!haWindow.customIcons && typeof haWindow.customIcons.hue == 'object';
+    }
+
+    /** Will set size of icon inside of HaIcon */
+    public static setIconSize(haIcon: HaIcon, sizePx: number) {
+        sizePx = Math.round(sizePx);
+        if (haIcon) {
+            // wait for render
+            haIcon.updateComplete.then(() => {
+                const innerIcon = <HTMLElement>haIcon.renderRoot.children[0];
+                innerIcon.style.setProperty('--mdc-icon-size', sizePx + 'px');
+            });
+        }
     }
 }

@@ -14,6 +14,11 @@ import { HueBigSwitch } from './big-switch';
 
 /*
  * TODO:
+ * BUGS
+ * - when changing color/temp on lit light in another mode, mode picker keeps witching back
+ * COMPARED TO HUE:
+ * - not selected lights are little bit faded (opacity 0.9?)
+ * FEATURES:
  * - improve performance of color/temp picker (cache generated canvas)
  * - tweek automatic click action to always open hue-screen
  * - change documentation + add screenshot
@@ -25,11 +30,6 @@ export class HueLightDetail extends IdLitElement {
      * Name of this Element
      */
     public static readonly ElementName = 'hue-light-detail' + Consts.ElementPostfix;
-    private static readonly colorPickerMarginTop = 40;
-    private static readonly colorPickerMarginBottom = 20;
-    private static readonly rollupWidth = 60;
-    private static readonly rollupHeight = 40;
-    private static readonly rollupHeightOpen = 200;
 
     private _colorPicker: HueColorTempPicker;
     private _modeSelector: HueColorTempModeSelector;
@@ -185,6 +185,16 @@ export class HueLightDetail extends IdLitElement {
         }
     }
 
+    private static readonly colorPickerMarginTop = 40;
+    private static readonly colorPickerMarginBottom = 20;
+    private static readonly rollupHeight = HueColorTempModeSelector.totalHeight;
+    private static readonly rollupWidth = HueColorTempModeSelector.totalHeight / 2 * 3;
+    private static readonly rollupHeightOpen = 200;
+    private static readonly rollupIconSize = 24;
+    private static readonly rollupBigIconSize = 30;
+    private static readonly selectorPadding = 24;
+    private static readonly selectorBottom = 0;
+
     public static override styles = css`
     :host {
         margin-top: -30px;
@@ -208,13 +218,13 @@ export class HueLightDetail extends IdLitElement {
     }
     .mode-selector {
         position: absolute;
-        bottom: 10px;
-        left: 10px;
+        bottom: ${HueLightDetail.selectorBottom}px;
+        left: ${HueLightDetail.selectorPadding}px;
     }
     .brightness-rollup {
         position: absolute;
-        bottom: 10px;
-        right: 10px;
+        bottom: ${HueLightDetail.selectorBottom}px;
+        right: ${HueLightDetail.selectorPadding}px;
     }
     .brightness-rollup.full-size {
         position:static;
@@ -289,6 +299,7 @@ export class HueLightDetail extends IdLitElement {
                 width='${HueLightDetail.rollupWidth}'
                 height='${HueLightDetail.rollupHeight}'
                 heightOpened='${HueLightDetail.rollupHeightOpen}'
+                iconSize='${HueLightDetail.rollupIconSize}'
                 .value=${value}
                 @change=${(ev: CustomEvent) => this.brightnessValueChanged(ev)}
             >
@@ -344,11 +355,13 @@ export class HueLightDetail extends IdLitElement {
             rollup.style.width = size / 3 + 'px';
             rollup.width = size / 3;
             rollup.height = rollup.heightOpened = size;
+            rollup.iconSize = HueLightDetail.rollupBigIconSize;
         } else {
             rollup.style.width = '';
             rollup.width = HueLightDetail.rollupWidth;
             rollup.height = HueLightDetail.rollupHeight;
             rollup.heightOpened = HueLightDetail.rollupHeightOpen;
+            rollup.iconSize = HueLightDetail.rollupIconSize;
         }
     }
 

@@ -6,6 +6,7 @@ import { ViewUtils } from '../core/view-utils';
 import { MousePoint, Point, TouchPoint } from '../types/point';
 import { PointerDragHelper } from './pointer-drag-helper';
 import { Action, noop } from '../types/functions';
+import { HaIcon } from '../types/types-hass';
 
 export interface IRollupValueChangeEventDetail {
     oldValue: number;
@@ -48,6 +49,9 @@ export class HueBrightnessRollup extends LitElement {
 
     @property()
     public heightOpened = 200;
+
+    @property()
+    public iconSize = 24;
 
     @property()
     public get value(): number {
@@ -317,7 +321,7 @@ export class HueBrightnessRollup extends LitElement {
     #icon{
         text-align: center;
         position: absolute;
-        bottom: calc((var(--rollup-height) - 24px) / 2);
+        bottom: calc((var(--rollup-height) - var(--rollup-icon-size, 24px)) / 2);
         width: 100%;
     }
 
@@ -388,6 +392,15 @@ export class HueBrightnessRollup extends LitElement {
             });
         }
 
+        if (changedProps.has('iconSize')) {
+            const haIcon = <HaIcon>this.renderRoot?.querySelector('ha-icon');
+            ViewUtils.setIconSize(haIcon, this.iconSize);
+            this.style.setProperty(
+                '--rollup-icon-size',
+                this.iconSize + 'px'
+            );
+        }
+
         if (changedProps.has('enabled')) {
             this._wrapperElement.classList.toggle('disabled', !this.enabled);
             if (!this.enabled) {
@@ -413,11 +426,7 @@ export class HueBrightnessRollup extends LitElement {
         <div id='wrapper'>
             <div id='desc'>
                 <span>
-                ${
-    this.enabled
-        ? html`${this.immediateValue} %`
-        : nothing
-}
+                ${this.enabled ? html`${this.immediateValue} %` : nothing}
                 </span>
             </div>
             <div id='bar'>
