@@ -16,8 +16,6 @@ import { HueBigSwitch } from './big-switch';
  * TODO:
  * BUGS
  * - when changing color/temp on lit light in another mode, mode picker keeps witching back
- * COMPARED TO HUE:
- * - not selected lights are little bit faded (opacity 0.9?)
  * FEATURES:
  * - improve performance of color/temp picker (cache generated canvas)
  * - tweek automatic click action to always open hue-screen

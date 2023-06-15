@@ -666,6 +666,7 @@ export class HueDialog extends IdLitElement {
                             .cardTitle=${cardTitle}
                             .lightContainer=${l}
                             .isSelected=${this._selectedLight == l}
+                            .isUnselected=${this._selectedLight && this._selectedLight != l}
                             @selected-change=${(e: CustomEvent) => this.onLightSelected(e)}
                             .defaultColor=${this._config.getDefaultColor()}
                             .hass=${this._ctrl.hass}>

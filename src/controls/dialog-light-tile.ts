@@ -25,9 +25,17 @@ export class HueDialogLightTile extends HueDialogTile {
      */
     public static override readonly ElementName = HueDialogTile.ElementName + '-light';
 
-    @property() public lightContainer: ILightContainer | null = null;
-    @property() public defaultColor: Color | null = null;
-    @property() public isSelected = false;
+    @property()
+    public lightContainer: ILightContainer | null = null;
+
+    @property()
+    public defaultColor: Color | null = null;
+
+    @property()
+    public isSelected = false;
+
+    @property()
+    public isUnselected = false;
 
     private static readonly titlePadding = 10;
     private static readonly switchHeight = 45;
@@ -43,6 +51,10 @@ export class HueDialogLightTile extends HueDialogTile {
         background:var(--hue-light-background, ${unsafeCSS(Consts.TileOffColor)});
         box-shadow:var(--hue-light-box-shadow), ${unsafeCSS(Consts.HueShadow)};
         transition: ${unsafeCSS(Consts.TransitionDefault)}, ${unsafeCSS(HueDialogTile.clickTransition)};
+    }
+
+    .hue-tile.light.unselected{
+        opacity: 0.7;
     }
 
     .selector.active{
@@ -144,7 +156,7 @@ export class HueDialogLightTile extends HueDialogTile {
 
         if (changedProps.has('isSelected')) {
             const selector = <Element>this.renderRoot.querySelector('.selector');
-            selector.classList.toggle('active', this.isSelected);
+            selector.classList.toggle('active', !!this.isSelected);
 
             // fire event on change
             this.dispatchEvent(new CustomEvent<ILightSelectedEventDetail>('selected-change', {
@@ -154,6 +166,11 @@ export class HueDialogLightTile extends HueDialogTile {
                     tileElement: this
                 }
             }));
+        }
+
+        if (changedProps.has('isUnselected')) {
+            const tile = <Element>this.renderRoot.querySelector('.hue-tile');
+            tile.classList.toggle('unselected', !!this.isUnselected);
         }
     }
 
