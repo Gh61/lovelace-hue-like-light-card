@@ -14,8 +14,6 @@ import { HueBigSwitch } from './big-switch';
 
 /*
  * TODO:
- * BUGS
- * - when changing color/temp on lit light in another mode, mode picker keeps witching back
  * FEATURES:
  * - tweek automatic click action to always open hue-screen
  * - change documentation + add screenshot
@@ -69,7 +67,7 @@ export class HueLightDetail extends IdLitElement {
             this.toggleFullSizedBrightness(false);
         }
 
-        this.onLightContainerState();
+        this.onLightContainerState(true);// set mode, when changing light
     }
 
     private toggleFullSizedBrightness(show: boolean) {
@@ -82,17 +80,21 @@ export class HueLightDetail extends IdLitElement {
         }
     }
 
-    private onLightContainerState() {
+    private onLightContainerState(setMode = false) {
         if (!this.lightContainer)
             return;
 
         if (this.lightContainer.isColorModeColor()) {
-            this._modeSelector.mode = 'color';
+            if (setMode) {
+                this._modeSelector.mode = 'color';
+            }
             if (this.lightContainer.color) {
                 this._colorMarker.color = this.lightContainer.color;
             }
         } else if (this.lightContainer.isColorModeTemp()) {
-            this._modeSelector.mode = 'temp';
+            if (setMode) {
+                this._modeSelector.mode = 'temp';
+            }
             if (this.lightContainer.colorTemp) {
                 this._colorMarker.temp = this.lightContainer.colorTemp;
             }
