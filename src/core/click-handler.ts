@@ -34,31 +34,11 @@ export class ClickHandler {
     }
 
     private resolveDefaultWhenOn() : ClickAction {
-        // When is on and has scenes - show scenes
-        if (this._config.scenes.length) {
-            return ClickAction.HueScreen;
-        }
-
-        // When is only 1 (and has no scenes) - show more-info
-        if (this._ctrl.count == 1) {
-            return ClickAction.MoreInfo;
-        }
-
-        return ClickAction.TurnOff;
+        return ClickAction.HueScreen;
     }
 
     private resolveDefaultWhenOff() : ClickAction {
-        // When is off and is only 1 - show more-info
-        if (this._ctrl.count == 1) {
-            return ClickAction.MoreInfo;
-        }
-
-        // When is more than 1 (and has scenes) - show scenes
-        if (this._config.scenes.length) {
-            return ClickAction.HueScreen;
-        }
-
-        return ClickAction.TurnOn;
+        return ClickAction.HueScreen;
     }
 
     private executeClickAction(action: ClickAction, actionData: ClickActionData) {

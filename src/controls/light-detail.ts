@@ -377,11 +377,15 @@ export class HueLightDetail extends IdLitElement {
         if (!size) // not rendered
             return;
 
-        const w = size / 3 + 'px';
-        lightSwitch.style.width = w;
+        let width = size / 3;
+        if (width < 60) {
+            width = 60;
+        }
+        const widthPx = width + 'px';
+        lightSwitch.style.width = widthPx;
         lightSwitch.style.setProperty(
             '--control-switch-thickness',
-            w
+            widthPx
         );
         lightSwitch.style.height = size + 'px';
     }
