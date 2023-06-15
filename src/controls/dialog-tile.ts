@@ -46,6 +46,9 @@ export abstract class HueDialogTile extends IdLitElement {
     protected static readonly clickTransition = 'transform .15s';
 
     protected static hueDialogStyle = css`
+    :host{
+        -webkit-tap-highlight-color: transparent;
+    }
     .hue-tile{
         background: ${unsafeCSS(Consts.TileOffColor)};
         width: ${HueDialogTile.width}px;
