@@ -516,12 +516,28 @@ export class HueColorTempPicker extends LitElement {
     }
     .icon {
         transform: scale(1.2) translate(8px, 8px);
-        transition: all .3s linear;
+        transition: ${unsafeCSS(Consts.TransitionDefault)};
         fill: white;
+    }
+    .gm.boing {
+        animation: boing 150ms ease-in-out;
     }
     .marker, .icon{
         cursor: pointer;
     }
+
+    @keyframes boing {
+        0% {
+            scale:0.9;
+        }
+        50% {
+            scale:1;
+            translate: 0 -5px;
+        }
+        100% {
+            scale:1;
+        }
+      }
     `;
 
     protected override render() {
@@ -592,6 +608,15 @@ export class HueColorTempPickerMarker {
                 newTemp: this.mode == 'temp' ? this.temp : null
             }
         }));
+    }
+
+    public boing() {
+        const normalClass = 'gm';
+        const boingClass = 'gm boing';
+        this._markerG.setAttribute('class', boingClass);
+        setTimeout(() => {
+            this._markerG.setAttribute('class', normalClass);
+        }, 200); // animation takes 150ms, 
     }
 
     private get position() {
@@ -802,6 +827,7 @@ export class HueColorTempPickerMarker {
         const x = this.position.X - offset.X;
         const y = this.position.Y - offset.Y;
         this._markerG.style.transform = `translate(${x}px,${y}px)`;
+        this._markerG.style.transformOrigin = `${this.position.X}px ${this.position.Y}px`;
     }
 
     /**
@@ -864,6 +890,7 @@ export class HueColorTempPickerMarker {
             'http://www.w3.org/2000/svg',
             'g'
         );
+        g.setAttribute('class', 'gm');
 
         const m = document.createElementNS(
             'http://www.w3.org/2000/svg',

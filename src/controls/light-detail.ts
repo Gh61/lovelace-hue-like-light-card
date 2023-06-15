@@ -105,6 +105,10 @@ export class HueLightDetail extends IdLitElement {
 
         // enable or disable brightness rollup
         this._brightnessRollup.enabled = this.lightContainer.isOn();
+
+        if (setMode) {
+            this._colorMarker.boing();
+        }
     }
 
     private onColorChanged(ev: CustomEvent<IHueColorTempPickerEventDetail>) {

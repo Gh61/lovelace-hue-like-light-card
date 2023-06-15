@@ -638,7 +638,7 @@ export class HueDialog extends IdLitElement {
             <div class='tile-scroller detail-hide'>
                 <div class='tiles'>
                     ${(this._config.scenes.map((s, i) => i % 2 == 1 ? nothing :
-            html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
+                        html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
                             @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
@@ -647,7 +647,7 @@ export class HueDialog extends IdLitElement {
                 </div>
                 <div class='tiles'>
                     ${(this._config.scenes.map((s, i) => i % 2 == 0 ? nothing :
-                html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
+                        html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
                             @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
@@ -662,7 +662,7 @@ export class HueDialog extends IdLitElement {
             <div class='tile-scroller light-tiles'>
                 <div class='tiles'>
                     ${(this._ctrl.getLights().map((l) =>
-                    html`<${unsafeStatic(HueDialogLightTile.ElementName)}
+                        html`<${unsafeStatic(HueDialogLightTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .lightContainer=${l}
                             .isSelected=${this._selectedLight == l}
