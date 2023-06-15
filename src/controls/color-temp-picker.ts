@@ -15,6 +15,45 @@ export interface IHueColorTempPickerEventDetail {
 
 export type HueColorTempPickerMode = 'color' | 'temp';
 
+/** Uses LocalStorage to save and get already rendered wheels. */
+class HueColorWheelCache {
+    private static readonly version = 1;
+
+    public static saveWheel(mode: HueColorTempPickerMode, radius: number, canvas: HTMLCanvasElement) {
+        const key = this.createKey(mode, radius);
+        const dataUrl = canvas.toDataURL(); // we're using dataUrl, because in raw format, the image exceeds localStorage size limit
+        try {
+            localStorage.setItem(key, dataUrl);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    public static tryGetWheel(mode: HueColorTempPickerMode, radius: number) {
+        const key = this.createKey(mode, radius);
+        try {
+            const dataUrl = localStorage.getItem(key) || null;
+            if (dataUrl) {
+                return {
+                    success: true,
+                    dataUrl
+                };
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        return {
+            success: false,
+            dataUrl: null
+        };
+    }
+
+    private static createKey(mode: HueColorTempPickerMode, radius: number) {
+        return `HueColorWheelCache_${mode}${radius}x${radius}v${this.version}`;
+    }
+}
+
 /**
  * Color and Temp picker.
  */
@@ -109,27 +148,41 @@ export class HueColorTempPicker extends LitElement {
 
         const radius = HueColorTempPicker.renderWidthHeight / 2;
 
-        const image = ctx.createImageData(2 * radius, 2 * radius);
-        const data = image.data;
+        let image: ImageData;
+        const cacheItem = HueColorWheelCache.tryGetWheel(this.mode, radius);
+        if (cacheItem.success) {
+            // we have dataUrl, we need to parse them through Image element, then render them to canvas
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = cacheItem.dataUrl!;
 
-        for (let x = -radius; x < radius; x++) {
-            for (let y = -radius; y < radius; y++) {
+        } else {
+            image = ctx.createImageData(2 * radius, 2 * radius);
+            const data = image.data;
 
-                const colorAndValue = this.getColorAndValue(x, y, radius);
-                if (!colorAndValue)
-                    continue;
+            for (let x = -radius; x < radius; x++) {
+                for (let y = -radius; y < radius; y++) {
 
-                const [red, green, blue] = colorAndValue.color;
-                const alpha = 255;
+                    const colorAndValue = this.getColorAndValue(x, y, radius);
+                    if (!colorAndValue)
+                        continue;
 
-                data[colorAndValue.index] = red;
-                data[colorAndValue.index + 1] = green;
-                data[colorAndValue.index + 2] = blue;
-                data[colorAndValue.index + 3] = alpha;
+                    const [red, green, blue] = colorAndValue.color;
+                    const alpha = 255;
+
+                    data[colorAndValue.index] = red;
+                    data[colorAndValue.index + 1] = green;
+                    data[colorAndValue.index + 2] = blue;
+                    data[colorAndValue.index + 3] = alpha;
+                }
             }
-        }
 
-        ctx.putImageData(image, 0, 0);
+            ctx.putImageData(image, 0, 0);
+
+            HueColorWheelCache.saveWheel(this.mode, radius, this._backgroundLayer);
+        }
     }
 
     //#region Marker methods
