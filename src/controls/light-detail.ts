@@ -15,8 +15,7 @@ import { HueBigSwitch } from './big-switch';
 /*
  * TODO:
  * FEATURES:
- * - tweek automatic click action to always open hue-screen
- * - change documentation + add screenshot
+ * - change documentation + add screenshots
  */
 
 @customElement(HueLightDetail.ElementName)
@@ -342,6 +341,17 @@ export class HueLightDetail extends IdLitElement {
 
         colorPicker.style.width = size + 'px';
         colorPicker.style.height = size + 'px';
+
+        // if there is more vertical space, move the color wheel to the center
+        const verticalSpace = this.clientHeight - size - (HueLightDetail.colorPickerMarginTop + HueLightDetail.colorPickerMarginBottom);
+        if (verticalSpace > 0) {
+            const addMargin = verticalSpace / 2;
+            colorPicker.style.marginTop = (HueLightDetail.colorPickerMarginTop + addMargin) + 'px';
+            colorPicker.style.marginBottom = (HueLightDetail.colorPickerMarginBottom + addMargin) + 'px';
+        } else {
+            colorPicker.style.marginTop = '';
+            colorPicker.style.marginBottom = '';
+        }
     }
 
     private updateBrightnessRollupSize(setFullSize: boolean): void {
