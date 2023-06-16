@@ -15,7 +15,7 @@ import { HueBigSwitch } from './big-switch';
 /*
  * TODO:
  * FEATURES:
- * - change documentation + add screenshots
+ * - add screenshots
  */
 
 @customElement(HueLightDetail.ElementName)

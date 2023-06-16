@@ -19,10 +19,6 @@ entity: light.livingroom_color
 ```
 Where **livingroom_color** is the [entity](https://www.home-assistant.io/getting-started/concepts-terminology/#devices--entities) id of some existing light.
 
-For certain configurations (single light without scenes) you **might not get the [Hue Screen](#hue-screen)** on click.<br/>
-This is caused by the default [Click action](#automatic-click-action), you can override it by setting `onClickAction` and/or `offClickAction`.<br/>
-*This default behaviour is chosen because the Hue Screen is currently not supporting control of all light features. It will be changed, after the brightness and color change is implemented to the Hue Screen.*
-
 For more options see [Configuration](#configuration) or let yourself inspire in [Examples of configuration](#examples-of-configuration)
 
 ## Installation
@@ -104,7 +100,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><a href="#click-action">Click Action</a></td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><a href="#automatic-click-action"><i>automatic</i></a></td>
+    <td><a href="#automatic-click-action"><i>automatic</i></a> (<code>hue-screen</code>)</td>
     <td>Action when tile is clicked and all <b>lights are off</b></td>
   </tr>
   <tr>
@@ -120,7 +116,7 @@ For more options see [Configuration](#configuration) or let yourself inspire in 
     <td><a href="#click-action">Click Action</a></td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><a href="#automatic-click-action"><i>automatic</i></a></td>
+    <td><a href="#automatic-click-action"><i>automatic</i></a> (<code>hue-screen</code>)</td>
     <td>Action when tile is clicked and any of <b>lights is on</b></td>
   </tr>
   <tr>
@@ -320,7 +316,7 @@ onClickAction: turn-off
     <td>yes</td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><a href="#automatic-click-action">automatic action</a></td>
+    <td><a href="#automatic-click-action">automatic action</a> (<code>hue-screen</code>)</td>
   </tr>
   <tr>
     <td><code>none</code></td>
@@ -392,27 +388,7 @@ offClickData:
 ```
 
 ### Automatic click action
-Automatic action is detected based on this diagram.
-
-```
-               ┌─────────────────┐
-               │Is any light lit?├────────────┐
-               └───────┬─────────┘            │
-                       │NO                    │YES
-                       ▼                      ▼
-           YES┌──────────────────┐   ┌─────────────────┐YES
- more-info◄───┤Is only one light?│   │Are there scenes?├───►hue-screen
-              └────────┬─────────┘   └────────┬────────┘
-                       │NO                    │NO
-                       ▼                      ▼
-           YES┌─────────────────┐   ┌──────────────────┐YES
-hue-screen◄───┤Are there scenes?│   │Is only one light?├───►more-info
-              └────────┬────────┘   └─────────┬────────┘
-                       │NO                    │NO
-                       ▼                      ▼
-                   turn-on                turn-off
-```
-*Will be changed in the future.*
+Since version 1.4.0 automatic click action is always `hue-screen`.
 
 ## Scenes configuration
 To enable switching between scenes, you can configure scenes, that can be activated in [Hue Screen](#hue-screen).<br/>
@@ -510,6 +486,10 @@ Automatic scene detection will take place, when no scenes are configured.
 Scenes are detected from areas where lights are placed.<br/>
 All scenes from all areas, where configured lights are placed, are taken.
 
+**Icon** of detected scenes is taken from your Home Assistant settings. You can change the icon in entity settings.
+
+**Color** of scene cannot be detected automatically, for the best experience fill scenes and respective colors manually.
+
 ### Custom activation example (Hue dynamic scene)
 ```yaml
 type: custom:hue-like-light-card
@@ -528,7 +508,8 @@ scenes:
 ```
 
 ## Hue Screen
-Hue screen will allow you to activate [scenes](#scenes-configuration), *and in the future* set light colors (same functionality as Hue App).
+Hue screen will allow you to activate [scenes](#scenes-configuration), set light colors, temp and brightness (same functionality as official Hue App).
+*Function of effects activation will come in the future.*
 
 ![Hue-Screen](/doc/hue-screen1.png)
 <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="440" />
@@ -656,7 +637,6 @@ defaultColor: 'rgb(230,230,255)'
 
 
 ## Coming soon features
-- color picker in [Hue Screen](#hue-screen)
 - reactions on sliding event instead of on change (value will be changed in the moment of sliding, not after)
 - faster reactions between multiple cards (instant change of value on other cards)
 - subtext under the main text (how many lights are on, ...)
