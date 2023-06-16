@@ -12,12 +12,6 @@ import { HueColorTempModeSelector } from './color-temp-mode-selector';
 import { HaControlSwitch } from '../types/types-hass';
 import { HueBigSwitch } from './big-switch';
 
-/*
- * TODO:
- * FEATURES:
- * - add screenshots
- */
-
 @customElement(HueLightDetail.ElementName)
 export class HueLightDetail extends IdLitElement {
     /**

@@ -8,6 +8,7 @@ This [dashboard](https://www.home-assistant.io/getting-started/concepts-terminol
 <p>
   <img alt="Screen1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/screen1.png" height="500" />
   <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="500" />
+  <img alt="Hue-Screen-Detail1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen-detail-1.png" height="500" />
 </p>
 
 \* *intensity of color, shadow and other UI properties may be subject of change*
@@ -512,7 +513,9 @@ Hue screen will allow you to activate [scenes](#scenes-configuration), set light
 *Function of effects activation will come in the future.*
 
 ![Hue-Screen](/doc/hue-screen1.png)
+![Hue-Screen-Detail](/doc/hue-screen-detail-2.png)
 <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="440" />
+<img alt="Hue-Screen-Detail1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen-detail-1.png" height="440" />
 
 ## Resources object
 Using the configuration option `resources`, you can change all static texts used in this component.
