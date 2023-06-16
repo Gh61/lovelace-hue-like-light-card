@@ -18,9 +18,15 @@ This [dashboard](https://www.home-assistant.io/getting-started/concepts-terminol
 type: custom:hue-like-light-card
 entity: light.livingroom_color
 ```
-Where **livingroom_color** is the [entity](https://www.home-assistant.io/getting-started/concepts-terminology/#devices--entities) id of some existing light.
+Where **livingroom_color** is the [entity](https://www.home-assistant.io/getting-started/concepts-terminology/#devices--entities) id of some existing **light**.
 
 For more options see [Configuration](#configuration) or let yourself inspire in [Examples of configuration](#examples-of-configuration)
+
+### Hue icons
+For the best experience use with [hass-hue-icons](https://github.com/arallsopp/hass-hue-icons).
+You can then use icons you are used to (from Philips Hue app).
+
+Also this card will detect these icons installed and will use them prior to HA icons on some places (eg. brightness icon).
 
 ## Installation
 
