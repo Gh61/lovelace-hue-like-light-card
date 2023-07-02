@@ -1,4 +1,4 @@
-import { HueLikeLightCard } from '../dist/hue-like-light-card';
+import { HueLikeLightCard } from '../src/hue-like-light-card';
 import { hassMockup } from './mockup-hass-states';
 
 describe('Card', () => {
@@ -26,8 +26,8 @@ describe('Card', () => {
             style: '*{color:white}'
         });
 
-        // eslint-disable-next-line no-underscore-dangle
-        expect(card._config?.style).toBe(s);
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        expect(card['_config']?.style).toBe(s);
     });
 
     it('works with card_mod/style', () => {
@@ -38,7 +38,7 @@ describe('Card', () => {
             card_mod: s
         });
 
-        // eslint-disable-next-line no-underscore-dangle
-        expect(card._config?.card_mod).toBe(s);
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        expect(card['_config']?.card_mod).toBe(s);
     });
 });
