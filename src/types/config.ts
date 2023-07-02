@@ -199,7 +199,13 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         return new ColorExtended(this.hueScreenBgColor);
     }
 
-    private scenesLoaded = false;
+    private _scenesLoaded = false;
+
+    /** @returns If the scenes has been loaded */
+    public get scenesLoaded() {
+        return this._scenesLoaded;
+    }
+
     /**
      * Will try to load scenes from HA WS, if are no scenes are configured.
      */
@@ -207,8 +213,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         if (!hass)
             throw new Error('Hass instance must be passed!');
 
-        if (this.scenes.length == 0 && !this.scenesLoaded) {
-            this.scenesLoaded = true;
+        if (this.scenes.length == 0 && !this._scenesLoaded) {
+            this._scenesLoaded = true;
 
             try {
                 // load all areas

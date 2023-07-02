@@ -30,7 +30,15 @@ export class LightContainer extends NotifyBase<LightContainer> implements ISingl
 
     public set hass(value: HomeAssistant) {
         this._hass = value;
+        if (!this._hass.states) {
+            throw new Error('No \'states\' available on passed hass instance.');
+        }
+
         this._entity = <HassLightEntity>this._hass.states[this._entity_id];
+        if (!this._entity) {
+            throw new Error(`Entity '${this._entity_id}' not found in states.`);
+        }
+
         this._entityFeatures = new LightFeatures(this._entity);
         this.raisePropertyChanged('hass');
     }

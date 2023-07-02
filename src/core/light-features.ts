@@ -6,7 +6,8 @@ export class LightFeatures implements ILightFeatures {
     public constructor(lightEntity: HassLightEntity) {
 
         // no modes
-        if (lightEntity.attributes.supported_color_modes == null ||
+        if (lightEntity.attributes == null ||
+            lightEntity.attributes.supported_color_modes == null ||
             lightEntity.attributes.supported_color_modes.length == 0) {
             return;
         }
