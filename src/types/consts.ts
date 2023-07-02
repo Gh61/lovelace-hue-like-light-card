@@ -24,9 +24,6 @@ export class Consts {
     public static readonly DialogOffColor = '#363636';
     public static readonly GradientOffset = 10; // percent
     public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
-    public static readonly DefaultOneIcon = 'mdi:lightbulb';
-    public static readonly DefaultTwoIcon = 'mdi:lightbulb-multiple';
-    public static readonly DefaultMoreIcon = 'mdi:lightbulb-group';
     public static readonly TimeCacheInterval = 1500; // ms
 
     // Theme colors

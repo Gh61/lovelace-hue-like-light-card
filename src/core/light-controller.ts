@@ -1,5 +1,4 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { Consts } from '../types/consts';
 import { ILightContainer, ILightFeatures } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
@@ -8,6 +7,7 @@ import { StaticTextTemplate } from './hass-text-template';
 import { LightContainer } from './light-container';
 import { LightFeaturesCombined } from './light-features';
 import { NotifyBase } from './notify-base';
+import { IconHelper } from './icon-helper';
 
 export class LightController extends NotifyBase<LightController> implements ILightContainer {
     private _hass: HomeAssistant;
@@ -37,14 +37,14 @@ export class LightController extends NotifyBase<LightController> implements ILig
     /**
      * @returns all lit lights.
      */
-    public getLitLights() : ILightContainer[] {
+    public getLitLights(): ILightContainer[] {
         return this._lights.filter(l => l.isOn());
     }
 
     /**
      * @returns all lights in this controller.
      */
-    public getLights() : ILightContainer[] {
+    public getLights(): ILightContainer[] {
         return this._lights.map(l => l); // map will cause creation of new array
     }
 
@@ -135,13 +135,11 @@ export class LightController extends NotifyBase<LightController> implements ILig
     }
 
     public getIcon(): string {
-        const lightIcon = this._lights.length > 2
-            ? Consts.DefaultMoreIcon // 3 lightbulbs
-            : this._lights.length > 1
-                ? Consts.DefaultTwoIcon // 2 lightbulbs
-                : this._lights[0].getIcon() || Consts.DefaultOneIcon; // 1 lightbulb)
+        if (this._lights.length == 1) {
+            return this._lights[0].getIcon() || IconHelper.getIcon(1);
+        }
 
-        return lightIcon;
+        return IconHelper.getIcon(this._lights.length);
     }
 
     public getTitle() {

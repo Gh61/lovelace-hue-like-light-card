@@ -11,6 +11,7 @@ import { LightContainer } from '../core/light-container';
 import { HueColorTempModeSelector } from './color-temp-mode-selector';
 import { HaControlSwitch } from '../types/types-hass';
 import { HueBigSwitch } from './big-switch';
+import { IconHelper } from '../core/icon-helper';
 
 @customElement(HueLightDetail.ElementName)
 export class HueLightDetail extends IdLitElement {
@@ -47,7 +48,7 @@ export class HueLightDetail extends IdLitElement {
             return;
         }
 
-        this._colorMarker.icon = this.lightContainer.getIcon() || Consts.DefaultOneIcon;
+        this._colorMarker.icon = this.lightContainer.getIcon() || IconHelper.getIcon(1);
         this._modeSelector.showColor = this.lightContainer.features.color;
         this._modeSelector.showTemp = this.lightContainer.features.colorTemp;
 

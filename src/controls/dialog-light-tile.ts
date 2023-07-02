@@ -8,6 +8,7 @@ import { ILightContainer } from '../types/types-interface';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 import { noop } from '../types/functions';
+import { IconHelper } from '../core/icon-helper';
 
 export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
@@ -188,7 +189,7 @@ export class HueDialogLightTile extends HueDialogTile {
             return nothing;
 
         const title = this.lightContainer.getTitle().resolveToString(null);
-        const icon = this.lightContainer.getIcon() ?? Consts.DefaultOneIcon;
+        const icon = this.lightContainer.getIcon() ?? IconHelper.getIcon(1);
 
         /*eslint-disable */
         return html`
