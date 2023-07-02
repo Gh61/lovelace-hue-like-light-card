@@ -15,8 +15,8 @@ export enum ClickAction {
 }
 
 export class ClickActionData {
-    private readonly _onlyValue : string;
-    private readonly _valueStore : Record<string, string>;
+    private readonly _onlyValue: string;
+    private readonly _valueStore: Record<string, string>;
 
     public constructor(plainConfig: string | Record<string, string> | ClickActionData | undefined) {
         if (typeof plainConfig == 'string') {
@@ -34,12 +34,12 @@ export class ClickActionData {
     /**
      * Gets data parameter from config.
      */
-    public getData(key:string) : string {
+    public getData(key: string): string {
         if (this._onlyValue)
             return this._onlyValue;
 
         return this._valueStore[key];
-    } 
+    }
 }
 
 export class SceneConfig {
@@ -70,7 +70,7 @@ export class SceneConfig {
         return splitted;
     }
 
-    public getActivationData():Record<string, unknown> {
+    public getActivationData(): Record<string, unknown> {
         const result = <Record<string, unknown>>{ entity_id: this.entity };
 
         if (this.activationData) {
@@ -87,11 +87,11 @@ export class SceneConfig {
 }
 
 export class SceneData {
-    private _config:SceneConfig;
-    private _hass:HomeAssistant;
-    private _entity:HassEntity;
+    private _config: SceneConfig;
+    private _hass: HomeAssistant;
+    private _entity: HassEntity;
 
-    public constructor(configOrEntityId:SceneConfig | string) {
+    public constructor(configOrEntityId: SceneConfig | string) {
         if (typeof configOrEntityId == 'string') {
             this._config = new SceneConfig(configOrEntityId);
         } else {
@@ -135,7 +135,7 @@ export class SceneData {
     /**
      * @returns icon from config or from entity settings or passed defaultIcon.
      */
-    public getIcon(defaultIcon:string | null = null) {
+    public getIcon(defaultIcon: string | null = null) {
         this.ensureHass();
 
         // if config has empty icon defined - return empty
@@ -148,7 +148,7 @@ export class SceneData {
     /**
      * @returns color as instance of Color or null, if no color is present.
      */
-    public getColor() : Color | null {
+    public getColor(): Color | null {
         if (!this._config.color)
             return null;
 
@@ -161,9 +161,8 @@ export class SceneData {
     }
 }
 
-export interface HueLikeLightCardConfigInterface {
-    readonly entity?: string;
-    readonly entities?: string[];
+export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
+    readonly entities?: string[] | ConfigEntityInterface[];
     readonly title?: string;
     readonly icon?: string;
     readonly showSwitch?: boolean;
@@ -188,6 +187,10 @@ export interface HueLikeLightCardConfigInterface {
     /** Support for card-mod styling */
     readonly style?: unknown;
     readonly card_mod?: unknown;
+}
+
+export interface ConfigEntityInterface {
+    readonly entity?: string;
 }
 
 export interface ResourcesInterface {

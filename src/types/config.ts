@@ -8,10 +8,10 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
-import { ClickAction, ClickActionData, HueLikeLightCardConfigInterface, SceneConfig } from './types-config';
+import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, SceneConfig } from './types-config';
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
-    private _scenes : SceneConfig[];
+    private _scenes: SceneConfig[];
 
     public constructor(plainConfig: HueLikeLightCardConfigInterface) {
         this.entity = plainConfig.entity;
@@ -48,7 +48,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
      * @plain Plain value from config
      * @def Default value if plain value is not filled
      */
-    private static getBoolean(plain:boolean | undefined, def:boolean) : boolean {
+    private static getBoolean(plain: boolean | undefined, def: boolean): boolean {
         if (plain == null)
             return def;
         return !!plain;
@@ -58,7 +58,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
      * Returns ClickAction valid enum, default for empty or throws exception.
      * @param plain 
      */
-    private static getClickAction(plain:ClickAction | string | undefined) : ClickAction {
+    private static getClickAction(plain: ClickAction | string | undefined): ClickAction {
         if (!plain)
             return ClickAction.Default;
 
@@ -70,7 +70,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
 
             helpValues += `'${enumValue}', `;
         }
-    
+
         throw new Error(`Click action '${plain}' was not recognized. Allowed values are: ${helpValues}`);
         //return ClickAction.Default;
     }
@@ -79,7 +79,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
      * Returns array of SceneConfig - parsed from passed plain config.
      * @param plain Plain value from config
      */
-    private static getScenesArray(plain: (string | SceneConfig)[] | undefined) : SceneConfig[] {
+    private static getScenesArray(plain: (string | SceneConfig)[] | undefined): SceneConfig[] {
         if (!plain)
             return [];
 
@@ -103,7 +103,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
      * @param plain Plain value of one scene from config
      * @param index Index of value in array (for error message purposes)
      */
-    private static getScene(plain: string | SceneConfig, index:number) : SceneConfig {
+    private static getScene(plain: string | SceneConfig, index: number): SceneConfig {
         if (typeof plain == 'string') {
             return new SceneConfig(plain);
         }
@@ -123,7 +123,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     }
 
     public readonly entity?: string;
-    public readonly entities?: string[];
+    public readonly entities?: string[] | ConfigEntityInterface[];
     public readonly title?: string;
     public readonly icon?: string;
     public readonly showSwitch: boolean;
@@ -154,7 +154,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     /**
      * @returns Title from config or from passed container.
      */
-    public getTitle(lightContainer:ILightContainer) : IHassTextTemplate {
+    public getTitle(lightContainer: ILightContainer): IHassTextTemplate {
         return !!this.title
             ? new HassTextTemplate(this.title)
             : lightContainer.getTitle();
@@ -169,11 +169,17 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     /**
      * @returns List of entity identifiers
      */
-    public getEntities() : string[] {
+    public getEntities(): string[] {
         // create list of entities (prepend entity and then insert all entities)
         const ents: string[] = [];
         this.entity && ents.push(this.entity);
-        this.entities && this.entities.forEach(e => ents.push(e));
+        this.entities && this.entities.forEach(e => {
+            if (typeof e == 'string') {
+                ents.push(e);
+            } else if (e.entity) {
+                ents.push(e.entity);
+            }
+        });
 
         return ents;
     }
@@ -181,21 +187,21 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     /**
      * @returns Default color as instance of Color.
      */
-    public getDefaultColor() : Color {
+    public getDefaultColor(): Color {
         return ColorResolver.getColor(this.defaultColor);
     }
 
     /**
      * @returns Off color as instance of Color.
      */
-    public getOffColor() : ColorExtended {
+    public getOffColor(): ColorExtended {
         return new ColorExtended(this.offColor);
     }
 
     /**
      * @returns Background color for hue-screen dialog. 
      */
-    public getHueScreenBgColor() : ColorExtended {
+    public getHueScreenBgColor(): ColorExtended {
         return new ColorExtended(this.hueScreenBgColor);
     }
 
