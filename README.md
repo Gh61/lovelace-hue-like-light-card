@@ -244,10 +244,18 @@ Also this card will detect these icons installed and will use them prior to HA i
 </table>
 
 ### Automatic Icon
-- If the card has one light entity attached, the icon is taken from entity.
+- If the card has **one** light entity attached, the icon is taken from entity.
     - If the entity has no icon, `mdi:lightbulb` (![lightbulb](https://user-images.githubusercontent.com/10837736/171443813-5e0dc16c-de15-43a1-9e96-0917c038e0a9.svg)) is used.
-- If the card has two lights `mdi:lightbulb-multiple` (![lightbulb-multiple](https://user-images.githubusercontent.com/10837736/171444016-4b571fcf-0e30-4eca-9baf-61a710c17c05.svg)) is used.
-- If the card has three or more lights attached, `mdi:lightbulb-group` (![lightbulb-group](https://user-images.githubusercontent.com/10837736/171444069-639d41d5-1dc7-4bd7-8104-b77f52df86fb.svg)) is used.
+- If the card has **two** lights `mdi:lightbulb-multiple` (![lightbulb-multiple](https://user-images.githubusercontent.com/10837736/171444016-4b571fcf-0e30-4eca-9baf-61a710c17c05.svg)) is used.
+- If the card has **three or more** lights attached, `mdi:lightbulb-group` (![lightbulb-group](https://user-images.githubusercontent.com/10837736/171444069-639d41d5-1dc7-4bd7-8104-b77f52df86fb.svg)) is used.
+
+
+When [hass-hue-icons](https://github.com/arallsopp/hass-hue-icons) is installed *(Since version 1.4.1)*:
+- If the card has **one** light entity attached, the icon is taken from entity.
+    - If the entity has no icon, `hue:bulb-classic` (<img alt='bulb-classic' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/svgs/bulb-classic.svg' height="24">) is used.
+- If the card has **two** lights `hue:bulb-group-classic` (<img alt='bulb-group-classic' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/custom_svgs/bulb-group-classic.svg' height="24">) is used.
+- If the card has **three** lights attached, `hue:bulb-group-classic-3` (<img alt='bulb-group-classic-3' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/custom_svgs/bulb-group-classic-3.svg' height="24">) is used.
+- If the card has **four or more** lights attached, `hue:bulb-group-classic-4` (<img alt='bulb-group-classic-4' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/custom_svgs/bulb-group-classic-4.svg' height="24">) is used.
 
 ## Text template
 *Since version 1.2.0*
