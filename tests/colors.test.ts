@@ -85,5 +85,5 @@ describe('Color', () => {
         expect(color.toString()).toBe('rgb(240,89,38)');
     });
 
-    // named colors cannot be tested, because in test environment is no document or canvas object
+    // named colors cannot be tested, because in test environment parsing color from canvas is not possible
 });
