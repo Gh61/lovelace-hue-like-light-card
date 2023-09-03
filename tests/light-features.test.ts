@@ -1,5 +1,5 @@
-import { LightFeatures } from "../src/core/light-features";
-import { createLightEntity } from "./test.helper";
+import { LightFeatures } from '../src/core/light-features';
+import { createLightEntity } from './test.helper';
 
 describe('Light features', () => {
     it('should recognize onoff', () => {
@@ -11,9 +11,9 @@ describe('Light features', () => {
             icon: 'pap:light_dimming_button',
             friendly_name: 'Whatever Display Backlight',
             supported_features: 0
-        }
+        };
 
-        var features = new LightFeatures(createLightEntity("on", entityAttributes));
+        const features = new LightFeatures(createLightEntity('on', entityAttributes));
 
         expect(features.brightness).toBe(false);
         expect(features.colorTemp).toBe(false);
@@ -32,9 +32,9 @@ describe('Light features', () => {
             icon: 'mdi:circle-outline',
             friendly_name: 'Whatever Light Brightness',
             supported_features: 0
-        }
+        };
 
-        var features = new LightFeatures(createLightEntity("on", entityAttributes));
+        const features = new LightFeatures(createLightEntity('on', entityAttributes));
 
         expect(features.brightness).toBe(true);
         expect(features.colorTemp).toBe(false);
@@ -62,9 +62,9 @@ describe('Light features', () => {
             icon: 'mdi:dome-light',
             friendly_name: 'Study',
             supported_features: 40
-        }
+        };
 
-        var features = new LightFeatures(createLightEntity("off", entityAttributes));
+        const features = new LightFeatures(createLightEntity('off', entityAttributes));
 
         expect(features.brightness).toBe(true);
         expect(features.colorTemp).toBe(true);
@@ -84,7 +84,7 @@ describe('Light features', () => {
                 'onoff',
                 // incorrectly implemented mode:
                 'brightness',
-                'color_temp',
+                'color_temp'
             ],
             is_hue_group: true,
             hue_scenes: ['Focus', 'LightsOn'],
@@ -103,9 +103,9 @@ describe('Light features', () => {
             hs_color: [26.812, 34.87],
             rgb_color: [255, 205, 166],
             xy_color: [0.421, 0.364]
-        }
+        };
 
-        var features = new LightFeatures(createLightEntity("on", entityAttributes));
+        const features = new LightFeatures(createLightEntity('on', entityAttributes));
 
         expect(features.brightness).toBe(true);
         expect(features.colorTemp).toBe(true);
@@ -135,9 +135,9 @@ describe('Light features', () => {
             icon: 'mdi:dome-light',
             friendly_name: 'Lounge 1',
             supported_features: 44
-        }
+        };
 
-        var features = new LightFeatures(createLightEntity("off", entityAttributes));
+        const features = new LightFeatures(createLightEntity('off', entityAttributes));
 
         expect(features.brightness).toBe(true);
         expect(features.colorTemp).toBe(true);
@@ -166,9 +166,9 @@ describe('Light features', () => {
             xy_color: [0.136, 0.054],
             friendly_name: 'PH AWN 1',
             supported_features: 0
-        }
+        };
 
-        var features = new LightFeatures(createLightEntity("on", entityAttributes));
+        const features = new LightFeatures(createLightEntity('on', entityAttributes));
 
         expect(features.brightness).toBe(true);
         expect(features.colorTemp).toBe(true);
