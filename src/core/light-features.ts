@@ -17,12 +17,14 @@ export class LightFeatures implements ILightFeatures {
             switch (mode) {
                 // only turning on and off is supported
                 case HassLightColorMode.onoff:
-                    return; // must be the only mode
+                    //return; // should be the only mode (but could be incorrectly implemented)
+                    break;
 
                 // only brightness is supported
                 case HassLightColorMode.brightness:
                     this.brightness = true;
-                    return; // must be the only mode
+                    //return; // should be the only mode (but could be incorrectly implemented)
+                    break;
 
                 case HassLightColorMode.color_temp:
                     this.brightness = true;
