@@ -94,6 +94,14 @@ Also this card will detect these icons installed and will use them prior to HA i
     <td>Card icon</td>
   </tr>
   <tr>
+    <td><code>iconSize</code></td>
+    <td><a href="#icon-size">Icon size</a></td>
+    <td>no</td>
+    <td>1.4.2</td>
+    <td><code>original</code></td>
+    <td>Card icon size</td>
+  </tr>
+  <tr>
     <td><code>showSwitch</code></td>
     <td>boolean</td>
     <td>no</td>
@@ -256,6 +264,20 @@ When [hass-hue-icons](https://github.com/arallsopp/hass-hue-icons) is installed 
 - If the card has **two** lights `hue:bulb-group-classic` (<img alt='bulb-group-classic' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/custom_svgs/bulb-group-classic.svg' height="24">) is used.
 - If the card has **three** lights attached, `hue:bulb-group-classic-3` (<img alt='bulb-group-classic-3' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/custom_svgs/bulb-group-classic-3.svg' height="24">) is used.
 - If the card has **four or more** lights attached, `hue:bulb-group-classic-4` (<img alt='bulb-group-classic-4' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/custom_svgs/bulb-group-classic-4.svg' height="24">) is used.
+
+### Icon size
+*Since version 1.4.2*
+
+You can set size of the icon on hue card. Possibilities are:
+- `big` - default icon size for versions <= 1.4.1 [value: **2.0**]
+- `original` - default icon size [value: **1.41666667**]
+- `small` - [value: **1.0**]
+- any size you want (as number), examples:
+    - `0.5` = 12px
+    - `1.0` = 24px
+    - `1.5` = 36px
+    - `2.0` = 48px
+    - ... you got it
 
 ## Text template
 *Since version 1.2.0*

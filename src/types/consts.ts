@@ -1,5 +1,11 @@
 import { Color } from '../core/colors/color';
 
+export enum KnownIconSize {
+    Big = 'big',
+    Original = 'original',
+    Small = 'small'
+}
+
 export class Consts {
     public static readonly Version = 'v1.4.1';
     public static readonly Dev = true;
@@ -38,4 +44,11 @@ export class Consts {
     ];
     public static readonly ThemeDialogHeadingColorVar = 'var(--mdc-dialog-heading-ink-color)';
     public static readonly ThemeSecondaryTextColorVar = 'var(--secondary-text-color)';
+
+    // Icon size
+    public static readonly IconSize:Record<KnownIconSize, number> = {
+        'big': 2.0,
+        'original': 1.41666667,
+        'small': 1.0
+    };
 }

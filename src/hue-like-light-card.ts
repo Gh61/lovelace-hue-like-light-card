@@ -7,7 +7,7 @@ import { Background } from './core/colors/background';
 import { LightController } from './core/light-controller';
 import { ViewUtils } from './core/view-utils';
 import { HueLikeLightCardConfig } from './types/config';
-import { Consts } from './types/consts';
+import { Consts, KnownIconSize } from './types/consts';
 import { nameof } from './types/extensions';
 import { ThemeHelper } from './types/theme-helper';
 import { IHassWindow } from './types/types-hass';
@@ -172,7 +172,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         position:absolute;
         left:22px;
         top:17px;
-        transform:scale(2);
+        transform:scale(var(--hue-icon-size, ${Consts.IconSize[KnownIconSize.Original]}));
         color:var(--hue-text-color);
         transition:${unsafeCSS(Consts.TransitionDefault)};
     }
@@ -276,6 +276,12 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
                 this._haShadow
             );
         }
+
+        // Set icon size
+        this.style.setProperty(
+            '--hue-icon-size',
+            this._config.iconSize.toString()
+        );
 
         // Detect theme color if needed
         if (this._offBackground == null) {

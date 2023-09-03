@@ -1,6 +1,6 @@
 import { IHassTextTemplate, ILightContainer } from './types-interface';
 import { HassSearchDeviceResult } from './types-hass';
-import { Consts } from './consts';
+import { Consts, KnownIconSize } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
 import { Resources } from './resources';
@@ -18,6 +18,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.entities = plainConfig.entities;
         this.title = plainConfig.title;
         this.icon = plainConfig.icon;
+        this.iconSize = HueLikeLightCardConfig.getIconSize(plainConfig.iconSize);
         this.showSwitch = HueLikeLightCardConfig.getBoolean(plainConfig.showSwitch, true);
         this._scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
         this.offClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.offClickAction);
@@ -44,9 +45,9 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     }
 
     /**
-     * Returns boolean from plain config.
-     * @plain Plain value from config
-     * @def Default value if plain value is not filled
+     * @returns boolean from plain config.
+     * @param plain Plain value from config
+     * @param def Default value if plain value is not filled
      */
     private static getBoolean(plain: boolean | undefined, def: boolean): boolean {
         if (plain == null)
@@ -55,28 +56,46 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     }
 
     /**
-     * Returns ClickAction valid enum, default for empty or throws exception.
-     * @param plain 
+     * @returns ClickAction valid enum, default for empty or throws exception.
      */
     private static getClickAction(plain: ClickAction | string | undefined): ClickAction {
         if (!plain)
             return ClickAction.Default;
 
+        return this.tryParseEnum<ClickAction>(ClickAction, plain, 'Click action');
+    }
+
+    /**
+     * @returns IconSize as number, default for empty or throws exception.
+     */
+    private static getIconSize(plain: string | number | undefined): number {
+        if (!plain)
+            return Consts.IconSize[KnownIconSize.Original];
+
+        if (typeof plain == 'number') {
+            return plain;
+        }
+
+        plain = plain.toString().toLowerCase();
+        const iconSize = this.tryParseEnum<KnownIconSize>(KnownIconSize, plain, 'Icon size');
+        return Consts.IconSize[iconSize];
+    }
+
+    private static tryParseEnum<T>(enumType: Record<string, T>, plain: string, name: string) {
         let helpValues = '';
-        for (const value in ClickAction) {
-            const enumValue = (ClickAction as Record<string, string>)[value];
+        for (const value in enumType) {
+            const enumValue = (enumType)[value];
             if (plain == enumValue)
-                return plain as ClickAction;
+                return plain as T;
 
             helpValues += `'${enumValue}', `;
         }
 
-        throw new Error(`Click action '${plain}' was not recognized. Allowed values are: ${helpValues}`);
-        //return ClickAction.Default;
+        throw new Error(`${name} '${plain}' was not recognized. Allowed values are: ${helpValues}`);
     }
 
     /**
-     * Returns array of SceneConfig - parsed from passed plain config.
+     * @returns array of SceneConfig - parsed from passed plain config.
      * @param plain Plain value from config
      */
     private static getScenesArray(plain: (string | SceneConfig)[] | undefined): SceneConfig[] {
@@ -99,7 +118,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     }
 
     /**
-     * Returns SceneConfig - parse from passed plain config value.
+     * @returns SceneConfig - parse from passed plain config value.
      * @param plain Plain value of one scene from config
      * @param index Index of value in array (for error message purposes)
      */
@@ -126,6 +145,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly entities?: string[] | ConfigEntityInterface[];
     public readonly title?: string;
     public readonly icon?: string;
+    public readonly iconSize: number;
     public readonly showSwitch: boolean;
     public get scenes() { return this._scenes; }
     public readonly offClickAction: ClickAction;

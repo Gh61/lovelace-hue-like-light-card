@@ -165,6 +165,7 @@ export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
     readonly entities?: string[] | ConfigEntityInterface[];
     readonly title?: string;
     readonly icon?: string;
+    readonly iconSize?: string | number;
     readonly showSwitch?: boolean;
     readonly scenes?: (string | SceneConfig)[];
     readonly offClickAction?: ClickAction;
