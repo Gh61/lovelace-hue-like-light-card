@@ -24,7 +24,7 @@
         "@rollup/plugin-node-resolve": "^15.0.1",
         "@rollup/plugin-terser": "^0.4.3",
         "@types/jest": "^29.5.1",
-        "@typescript-eslint/eslint-plugin": "^5.23.0",
+        "@typescript-eslint/eslint-plugin": "^6.5.0",
         "@typescript-eslint/parser": "^5.23.0",
         "eslint": "^8.15.0",
         "eslint-config-airbnb-typescript": "^17.0.0",
