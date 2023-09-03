@@ -1,7 +1,7 @@
 name: Eslint
 on: push
 jobs:
-  build:
+  eslint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
