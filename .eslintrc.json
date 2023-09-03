@@ -18,7 +18,7 @@
     ],
     "rules": {
         "@typescript-eslint/no-non-null-assertion": "off",
-        "linebreak-style": ["error", "windows"],
+        "linebreak-style": ["error", "unix"],
         "@typescript-eslint/indent": ["error", 4],
         "@typescript-eslint/comma-dangle": ["error", "never"],
         "no-underscore-dangle": ["error", { "allowAfterThis": true }],
