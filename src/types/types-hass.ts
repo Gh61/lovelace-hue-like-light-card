@@ -139,6 +139,28 @@ export interface HassSearchDeviceResult {
 export interface HomeAssistantEx extends HomeAssistant {
     areas: Record<string, HassAreaInfo>;
     entities: Record<string, HassEntityInfo>;
+
+    /**
+     * Format the state of an entity.
+     * @param stateObj - entity state object.
+     * @param state - You can force the state value using this optional parameter.
+     */
+    formatEntityState?: (stateObj: HassEntity, state?: string) => string;
+
+    /**
+     * Format the attribute value of an entity.
+     * @param stateObj - entity state object.
+     * @param attribute - entity attribute name.
+     * @param value - You can force the state value using this optional parameter.
+     */
+    formatEntityAttributeValue?: (stateObj: HassEntity, attribute: string, value?: unknown) => string;
+
+    /**
+     * Format the attribute name of an entity.
+     * @param stateObj - entity state object.
+     * @param attribute - entity attribute name.
+     */
+    formatEntityAttributeName?: (stateObj: HassEntity, attribute: string) => string;
 }
 
 export interface HaDialog extends LitElement {
