@@ -1,5 +1,5 @@
 import { IHassTextTemplate, ILightContainer } from './types-interface';
-import { Consts, KnownIconSize } from './consts';
+import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
 import { Resources } from './resources';
@@ -7,7 +7,7 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
-import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, SceneConfig } from './types-config';
+import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig } from './types-config';
 import { HassWsClient } from '../core/hass-ws-client';
 
 declare type EntityRelations = {

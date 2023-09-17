@@ -4,6 +4,12 @@ import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
 import { ensureEntityDomain } from './extensions';
 
+export enum KnownIconSize {
+    Big = 'big',
+    Original = 'original',
+    Small = 'small'
+}
+
 export enum ClickAction {
     Default = 'default',
     NoAction = 'none',

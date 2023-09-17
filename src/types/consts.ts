@@ -1,10 +1,5 @@
 import { Color } from '../core/colors/color';
-
-export enum KnownIconSize {
-    Big = 'big',
-    Original = 'original',
-    Small = 'small'
-}
+import { KnownIconSize } from './types-config';
 
 export class Consts {
     public static readonly Version = 'v1.4.2';
