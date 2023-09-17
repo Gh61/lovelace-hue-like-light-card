@@ -360,8 +360,13 @@ export class HueLightDetail extends IdLitElement {
 
         rollup.classList.toggle('full-size', setFullSize);
         if (setFullSize) {
-            rollup.style.width = size / 3 + 'px';
-            rollup.width = size / 3;
+            let rollupSize = size / 3;
+            // need to ensure, there's enough space for "100 %" label above rollup
+            if (rollupSize < 56)
+                rollupSize = 56;
+
+            rollup.style.width = rollupSize + 'px';
+            rollup.width = rollupSize;
             rollup.height = rollup.heightOpened = size;
             rollup.iconSize = HueLightDetail.rollupBigIconSize;
         } else {
