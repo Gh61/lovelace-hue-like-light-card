@@ -10,6 +10,12 @@ import { HassTextTemplate } from '../core/hass-text-template';
 import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, SceneConfig } from './types-config';
 import { HassWsClient } from '../core/hass-ws-client';
 
+declare type EntityRelations = {
+    entityId: string;
+    area: string | null;
+    areaScenes: string[];
+};
+
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     private _scenes: SceneConfig[];
 
@@ -245,22 +251,24 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
             const client = new HassWsClient(hass);
 
             try {
+                // get entities, and create ordered list based on order of entities in config
+                const entities = removeDuplicites(this.getEntities());
+                const lightRelations = entities.map(entityId => { return { entityId }; }) as EntityRelations[];
+
                 // load all areas
-                let lightAreas = new Array<string>();
-                await Promise.all(this.getEntities().map(async entityId => {
-                    const area = await client.getArea(entityId);
-                    if (area) {
-                        lightAreas.push(area);
-                    }
+                await Promise.all(lightRelations.map(async relation => {
+                    relation.area = await client.getArea(relation.entityId);
                 }));
-                lightAreas = removeDuplicites(lightAreas);
 
                 // load scenes for areas
-                let loadedScenes = new Array<string>();
-                await Promise.all(lightAreas.map(async area => {
-                    const scenes = await client.getScenes(area);
-                    scenes.forEach(s => loadedScenes.push(s));
+                await Promise.all(lightRelations.map(async relation => {
+                    if (relation.area) {
+                        relation.areaScenes = await client.getScenes(relation.area);
+                    }
                 }));
+
+                // get all scenes - order depends on entity order in config
+                let loadedScenes = lightRelations.filter(r => !!r.areaScenes).flatMap(r => r.areaScenes);
                 loadedScenes = removeDuplicites(loadedScenes);
 
                 // set to config

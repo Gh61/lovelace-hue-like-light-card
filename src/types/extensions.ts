@@ -7,7 +7,7 @@ export function nameof(key1: unknown, key2?: unknown): unknown {
 /**
  * Ensures that given entityId is under expectedDomain, else throws exception.
  */
-export function ensureEntityDomain(entityId: string, expectedDomain:string, ...expectedDomains: string[]) {
+export function ensureEntityDomain(entityId: string, expectedDomain: string, ...expectedDomains: string[]) {
     expectedDomains.unshift(expectedDomain);
 
     const domain = entityId.split('.')[0];
@@ -18,7 +18,7 @@ export function ensureEntityDomain(entityId: string, expectedDomain:string, ...e
 /**
  * Returns new array from passed array, but with removed duplicites.
  */
-export function removeDuplicites<T>(array:Array<T>):Array<T> {
+export function removeDuplicites<T>(array: Array<T>): Array<T> {
     return array.filter(function (elem, index, self) {
         return index === self.indexOf(elem);
     });
