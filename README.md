@@ -545,6 +545,7 @@ Scenes Detected: [`'scene.kitchen_lit'`, `'scene.sink_lit'`, `'scene.daylight'`,
 
 #### Scene Order
 *Since version 1.5.0*
+
 Automatically detected scenes can be ordered with `sceneOrder` option. Possible values are:
 - `default` 
   - order of areas depends on order of (first area) light entities.
