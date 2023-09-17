@@ -1,5 +1,4 @@
 import { IHassTextTemplate, ILightContainer } from './types-interface';
-import { HassSearchDeviceResult } from './types-hass';
 import { Consts, KnownIconSize } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
@@ -9,6 +8,7 @@ import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
 import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, SceneConfig } from './types-config';
+import { HassWsClient } from '../core/hass-ws-client';
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     private _scenes: SceneConfig[];
@@ -233,7 +233,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     }
 
     /**
-     * Will try to load scenes from HA WS, if are no scenes are configured.
+     * Will try to load scenes from HA WS, if no scenes are configured.
      */
     public async tryLoadScenes(hass: HomeAssistant) {
         if (!hass)
@@ -242,17 +242,15 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         if (this.scenes.length == 0 && !this._scenesLoaded) {
             this._scenesLoaded = true;
 
+            const client = new HassWsClient(hass);
+
             try {
                 // load all areas
                 let lightAreas = new Array<string>();
                 await Promise.all(this.getEntities().map(async entityId => {
-                    const entityResult = await hass.connection.sendMessagePromise<HassSearchDeviceResult>({
-                        type: 'search/related',
-                        item_type: 'entity',
-                        item_id: entityId
-                    });
-                    if (entityResult && entityResult.area && entityResult.area.length) {
-                        lightAreas.push(entityResult.area[0]);
+                    const area = await client.getArea(entityId);
+                    if (area) {
+                        lightAreas.push(area);
                     }
                 }));
                 lightAreas = removeDuplicites(lightAreas);
@@ -260,15 +258,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
                 // load scenes for areas
                 let loadedScenes = new Array<string>();
                 await Promise.all(lightAreas.map(async area => {
-                    const areaResult = await hass.connection.sendMessagePromise<HassSearchDeviceResult>({
-                        type: 'search/related',
-                        item_type: 'area',
-                        item_id: area
-                    });
-
-                    if (areaResult && areaResult.scene) {
-                        areaResult.scene.forEach(s => loadedScenes.push(s));
-                    }
+                    const scenes = await client.getScenes(area);
+                    scenes.forEach(s => loadedScenes.push(s));
                 }));
                 loadedScenes = removeDuplicites(loadedScenes);
 
