@@ -7,11 +7,11 @@ import { Background } from './core/colors/background';
 import { LightController } from './core/light-controller';
 import { ViewUtils } from './core/view-utils';
 import { HueLikeLightCardConfig } from './types/config';
-import { Consts, KnownIconSize } from './types/consts';
+import { Consts } from './types/consts';
 import { nameof } from './types/extensions';
 import { ThemeHelper } from './types/theme-helper';
 import { IHassWindow } from './types/types-hass';
-import { HueLikeLightCardConfigInterface } from './types/types-config';
+import { HueLikeLightCardConfigInterface, KnownIconSize } from './types/types-config';
 import { ErrorInfo } from './core/error-info';
 import { Action } from './types/functions';
 

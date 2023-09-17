@@ -1,6 +1,6 @@
 import { HueLikeLightCardConfig } from '../src/types/config';
-import { Consts, KnownIconSize } from '../src/types/consts';
-import { HueLikeLightCardConfigInterface } from '../src/types/types-config';
+import { Consts } from '../src/types/consts';
+import { HueLikeLightCardConfigInterface, KnownIconSize } from '../src/types/types-config';
 
 describe('Config parse', () => {
     it('parse default config', () => {
