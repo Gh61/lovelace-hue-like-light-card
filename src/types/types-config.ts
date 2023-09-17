@@ -20,6 +20,12 @@ export enum ClickAction {
     HueScreen = 'hue-screen'
 }
 
+export enum SceneOrder {
+    Default = 'default',
+    NameAsc = 'name-asc',
+    NameDesc = 'name-desc'
+}
+
 export class ClickActionData {
     private readonly _onlyValue: string;
     private readonly _valueStore: Record<string, string>;
@@ -174,6 +180,7 @@ export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
     readonly iconSize?: string | number;
     readonly showSwitch?: boolean;
     readonly scenes?: (string | SceneConfig)[];
+    readonly sceneOrder?: SceneOrder;
     readonly offClickAction?: ClickAction;
     readonly offClickData?: string | Record<string, string> | ClickActionData;
     readonly onClickAction?: ClickAction;

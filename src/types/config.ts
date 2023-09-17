@@ -7,7 +7,7 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
-import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig } from './types-config';
+import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder } from './types-config';
 import { HassWsClient } from '../core/hass-ws-client';
 
 declare type EntityRelations = {
@@ -27,6 +27,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.iconSize = HueLikeLightCardConfig.getIconSize(plainConfig.iconSize);
         this.showSwitch = HueLikeLightCardConfig.getBoolean(plainConfig.showSwitch, true);
         this._scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
+        this.sceneOrder = HueLikeLightCardConfig.getSceneOrder(plainConfig.sceneOrder);
         this.offClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.offClickAction);
         this.offClickData = new ClickActionData(plainConfig.offClickData);
         this.onClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.onClickAction);
@@ -85,6 +86,16 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         plain = plain.toString().toLowerCase();
         const iconSize = this.tryParseEnum<KnownIconSize>(KnownIconSize, plain, 'Icon size');
         return Consts.IconSize[iconSize];
+    }
+
+    /**
+     * @returns SceneOrder valid enum, default for empty or throws exception.
+     */
+    private static getSceneOrder(plain: string | undefined): SceneOrder {
+        if (!plain)
+            return SceneOrder.Default;
+
+        return this.tryParseEnum<SceneOrder>(SceneOrder, plain, 'Scene order');
     }
 
     private static tryParseEnum<T>(enumType: Record<string, T>, plain: string, name: string) {
@@ -154,6 +165,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly iconSize: number;
     public readonly showSwitch: boolean;
     public get scenes() { return this._scenes; }
+    public readonly sceneOrder: SceneOrder;
     public readonly offClickAction: ClickAction;
     public readonly offClickData: ClickActionData;
     public readonly onClickAction: ClickAction;
@@ -270,6 +282,16 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
                 // get all scenes - order depends on entity order in config
                 let loadedScenes = lightRelations.filter(r => !!r.areaScenes).flatMap(r => r.areaScenes);
                 loadedScenes = removeDuplicites(loadedScenes);
+
+                switch (this.sceneOrder) {
+                    case SceneOrder.NameAsc:
+                        loadedScenes.sort((s1, s2) => s1.localeCompare(s2));
+                        break;
+
+                    case SceneOrder.NameDesc:
+                        loadedScenes.sort((s1, s2) => s2.localeCompare(s1));
+                        break;
+                }
 
                 // set to config
                 this._scenes = HueLikeLightCardConfig.getScenesArray(loadedScenes);

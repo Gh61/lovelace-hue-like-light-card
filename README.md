@@ -151,6 +151,14 @@ Also this card will detect these icons installed and will use them prior to HA i
     <td>Scenes shown in <a href="#hue-screen">Hue screen</a></td>
   </tr>
   <tr>
+    <td><code>sceneOrder</code></td>
+    <td><a href="#scene-order">Scene Order</a></td>
+    <td>no</td>
+    <td>1.5.0</td>
+    <td><code>default</code></td>
+    <td>Order of <a href="#scenes-detection">automatically detected</a> scenes shown in <a href="#hue-screen">Hue screen</a></td>
+  </tr>
+  <tr>
     <td><code>allowZero</code></td>
     <td>boolean</td>
     <td>no</td>
@@ -518,14 +526,41 @@ scenes:
 For the best experience, please fill in both `icon` and `color` for all scenes.
 
 ### Scenes detection
-Automatic scene detection will take place, when no scenes are configured.
+Automatic scene detection will take place when no scenes are configured.
 
 Scenes are detected from areas where lights are placed.<br/>
-All scenes from all areas, where configured lights are placed, are taken.
+All scenes from all areas, where configured lights are placed, are taken (duplicates are removed).
+
+**Example:**
+
+`entities:`<br/>
+`- light.kitchen_main` => `'Kitchen'` (area) => [`'scene.kitchen_lit'`, `'scene.sink_lit'`]<br/>
+`- light.kitchen_corner` => `'Kitchen'` (area) => [`'scene.kitchen_lit'`, `'scene.sink_lit'`]<br/>
+`- light.room1` => `'Living room'` (area) => [`'scene.daylight'`, `'scene.nighttime'`, `'scene.reduced'`]<br/>
+Scenes Detected: [`'scene.kitchen_lit'`, `'scene.sink_lit'`, `'scene.daylight'`, `'scene.nighttime'`, `'scene.reduced'`]
 
 **Icon** of detected scenes is taken from your Home Assistant settings. You can change the icon in entity settings.
 
 **Color** of scene cannot be detected automatically, for the best experience fill scenes and respective colors manually.
+
+#### Scene Order
+Automatically detected scenes can be ordered with `sceneOrder` option. Possible values are:
+- `default` 
+  - order of areas depends on order of (first area) light entities.
+  - scenes inside areas have default order from Home assistant (alphabetically by scene id).
+- `name-asc`
+  - all scenes (across all areas) are ordered alphabetically by name **a -> z**
+- `name-desc`
+  - all scenes (across all areas) are ordered alphabetically by name **z -> a**
+
+This order is **not applied**, when scenes are configured **manually**.
+
+Note, that scenes are listed in two rows populated like this:
+```
+| 1 | 3 | 5 |
+---------------------
+| 2 | 4 | ...
+```
 
 ### Custom activation example (Hue dynamic scene)
 ```yaml
