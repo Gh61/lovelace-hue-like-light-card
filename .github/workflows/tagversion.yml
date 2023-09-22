@@ -6,7 +6,8 @@ on:
         description: 'New version'
         required: true
         default: 'v0.0.0'
-
+permissions:
+  contents: write
 jobs:
   bump_version:
     runs-on: ubuntu-latest
