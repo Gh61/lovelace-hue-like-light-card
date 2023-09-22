@@ -24,4 +24,5 @@ jobs:
         git config user.name "github-actions[bot]"
         git commit -a -m 'version ${{ github.event.inputs.new_version }}'
         git tag -a -m 'version ${{ github.event.inputs.new_version }}' ${{ github.event.inputs.new_version }}
-        git push origin ${{ github.event.inputs.new_version }}
+# git push origin ${{ github.event.inputs.new_version }}
+# echo "Complete"
