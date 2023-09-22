@@ -27,6 +27,7 @@ jobs:
         git push
         echo "Success"
     - name: Create Tag
+      run: |
         git tag -a -m 'version ${{ github.event.inputs.new_version }}' ${{ github.event.inputs.new_version }}
         git push origin ${{ github.event.inputs.new_version }}
         echo "Complete"
