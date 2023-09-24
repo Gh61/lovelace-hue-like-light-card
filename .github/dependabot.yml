@@ -5,10 +5,18 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'monthly'
+
+  # Maintain dependencies for npm
+  - package-ecosystem: 'npm' # See documentation for possible values
+    directory: '/' # Location of package manifests
+    schedule:
+      interval: 'weekly'
     commit-message:
-      # Prefix all commit messages with "npm: "
-      prefix: "npm"
+      # Prefix all commit messages with 'npm: '
+      prefix: 'npm'
+    open-pull-requests-limit: 10
