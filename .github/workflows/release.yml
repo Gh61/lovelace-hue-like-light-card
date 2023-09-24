@@ -74,7 +74,8 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         onlyLastTag: true
-        unreleasedOnly: true # only unreleased issues
+        pullRequests: false
+        #unreleasedOnly: true # only unreleased issues - IS FAILING
         stripHeaders: true
         stripGeneratorNotice: true
 
