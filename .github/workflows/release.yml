@@ -54,7 +54,7 @@ jobs:
     - name: Run build
       run: yarn build
     - name: Release
-      uses: mikepenz/action-gh-release@{latest}
+      uses: mikepenz/action-gh-release@v0.4.0
       with:
         body: |
           ![Downloads](https://img.shields.io/github/downloads/gh61/lovelace-hue-like-light-card/${{ github.ref }}/total)
