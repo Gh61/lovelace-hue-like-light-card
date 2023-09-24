@@ -17,6 +17,8 @@ changelog:
       labels:
         - dependencies
 
+permissions:
+  contents: write
 jobs:
   build_release:
     name: Create Release
