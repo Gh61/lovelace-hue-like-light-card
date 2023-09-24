@@ -56,11 +56,12 @@ jobs:
     - name: Release
       uses: mikepenz/action-gh-release@v0.4.0
       with:
-        body: |
-          ![Downloads](https://img.shields.io/github/downloads/gh61/lovelace-hue-like-light-card/${{ github.ref }}/total)
-
-
+        tag_name: ${{ github.event.inputs.new_version }}
         draft: true
-        fail_on_unmatched_files: true
-        generate_release_notes: true
         files: release/hue-like-light-card.js
+        fail_on_unmatched_files: true
+        body: |
+          ![Downloads](https://img.shields.io/github/downloads/gh61/lovelace-hue-like-light-card/${{ github.event.inputs.new_version }}/total)
+
+
+        generate_release_notes: true
