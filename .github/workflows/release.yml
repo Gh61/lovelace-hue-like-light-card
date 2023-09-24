@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   bump_version:
+    name: Bump Version
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -43,6 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: main # without this, the latest commit (version change) isn't fetched
     - name: Set Release Environment (Consts.ts)
       run: |
         sed -i "s/ Dev = true;/ Dev = false;/g" src/types/consts.ts
