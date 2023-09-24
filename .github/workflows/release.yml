@@ -65,8 +65,7 @@ jobs:
       uses: jaywcjlove/changelog-generator@v1.9.5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        filter-author: (dependabot\[bot\])
-        filter: '(version\s+[v|V]\d(\.\d+){0,2}|Merge )'
+        filter: '(version\s+[v|V]\d(\.\d+){0,2}|[m|M]erge\s)'
 
     - name: Generate Issues Changelog
       id: issues_changelog
@@ -76,6 +75,7 @@ jobs:
         onlyLastTag: true
         pullRequests: false
         simpleList: true
+        compareLink: false
         #unreleasedOnly: true # only unreleased issues - IS FAILING
         stripHeaders: true
         stripGeneratorNotice: true
@@ -93,7 +93,7 @@ jobs:
           # Changes
           ${{ steps.commits_changelog.outputs.changelog }}
 
-          ## Closed Issues:
+          ## Closed Issues
           ${{ steps.issues_changelog.outputs.changelog }}
 
           **Compare**: ${{ steps.commits_changelog.outputs.compareurl }}
