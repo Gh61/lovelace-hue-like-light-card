@@ -31,3 +31,5 @@ Only use the following Git Commit Messages. A simple and small footprint is crit
   └─⫸ Commit Type: build|ci|doc|docs|feat|fix|perf|refactor|test
                     website|chore|style|type|revert
 ```
+
+Source: https://github.com/jaywcjlove/changelog-generator#getting-started
