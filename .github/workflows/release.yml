@@ -46,7 +46,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         ref: main # without this, the latest commit (version change) isn't fetched
-    - name: Fetch tags
+    - name: Fetch tags # we need to fetch tags for issues_changelog generator
       run: |
         git fetch -t
     - name: Set Release Environment (Consts.ts)
@@ -59,12 +59,26 @@ jobs:
       run: yarn
     - name: Run build
       run: yarn build
-    - name: Generate Changelog
-      id: generate_changelog
+
+    - run: echo "previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo '')" >> $GITHUB_ENV
+    - name: Generate changelog
+      id: commits_changelog
+      uses: jaywcjlove/changelog-generator@v1.9.4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        filter-author: (dependabot|dependabot\\[bot\\])
+        filter: 'version\s+[v|V]\d(\.\d+){0,2}'
+
+    - name: Generate Issues Changelog
+      id: issues_changelog
       uses: heinrichreimer/action-github-changelog-generator@v2.3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         onlyLastTag: true
+        unreleasedOnly: true # only unreleased issues
+        stripHeaders: true
+        stripGeneratorNotice: true
+
     - name: Release
       uses: mikepenz/action-gh-release@v0.4.0
       with:
@@ -75,5 +89,11 @@ jobs:
         body: |
           ![Downloads](https://img.shields.io/github/downloads/gh61/lovelace-hue-like-light-card/${{ github.event.inputs.new_version }}/total)
 
-          ${{ steps.generate_changelog.outputs.changelog }}
+          # Changes
+          ${{ steps.commits_changelog.outputs.changelog }}
+
+          ## Closed Issues:
+          ${{ steps.issues_changelog.outputs.changelog }}
+
+          **Compare**: ${{ steps.commits_changelog.outputs.compareurl }}
         generate_release_notes: false
