@@ -56,6 +56,12 @@ jobs:
       run: yarn
     - name: Run build
       run: yarn build
+    - name: Generate Changelog
+      id: generate_changelog
+      uses: heinrichreimer/action-github-changelog-generator@v2.3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        onlyLastTag: true
     - name: Release
       uses: mikepenz/action-gh-release@v0.4.0
       with:
@@ -66,5 +72,5 @@ jobs:
         body: |
           ![Downloads](https://img.shields.io/github/downloads/gh61/lovelace-hue-like-light-card/${{ github.event.inputs.new_version }}/total)
 
-
-        generate_release_notes: true
+          ${{ steps.generate_changelog.outputs.changelog }}
+        generate_release_notes: false
