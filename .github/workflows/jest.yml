@@ -5,7 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
     - name: Install modules
-      run: yarn
+      run: npm ci
     - name: Run tests
-      run: yarn test
+      run: npm run test

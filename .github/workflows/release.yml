@@ -55,10 +55,12 @@ jobs:
     - name: Set Release Environment (rollup.config.js)
       run: |
         sed -i "s/var dev = true;/var dev = false;/g" rollup.config.js
+
+    - uses: actions/setup-node@v3
     - name: Install modules
-      run: yarn
+      run: npm ci
     - name: Run build
-      run: yarn build
+      run: npm run build
 
     - name: Generate changelog
       id: commits_changelog
