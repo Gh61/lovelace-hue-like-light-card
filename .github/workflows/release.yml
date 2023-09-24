@@ -7,20 +7,9 @@ on:
         required: true
         default: 'v0.0.0'
 
-changelog:
-  categories:
-    - title: Changes
-      labels:
-        - '*'
-      exclude:
-        labels:
-          - dependencies
-    - title: Dependencies
-      labels:
-        - dependencies
-
 permissions:
   contents: write
+
 jobs:
   bump_version:
     runs-on: ubuntu-latest
