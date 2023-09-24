@@ -10,6 +10,8 @@ updates:
     directory: '/'
     schedule:
       interval: 'monthly'
+    commit-message:
+      prefix: 'workflow'
 
   # Maintain dependencies for npm
   - package-ecosystem: 'npm' # See documentation for possible values
