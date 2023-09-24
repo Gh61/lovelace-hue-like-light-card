@@ -66,7 +66,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         filter-author: (dependabot|dependabot\\[bot\\])
-        filter: 'version\s+[v|V]\d(\.\d+){0,2}'
+        filter: '(version\s+[v|V]\d(\.\d+){0,2}|Merge )'
 
     - name: Generate Issues Changelog
       id: issues_changelog
