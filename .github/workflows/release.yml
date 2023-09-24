@@ -1,0 +1,46 @@
+name: 'Create Release'
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+changelog:
+  categories:
+    - title: Changes
+      labels:
+        - '*'
+      exclude:
+        labels:
+          - dependencies
+    - title: Dependencies
+      labels:
+        - dependencies
+
+jobs:
+  build_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set Release Environment (Consts.ts)
+      run: |
+        sed -i "s/ Dev = true;/ Dev = false;/g" src/types/consts.ts
+    - name: Set Release Environment (rollup.config.js)
+      run: |
+        sed -i "s/var dev = true;/var dev = false;/g" rollup.config.js
+    - name: Install modules
+      run: yarn
+    - name: Run build
+      run: yarn build
+    - name: Release
+      uses: mikepenz/action-gh-release@{latest}
+      with:
+        body: |
+          ![Downloads](https://img.shields.io/github/downloads/gh61/lovelace-hue-like-light-card/${{ github.ref }}/total)
+
+
+        draft: true
+        fail_on_unmatched_files: true
+        generate_release_notes: true
+        files: release/hue-like-light-card.js
