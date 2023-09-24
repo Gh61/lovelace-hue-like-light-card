@@ -1,6 +1,6 @@
 {
     "name": "hue-like-light-card",
-    "version": "v1.4.3",
+    "version": "v1.4.4",
     "description": "Hue-Like Light Card",
     "keywords": [
         "home-assistant",
@@ -24,9 +24,9 @@
         "@rollup/plugin-node-resolve": "^15.2.1",
         "@rollup/plugin-terser": "^0.4.3",
         "@types/jest": "^29.5.5",
-        "@typescript-eslint/eslint-plugin": "^6.7.0",
-        "@typescript-eslint/parser": "^6.7.0",
-        "eslint": "^8.49.0",
+        "@typescript-eslint/eslint-plugin": "^6.7.2",
+        "@typescript-eslint/parser": "^6.7.2",
+        "eslint": "^8.50.0",
         "eslint-config-airbnb-typescript": "^17.1.0",
         "eslint-plugin-import": "^2.28.1",
         "jest": "^29.7.0",

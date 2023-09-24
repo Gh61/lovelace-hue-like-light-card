@@ -15,7 +15,7 @@ jobs:
     name: Bump Version
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Update Consts.ts version
       run: |
         sed -ri "s/ Version = '(v[0-9]+.[0-9]+.[0-9]+)';/ Version = '${{ github.event.inputs.new_version }}';/g" src/types/consts.ts
@@ -43,7 +43,7 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         ref: main # without this, the latest commit (version change) isn't fetched
     - name: Set Release Environment (Consts.ts)
