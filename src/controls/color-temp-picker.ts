@@ -275,7 +275,7 @@ export class HueColorTempPicker extends LitElement {
         const [index, , adjustedY, rowLength] = HueColorTempPicker.computeIndex(x, y, radius);
 
         const n = adjustedY / rowLength;
-        const kelvin = Math.round(HueColorTempPicker.utils.logarithmicalScale(n, this.tempMin, this.tempMax));
+        const kelvin = Math.round(HueColorTempPicker.utils.exponentialScale(n, this.tempMin, this.tempMax));
 
         const color = Color.hueTempToRgb(kelvin);
 
@@ -310,7 +310,7 @@ export class HueColorTempPicker extends LitElement {
             kelvin = this.tempMax;
 
         const rowLength = 2 * radius;
-        const n = HueColorTempPicker.utils.invertedLogarithmicalScale(kelvin, this.tempMin, this.tempMax);
+        const n = HueColorTempPicker.utils.invertedExponentialScale(kelvin, this.tempMin, this.tempMax);
         const adjustedY = n * rowLength;
         let y = adjustedY - radius;
 
@@ -370,21 +370,22 @@ export class HueColorTempPicker extends LitElement {
 
     private static utils = {
         /**
-         * Returns value in range from @param min to @param max with logarithmical distribution.
+         * Returns value in range from @param min to @param max with exponential distribution.
+         * Starting slower than linear, ending faster.
          * @param t normalized value 0 - 1
          * @param min Minimal returned value
          * @param max Maximal returned value
          */
-        logarithmicalScale: function (t: number, min: number, max: number): number {
+        exponentialScale: function (t: number, min: number, max: number): number {
             return Math.pow(max / min, t) * min;
         },
         /**
-         * Returns normalized value 0 - 1 with position of y on logarithmical scale from @param min to @param max.
-         * @param y Value in range from @param min to @param max with logarithmical distribution
+         * Returns normalized value 0 - 1 with position of y on scale from @param min to @param max.
+         * @param y Value in range from @param min to @param max with exponential distribution
          * @param min Minimal given value
          * @param max Maximal given value
          */
-        invertedLogarithmicalScale: function (y: number, min: number, max: number): number {
+        invertedExponentialScale: function (y: number, min: number, max: number): number {
             return Math.log(y / min) / Math.log(max / min);
         },
 
