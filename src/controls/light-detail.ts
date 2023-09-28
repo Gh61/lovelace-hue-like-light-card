@@ -48,12 +48,20 @@ export class HueLightDetail extends IdLitElement {
             return;
         }
 
+        const lightFeatures = this.lightContainer.features;
+
         this._colorMarker.icon = this.lightContainer.getIcon() || IconHelper.getIcon(1);
-        this._modeSelector.showColor = this.lightContainer.features.color;
-        this._modeSelector.showTemp = this.lightContainer.features.colorTemp;
+        this._modeSelector.showColor = lightFeatures.color;
+        this._modeSelector.showTemp = lightFeatures.colorTemp;
+        if (lightFeatures.colorTemp &&
+            lightFeatures.colorTempMinKelvin &&
+            lightFeatures.colorTempMaxKelvin) {
+            // set new temp range
+            this._colorPicker.setTempRange(lightFeatures.colorTempMinKelvin, lightFeatures.colorTempMaxKelvin);
+        }
 
         // show full-sized brightness picker
-        if (this.lightContainer.features.isOnlyBrightness()) {
+        if (lightFeatures.isOnlyBrightness()) {
             this._modeSelector.mode = 'brightness';
             this.toggleFullSizedBrightness(true);
         } else {

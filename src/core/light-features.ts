@@ -41,6 +41,11 @@ export class LightFeatures implements ILightFeatures {
                     break;
             }
         }
+
+        if (this.colorTemp) {
+            this.colorTempMinKelvin = lightEntity.attributes.min_color_temp_kelvin || null;
+            this.colorTempMaxKelvin = lightEntity.attributes.max_color_temp_kelvin || null;
+        }
     }
 
     public isEmpty(): boolean {
@@ -53,6 +58,8 @@ export class LightFeatures implements ILightFeatures {
 
     public readonly brightness: boolean = false;
     public readonly colorTemp: boolean = false;
+    public readonly colorTempMinKelvin: number | null = null;
+    public readonly colorTempMaxKelvin: number | null = null;
     public readonly color: boolean = false;
 }
 
@@ -94,6 +101,32 @@ export class LightFeaturesCombined implements ILightFeatures {
 
     public get colorTemp(): boolean {
         return this._features().some(f => f.colorTemp);
+    }
+
+    public get colorTempMinKelvin() {
+        let min: number | null = null;
+
+        // return the smallest value, if any specified
+        this._features().forEach(f => {
+            if (f.colorTempMinKelvin && (min == null || min > f.colorTempMinKelvin)) {
+                min = f.colorTempMinKelvin;
+            }
+        });
+
+        return min;
+    }
+
+    public get colorTempMaxKelvin() {
+        let max: number | null = null;
+
+        // return the biggest value, if any specified
+        this._features().forEach(f => {
+            if (f.colorTempMaxKelvin && (max == null || max < f.colorTempMaxKelvin)) {
+                max = f.colorTempMaxKelvin;
+            }
+        });
+
+        return max;
     }
 
     public get color(): boolean {

@@ -20,8 +20,8 @@ class HueColorWheelCache {
     // version 2 - revised function to distribute kelvin values across the temp wheel
     private static readonly version = 2;
 
-    public static saveWheel(mode: HueColorTempPickerMode, radius: number, canvas: HTMLCanvasElement) {
-        const key = this.createKey(mode, radius);
+    public static saveWheel(mode: HueColorTempPickerMode, radius: number, tempMin: number, tempMax: number, canvas: HTMLCanvasElement) {
+        const key = this.createKey(mode, radius, tempMin, tempMax);
         const dataUrl = canvas.toDataURL(); // we're using dataUrl, because in raw format, the image exceeds localStorage size limit
         try {
             localStorage.setItem(key, dataUrl);
@@ -30,8 +30,8 @@ class HueColorWheelCache {
         }
     }
 
-    public static tryGetWheel(mode: HueColorTempPickerMode, radius: number) {
-        const key = this.createKey(mode, radius);
+    public static tryGetWheel(mode: HueColorTempPickerMode, radius: number, tempMin: number, tempMax: number) {
+        const key = this.createKey(mode, radius, tempMin, tempMax);
         try {
             const dataUrl = localStorage.getItem(key) || null;
             if (dataUrl) {
@@ -50,8 +50,13 @@ class HueColorWheelCache {
         };
     }
 
-    private static createKey(mode: HueColorTempPickerMode, radius: number) {
-        return `HueColorWheelCache_${mode}${radius}x${radius}v${this.version}`;
+    private static createKey(mode: HueColorTempPickerMode, radius: number, tempMin: number, tempMax: number) {
+        let modeString = mode;
+        if (mode == 'temp') {
+            modeString += `(${tempMin}-${tempMax})`;
+        }
+
+        return `HueColorWheelCache_${modeString}${radius}x${radius}v${this.version}`;
     }
 }
 
@@ -85,11 +90,25 @@ export class HueColorTempPicker extends LitElement {
     @property()
     public mode: HueColorTempPickerMode = 'color';
 
-    @property()
-    public tempMin = 2000;
+    /**
+     * Will change min and max temp in kelvins.
+     * Forcing the picker to re-render the temp wheel.
+     */
+    public setTempRange(minKelvin: number, maxKelvin: number): void {
+        let changed = false;
+        if (minKelvin != this._tempMin) {
+            this._tempMin = minKelvin;
+            changed = true;
+        }
+        if (maxKelvin != this._tempMax) {
+            this._tempMax = maxKelvin;
+            changed = true;
+        }
 
-    @property()
-    public tempMax = 6500;
+        if (changed && this._isRendered && this.mode == 'temp') {
+            this.drawWheel();
+        }
+    }
 
     private onResize(): void {
         this._markers.forEach(m => m.refresh());
@@ -97,6 +116,9 @@ export class HueColorTempPicker extends LitElement {
 
     // #region Rendering
 
+    private _tempMin = 2000; // default hue min
+    private _tempMax = 6535; // default hue max
+    private _isRendered = false;
     private _canvas: HTMLDivElement;
     private _backgroundLayer: HTMLCanvasElement;
     private _interactionLayer: SVGElement;
@@ -107,6 +129,8 @@ export class HueColorTempPicker extends LitElement {
 
         this.setupLayers();
         this.drawWheel();
+
+        this._isRendered = true;
     }
 
     protected override updated(_changedProperties: PropertyValues<HueColorTempPicker>): void {
@@ -149,8 +173,7 @@ export class HueColorTempPicker extends LitElement {
 
         const radius = HueColorTempPicker.renderWidthHeight / 2;
 
-        let image: ImageData;
-        const cacheItem = HueColorWheelCache.tryGetWheel(this.mode, radius);
+        const cacheItem = HueColorWheelCache.tryGetWheel(this.mode, radius, this._tempMin, this._tempMax);
         if (cacheItem.success) {
             // we have dataUrl, we need to parse them through Image element, then render them to canvas
             const img = new Image();
@@ -160,7 +183,7 @@ export class HueColorTempPicker extends LitElement {
             img.src = cacheItem.dataUrl!;
 
         } else {
-            image = ctx.createImageData(2 * radius, 2 * radius);
+            const image = ctx.createImageData(2 * radius, 2 * radius);
             const data = image.data;
 
             for (let x = -radius; x < radius; x++) {
@@ -182,8 +205,9 @@ export class HueColorTempPicker extends LitElement {
 
             ctx.putImageData(image, 0, 0);
 
-            HueColorWheelCache.saveWheel(this.mode, radius, this._backgroundLayer);
+            HueColorWheelCache.saveWheel(this.mode, radius, this._tempMin, this._tempMax, this._backgroundLayer);
         }
+        console.log(`Drew ${this.mode} wheel`);
     }
 
     //#region Marker methods
@@ -276,7 +300,7 @@ export class HueColorTempPicker extends LitElement {
         const [index, , adjustedY, rowLength] = HueColorTempPicker.computeIndex(x, y, radius);
 
         const n = adjustedY / rowLength;
-        const kelvin = Math.round(HueColorTempPicker.utils.hueCurveScale(n, this.tempMin, this.tempMax));
+        const kelvin = Math.round(HueColorTempPicker.utils.hueCurveScale(n, this._tempMin, this._tempMax));
 
         const color = Color.hueTempToRgb(kelvin);
 
@@ -305,13 +329,13 @@ export class HueColorTempPicker extends LitElement {
      * @param currentCoordinates Actual coordinates on wheel. (May be used for setting the marker close to it.)
      */
     public getCoordinatesAndTemp(kelvin: number, radius: number, currentCoordinates?: Point) {
-        if (kelvin < this.tempMin)
-            kelvin = this.tempMin;
-        else if (kelvin > this.tempMax)
-            kelvin = this.tempMax;
+        if (kelvin < this._tempMin)
+            kelvin = this._tempMin;
+        else if (kelvin > this._tempMax)
+            kelvin = this._tempMax;
 
         const rowLength = 2 * radius;
-        const n = HueColorTempPicker.utils.inverseHueCurveScale(kelvin, this.tempMin, this.tempMax);
+        const n = HueColorTempPicker.utils.inverseHueCurveScale(kelvin, this._tempMin, this._tempMax);
         const adjustedY = n * rowLength;
         let y = adjustedY - radius;
 
@@ -403,20 +427,20 @@ export class HueColorTempPicker extends LitElement {
             let low = 0;
             let high = 1;
             let t = 0.5; // Initial guess for t
-        
+
             // we are using binary search - this function is not used so often, the performance should be enough
             while (high - low > epsilon) {
                 const midValue = this.hueCurveScale(t, min, max);
-                
+
                 if (midValue < targetValue) {
                     low = t;
                 } else {
                     high = t;
                 }
-        
+
                 t = (low + high) / 2;
             }
-        
+
             return t;
         },
 

@@ -5,8 +5,7 @@ describe('HueTempPicker', () => {
 
         const picker = new HueColorTempPicker();
         picker.mode = 'temp';
-        picker.tempMin = 2020;
-        picker.tempMax = 6451;
+        picker.setTempRange(2020, 6451);
 
         const x = 0;
         const radius = 950;

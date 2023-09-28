@@ -156,6 +156,16 @@ export interface ILightFeatures {
     get colorTemp(): boolean;
 
     /**
+     * Gets minimal value of colorTemp in kelvins (only if supported).
+     */
+    get colorTempMinKelvin(): number | null;
+
+    /**
+     * Gets minimal value of colorTemp in kelvins (only if supported).
+     */
+    get colorTempMaxKelvin(): number | null;
+
+    /**
      * Gets if it's possible to set color of the light.
      */
     get color(): boolean;
