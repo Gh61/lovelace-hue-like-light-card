@@ -380,13 +380,50 @@ export class HueColorTempPicker extends LitElement {
             return Math.pow(max / min, t) * min;
         },
         /**
-         * Returns normalized value 0 - 1 with position of y on scale from @param min to @param max.
+         * Returns reverse value to fcion exponentialScale - normalized value 0 - 1 with position of y on scale from @param min to @param max.
          * @param y Value in range from @param min to @param max with exponential distribution
          * @param min Minimal given value
          * @param max Maximal given value
          */
         invertedExponentialScale: function (y: number, min: number, max: number): number {
             return Math.log(y / min) / Math.log(max / min);
+        },
+
+        /**
+         * Returns value in range from @param min to @param max with logarithmical distribution.
+         * Starting faster than linear, ending slower.
+         * @param t normalized value 0 - 1
+         * @param min Minimal returned value
+         * @param max Maximal returned value
+         * @param logStart <0.01 - 1> to start later on the log curve (the closer to 0 the steeper the curve).
+         */
+        logarithmicScale: function (t: number, min: number, max: number, logStart = 0.10): number {
+            const range = 10000000; // precision
+            const logMove = range * logStart;
+            const logMoveValue = logMove > 1 ? Math.log(logMove - 1) : 0;
+            const scaledT = t * range + logMove;
+            const scalingFactor = (max - min) / (Math.log(range + logMove) - logMoveValue);
+            return scalingFactor * (Math.log(scaledT) - logMoveValue) + min;
+        },
+        /**
+         * Returns reverse value to fcion logarithmicScale - normalized value 0 - 1 with position of y on scale from @param min to @param max.
+         * @param y Value in range from @param min to @param max with logarithmical distribution
+         * @param min Minimal given value
+         * @param max Maximal given value
+         * @param logStart <0.01 - 1> to start later on the log curve (the closer to 0 the steeper the curve).
+         */
+        invertedLogarithmicScale: function(value:number, min:number, max:number, logStart = 0.10) {
+            const range = 10000000; // Precision
+            const logMove = range * logStart;
+            const logMoveValue = logMove > 1 ? Math.log(logMove - 1) : 0;
+          
+            // Solve for scaledT by rearranging the original formula
+            const scaledT = Math.exp((value - min) / ((max - min) / (Math.log(range + logMove) - logMoveValue)) + logMoveValue);
+          
+            // Solve for t by reversing the scaling
+            const t = (scaledT - logMove) / range;
+          
+            return t;
         },
 
         /**
