@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Points Graph</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <canvas id="myChart" width="400" height="200"></canvas>
+  <script>
+    function logarithmicScale2(t, min, max, logStart = 0.10) {
+  		const range = 1000000;
+            const logMove = range * logStart;
+            const logMoveValue = logMove > 1 ? Math.log(logMove - 1) : 0;
+            const scaledT = t * range + logMove;
+            const scalingFactor = (max - min) / (Math.log(range + logMove) - logMoveValue);
+            return scalingFactor * (Math.log(scaledT) - logMoveValue) + min;
+	  }
+  
+    // Define the known data points
+    var percentages = [0, 4.488, 11.1111, 22.2222, 33.3333, 44.4444, 55.5555, 66.6666, 77.7777, 88.8888, 99.9999];
+    // location of the picker point from top of the wheel 
+    var values = [0, 71, 150, 247, 316, 367, 408, 440, 466, 490, 510];
+    values = values.map(v => v * (4500/510) + 2000); // scale to 2000 - 6500 range
+    
+    // Create a range of x values for the graph (0 to 100%)
+    var xArray = Array.from({ length: 100 }, (_, i) => i);
+
+    // Create the chart
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var chart = new Chart(ctx, {
+      type: 'scatter', // Use 'scatter' to display individual data points
+      data: {
+        datasets: [
+          {
+            label: 'Data Points',
+            data: percentages.map(function (percentage, index) {
+              return { x: percentage, y: values[index] };
+            }),
+            pointStyle: 'circle',
+            pointRadius: 3,
+            borderColor: 'blue',
+            backgroundColor: 'blue'
+          },
+          {
+            label: 'Data Points - fction',
+            data: xArray.map(function (percentage) {
+              return { x: percentage, y: logarithmicScale2(percentage/100, 2000, 6500) };
+            }),
+            pointStyle: 'circle',
+            pointRadius: 3,
+            borderColor: 'orange',
+            backgroundColor: 'orange',
+          }
+        ]
+      },
+      options: {
+        responsive: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Percentage'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Value'
+            },
+            //max: 6600
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
