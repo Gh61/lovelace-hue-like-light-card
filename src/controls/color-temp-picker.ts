@@ -275,7 +275,7 @@ export class HueColorTempPicker extends LitElement {
         const [index, , adjustedY, rowLength] = HueColorTempPicker.computeIndex(x, y, radius);
 
         const n = adjustedY / rowLength;
-        const kelvin = Math.round(HueColorTempPicker.utils.exponentialScale(n, this.tempMin, this.tempMax));
+        const kelvin = Math.round(HueColorTempPicker.utils.hueCurveScale(n, this.tempMin, this.tempMax));
 
         const color = Color.hueTempToRgb(kelvin);
 
@@ -310,7 +310,7 @@ export class HueColorTempPicker extends LitElement {
             kelvin = this.tempMax;
 
         const rowLength = 2 * radius;
-        const n = HueColorTempPicker.utils.invertedExponentialScale(kelvin, this.tempMin, this.tempMax);
+        const n = HueColorTempPicker.utils.inverseHueCurveScale(kelvin, this.tempMin, this.tempMax);
         const adjustedY = n * rowLength;
         let y = adjustedY - radius;
 
@@ -370,59 +370,52 @@ export class HueColorTempPicker extends LitElement {
 
     private static utils = {
         /**
-         * Returns value in range from @param min to @param max with exponential distribution.
-         * Starting slower than linear, ending faster.
+         * Returns value in range from @param min to @param max based on hand crafted curve, as similar tu og Hue, as possible.
          * @param t normalized value 0 - 1
          * @param min Minimal returned value
          * @param max Maximal returned value
          */
-        exponentialScale: function (t: number, min: number, max: number): number {
-            return Math.pow(max / min, t) * min;
-        },
-        /**
-         * Returns reverse value to fcion exponentialScale - normalized value 0 - 1 with position of y on scale from @param min to @param max.
-         * @param y Value in range from @param min to @param max with exponential distribution
-         * @param min Minimal given value
-         * @param max Maximal given value
-         */
-        invertedExponentialScale: function (y: number, min: number, max: number): number {
-            return Math.log(y / min) / Math.log(max / min);
-        },
+        hueCurveScale: function (t: number, min: number, max: number): number {
+            let addon: number;
+            let pow: number;
+            if (t <= 0.1) {
+                pow = 1.6;
+                addon = this.linearScale(t * 10, 0, 0.05);
+            } else if (t < 0.65) {
+                pow = 1.2;
+                addon = 0.045 - this.linearScale(t, 0, 0.4);
+            } else {
+                addon = 0.08 - this.linearScale(t / 0.85, 0, 0.08);
+                pow = 1.65;
+            }
 
-        /**
-         * Returns value in range from @param min to @param max with logarithmical distribution.
-         * Starting faster than linear, ending slower.
-         * @param t normalized value 0 - 1
-         * @param min Minimal returned value
-         * @param max Maximal returned value
-         * @param logStart <0.01 - 1> to start later on the log curve (the closer to 0 the steeper the curve).
-         */
-        logarithmicScale: function (t: number, min: number, max: number, logStart = 0.10): number {
-            const range = 10000000; // precision
-            const logMove = range * logStart;
-            const logMoveValue = logMove > 1 ? Math.log(logMove - 1) : 0;
-            const scaledT = t * range + logMove;
-            const scalingFactor = (max - min) / (Math.log(range + logMove) - logMoveValue);
-            return scalingFactor * (Math.log(scaledT) - logMoveValue) + min;
+            return (Math.pow(max / min, Math.pow(t, pow)) + addon) * min;
         },
         /**
-         * Returns reverse value to fcion logarithmicScale - normalized value 0 - 1 with position of y on scale from @param min to @param max.
-         * @param y Value in range from @param min to @param max with logarithmical distribution
+         * Returns reverse value to fcion hueCurveScale - normalized value 0 - 1 with position of y on scale from @param min to @param max.
+         * @param y Value in range from @param min to @param max based on hand crafted curve, as similar tu og Hue, as possible.
          * @param min Minimal given value
          * @param max Maximal given value
-         * @param logStart <0.01 - 1> to start later on the log curve (the closer to 0 the steeper the curve).
          */
-        invertedLogarithmicScale: function (value:number, min:number, max:number, logStart = 0.10) {
-            const range = 10000000; // Precision
-            const logMove = range * logStart;
-            const logMoveValue = logMove > 1 ? Math.log(logMove - 1) : 0;
-          
-            // Solve for scaledT by rearranging the original formula
-            const scaledT = Math.exp((value - min) / ((max - min) / (Math.log(range + logMove) - logMoveValue)) + logMoveValue);
-          
-            // Solve for t by reversing the scaling
-            const t = (scaledT - logMove) / range;
-          
+        inverseHueCurveScale: function (targetValue: number, min: number, max: number): number {
+            const epsilon = 0.0001; // Tolerance for convergence
+            let low = 0;
+            let high = 1;
+            let t = 0.5; // Initial guess for t
+        
+            // we are using binary search - this function is not used so often, the performance should be enough
+            while (high - low > epsilon) {
+                const midValue = this.hueCurveScale(t, min, max);
+                
+                if (midValue < targetValue) {
+                    low = t;
+                } else {
+                    high = t;
+                }
+        
+                t = (low + high) / 2;
+            }
+        
             return t;
         },
 

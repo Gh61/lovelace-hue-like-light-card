@@ -19,7 +19,8 @@ describe('HueTempPicker', () => {
 
             if ('kelvin' in data!) {
                 const coords = picker.getCoordinatesAndTemp(data.kelvin, radius);
-                expect(coords.position.Y).toBe(y);
+                const diff = Math.abs(coords.position.Y - y);
+                expect(diff).toBeLessThanOrEqual(1); // 1 px tolerance
                 expect(coords.position.X).toBe(0);
             }
         }

@@ -319,7 +319,7 @@ export class Color {
 
     public static hueTempToRgb(kelvin: number) {
         const start = 2000;
-        const tres = 5300;
+        const tres = 4200;
         const end = 6500;
 
         const startRgb = [255, 180, 55];
