@@ -17,7 +17,8 @@ export type HueColorTempPickerMode = 'color' | 'temp';
 
 /** Uses LocalStorage to save and get already rendered wheels. */
 class HueColorWheelCache {
-    private static readonly version = 1;
+    // version 2 - revised function to distribute kelvin values across the temp wheel
+    private static readonly version = 2;
 
     public static saveWheel(mode: HueColorTempPickerMode, radius: number, canvas: HTMLCanvasElement) {
         const key = this.createKey(mode, radius);
