@@ -76,7 +76,7 @@ export class HueDialogLightTile extends HueDialogTile {
     .title{
         color: var(--hue-light-text-color, ${unsafeCSS(Consts.LightColor)});
         padding-bottom: ${HueDialogLightTile.titlePadding}px;
-        font-weight: bold;
+        font-weight: 500;
     }
 
     .icon-slot{
