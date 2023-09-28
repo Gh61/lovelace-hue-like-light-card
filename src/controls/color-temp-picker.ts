@@ -401,20 +401,17 @@ export class HueColorTempPicker extends LitElement {
          * @param max Maximal returned value
          */
         hueCurveScale: function (t: number, min: number, max: number): number {
-            let addon: number;
-            let pow: number;
+            let addon = 0;
+            const coef = (max / min) / 65;
             if (t <= 0.1) {
-                pow = 1.6;
-                addon = this.linearScale(t * 10, 0, 0.05);
-            } else if (t < 0.65) {
-                pow = 1.2;
-                addon = 0.045 - this.linearScale(t, 0, 0.4);
+                addon = this.linearScale(t * 10, 0, coef);
+            } else if (t <= 0.97) {
+                addon = coef - this.linearScale((t - 0.1) / 0.9, 0, 2 * coef);
             } else {
-                addon = 0.08 - this.linearScale(t / 0.85, 0, 0.08);
-                pow = 1.65;
+                addon = -coef + this.linearScale((t - 0.97) / 0.03, 0, coef);
             }
 
-            return (Math.pow(max / min, Math.pow(t, pow)) + addon) * min;
+            return (Math.pow(max / min, Math.pow(t, 1.55)) + addon) * min;
         },
         /**
          * Returns reverse value to fcion hueCurveScale - normalized value 0 - 1 with position of y on scale from @param min to @param max.
