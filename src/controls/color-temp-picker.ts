@@ -412,7 +412,7 @@ export class HueColorTempPicker extends LitElement {
          * @param max Maximal given value
          * @param logStart <0.01 - 1> to start later on the log curve (the closer to 0 the steeper the curve).
          */
-        invertedLogarithmicScale: function(value:number, min:number, max:number, logStart = 0.10) {
+        invertedLogarithmicScale: function (value:number, min:number, max:number, logStart = 0.10) {
             const range = 10000000; // Precision
             const logMove = range * logStart;
             const logMoveValue = logMove > 1 ? Math.log(logMove - 1) : 0;
