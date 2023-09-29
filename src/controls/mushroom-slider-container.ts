@@ -93,6 +93,7 @@ export class HueMushroomSliderContainer extends LitElement {
                 /* colors */
                 --main-color: var(--slider-color);
                 --bg-color: var(--slider-bg-color);
+                --bg-color-inactive: var(--slider-bg-color);
                 --main-outline-color: var(--slider-outline-color);
 
                 /* base styles: */
