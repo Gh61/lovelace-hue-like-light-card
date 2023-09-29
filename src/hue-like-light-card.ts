@@ -145,7 +145,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     public static override styles = css`
     ha-card
     {
-        height:80px;
+        min-height:80px;
         background:var(--hue-background);
         position:relative;
         box-shadow:var(--hue-box-shadow), var(--ha-default-shadow);
@@ -164,7 +164,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     ha-card div.tap-area
     {
-        height:48px; /* card(80) - slider(32) */
+        height:46px; /* card(80) - slider(32) - border(2) */
         cursor: pointer;
     }
     ha-icon
@@ -198,10 +198,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         right:14px;
         top:22px;
     }
-    ha-slider
+    .brightness-slider
     {
-        position:absolute;
-        bottom:0;
         width:100%;
     }
     ha-alert{
