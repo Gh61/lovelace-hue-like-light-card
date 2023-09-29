@@ -111,6 +111,14 @@ Also this card will detect these icons installed and will use them prior to HA i
     (You can then use <code>offClickAction</code> and <code>onClickAction</code> to turn the lights on/off.)</td>
   </tr>
   <tr>
+    <td><code>slider</code></td>
+    <td><a href="#slider-type">Slider type</a></td>
+    <td>no</td>
+    <td>1.5.0</td>
+    <td><code>default</code></td>
+    <td>You can choose between diferent sliders or hide the slider.</td>
+  </tr>
+  <tr>
     <td><code>offClickAction</code></td>
     <td><a href="#click-action">Click Action</a></td>
     <td>no</td>
@@ -286,6 +294,34 @@ You can set size of the icon on hue card. Possibilities are:
     - `1.5` = 36px
     - `2.0` = 48px
     - ... you got it
+
+## Slider Type
+*Since version 1.5.0*
+
+You can set slider to on of following options:
+- `default` - will use default slider
+- `none` - will hide the slider entirely (same state, as if the light does not have brightness control)
+- `mushroom` - will use [Mushroom slider](https://github.com/piitaya/lovelace-mushroom).
+
+### Mushroom slider
+[Mushroom](https://github.com/piitaya/lovelace-mushroom) must be installed for this option to work.
+
+![Mushroom usage](/doc/mushroom-screen1.png)
+
+You can customize properties of mushroom slider using [Card mod](https://github.com/thomasloven/lovelace-card-mod):
+
+![Mushroom customization](/doc/mushroom-screen2.png)
+```yaml
+type: custom:hue-like-light-card-test
+entity: light.office
+slider: mushroom
+theme: synthwave
+style: |
+  .brightness-slider {
+    --mush-control-height: 42px;
+    --slider-color: orange;
+  }
+```
 
 ## Text template
 *Since version 1.2.0*
