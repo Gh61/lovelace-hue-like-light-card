@@ -78,7 +78,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         }
     }
 
-    public async setConfig(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
+    public setConfig(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
         this.catchErrors(() => {
             const oldConfig = this._config;
             this._config = new HueLikeLightCardConfig(<HueLikeLightCardConfigInterface>plainConfig);
