@@ -1,4 +1,5 @@
-import { html, nothing } from 'lit';
+import { nothing } from 'lit';
+import { html, unsafeStatic } from 'lit/static-html.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
@@ -8,6 +9,8 @@ import { ILightContainer } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { HaIcon, IHassWindow } from '../types/types-hass';
+import { SliderType } from '../types/types-config';
+import { HueMushroomSliderContainer } from '../controls/mushroom-slider-container';
 
 export class ViewUtils {
 
@@ -19,12 +22,13 @@ export class ViewUtils {
         // To help change themes on the fly
         const styles = ThemeHelper.getSwitchThemeStyle();
 
-        return html`<ha-switch
-        .checked=${ctrl.isOn()}
-        .disabled=${ctrl.isUnavailable()}
-        .haptic=true
-        style=${styleMap(styles)}
-        @change=${(ev: Event) => this.changed(ctrl, onChange, false, ev)}
+        return html`
+        <ha-switch
+            .checked=${ctrl.isOn()}
+            .disabled=${ctrl.isUnavailable()}
+            .haptic=true
+            style=${styleMap(styles)}
+            @change=${(ev: Event) => this.changed(ctrl, onChange, false, ev)}
         ></ha-switch>`;
     }
 
@@ -34,17 +38,39 @@ export class ViewUtils {
      */
     public static createSlider(ctrl: ILightContainer, config: HueLikeLightCardConfig, onChange: Action) {
 
-        // If the controller doesn't support brightness change, the slider will not be created
-        if (!ctrl.features.brightness)
+        // If the controller doesn't support brightness change or slider is disabled, the slider will not be created
+        if (!ctrl.features.brightness || config.slider == SliderType.None)
             return nothing;
 
         const min = config.allowZero ? 0 : 1;
         const max = 100;
         const step = 1;
 
-        return html`<ha-slider .min=${min} .max=${max} .step=${step} .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()} .value=${ctrl.brightnessValue}
-        pin @change=${(ev: Event) => this.changed(ctrl, onChange, true, ev)}
-        ignore-bar-touch
+        if (config.slider == SliderType.Mushroom) {
+            return html`
+                <${unsafeStatic(HueMushroomSliderContainer.ElementName)}
+                    class="brightness-slider"
+                    .min=${min}
+                    .max=${max}
+                    .step=${step}
+                    .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()}
+                    .value=${ctrl.brightnessValue}
+                    .showActive=${true}
+                    @change=${(ev: Event) => this.changed(ctrl, onChange, true, ev)}
+                />`;
+
+            // @current-change=${this.onCurrentChange}
+        }
+
+        return html`
+        <ha-slider pin ignore-bar-touch
+            class="brightness-slider"
+            .min=${min}
+            .max=${max}
+            .step=${step}
+            .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()}
+            .value=${ctrl.brightnessValue}
+            @change=${(ev: Event) => this.changed(ctrl, onChange, true, ev)}
         ></ha-slider>`;
     }
 

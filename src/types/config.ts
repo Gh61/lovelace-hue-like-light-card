@@ -7,7 +7,7 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
-import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder } from './types-config';
+import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SliderType } from './types-config';
 import { HassWsClient } from '../core/hass-ws-client';
 
 declare type EntityRelations = {
@@ -26,6 +26,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.icon = plainConfig.icon;
         this.iconSize = HueLikeLightCardConfig.getIconSize(plainConfig.iconSize);
         this.showSwitch = HueLikeLightCardConfig.getBoolean(plainConfig.showSwitch, true);
+        this.slider = HueLikeLightCardConfig.getSliderType(plainConfig.slider);
         this._scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
         this.sceneOrder = HueLikeLightCardConfig.getSceneOrder(plainConfig.sceneOrder);
         this.offClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.offClickAction);
@@ -60,6 +61,16 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         if (plain == null)
             return def;
         return !!plain;
+    }
+
+    /**
+     * @returns SliderType valid enum, default for empty or throws exception.
+     */
+    private static getSliderType(plain: SliderType | string | undefined): SliderType {
+        if (!plain)
+            return SliderType.Default;
+
+        return this.tryParseEnum<SliderType>(SliderType, plain, 'Slider type');
     }
 
     /**
@@ -164,6 +175,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly icon?: string;
     public readonly iconSize: number;
     public readonly showSwitch: boolean;
+    public readonly slider: SliderType;
     public get scenes() { return this._scenes; }
     public readonly sceneOrder: SceneOrder;
     public readonly offClickAction: ClickAction;

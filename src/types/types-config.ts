@@ -10,6 +10,12 @@ export enum KnownIconSize {
     Small = 'small'
 }
 
+export enum SliderType {
+    Default = 'default',
+    None = 'none',
+    Mushroom = 'mushroom'
+}
+
 export enum ClickAction {
     Default = 'default',
     NoAction = 'none',
@@ -179,6 +185,7 @@ export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
     readonly icon?: string;
     readonly iconSize?: string | number;
     readonly showSwitch?: boolean;
+    readonly slider?: string | SliderType;
     readonly scenes?: (string | SceneConfig)[];
     readonly sceneOrder?: SceneOrder;
     readonly offClickAction?: ClickAction;
