@@ -1,0 +1,27 @@
+name: Validation
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: ⏬ Checkout
+      uses: actions/checkout@v4
+    - name: ⚙️ Install Node
+      uses: actions/setup-node@v3
+    - name: 📦 Install modules
+      run: npm ci
+    - name: 🖊️ Linter
+      run: npm run lint
+    - name: 🥼 Tests
+      run: npm run test
+    - name: 👁️ HACS validation
+      uses: hacs/action@22.5.0
+      with:
+        category: 'plugin'

@@ -20,4 +20,5 @@ updates:
       interval: 'weekly'
     commit-message:
       prefix: 'build(npm)'
+      prefix-development: 'chore(npm-dev)'
     open-pull-requests-limit: 10
