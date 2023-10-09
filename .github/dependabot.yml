@@ -21,4 +21,5 @@ updates:
     commit-message:
       prefix: 'build(npm)'
       prefix-development: 'chore(npm-dev)'
+      include: 'scope'
     open-pull-requests-limit: 10
