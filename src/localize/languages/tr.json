@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Tüm ışıklar açık",
+  "card.description.noLightsOn": "Tüm ışıklar kapalı",
+  "card.description.oneLightOn": "1 ışık açık",
+  "card.description.someLightsAreOn": "%s ışıklar açık",
+  "dialog.lights": "Işıklar",
+  "dialog.scenes": "Görünümlerim",
+  "effects.candle": "Mum",
+  "effects.fireplace": "Şömine",
+  "scenes.preset.bright": "Parlak",
+  "scenes.preset.concentrate": "Odaklanın",
+  "scenes.preset.coolBright": "Soğuk parlak",
+  "scenes.preset.dimmed": "Karartılmış",
+  "scenes.preset.doze": "Dinlenme",
+  "scenes.preset.energize": "Canlanın",
+  "scenes.preset.naturalLight": "Doğal ışık",
+  "scenes.preset.nightLight": "Gece Işığı",
+  "scenes.preset.read": "Okuyun",
+  "scenes.preset.relax": "Dinlenin"
+}

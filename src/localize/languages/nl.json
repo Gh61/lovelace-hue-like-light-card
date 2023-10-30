@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Alle lampen staan aan",
+  "card.description.noLightsOn": "Alle lampen staan uit",
+  "card.description.oneLightOn": "1 lamp staat aan",
+  "card.description.someLightsAreOn": "%s lampen staan aan",
+  "dialog.lights": "Lampen",
+  "dialog.scenes": "Mijn scènes",
+  "effects.candle": "Kaars",
+  "effects.fireplace": "Open haard",
+  "scenes.preset.bright": "Helder",
+  "scenes.preset.concentrate": "Concentreren",
+  "scenes.preset.coolBright": "Koel helder",
+  "scenes.preset.dimmed": "Gedimd",
+  "scenes.preset.doze": "Rusten",
+  "scenes.preset.energize": "Energie",
+  "scenes.preset.naturalLight": "Natuurlijk licht",
+  "scenes.preset.nightLight": "Nachtlampje",
+  "scenes.preset.read": "Lezen",
+  "scenes.preset.relax": "Ontspannen"
+}

@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Toutes les lumières sont allumées",
+  "card.description.noLightsOn": "Toutes les lumières sont éteintes",
+  "card.description.oneLightOn": "1 lumière est allumée",
+  "card.description.someLightsAreOn": "%s lampes sont allumées",
+  "dialog.lights": "Lumières",
+  "dialog.scenes": "Mes scénarios",
+  "effects.candle": "Bougie",
+  "effects.fireplace": "Feu de cheminée",
+  "scenes.preset.bright": "Lumineux",
+  "scenes.preset.concentrate": "Concentration",
+  "scenes.preset.coolBright": "Lumière vive froide",
+  "scenes.preset.dimmed": "Atténué",
+  "scenes.preset.doze": "Repos",
+  "scenes.preset.energize": "Stimulation",
+  "scenes.preset.naturalLight": "Lumière naturelle",
+  "scenes.preset.nightLight": "Veilleuse",
+  "scenes.preset.read": "Lecture",
+  "scenes.preset.relax": "Détente"
+}

@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Kaikki valot ovat päällä",
+  "card.description.noLightsOn": "Kaikki valot ovat poissa päältä",
+  "card.description.oneLightOn": "1 valo on päällä",
+  "card.description.someLightsAreOn": "%s valot palavat",
+  "dialog.lights": "Valot",
+  "dialog.scenes": "Valaistusasetukseni",
+  "effects.candle": "Kynttilä",
+  "effects.fireplace": "Takka",
+  "scenes.preset.bright": "Bright",
+  "scenes.preset.concentrate": "Concentrate",
+  "scenes.preset.coolBright": "Viileä kirkas",
+  "scenes.preset.dimmed": "Dimmed",
+  "scenes.preset.doze": "Lepohetki",
+  "scenes.preset.energize": "Energize",
+  "scenes.preset.naturalLight": "Luonnonvalo",
+  "scenes.preset.nightLight": "Yövalaistus",
+  "scenes.preset.read": "Read",
+  "scenes.preset.relax": "Relax"
+}

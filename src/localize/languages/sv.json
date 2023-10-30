@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Alla lampor är tända",
+  "card.description.noLightsOn": "Alla lampor är släckta",
+  "card.description.oneLightOn": "En lampa är tänd",
+  "card.description.someLightsAreOn": "%s-lamporna är tända",
+  "dialog.lights": "Belysning",
+  "dialog.scenes": "Mina scener",
+  "effects.candle": "Kronljus",
+  "effects.fireplace": "Eldstad",
+  "scenes.preset.bright": "Klart ljus",
+  "scenes.preset.concentrate": "Concentrate",
+  "scenes.preset.coolBright": "Svalt ljus",
+  "scenes.preset.dimmed": "Dimrad",
+  "scenes.preset.doze": "Vila",
+  "scenes.preset.energize": "Få ny energi",
+  "scenes.preset.naturalLight": "Naturligt ljus",
+  "scenes.preset.nightLight": "Nattlampa",
+  "scenes.preset.read": "Läs",
+  "scenes.preset.relax": "Koppla av"
+}

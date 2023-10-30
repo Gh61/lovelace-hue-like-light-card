@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Alle lysene er nå slått på",
+  "card.description.noLightsOn": "Alle lysene er nå slått av",
+  "card.description.oneLightOn": "1 lys er slått på",
+  "card.description.someLightsAreOn": "%s lysene er på",
+  "dialog.lights": "Lys",
+  "dialog.scenes": "Mine scener",
+  "effects.candle": "Vokslys",
+  "effects.fireplace": "Bål",
+  "scenes.preset.bright": "Lyst",
+  "scenes.preset.concentrate": "Konsentrer deg",
+  "scenes.preset.coolBright": "Kjølig lysstyrke",
+  "scenes.preset.dimmed": "Dimmet",
+  "scenes.preset.doze": "Hvile",
+  "scenes.preset.energize": "Lad batteriene",
+  "scenes.preset.naturalLight": "Naturlig lys",
+  "scenes.preset.nightLight": "Nattlys",
+  "scenes.preset.read": "Les",
+  "scenes.preset.relax": "Slapp av"
+}

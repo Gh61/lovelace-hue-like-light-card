@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "すべてのライトがオンです",
+  "card.description.noLightsOn": "すべてのライトがオフです",
+  "card.description.oneLightOn": "1 個のライトがオンです",
+  "card.description.someLightsAreOn": "%s照明がオンです",
+  "dialog.lights": "ライト",
+  "dialog.scenes": "マイ シーン",
+  "effects.candle": "キャンドル",
+  "effects.fireplace": "暖炉",
+  "scenes.preset.bright": "明るめ",
+  "scenes.preset.concentrate": "集中する",
+  "scenes.preset.coolBright": "昼白色",
+  "scenes.preset.dimmed": "暗め",
+  "scenes.preset.doze": "残り",
+  "scenes.preset.energize": "やる気を出す",
+  "scenes.preset.naturalLight": "自然光",
+  "scenes.preset.nightLight": "夜間照明",
+  "scenes.preset.read": "読書をする",
+  "scenes.preset.relax": "くつろぐ"
+}

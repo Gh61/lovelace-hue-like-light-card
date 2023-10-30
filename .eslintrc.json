@@ -16,6 +16,9 @@
     "plugins": [
         "@typescript-eslint"
     ],
+    "ignorePatterns": [
+        "**/languages/*.json"
+    ],
     "rules": {
         "@typescript-eslint/no-non-null-assertion": "off",
         "linebreak-style": ["error", "unix"],

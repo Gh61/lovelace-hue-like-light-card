@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "모든 조명 켜짐",
+  "card.description.noLightsOn": "모든 조명 꺼짐",
+  "card.description.oneLightOn": "1개 조명 켜짐",
+  "card.description.someLightsAreOn": "%s개의 조명이 켜져 있습니다",
+  "dialog.lights": "조명",
+  "dialog.scenes": "내 장면",
+  "effects.candle": "캔들",
+  "effects.fireplace": "벽난로",
+  "scenes.preset.bright": "밝게",
+  "scenes.preset.concentrate": "집중",
+  "scenes.preset.coolBright": "시원하고 밝은 느낌",
+  "scenes.preset.dimmed": "어둡게",
+  "scenes.preset.doze": "휴지",
+  "scenes.preset.energize": "활력",
+  "scenes.preset.naturalLight": "자연광",
+  "scenes.preset.nightLight": "야간 조명",
+  "scenes.preset.read": "독서",
+  "scenes.preset.relax": "휴식"
+}

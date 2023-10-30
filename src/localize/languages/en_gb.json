@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "All lights are on",
+  "card.description.noLightsOn": "All lights are off",
+  "card.description.oneLightOn": "1 light is on",
+  "card.description.someLightsAreOn": "%s lights are on",
+  "dialog.lights": "Lights",
+  "dialog.scenes": "My scenes",
+  "effects.candle": "Candle",
+  "effects.fireplace": "Fireplace",
+  "scenes.preset.bright": "Bright",
+  "scenes.preset.concentrate": "Concentrate",
+  "scenes.preset.coolBright": "Cool bright",
+  "scenes.preset.dimmed": "Dimmed",
+  "scenes.preset.doze": "Rest",
+  "scenes.preset.energize": "Energise",
+  "scenes.preset.naturalLight": "Natural light",
+  "scenes.preset.nightLight": "Nightlight",
+  "scenes.preset.read": "Read",
+  "scenes.preset.relax": "Relax"
+}

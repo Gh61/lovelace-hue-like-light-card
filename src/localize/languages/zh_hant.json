@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "所有燈光已開啟",
+  "card.description.noLightsOn": "所有燈光已關閉",
+  "card.description.oneLightOn": "已開啟 1 盞燈",
+  "card.description.someLightsAreOn": "%s 燈光已就緒",
+  "dialog.lights": "燈光",
+  "dialog.scenes": "我的場景",
+  "effects.candle": "蠟燭",
+  "effects.fireplace": "壁爐",
+  "scenes.preset.bright": "明亮",
+  "scenes.preset.concentrate": "專注精神",
+  "scenes.preset.coolBright": "冷白光",
+  "scenes.preset.dimmed": "黯淡",
+  "scenes.preset.doze": "待用",
+  "scenes.preset.energize": "活力充沛",
+  "scenes.preset.naturalLight": "自然光",
+  "scenes.preset.nightLight": "夜燈",
+  "scenes.preset.read": "閱讀",
+  "scenes.preset.relax": "放鬆休息"
+}

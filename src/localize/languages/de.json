@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Alle Lampen sind eingeschaltet",
+  "card.description.noLightsOn": "Alle Lampen sind ausgeschaltet",
+  "card.description.oneLightOn": "1 Licht ist eingeschaltet",
+  "card.description.someLightsAreOn": "%s Lampen sind eingeschaltet",
+  "dialog.lights": "Lampen",
+  "dialog.scenes": "Meine Szenen",
+  "effects.candle": "Kerze",
+  "effects.fireplace": "Kaminfeuer",
+  "scenes.preset.bright": "Hell",
+  "scenes.preset.concentrate": "Konzentrieren",
+  "scenes.preset.coolBright": "Kühles, helles Licht",
+  "scenes.preset.dimmed": "Gedimmt",
+  "scenes.preset.doze": "Ruhephase",
+  "scenes.preset.energize": "Energie tanken",
+  "scenes.preset.naturalLight": "Natürliches Licht",
+  "scenes.preset.nightLight": "Nachtlicht",
+  "scenes.preset.read": "Lesen",
+  "scenes.preset.relax": "Entspannen"
+}

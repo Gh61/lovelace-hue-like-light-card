@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Все лампы включены",
+  "card.description.noLightsOn": "Все лампы выключены",
+  "card.description.oneLightOn": "Включено ламп: 1",
+  "card.description.someLightsAreOn": "Включено ламп: %s",
+  "dialog.lights": "Лампы",
+  "dialog.scenes": "Мои варианты освещения",
+  "effects.candle": "Свеча",
+  "effects.fireplace": "Камин",
+  "scenes.preset.bright": "Яркий свет",
+  "scenes.preset.concentrate": "Концентрация",
+  "scenes.preset.coolBright": "Яркий холодный",
+  "scenes.preset.dimmed": "Приглушенный свет",
+  "scenes.preset.doze": "Отдых",
+  "scenes.preset.energize": "Заряд энергии",
+  "scenes.preset.naturalLight": "Дневной свет",
+  "scenes.preset.nightLight": "Ночное освещение",
+  "scenes.preset.read": "Чтение",
+  "scenes.preset.relax": "Отдых"
+}

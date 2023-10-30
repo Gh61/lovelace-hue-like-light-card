@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Todas as luzes estão acesas",
+  "card.description.noLightsOn": "Todas as luzes estão apagadas",
+  "card.description.oneLightOn": "1 luz acesa",
+  "card.description.someLightsAreOn": "%s luzes estão acesas",
+  "dialog.lights": "Luzes",
+  "dialog.scenes": "Minhas cenas",
+  "effects.candle": "Vela",
+  "effects.fireplace": "Lareira",
+  "scenes.preset.bright": "Luz",
+  "scenes.preset.concentrate": "Concentrar",
+  "scenes.preset.coolBright": "Frio claro",
+  "scenes.preset.dimmed": "Esmaecido",
+  "scenes.preset.doze": "Repousar",
+  "scenes.preset.energize": "Energizar",
+  "scenes.preset.naturalLight": "Luz natural",
+  "scenes.preset.nightLight": "Luz noturna",
+  "scenes.preset.read": "Leitura",
+  "scenes.preset.relax": "Relaxar"
+}
