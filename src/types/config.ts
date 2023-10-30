@@ -2,7 +2,6 @@ import { IHassTextTemplate, ILightContainer } from './types-interface';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
-import { Resources } from './resources';
 import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
@@ -46,7 +45,6 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
 
         this.offShadow = HueLikeLightCardConfig.getBoolean(plainConfig.offShadow, !HueLikeLightCardConfig.getBoolean(plainConfig.disableOffShadow, false));
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
-        this.resources = new Resources(plainConfig.resources);
 
         this.style = plainConfig.style;
         this.card_mod = plainConfig.card_mod;
@@ -195,7 +193,6 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         return !this.offShadow;
     }
     public readonly hueBorders: boolean;
-    public readonly resources: Resources;
 
     /** Support for card-mod styling */
     public readonly style?: unknown;

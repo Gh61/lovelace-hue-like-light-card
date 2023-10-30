@@ -18,6 +18,7 @@ import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
 import { LightContainer } from '../core/light-container';
 import { HueHistoryStateManager, HueHistoryStep } from './history-state-manager';
+import { localize } from '../localize/localize';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -633,7 +634,7 @@ export class HueDialog extends IdLitElement {
             'detail-active': !!this._selectedLight
         })}" tabindex="-1" dialogInitialFocus>
             <div class='header detail-hide'>
-                <div class='title'>${this._config.resources.scenes}</div>
+                <div class='title'>${localize(this._ctrl.hass, "dialog.scenes")}</div>
             </div>
             <div class='tile-scroller detail-hide'>
                 <div class='tiles'>
@@ -657,7 +658,7 @@ export class HueDialog extends IdLitElement {
             </div>
 
             <div class='header detail-hide'>
-                <div class='title'>${this._config.resources.lights}</div>
+                <div class='title'>${localize(this._ctrl.hass, "dialog.lights")}</div>
             </div>
             <div class='tile-scroller light-tiles'>
                 <div class='tiles'>

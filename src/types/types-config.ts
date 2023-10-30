@@ -203,7 +203,6 @@ export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
      */
     readonly disableOffShadow?: boolean;
     readonly hueBorders?: boolean;
-    readonly resources?: ResourcesInterface;
 
     /** Support for card-mod styling */
     readonly style?: unknown;
@@ -212,9 +211,4 @@ export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
 
 export interface ConfigEntityInterface {
     readonly entity?: string;
-}
-
-export interface ResourcesInterface {
-    readonly scenes?: string;
-    readonly lights?: string;
 }

@@ -1,5 +1,6 @@
-import typescript from "rollup-plugin-typescript2";
+import typescript from 'rollup-plugin-typescript2';
 import terser from '@rollup/plugin-terser';
+import json from '@rollup/plugin-json';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 const LCERROR = '\x1b[31m%s\x1b[0m'; //red
 
@@ -35,6 +36,7 @@ export default {
         format: "es",
     },
     plugins: [
+        json(),
         typescript(),
         nodeResolve(),
         !dev && terser()
