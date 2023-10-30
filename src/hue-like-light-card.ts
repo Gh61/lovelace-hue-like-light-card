@@ -333,6 +333,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
         const titleTemplate = this._config.getTitle(this._ctrl);
         const title = titleTemplate.resolveToString(this._hass);
+        const description = this._ctrl.getDescription();
         const showSwitch = this._config.showSwitch;
         const textClass = { 'text-area':true, 'no-switch': !showSwitch };
         const cardClass = {
@@ -352,7 +353,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
                 <div class="${classMap(textClass)}">
                     <h2>${title}</h2>
-                    <div class="desc">Whatever is just lit.</div>
+                    <div class="desc">${description}</div>
                 </div>
             </div>
             ${showSwitch ? ViewUtils.createSwitch(this._ctrl, onChangeCallback) : nothing}

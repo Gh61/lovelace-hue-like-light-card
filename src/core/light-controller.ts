@@ -8,6 +8,7 @@ import { LightContainer } from './light-container';
 import { LightFeaturesCombined } from './light-features';
 import { NotifyBase } from './notify-base';
 import { IconHelper } from './icon-helper';
+import { localize } from '../localize/localize';
 
 export class LightController extends NotifyBase<LightController> implements ILightContainer {
     private _hass: HomeAssistant;
@@ -154,6 +155,29 @@ export class LightController extends NotifyBase<LightController> implements ILig
             title += ', ...';
 
         return new StaticTextTemplate(title);
+    }
+
+    /**
+     * @returns localized description of how many lights are on.
+     */
+    public getDescription() {
+        const total = this._lights.length;
+        let lit = 0;
+        this._lights.forEach(l => {
+            if (l.isOn()) {
+                lit++;
+            }
+        });
+
+        if (lit == 0) {
+            return localize(this.hass, 'card.description.noLightsOn');
+        } else if (lit == total) {
+            return localize(this.hass, 'card.description.allLightsOn');
+        } else if (lit == 1) {
+            return localize(this.hass, 'card.description.oneLightOn');
+        } else {
+            return localize(this.hass, 'card.description.someLightsAreOn', '%s', lit.toString());
+        }
     }
 
     public getBackground(): Background | null {
