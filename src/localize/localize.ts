@@ -61,7 +61,8 @@ export function localize(hassOrLanguage:HomeAssistant | string, resource: keyof 
     let translated = 
         (languages[lang] ?? {})[resource] ||
         (languages[langBase] ?? {})[resource] ||
-        (languages[defaultLang])[resource];
+        (languages[defaultLang] ?? {})[resource] ||
+        resource;
 
     if (search !== '' && replace !== '') {
         translated = translated.replace(search, replace);
