@@ -237,12 +237,12 @@ Also this card will detect these icons installed and will use them prior to HA i
     <td>If turned off, the card will take border settings from current Home Assistant theme.</td>
   </tr>
   <tr>
-    <td><code>resources</code></td>
-    <td><a href="resources-object">Resources object</a></td>
+    <td><s><code>resources</code></s></td>
+    <td>Resources object</td>
     <td>no</td>
-    <td>1.1.0</td>
+    <td><i>removed in 1.5.0<i><br/></td>
     <td>-</td>
-    <td>Can change (localize) texts on this card</td>
+    <td><s>Can change (localize) texts on this card</s><br/><i>Replaced with integrated localization.</i></td>
   </tr>
   <tr>
     <td><code>style</code></td>
@@ -625,38 +625,6 @@ Hue screen will allow you to activate [scenes](#scenes-configuration), set light
 <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="540" />
 ![Hue-Screen-Detail](/doc/hue-screen-detail-2.png)
 <img alt="Hue-Screen-Detail1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen-detail-1.png" height="540" />
-
-## Resources object
-Using the configuration option `resources`, you can change all static texts used in this component.
-### Texts to change
-<table>
-  <tr>
-    <th>Key</th>
-    <th>Since</th>
-    <th>Default</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td><code>scenes</code></td>
-    <td>1.1.0</td>
-    <td>My scenes</td>
-    <td>Title of Scenes tiles in <a href="#hue-screen">Hue Screen</a></td>
-  </tr>
-  <tr>
-    <td><code>lights</code></td>
-    <td>1.3.0</td>
-    <td>Lights</td>
-    <td>Title of Light tiles in <a href="#hue-screen">Hue Screen</a></td>
-  </tr>
-</table>
-
-### Example of configuration
-```yaml
-type: custom:hue-like-light-card
-...
-resources:
-  scenes: My scenes
-```
 
 ## Examples of configuration
 #### Multiple lights
