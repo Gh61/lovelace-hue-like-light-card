@@ -1,25 +1,25 @@
 import { HomeAssistant } from 'custom-card-helpers';
 
-import * as cs from './languages/cs.json';
-import * as da from './languages/da.json';
-import * as de from './languages/de.json';
-import * as en from './languages/en_us.json';
-import * as en_gb from './languages/en_gb.json';
-import * as es from './languages/es.json';
-import * as fi from './languages/fi.json';
-import * as fr from './languages/fr.json';
-import * as it from './languages/it.json';
-import * as ja from './languages/ja.json';
-import * as ko from './languages/ko.json';
-import * as nb from './languages/nb.json';
-import * as nl from './languages/nl.json';
-import * as pl from './languages/pl.json';
-import * as pt_br from './languages/pt_br.json';
-import * as ru from './languages/ru.json';
-import * as sv from './languages/sv.json';
-import * as tr from './languages/tr.json';
-import * as zh_hans from './languages/zh_hans.json';
-import * as zh_hant from './languages/zh_hant.json';
+import cs from './languages/cs.json';
+import da from './languages/da.json';
+import de from './languages/de.json';
+import en from './languages/en_us.json';
+import en_gb from './languages/en_gb.json';
+import es from './languages/es.json';
+import fi from './languages/fi.json';
+import fr from './languages/fr.json';
+import it from './languages/it.json';
+import ja from './languages/ja.json';
+import ko from './languages/ko.json';
+import nb from './languages/nb.json';
+import nl from './languages/nl.json';
+import pl from './languages/pl.json';
+import pt_br from './languages/pt_br.json';
+import ru from './languages/ru.json';
+import sv from './languages/sv.json';
+import tr from './languages/tr.json';
+import zh_hans from './languages/zh_hans.json';
+import zh_hant from './languages/zh_hant.json';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const languages: any = {

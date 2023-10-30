@@ -41,5 +41,6 @@ export const hassMockup = <HomeAssistant>{
         sendMessagePromise: (_: MessageBase) => {
             return Promise.resolve(null);
         }
-    }
+    },
+    language: 'cs'
 };

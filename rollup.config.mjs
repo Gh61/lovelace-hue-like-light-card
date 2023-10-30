@@ -36,7 +36,7 @@ export default {
         format: "es",
     },
     plugins: [
-        json(),
+        json({compact:true}),
         typescript(),
         nodeResolve(),
         !dev && terser()
