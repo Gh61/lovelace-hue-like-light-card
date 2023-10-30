@@ -17,6 +17,7 @@ export class HueMushroomSliderContainer extends LitElement {
     public static readonly ElementName = 'hue-mushroom-slider-container' + Consts.ElementPostfix;
 
     // Consts
+    private static readonly MarginTop = 8;
     private static readonly Margin = 14;
     private static readonly Height = 28;
 
@@ -87,6 +88,7 @@ export class HueMushroomSliderContainer extends LitElement {
             mushroom-slider {
                 display: inline-block;
                 width: calc(100% - ${2 * HueMushroomSliderContainer.Margin}px);
+                margin-top: ${HueMushroomSliderContainer.MarginTop}px;
                 margin-left: ${HueMushroomSliderContainer.Margin}px;
                 margin-right: ${HueMushroomSliderContainer.Margin}px;
 

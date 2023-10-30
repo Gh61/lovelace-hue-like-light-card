@@ -176,21 +176,30 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         color:var(--hue-text-color);
         transition:${unsafeCSS(Consts.TransitionDefault)};
     }
-    h2
-    {
+    .text-area{
         padding-top:0.5em;
         margin:0px 60px 0px 70px;
-        min-height:22px;
         vertical-align:top;
-        font-weight:400;
-        text-overflow:ellipsis;
-        overflow:hidden;
-        white-space:nowrap;
         color:var(--hue-text-color);
         transition:${unsafeCSS(Consts.TransitionDefault)};
     }
-    h2.no-switch{
+    .text-area.no-switch{
         margin-right:10px;
+    }
+    .text-area h2
+    {
+        font-weight:400;
+        min-height:22px;
+        text-overflow:ellipsis;
+        overflow:hidden;
+        white-space:nowrap;
+        margin:0;
+        margin-top:4px;
+    }
+    .text-area .desc
+    {
+        font-size:13px;
+        margin-top:-2px;
     }
     ha-switch
     {
@@ -325,7 +334,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         const titleTemplate = this._config.getTitle(this._ctrl);
         const title = titleTemplate.resolveToString(this._hass);
         const showSwitch = this._config.showSwitch;
-        const h2Class = { 'no-switch': !showSwitch };
+        const textClass = { 'text-area':true, 'no-switch': !showSwitch };
         const cardClass = {
             'state-on': this._ctrl.isOn(),
             'state-off': this._ctrl.isOff(),
@@ -341,7 +350,10 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         return html`<ha-card class="${classMap(cardClass)}">
             <div class="tap-area" @click="${(): void => this.cardClicked()}">
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
-                <h2 class="${classMap(h2Class)}">${title}</h2>
+                <div class="${classMap(textClass)}">
+                    <h2>${title}</h2>
+                    <div class="desc">Whatever is just lit.</div>
+                </div>
             </div>
             ${showSwitch ? ViewUtils.createSwitch(this._ctrl, onChangeCallback) : nothing}
 
