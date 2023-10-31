@@ -332,8 +332,11 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             return nothing;
 
         const titleTemplate = this._config.getTitle(this._ctrl);
+        const descriptionTemplate = this._ctrl.getDescription(this._config.description);
+
         const title = titleTemplate.resolveToString(this._hass);
-        const description = this._ctrl.getDescription();
+        const description = descriptionTemplate.resolveToString(this._hass);
+        
         const showSwitch = this._config.showSwitch;
         const textClass = { 'text-area':true, 'no-switch': !showSwitch };
         const cardClass = {

@@ -22,6 +22,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.entity = plainConfig.entity;
         this.entities = plainConfig.entities;
         this.title = plainConfig.title;
+        this.description = plainConfig.description;
         this.icon = plainConfig.icon;
         this.iconSize = HueLikeLightCardConfig.getIconSize(plainConfig.iconSize);
         this.showSwitch = HueLikeLightCardConfig.getBoolean(plainConfig.showSwitch, true);
@@ -170,6 +171,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly entity?: string;
     public readonly entities?: string[] | ConfigEntityInterface[];
     public readonly title?: string;
+    public readonly description?: string;
     public readonly icon?: string;
     public readonly iconSize: number;
     public readonly showSwitch: boolean;

@@ -1,9 +1,9 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { ILightContainer, ILightFeatures } from '../types/types-interface';
+import { IHassTextTemplate, ILightContainer, ILightFeatures } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { GlobalLights } from './global-lights';
-import { StaticTextTemplate } from './hass-text-template';
+import { HassTextTemplate, StaticTextTemplate } from './hass-text-template';
 import { LightContainer } from './light-container';
 import { LightFeaturesCombined } from './light-features';
 import { NotifyBase } from './notify-base';
@@ -160,7 +160,7 @@ export class LightController extends NotifyBase<LightController> implements ILig
     /**
      * @returns localized description of how many lights are on.
      */
-    public getDescription() {
+    public getDescription(description: string | undefined): IHassTextTemplate {
         const total = this._lights.length;
         let lit = 0;
         this._lights.forEach(l => {
@@ -169,15 +169,22 @@ export class LightController extends NotifyBase<LightController> implements ILig
             }
         });
 
-        if (lit == 0) {
-            return localize(this.hass, 'card.description.noLightsOn');
+        let result:string;
+
+        if (!!description) {
+            result = description.replace('%s', lit.toString());
+            return new HassTextTemplate(result);
+        } else if (lit == 0) {
+            result = localize(this.hass, 'card.description.noLightsOn');
         } else if (lit == total) {
-            return localize(this.hass, 'card.description.allLightsOn');
+            result = localize(this.hass, 'card.description.allLightsOn');
         } else if (lit == 1) {
-            return localize(this.hass, 'card.description.oneLightOn');
+            result = localize(this.hass, 'card.description.oneLightOn');
         } else {
-            return localize(this.hass, 'card.description.someLightsAreOn', '%s', lit.toString());
+            result = localize(this.hass, 'card.description.someLightsAreOn', '%s', lit.toString());
         }
+
+        return new StaticTextTemplate(result);
     }
 
     public getBackground(): Background | null {
