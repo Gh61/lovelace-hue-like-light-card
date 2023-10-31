@@ -177,9 +177,12 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         transition:${unsafeCSS(Consts.TransitionDefault)};
     }
     .text-area{
-        padding-top:0.5em;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 50px;
         margin:0px 60px 0px 70px;
-        vertical-align:top;
+        line-height:normal;
         color:var(--hue-text-color);
         transition:${unsafeCSS(Consts.TransitionDefault)};
     }
@@ -188,13 +191,12 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
     .text-area h2
     {
-        font-weight:400;
-        min-height:22px;
+        font-size:18px;
+        font-weight:500;
         text-overflow:ellipsis;
         overflow:hidden;
         white-space:nowrap;
-        margin:0;
-        margin-top:4px;
+        margin:4px 0 2px 0;
     }
     .text-area .desc
     {
