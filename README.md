@@ -290,6 +290,8 @@ When [hass-hue-icons](https://github.com/arallsopp/hass-hue-icons) is installed 
 - If the card has **four or more** lights attached, `hue:bulb-group-classic-4` (<img alt='bulb-group-classic-4' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/custom_svgs/bulb-group-classic-4.svg' height="24">) is used.
 
 ### Automatic description
+*Since version 1.5.0*
+
 Based on number of lit lights in group, one of the 4 localized text is used (priority from top):
 - **0** lights on
 - **ALL** lights on
