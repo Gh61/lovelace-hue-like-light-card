@@ -371,6 +371,8 @@ entities:
 *When attribute is not available (or is empty) on entity, state of the entity will be shown instead.*
 
 #### Usage in description:
+*Since version 1.5.0*
+
 ```yaml
 type: custom:hue-like-light-card
 title: Kitchen - desk 
