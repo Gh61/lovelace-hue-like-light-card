@@ -79,11 +79,19 @@ Also this card will detect these icons installed and will use them prior to HA i
   </tr>
   <tr>
     <td><code>title</code></td>
-    <td>string</td>
+    <td><a href="#text-template">Text Template</a></td>
     <td>no</td>
     <td>1.0.0</td>
     <td><i>Lights name</i></td>
     <td>Card title</td>
+  </tr>
+  <tr>
+    <td><code>description</code></td>
+    <td><a href="#text-template">Text Template</a> OR <code>false</code></td>
+    <td>no</td>
+    <td>1.5.0</td>
+    <td><i><a href="#automatic-description">automatic description</a></i></td>
+    <td>Description under the cards title. Placeholder <code>%s</code> can be used for showing number of lit lights. (eg. <code>'Is on: %s'</code>)<br/>If set to <code>false</code>, description will not show.</td>
   </tr>
   <tr>
     <td><code>icon</code></td>
@@ -281,6 +289,13 @@ When [hass-hue-icons](https://github.com/arallsopp/hass-hue-icons) is installed 
 - If the card has **three** lights attached, `hue:bulb-group-classic-3` (<img alt='bulb-group-classic-3' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/custom_svgs/bulb-group-classic-3.svg' height="24">) is used.
 - If the card has **four or more** lights attached, `hue:bulb-group-classic-4` (<img alt='bulb-group-classic-4' src='https://raw.githubusercontent.com/arallsopp/hass-hue-icons/main/docs/custom_svgs/bulb-group-classic-4.svg' height="24">) is used.
 
+### Automatic description
+Based on number of lit lights in group, one of the 4 localized text is used (priority from top):
+- **0** lights on
+- **ALL** lights on
+- **1** light on
+- **X/Y** lights on
+
 ### Icon size
 *Since version 1.4.2*
 
@@ -306,11 +321,11 @@ You can set slider to on of following options:
 ### Mushroom slider
 [Mushroom](https://github.com/piitaya/lovelace-mushroom) must be installed for this option to work.
 
-![Mushroom usage](/doc/mushroom-screen1.png)
+![Mushroom usage](https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/mushroom-screen1.png)
 
 You can customize properties of mushroom slider using [Card mod](https://github.com/thomasloven/lovelace-card-mod):
 
-![Mushroom customization](/doc/mushroom-screen2.png)
+![Mushroom customization](https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/mushroom-screen2.png)
 ```yaml
 type: custom:hue-like-light-card-test
 entity: light.office
@@ -324,7 +339,8 @@ style: |
 ```
 
 ## Text template
-*Since version 1.2.0*
+*Since version 1.2.0*<br/>
+*Localized since 1.4.0*
 
 The text supports showing entity states and attributes using double curly `{{` brackets `}}`.
 When you insert entity name inside these brackets, entity status will be resolved and shown on given place. You can also show attribute on this entity.
@@ -351,6 +367,18 @@ entities:
 ![Template attribute usage](/doc/template-screen2.png)
 
 *When attribute is not available (or is empty) on entity, state of the entity will be shown instead.*
+
+#### Usage in description:
+```yaml
+type: custom:hue-like-light-card
+title: Kitchen - desk 
+description: 'Lights on: %s ({{ light.kitchen_desk1.brightness }}, {{light.kitchen_desk2.brightness}})'
+icon: mdi:wall-sconce-flat
+offColor: '#363636'
+entities:
+  - light.kitchen_desk1
+  - light.kitchen_desk2
+```
 
 
 ## Color
