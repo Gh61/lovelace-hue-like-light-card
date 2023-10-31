@@ -336,7 +336,7 @@ theme: synthwave
 style: |
   .brightness-slider {
     --mush-control-height: 42px;
-    --slider-color: orange;
+    --slider-color: white;
   }
 ```
 
