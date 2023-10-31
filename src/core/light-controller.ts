@@ -171,9 +171,12 @@ export class LightController extends NotifyBase<LightController> implements ILig
 
         let result:string;
 
-        if (!!description) {
-            result = description.replace('%s', lit.toString());
-            return new HassTextTemplate(result);
+        if (description != null) {
+            if (description) {
+                result = description.replace('%s', lit.toString());
+                return new HassTextTemplate(result);
+            }
+            result = '';
         } else if (lit == 0) {
             result = localize(this.hass, 'card.description.noLightsOn');
         } else if (lit == total) {
