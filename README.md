@@ -323,11 +323,11 @@ You can set slider to on of following options:
 ### Mushroom slider
 [Mushroom](https://github.com/piitaya/lovelace-mushroom) must be installed for this option to work.
 
-![Mushroom usage](https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/mushroom-screen1.png)
+![Mushroom usage](/doc/mushroom-screen1.png)
 
 You can customize properties of mushroom slider using [Card mod](https://github.com/thomasloven/lovelace-card-mod):
 
-![Mushroom customization](https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/mushroom-screen2.png)
+![Mushroom customization](/doc/mushroom-screen2.png)
 ```yaml
 type: custom:hue-like-light-card-test
 entity: light.office
@@ -383,7 +383,7 @@ entities:
   - light.kitchen_desk1
   - light.kitchen_desk2
 ```
-
+![Template usage in description](/doc/template-screen3.png)
 
 ## Color
 The color can be defined in following ways:
@@ -691,7 +691,6 @@ showSwitch: false
 offClickAction: turn-on
 onClickAction: turn-off
 offColor: rgb(28,28,28)
-
 ```
 
 #### Home Assistant-like
@@ -710,6 +709,15 @@ offShadow: false
 hueBorders: false
 ```
 
+#### Turnable with slider
+![Screen5](/doc/screen5.png)
+```yaml
+type: custom:hue-like-light-card
+title: Living room
+entity: light.livingroom_light
+allowZero: true
+```
+
 #### Custom theme
 ![Screen8](/doc/screen8.png)
 ```yaml
@@ -724,32 +732,27 @@ allowZero: true
 entities:
   - light.livingroom_light
   - light.livingroom_color
-offClickAction: hue-screen
-onClickAction: hue-screen
 theme: synthwave
-```
-
-#### Turnable with slider
-![Screen5](/doc/screen5.png)
-```yaml
-type: custom:hue-like-light-card
-title: Living room
-entity: light.livingroom_light
-allowZero: true
 ```
 
 #### Non-RGB Light
 ![Screen6](/doc/screen6.png)
 ```yaml
 type: custom:hue-like-light-card
-title: Living room
-entity: light.livingroom_light
+title: Bathroom
+iconSize: big
+entity: light.bathroom
 defaultColor: 'rgb(230,230,255)'
 ```
 
-
+#### No description
+![Screen9](/doc/screen9.png)
+```yaml
+type: custom:hue-like-light-card
+entity: light.office
+description: false
+```
 ## Coming soon features
 - reactions on sliding event instead of on change (value will be changed in the moment of sliding, not after)
 - faster reactions between multiple cards (instant change of value on other cards)
-- subtext under the main text (how many lights are on, ...)
 - ui editor?
