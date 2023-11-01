@@ -56,7 +56,7 @@ jobs:
       run: |
         sed -i "s/var dev = true;/var dev = false;/g" rollup.config.js
 
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
     - name: Install modules
       run: npm ci
     - name: Run build
