@@ -1,0 +1,20 @@
+{
+  "card.description.allLightsOn": "Všetky svetlá zapnuté",
+  "card.description.noLightsOn": "Všetky svetlá vypnuté",
+  "card.description.oneLightOn": "1 svetlo je zapnuté",
+  "card.description.someLightsAreOn": "%s svetlá sú zapnuté",
+  "dialog.lights": "Svetlá",
+  "dialog.scenes": "Moje scény",
+  "effects.candle": "Sviečka",
+  "effects.fireplace": "Krb",
+  "scenes.preset.bright": "Svetlé",
+  "scenes.preset.concentrate": "Sústredenie",
+  "scenes.preset.coolBright": "Chladné svetlé",
+  "scenes.preset.dimmed": "Tlmené",
+  "scenes.preset.doze": "Oddych",
+  "scenes.preset.energize": "Energia",
+  "scenes.preset.naturalLight": "Prírodné svetlo",
+  "scenes.preset.nightLight": "Nočné svetlo",
+  "scenes.preset.read": "Čítanie",
+  "scenes.preset.relax": "Relax"
+}
