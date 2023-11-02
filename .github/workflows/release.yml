@@ -52,9 +52,9 @@ jobs:
     - name: Set Release Environment (Consts.ts)
       run: |
         sed -i "s/ Dev = true;/ Dev = false;/g" src/types/consts.ts
-    - name: Set Release Environment (rollup.config.js)
+    - name: Set Release Environment (rollup.config.mjs)
       run: |
-        sed -i "s/var dev = true;/var dev = false;/g" rollup.config.js
+        sed -i "s/var dev = true;/var dev = false;/g" rollup.config.mjs
 
     - uses: actions/setup-node@v4
     - name: Install modules
