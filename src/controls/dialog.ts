@@ -430,6 +430,11 @@ export class HueDialog extends IdLitElement {
         min-width: ${HueDialog.haPadding - HueDialog.tileGap}px;
     }
 
+    /* Scene tiles */
+    .tile-scroller.scene-tiles{
+        min-height: 100px;
+    }
+
     /* Light tiles */
     .tile-scroller.light-tiles{
         transition: ${unsafeCSS(Consts.TransitionDefault)};
@@ -634,9 +639,9 @@ export class HueDialog extends IdLitElement {
             'detail-active': !!this._selectedLight
         })}" tabindex="-1" dialogInitialFocus>
             <div class='header detail-hide'>
-                <div class='title'>${localize(this._ctrl.hass, "dialog.scenes")}</div>
+                <div class='title'>${this._config.scenes.length ? localize(this._ctrl.hass, "dialog.scenes") : nothing}</div>
             </div>
-            <div class='tile-scroller detail-hide'>
+            <div class='tile-scroller scene-tiles detail-hide'>
                 <div class='tiles'>
                     ${(this._config.scenes.map((s, i) => i % 2 == 1 ? nothing :
                         html`<${unsafeStatic(HueDialogSceneTile.ElementName)}

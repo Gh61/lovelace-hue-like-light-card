@@ -16,7 +16,7 @@ declare type EntityRelations = {
 };
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
-    private _scenes: SceneConfig[];
+    private _scenes: SceneConfig[] | null;
 
     public constructor(plainConfig: HueLikeLightCardConfigInterface) {
         this.entity = plainConfig.entity;
@@ -125,9 +125,9 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
      * @returns array of SceneConfig - parsed from passed plain config.
      * @param plain Plain value from config
      */
-    private static getScenesArray(plain: (string | SceneConfig)[] | undefined): SceneConfig[] {
+    private static getScenesArray(plain: (string | SceneConfig)[] | undefined): SceneConfig[] | null {
         if (!plain)
-            return [];
+            return null;
 
         if (plain.length > 0) {
             const result = new Array<SceneConfig>();
@@ -176,7 +176,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly iconSize: number;
     public readonly showSwitch: boolean;
     public readonly slider: SliderType;
-    public get scenes() { return this._scenes; }
+    public get scenes() { return this._scenes || []; }
     public readonly sceneOrder: SceneOrder;
     public readonly offClickAction: ClickAction;
     public readonly offClickData: ClickActionData;
@@ -268,7 +268,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         if (!hass)
             throw new Error('Hass instance must be passed!');
 
-        if (this.scenes.length == 0 && !this._scenesLoaded) {
+        if (this._scenes == null && !this._scenesLoaded) {
             this._scenesLoaded = true;
 
             const client = new HassWsClient(hass);
