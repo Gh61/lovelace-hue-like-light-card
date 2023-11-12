@@ -1,9 +1,11 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { css, nothing, PropertyValues, TemplateResult, unsafeCSS } from 'lit';
-import { property } from 'lit/decorators.js';
+import { property, query } from 'lit/decorators.js';
 import { IdLitElement } from '../core/id-lit-element';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
+import { Manager, Press, Tap } from '@egjs/hammerjs';
+import { ActionHandler } from '../core/action-handler';
 
 export interface ITileEventDetail {
     tileElement: HueDialogTile;
@@ -19,11 +21,14 @@ export abstract class HueDialogTile extends IdLitElement {
      */
     protected static readonly ElementName = 'hue-dialog-tile' + Consts.ElementPostfix;
 
+    @property()
+    public cardTitle: string;
+
+    @property()
+    public actionHandler: ActionHandler;
+
     protected _hass: HomeAssistant;
-
-    @property() public cardTitle:string;
-
-    public set hass(hass:HomeAssistant) {
+    public set hass(hass: HomeAssistant) {
         const oldHass = this._hass;
 
         this._hass = hass;
@@ -37,7 +42,7 @@ export abstract class HueDialogTile extends IdLitElement {
         super('HueDialogTile');
     }
 
-    protected updateHassDependentProps() {}
+    protected updateHassDependentProps() { }
 
     protected static readonly padding = 5; // px
     protected static readonly height = 90; // px
@@ -84,17 +89,72 @@ export abstract class HueDialogTile extends IdLitElement {
     }
     `;
 
-    protected disableClickEffect():void {
-        const tile = <Element>this.renderRoot.querySelector('.hue-tile');
-        tile.classList.add('no-click');
+    private _mc?: HammerManager;
+
+    @query('.hue-tile')
+    private tile!: HTMLDivElement;
+
+    private setupListeners() {
+        if (this.tile && !this._mc) {
+            this._mc = new Manager(this.tile);
+            this._mc.add(new Press());
+            this._mc.on('press', () => {
+                const entityId = this.getEntityId();
+                if (entityId) {
+                    if (!this.actionHandler)
+                        throw new Error('Cannot open more-info - ActionHandler not set in ' + this._id);
+
+                    this.actionHandler.showMoreInfo(entityId);
+                }
+            });
+            this._mc.add(new Tap());
+            this._mc.on('tap', (e) => {
+                if (!this.tile.classList.contains('no-click')) {
+                    this.tileClicked(e);
+                }
+            });
+        }
     }
 
-    protected enableClickEffect():void {
-        const tile = <Element>this.renderRoot.querySelector('.hue-tile');
-        tile.classList.remove('no-click');
+    private destroyListeners() {
+        if (this._mc) {
+            this._mc.destroy();
+            this._mc = undefined;
+        }
     }
+
+    protected disableClick(): void {
+        if (this.tile) {
+            this.tile.classList.add('no-click');
+        }
+    }
+
+    protected enableClick(): void {
+        if (this.tile) {
+            this.tile.classList.remove('no-click');
+        }
+    }
+
+    protected abstract getEntityId(): string | undefined;
+
+    protected override firstUpdated(changedProperties: PropertyValues): void {
+        super.firstUpdated(changedProperties);
+        this.setupListeners();
+    }
+
+    protected abstract tileClicked(event: HammerInput): void;
 
     protected abstract override updated(changedProps: PropertyValues): void;
 
     protected abstract override render(): TemplateResult | typeof nothing;
+
+    public override connectedCallback(): void {
+        super.connectedCallback();
+        this.setupListeners();
+    }
+
+    public override disconnectedCallback(): void {
+        super.disconnectedCallback();
+        this.destroyListeners();
+    }
 }

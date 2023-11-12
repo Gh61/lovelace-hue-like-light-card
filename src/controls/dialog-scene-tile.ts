@@ -18,7 +18,8 @@ export class HueDialogSceneTile extends HueDialogTile {
 
     private readonly _effectQueue = new HueEffectQueue();
     private _sceneConfig: SceneConfig | null = null;
-    @state() private _scene: SceneData | null = null;
+    @state()
+    private _scene: SceneData | null = null;
 
     public set sceneConfig(config: SceneConfig) {
         const oldSceneConfig = this._sceneConfig;
@@ -37,7 +38,7 @@ export class HueDialogSceneTile extends HueDialogTile {
         }
     }
 
-    private sceneClicked() {
+    protected override tileClicked() {
         if (!this._scene)
             return;
 
@@ -132,6 +133,10 @@ export class HueDialogSceneTile extends HueDialogTile {
     `];
     }
 
+    protected override getEntityId(): string | undefined {
+        return this._sceneConfig?.entity;
+    }
+
     protected override updated(changedProps: PropertyValues<HueDialogSceneTile>) {
         if (this._scene && changedProps.has('sceneConfig')) {
             const accentColor = this._scene.getColor();
@@ -163,7 +168,7 @@ export class HueDialogSceneTile extends HueDialogTile {
 
         /*eslint-disable */
         return html`
-        <div class='hue-tile scene' title='${title}' @click="${this.sceneClicked}">
+        <div class='hue-tile scene' title='${title}'>
             <div class='icon-background'>
                 <div class='color'>
                     <ha-icon icon="${this._scene.getIcon('mdi:palette')}"></ha-icon>

@@ -19,6 +19,7 @@ import { HueLightDetail } from './light-detail';
 import { LightContainer } from '../core/light-container';
 import { HueHistoryStateManager, HueHistoryStep } from './history-state-manager';
 import { localize } from '../localize/localize';
+import { ActionHandler } from '../core/action-handler';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -36,15 +37,17 @@ export class HueDialog extends IdLitElement {
     private _isRendered = false;
     private _config: HueLikeLightCardConfig;
     private _ctrl: LightController;
+    private _actionHandler: ActionHandler;
 
     @state()
     private _selectedLight: ILightContainer | null;
 
-    public constructor(config: HueLikeLightCardConfig, lightController: LightController) {
+    public constructor(config: HueLikeLightCardConfig, lightController: LightController, actionHandler: ActionHandler) {
         super('HueDialog');
 
         this._config = config;
         this._ctrl = lightController;
+        this._actionHandler = actionHandler;
     }
 
     //#region Hass changes
@@ -194,7 +197,13 @@ export class HueDialog extends IdLitElement {
         }
 
         // append to DOM
-        document.body.appendChild(this);
+        var haDom = document.getElementsByTagName("home-assistant");
+        var haRoot = haDom.length ? haDom[0].shadowRoot : null;
+        if (haRoot) {
+            haRoot.appendChild(this);
+        } else {
+            document.body.appendChild(this);
+        }
 
         // register update delegate
         this._ctrl.registerOnPropertyChanged(this._id, (p) => this.onLightControllerChanged(p));
@@ -644,20 +653,22 @@ export class HueDialog extends IdLitElement {
             <div class='tile-scroller scene-tiles detail-hide'>
                 <div class='tiles'>
                     ${(this._config.scenes.map((s, i) => i % 2 == 1 ? nothing :
-                        html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
+            html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
                             @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
-                            .hass=${this._ctrl.hass}>
+                            .hass=${this._ctrl.hass}
+                            .actionHandler=${this._actionHandler}>
                         </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>
                 <div class='tiles'>
                     ${(this._config.scenes.map((s, i) => i % 2 == 0 ? nothing :
-                        html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
+                html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
                             @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
-                            .hass=${this._ctrl.hass}>
+                            .hass=${this._ctrl.hass}
+                            .actionHandler=${this._actionHandler}>
                         </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>
             </div>
@@ -668,14 +679,15 @@ export class HueDialog extends IdLitElement {
             <div class='tile-scroller light-tiles'>
                 <div class='tiles'>
                     ${(this._ctrl.getLights().map((l) =>
-                        html`<${unsafeStatic(HueDialogLightTile.ElementName)}
+                    html`<${unsafeStatic(HueDialogLightTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .lightContainer=${l}
                             .isSelected=${this._selectedLight == l}
                             .isUnselected=${this._selectedLight && this._selectedLight != l}
                             @selected-change=${(e: CustomEvent) => this.onLightSelected(e)}
                             .defaultColor=${this._config.getDefaultColor()}
-                            .hass=${this._ctrl.hass}>
+                            .hass=${this._ctrl.hass}
+                            .actionHandler=${this._actionHandler}>
                         </${unsafeStatic(HueDialogLightTile.ElementName)}>`))}
                 </div>
             </div>

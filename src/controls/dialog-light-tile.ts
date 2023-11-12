@@ -180,9 +180,13 @@ export class HueDialogLightTile extends HueDialogTile {
         this.requestUpdate();
     }
 
-    private lightClicked(): void {
+    protected override tileClicked() {
         // toggle select this light
         this.isSelected = !this.isSelected;
+    }
+
+    protected override getEntityId() {
+        return this.lightContainer?.getEntityId();
     }
 
     protected override render() {
@@ -196,7 +200,7 @@ export class HueDialogLightTile extends HueDialogTile {
         return html`
         <div class='selector'>
             <div class='hue-tile light' title='${title}'>
-                <div class="tap-area" @click="${(): void => this.lightClicked()}">
+                <div class='tap-area'>
                     <div class='icon-slot'>
                         <ha-icon icon="${icon}"></ha-icon>
                     </div>
@@ -204,7 +208,7 @@ export class HueDialogLightTile extends HueDialogTile {
                         <span>${title}</span>
                     </div>
                 </div>
-                <div class='switch' @mouseenter=${() => this.disableClickEffect()} @mouseleave=${() => this.enableClickEffect()}>
+                <div class='switch' @mouseenter=${() => this.disableClick()} @mouseleave=${() => this.enableClick()}>
                     ${ViewUtils.createSwitch(this.lightContainer, noop)}
                 </div>
             </div>

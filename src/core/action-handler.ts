@@ -3,19 +3,24 @@ import { HueDialog } from '../controls/dialog';
 import { HueLikeLightCardConfig } from '../types/config';
 import { ClickAction, ClickActionData, SceneData } from '../types/types-config';
 import { LightController } from './light-controller';
+import { HueLikeLightCard } from '../hue-like-light-card';
 
-export class ClickHandler {
+export class ActionHandler {
     private _config: HueLikeLightCardConfig;
     private _ctrl: LightController;
-    private _el: HTMLElement | Window;
+    private _owner: HueLikeLightCard;
 
-    public constructor(config: HueLikeLightCardConfig, ctrl: LightController, element: HTMLElement | Window) {
+    public constructor(config: HueLikeLightCardConfig, ctrl: LightController, element: HueLikeLightCard) {
         this._config = config;
         this._ctrl = ctrl;
-        this._el = element;
+        this._owner = element;
     }
 
-    public handleClick() : void {
+    public showMoreInfo(entityId: string): void {
+        fireEvent(this._owner, 'hass-more-info', { entityId: entityId });
+    }
+
+    public handleCardClick(): void {
         const isOn = this._ctrl.isOn();
         let action = isOn ? this._config.onClickAction : this._config.offClickAction;
         const actionData = isOn ? this._config.onClickData : this._config.offClickData;
@@ -33,11 +38,11 @@ export class ClickHandler {
         this.executeClickAction(action, actionData);
     }
 
-    private resolveDefaultWhenOn() : ClickAction {
+    private resolveDefaultWhenOn(): ClickAction {
         return ClickAction.HueScreen;
     }
 
-    private resolveDefaultWhenOff() : ClickAction {
+    private resolveDefaultWhenOff(): ClickAction {
         return ClickAction.HueScreen;
     }
 
@@ -52,7 +57,7 @@ export class ClickHandler {
                 this._ctrl.turnOff();
                 break;
             case ClickAction.MoreInfo:
-                let entityId:string = actionData.getData('entity');
+                let entityId: string = actionData.getData('entity');
 
                 // no entity defined in data
                 if (!entityId) {
@@ -64,7 +69,7 @@ export class ClickHandler {
                     }
                 }
 
-                fireEvent(this._el, 'hass-more-info', { entityId: entityId });
+                this.showMoreInfo(entityId);
                 break;
             case ClickAction.Scene:
                 const sceneId = actionData.getData('scene');
@@ -78,7 +83,7 @@ export class ClickHandler {
 
                 break;
             case ClickAction.HueScreen:
-                const dialog = new HueDialog(this._config, this._ctrl);
+                const dialog = new HueDialog(this._config, this._ctrl, this);
                 dialog.show();
                 break;
 

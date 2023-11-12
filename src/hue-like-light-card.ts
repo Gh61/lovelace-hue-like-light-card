@@ -2,7 +2,7 @@ import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-hel
 import { LitElement, css, html, nothing, unsafeCSS, PropertyValues } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { customElement } from 'lit/decorators.js';
-import { ClickHandler } from './core/click-handler';
+import { ActionHandler } from './core/action-handler';
 import { Background } from './core/colors/background';
 import { LightController } from './core/light-controller';
 import { ViewUtils } from './core/view-utils';
@@ -32,7 +32,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _config: HueLikeLightCardConfig | undefined;
     private _hass: HomeAssistant | undefined;
     private _ctrl: LightController | undefined;
-    private _clickHandler: ClickHandler | undefined;
+    private _actionHandler: ActionHandler | undefined;
     private _error: ErrorInfo | undefined;
 
     /**
@@ -78,7 +78,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             this._config = new HueLikeLightCardConfig(<HueLikeLightCardConfigInterface>plainConfig);
 
             this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor());
-            this._clickHandler = new ClickHandler(this._config, this._ctrl, this);
+            this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
 
             // For theme color set background to null
             const offColor = this._config.getOffColor();
@@ -126,8 +126,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     private cardClicked(): void {
         // handle the click
-        if (this._clickHandler) {
-            this._clickHandler.handleClick();
+        if (this._actionHandler) {
+            this._actionHandler.handleCardClick();
         }
 
         // update styles
