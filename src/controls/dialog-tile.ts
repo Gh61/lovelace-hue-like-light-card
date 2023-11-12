@@ -6,6 +6,7 @@ import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { Manager, Press, Tap } from '@egjs/hammerjs';
 import { ActionHandler } from '../core/action-handler';
+import { HueHistoryStateManager } from './history-state-manager';
 
 export interface ITileEventDetail {
     tileElement: HueDialogTile;
@@ -105,6 +106,7 @@ export abstract class HueDialogTile extends IdLitElement {
                         throw new Error('Cannot open more-info - ActionHandler not set in ' + this._id);
 
                     this.actionHandler.showMoreInfo(entityId);
+                    HueHistoryStateManager.instance.tryAddExternalStep();
                 }
             });
             this._mc.add(new Tap());

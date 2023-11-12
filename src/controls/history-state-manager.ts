@@ -1,7 +1,12 @@
 import { Consts } from '../types/consts';
 import { Action, noop } from '../types/functions';
 
-interface HueWindowHistoryState {
+interface WindowHistoryState {
+    dialog?: string,
+    open?: boolean
+}
+
+interface HueWindowHistoryState extends WindowHistoryState {
     isHue?: boolean, // indicate, that theese states is are for us
     hueId: string, // identificator
 }
@@ -25,9 +30,12 @@ export class HueHistoryStep {
      * Creates step new step in history.
      * @param onEnter Callback that will be called when this state is entered ()
      */
-    public constructor(onEnter: Action, onExit: Action, type: string | null = null) {
+    public constructor(onEnter: Action, onExit: Action, type: string, emitId = true) {
         this._type = type;
-        this._id = (type ?? 's') + '-' + (++HueHistoryStep.lastGeneratedId);
+        this._id = type + (emitId
+            ? '-' + (++HueHistoryStep.lastGeneratedId)
+            : ''
+        );
         this._onEnter = onEnter;
         this._onExit = onExit;
     }
@@ -68,6 +76,17 @@ export class HueHistoryStep {
             isHue: true,
             hueId: this.id
         };
+    }
+}
+
+class ExternalHistoryStep extends HueHistoryStep {
+    public constructor(state: WindowHistoryState) {
+        super(noop, noop, ExternalHistoryStep.tryGetExternalId(state), false);
+    }
+
+    public static tryGetExternalId(state: WindowHistoryState) {
+        // some ID could be in 'dialog' property
+        return state.dialog || JSON.stringify(state);
     }
 }
 
@@ -150,6 +169,29 @@ class HistoryStack {
             replaced: false,
             oldItem: undefined
         };
+    }
+
+    public moveToExternal(state: WindowHistoryState): HistoryStackMoveResult {
+        const externalId = ExternalHistoryStep.tryGetExternalId(state);
+        var result = this.moveTo(externalId);
+
+        // we will play a little game here with HA
+        if (result.found) {
+            // dialog was closed - we are going one step back
+            if (state.open == false && this._pointer > 0) {
+                this._pointer--;
+
+                // AND we merge our state with the dialog close state - so we can use BOTH
+                var step = this._stack[this._pointer];
+                var stepState = step.getHistoryState();
+                var mergedState = { ...state, ...stepState };
+                history.replaceState(mergedState, '');
+
+                this.logState(`Merged step ${step.id} into ${externalId} dialog close.`);
+            }
+        }
+
+        return result;
     }
 
     /** Will try to find given id */
@@ -255,17 +297,23 @@ export class HueHistoryStateManager {
     }
 
     private resolvePopstate(ev: PopStateEvent) {
-        const state = <HueWindowHistoryState | undefined>ev.state;
+        const state = <HueWindowHistoryState>ev.state;
         let moveResult: HistoryStackMoveResult;
         if (state?.isHue == true) {
             // ensure that the current history state is the same as in event (another listener might have changed this)
             window.history.replaceState(state, '');
 
-            // move to the 
+            // move to the current state
             moveResult = this._states.moveTo(state.hueId);
         } else {
-            // we must be before out stack, so get back
-            moveResult = this._states.resetBeforeStart();
+            moveResult = this._states.moveToExternal(state);
+            if (!moveResult.found) {
+                // our stack is ruined, reset everything
+                moveResult = this._states.resetBeforeStart();
+            } else {
+                // don't fire any functions
+                moveResult.found = false;
+            }
         }
 
         // execute the moveResult
@@ -273,6 +321,36 @@ export class HueHistoryStateManager {
             moveResult.toExit.forEach(i => i.exit());
             moveResult.toEnter.forEach(i => i.enter());
         }
+    }
+
+    /** If new history state is set, we'll add external step state, so we can keep count. */
+    public tryAddExternalStep() {
+        // we don't need this, if we are empty
+        if (this._states.isEmpty())
+            return;
+
+        // we are on our own, no need to add anything
+        const currentState = history.state;
+        if ((currentState as HueWindowHistoryState)?.isHue == true)
+            return;
+
+        /*
+         * HA manages dialog history very badly.
+         * It replaces current state (thank you HA) with dialog-closed state <= we lose info about our state HERE
+         * and pushes new dialog-open state on the stack
+         */
+
+        /*
+         * Not only that. The HA will destroy the history, when going back and thus closing the dialog.
+         * In that case HA will always add another 'dialog closed' state to the history.
+         * So every close of the same dialog you must press the browser 'back' once more to get where you started.
+         * eg. When you open/close (back + forward) the dialog 6 times.
+         * You must then go 6x back, to be back on the page you came from.
+         */
+
+        // new external state was added, we'll create info about this
+        const step = new ExternalHistoryStep(currentState);
+        this._states.push(step);
     }
 
     public addStep(newStep: HueHistoryStep) {
