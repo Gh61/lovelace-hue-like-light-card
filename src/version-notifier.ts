@@ -1,5 +1,5 @@
-import { Color } from "./core/colors/color";
-import { Consts } from "./types/consts";
+import { Color } from './core/colors/color';
+import { Consts } from './types/consts';
 
 export class VersionNotifier {
     public static toConsole() {
@@ -46,7 +46,7 @@ export class VersionNotifier {
         return {
             result,
             colorCount
-        }
+        };
     }
 
     private static generateGradientArray(color1: Color, color2: Color, steps: number): Color[] {
