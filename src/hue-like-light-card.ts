@@ -14,16 +14,10 @@ import { IHassWindow } from './types/types-hass';
 import { HueLikeLightCardConfigInterface, KnownIconSize } from './types/types-config';
 import { ErrorInfo } from './core/error-info';
 import { Action } from './types/functions';
+import { VersionNotifier } from './version-notifier';
 
-/* eslint no-console: 0 */
-console.info(
-    `%cHUE-%cLIKE%c LIGHT%c CARD %c${Consts.Version}`,
-    'font-weight:bold;color:white;background:#0046FF',
-    'font-weight:bold;color:white;background:#9E00FF',
-    'font-weight:bold;color:white;background:#FF00F3',
-    'font-weight:bold;color:white;background:#FF0032',
-    'font-weight:bold;color:white;background:#FF8B00'
-);
+// Show version info in console
+VersionNotifier.toConsole();
 
 // This puts card into the UI card picker dialog
 (window as IHassWindow).customCards = (window as IHassWindow).customCards || [];
