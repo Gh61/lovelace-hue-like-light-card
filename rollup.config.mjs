@@ -18,40 +18,44 @@ const serverOptions = {
     },
   };
 
-export default {
-    onwarn: function(warning) {
-        // Skip certain warnings
-    
-        // formatjs is checking 'this' and it throws this warning
-        if (warning.code === 'THIS_IS_UNDEFINED' &&
-            (
-                warning.id.endsWith('node_modules\\@formatjs\\intl-utils\\lib\\src\\resolve-locale.js') ||
-                warning.id.endsWith('node_modules\\@formatjs\\intl-utils\\lib\\src\\diff.js')
-            )
-        ) {
-            //console.log(warning);
-            return;
-        }
+export default cli => {
+    var runServer = cli.runServer || false;
 
-        // console.warn everything else
-        if (warning.loc) {
-            console.warn(LCERROR, `${warning.loc.file} (${warning.loc.line}:${warning.loc.column})\r\n${warning.message}`);
-            if (warning.frame)
-                console.warn(warning.frame);
-        } else {
-            console.warn(LCERROR, warning.message);
-        }
-    },
-    input: ["src/hue-like-light-card.ts"],
-    output: {
-        dir: dev ? "./dist" : "./release",
-        format: "es",
-    },
-    plugins: [
-        json({compact:true}),
-        typescript(),
-        nodeResolve(),
-        dev && serve(serverOptions),
-        !dev && terser()
-    ]
+    return {
+        onwarn: function(warning) {
+            // Skip certain warnings
+        
+            // formatjs is checking 'this' and it throws this warning
+            if (warning.code === 'THIS_IS_UNDEFINED' &&
+                (
+                    warning.id.endsWith('node_modules\\@formatjs\\intl-utils\\lib\\src\\resolve-locale.js') ||
+                    warning.id.endsWith('node_modules\\@formatjs\\intl-utils\\lib\\src\\diff.js')
+                )
+            ) {
+                //console.log(warning);
+                return;
+            }
+
+            // console.warn everything else
+            if (warning.loc) {
+                console.warn(LCERROR, `${warning.loc.file} (${warning.loc.line}:${warning.loc.column})\r\n${warning.message}`);
+                if (warning.frame)
+                    console.warn(warning.frame);
+            } else {
+                console.warn(LCERROR, warning.message);
+            }
+        },
+        input: ["src/hue-like-light-card.ts"],
+        output: {
+            dir: dev ? "./dist" : "./release",
+            format: "es",
+        },
+        plugins: [
+            json({compact:true}),
+            typescript(),
+            nodeResolve(),
+            runServer && serve(serverOptions),
+            !dev && terser()
+        ]
+    }
 }

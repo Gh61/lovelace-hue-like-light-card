@@ -39,7 +39,7 @@
         "typescript": "^5.2.2"
     },
     "scripts": {
-        "start": "rollup -c --watch",
+        "start": "rollup -c --watch --runServer true",
         "test": "jest",
         "build": "npm run lint && npm run rollup",
         "fixnbuild": "npm run lintfix && npm run rollup",
