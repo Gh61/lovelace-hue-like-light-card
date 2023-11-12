@@ -197,8 +197,8 @@ export class HueDialog extends IdLitElement {
         }
 
         // append to DOM
-        var haDom = document.getElementsByTagName("home-assistant");
-        var haRoot = haDom.length ? haDom[0].shadowRoot : null;
+        const haDom = document.getElementsByTagName('home-assistant');
+        const haRoot = haDom.length ? haDom[0].shadowRoot : null;
         if (haRoot) {
             haRoot.appendChild(this);
         } else {
