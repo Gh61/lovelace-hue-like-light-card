@@ -2,9 +2,21 @@ import typescript from 'rollup-plugin-typescript2';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import serve from 'rollup-plugin-serve';
+
 const LCERROR = '\x1b[31m%s\x1b[0m'; //red
 
 var dev = true;
+
+const serverOptions = {
+    contentBase: ['./dist'],
+    host: '127.0.0.1',
+    port: 5500,
+    allowCrossOrigin: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+  };
 
 export default {
     onwarn: function(warning) {
@@ -39,6 +51,7 @@ export default {
         json({compact:true}),
         typescript(),
         nodeResolve(),
+        dev && serve(serverOptions),
         !dev && terser()
     ]
 }
