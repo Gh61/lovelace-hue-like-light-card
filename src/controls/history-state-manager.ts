@@ -173,7 +173,7 @@ class HistoryStack {
 
     public moveToExternal(state: WindowHistoryState): HistoryStackMoveResult {
         const externalId = ExternalHistoryStep.tryGetExternalId(state);
-        var result = this.moveTo(externalId);
+        const result = this.moveTo(externalId);
 
         // we will play a little game here with HA
         if (result.found) {
@@ -182,9 +182,9 @@ class HistoryStack {
                 this._pointer--;
 
                 // AND we merge our state with the dialog close state - so we can use BOTH
-                var step = this._stack[this._pointer];
-                var stepState = step.getHistoryState();
-                var mergedState = { ...state, ...stepState };
+                const step = this._stack[this._pointer];
+                const stepState = step.getHistoryState();
+                const mergedState = { ...state, ...stepState };
                 history.replaceState(mergedState, '');
 
                 this.logState(`Merged step ${step.id} into ${externalId} dialog close.`);
