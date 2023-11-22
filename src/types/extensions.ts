@@ -28,5 +28,5 @@ export function removeDuplicites<T>(array: Array<T>): Array<T> {
  * @returns given text without diacritics, using normalized state for removal.
  */
 export function removeDiacritics(str: string): string {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
