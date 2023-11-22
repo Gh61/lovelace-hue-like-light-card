@@ -127,38 +127,6 @@ Also this card will detect these icons installed and will use them prior to HA i
     <td>You can choose between diferent sliders or hide the slider.</td>
   </tr>
   <tr>
-    <td><code>offClickAction</code></td>
-    <td><a href="#click-action">Click Action</a></td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td><a href="#automatic-click-action"><i>automatic</i></a> (<code>hue-screen</code>)</td>
-    <td>Action when tile is clicked and all <b>lights are off</b></td>
-  </tr>
-  <tr>
-    <td><code>offClickData</code></td>
-    <td><a href="#click-action-data">Click Action Data</a></td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td>-</td>
-    <td><a href="#click-action-data">Data</a> for <code>offClickAction</code></td>
-  </tr>
-  <tr>
-    <td><code>onClickAction</code></td>
-    <td><a href="#click-action">Click Action</a></td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td><a href="#automatic-click-action"><i>automatic</i></a> (<code>hue-screen</code>)</td>
-    <td>Action when tile is clicked and any of <b>lights is on</b></td>
-  </tr>
-  <tr>
-    <td><code>onClickData</code></td>
-    <td><a href="#click-action-data">Click Action Data</a></td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td>-</td>
-    <td><a href="#click-action-data">Data</a> for <code>onClickAction</code></td>
-  </tr>
-  <tr>
     <td><code>scenes</code></td>
     <td>list of <a href="#scenes-configuration">Scenes</a></td>
     <td>no</td>
@@ -272,6 +240,82 @@ Also this card will detect these icons installed and will use them prior to HA i
     <td colspan="6">
       <i>* At least one of this two must be filled in. <b>Only entities of <code>light</code> domain are supported.</b></i>
     </td>
+  </tr>
+</table>
+
+### Click & Hold configuration
+<table>
+  <tr>
+    <th>Key</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Since</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>offClickAction</code></td>
+    <td><a href="#click-hold-action">Action</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><code>hue-screen</code></td>
+    <td>Action when tile is clicked and all <b>lights are off</b></td>
+  </tr>
+  <tr>
+    <td><code>offClickData</code></td>
+    <td><a href="#action-data">Action Data</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>-</td>
+    <td><a href="#action-data">Data</a> for <code>offClickAction</code></td>
+  </tr>
+  <tr>
+    <td><code>onClickAction</code></td>
+    <td><a href="#click-hold-action">Action</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td><code>hue-screen</code></td>
+    <td>Action when tile is clicked and any of <b>lights is on</b></td>
+  </tr>
+  <tr>
+    <td><code>onClickData</code></td>
+    <td><a href="#action-data">Action Data</a></td>
+    <td>no</td>
+    <td>1.1.0</td>
+    <td>-</td>
+    <td><a href="#action-data">Data</a> for <code>onClickAction</code></td>
+  </tr>
+  <tr>
+    <td><code>offHoldAction</code></td>
+    <td><a href="#click-hold-action">Action</a></td>
+    <td>no</td>
+    <td>1.6.0</td>
+    <td><code>more-info</code></td>
+    <td>Action when tile is pressed and all <b>lights are off</b></td>
+  </tr>
+  <tr>
+    <td><code>offHoldData</code></td>
+    <td><a href="#action-data">Action Data</a></td>
+    <td>no</td>
+    <td>1.6.0</td>
+    <td>-</td>
+    <td><a href="#action-data">Data</a> for <code>offHoldAction</code></td>
+  </tr>
+  <tr>
+    <td><code>onHoldAction</code></td>
+    <td><a href="#click-hold-action">Action</a></td>
+    <td>no</td>
+    <td>1.6.0</td>
+    <td><code>more-info</code></td>
+    <td>Action when tile is pressed and any of <b>lights is on</b></td>
+  </tr>
+  <tr>
+    <td><code>onHoldData</code></td>
+    <td><a href="#action-data">Action Data</a></td>
+    <td>no</td>
+    <td>1.6.0</td>
+    <td>-</td>
+    <td><a href="#action-data">Data</a> for <code>onHoldAction</code></td>
   </tr>
 </table>
 
@@ -405,13 +449,15 @@ Same as [Color](#color) and can also be defined as
 </ul>
 This will pick the color from currently used Home Assistant theme.
 
-## Click action
-When the card is clicked, something can happen. This can be configured through configuration.
+## Click (hold) action
+When the card is clicked or pressed, something can happen. This can be configured through configuration.
 ```yaml
 type: custom:hue-like-light-card
 ...
 offClickAction: turn-on
 onClickAction: turn-off
+offHoldAction: hue-screen
+onHoldAction: hue-screen
 ```
 *Simple example to toggle lights on click.*
 
@@ -422,14 +468,17 @@ onClickAction: turn-off
     <th><a href="#action-data">Possible data*</a></th>
     <th>Data required</th>
     <th>Since</th>
-    <th>Action on click</th>
+    <th>What is happening</th>
   </tr>
   <tr>
     <td><code>default</code></td>
     <td>yes</td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><a href="#automatic-click-action">automatic action</a> (<code>hue-screen</code>)</td>
+    <td>
+      <b>Click</b>: <code>hue-screen</code><br/>
+      <b>Hold</b>: <code>more-info</code>
+    </td>
   </tr>
   <tr>
     <td><code>none</code></td>
@@ -499,9 +548,6 @@ offClickAction: scene
 offClickData:
   scene: scene.tv_citron
 ```
-
-### Automatic click action
-Since version 1.4.0 automatic click action is always `hue-screen`.
 
 ## Scenes configuration
 To enable switching between scenes, you can configure scenes, that can be activated in [Hue Screen](#hue-screen).<br/>
