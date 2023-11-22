@@ -41,12 +41,7 @@ export class ActionHandler {
 
         // resolve the default action
         if (action == ClickAction.Default) {
-            // more info if the card has only one light
-            if (this._ctrl.getLights().length == 1) {
-                action = ClickAction.MoreInfo;
-            } else {
-                action = ClickAction.NoAction;
-            }
+            action = ClickAction.MoreInfo;
         }
 
         // execute resolved or config action
