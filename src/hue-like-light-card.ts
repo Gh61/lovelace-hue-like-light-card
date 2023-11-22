@@ -65,7 +65,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             this._error = undefined;
 
             action();
-        } catch (e) {
+        }
+        catch (e) {
             this._error = new ErrorInfo(e);
             this.requestUpdate(); // render error
 
@@ -86,7 +87,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             const offColor = this._config.getOffColor();
             if (!offColor.isThemeColor()) {
                 this._offBackground = new Background([offColor.getBaseColor()]);
-            } else {
+            }
+            else {
                 this._offBackground = null;
             }
 
@@ -279,7 +281,8 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
                 if (card == null) {
                     // wait for card element
                     this._haShadow = null;
-                } else {
+                }
+                else {
                     // since HA 2022.11 default ha-card has no shadow
                     card.classList.add('new-borders');
                 }
@@ -396,9 +399,13 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         if (tapArea && !this._mc) {
             this._mc = new Manager(tapArea);
             this._mc.add(new Press());
-            this._mc.on('press', ():void => { this.cardHolded(); });
+            this._mc.on('press', ():void => {
+                this.cardHolded(); 
+            });
             this._mc.add(new Tap());
-            this._mc.on('tap', ():void => { this.cardClicked(); });
+            this._mc.on('tap', ():void => {
+                this.cardClicked(); 
+            });
         }
     }
 

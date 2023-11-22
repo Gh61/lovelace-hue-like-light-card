@@ -16,11 +16,14 @@ export class IconHelper {
 
         if (lightCount <= 1) {
             lightIcon = hasHueIcons ? this.HueOneIcon : this.DefaultOneIcon;
-        } else if (lightCount <= 2) {
+        }
+        else if (lightCount <= 2) {
             lightIcon = hasHueIcons ? this.HueTwoIcon : this.DefaultTwoIcon;
-        } else if (lightCount <= 3) {
+        }
+        else if (lightCount <= 3) {
             lightIcon = hasHueIcons ? this.HueThreeIcon : this.DefaultMoreIcon;
-        } else {
+        }
+        else {
             lightIcon = hasHueIcons ? this.HueMoreIcon : this.DefaultMoreIcon;
         }
 

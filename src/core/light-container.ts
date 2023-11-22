@@ -151,7 +151,8 @@ export class LightContainer extends NotifyBase<LightContainer> implements ISingl
 
         if (on) {
             this.notifyTurnOn();
-        } else {
+        }
+        else {
             this.notifyTurnOff();
         }
         this._hass.callService('light', on ? 'turn_on' : 'turn_off', { entity_id: this._entity_id });
@@ -177,7 +178,8 @@ export class LightContainer extends NotifyBase<LightContainer> implements ISingl
         // just to be sure
         if (value < 0) {
             value = 0;
-        } else if (value > 100) {
+        }
+        else if (value > 100) {
             value = 100;
         }
 
@@ -265,7 +267,8 @@ export class LightContainer extends NotifyBase<LightContainer> implements ISingl
         // just to be sure
         if (newTemp < minTemp) {
             newTemp = minTemp;
-        } else if (newTemp > maxTemp) {
+        }
+        else if (newTemp > maxTemp) {
             newTemp = maxTemp;
         }
 
@@ -290,7 +293,8 @@ export class LightContainer extends NotifyBase<LightContainer> implements ISingl
         if (attr.hs_color) {
             const [h, s] = attr.hs_color;
             result = new Color(h, s / 100, 1, 1, 'hsv');
-        } else if (attr.rgb_color) {
+        }
+        else if (attr.rgb_color) {
             const [r, g, b] = attr.rgb_color;
             result = new Color(r, g, b);
         }
@@ -309,7 +313,8 @@ export class LightContainer extends NotifyBase<LightContainer> implements ISingl
         if (newColor.getOriginalMode() == 'hsv') {
             mode = HassLightColorMode.hs;
             serviceData.hs_color = [newColor.getHue(), newColor.getSaturation() * 100];
-        } else {
+        }
+        else {
             mode = HassLightColorMode.rgb;
             serviceData.rgb_color = [newColor.getRed(), newColor.getGreen(), newColor.getBlue()];
         }
@@ -329,7 +334,8 @@ export class LightContainer extends NotifyBase<LightContainer> implements ISingl
         if (this.isColorModeTemp() && (temp = this.colorTemp)) {
             const [r, g, b] = Color.hueTempToRgb(temp);
             bgColor = new Color(r, g, b);
-        } else if (this.isColorModeColor() && (color = this.color)) {
+        }
+        else if (this.isColorModeColor() && (color = this.color)) {
             bgColor = color;
         }
 

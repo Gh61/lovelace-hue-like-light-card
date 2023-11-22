@@ -53,7 +53,8 @@ export function localize(hassOrLanguage:HomeAssistant | string, resource: keyof 
     let lang: string;
     if (typeof hassOrLanguage == 'string') {
         lang = hassOrLanguage;
-    } else {
+    }
+    else {
         lang = hassOrLanguage.language || defaultLang;
     }
 

@@ -83,7 +83,8 @@ export class LightController extends NotifyBase<LightController> implements ILig
         if (litLights.length == 1) {
             litLights[0].brightnessValue = value;
             return;
-        } else if (litLights.length == 0) { // when no light is on, set value to all lights
+        }
+        else if (litLights.length == 0) { // when no light is on, set value to all lights
             this._lights.forEach(l => l.brightnessValue = value);
             return;
         }
@@ -177,13 +178,17 @@ export class LightController extends NotifyBase<LightController> implements ILig
                 return new HassTextTemplate(result);
             }
             result = '';
-        } else if (lit == 0) {
+        }
+        else if (lit == 0) {
             result = localize(this.hass, 'card.description.noLightsOn');
-        } else if (lit == total) {
+        }
+        else if (lit == total) {
             result = localize(this.hass, 'card.description.allLightsOn');
-        } else if (lit == 1) {
+        }
+        else if (lit == 1) {
             result = localize(this.hass, 'card.description.oneLightOn');
-        } else {
+        }
+        else {
             result = localize(this.hass, 'card.description.someLightsAreOn', '%s', lit.toString());
         }
 

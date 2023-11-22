@@ -14,14 +14,16 @@ export class Color {
         if (typeof colorOrRedOrHue == 'string') {
             this.parse(colorOrRedOrHue);
             this.setOpacity(opacityOrGreenOrSaturation ?? this._opacity);
-        } else if (mode == 'rgb') {
+        }
+        else if (mode == 'rgb') {
             this.setRgb(
                 colorOrRedOrHue,
                 opacityOrGreenOrSaturation ?? 0,
                 blueOrValue ?? 0
             );
             this.setOpacity(opacity);
-        } else if (mode == 'hsv') {
+        }
+        else if (mode == 'hsv') {
             this.setHsv(
                 colorOrRedOrHue,
                 opacityOrGreenOrSaturation ?? 0,
@@ -189,7 +191,8 @@ export class Color {
                 if (isHex4)
                     this.setOpacity((colorValues[3] * 16 + colorValues[3]) / 255);
 
-            } else if (isHex6 || isHex8) {
+            }
+            else if (isHex6 || isHex8) {
                 this.setRgb(
                     colorValues[0] * 16 + colorValues[1],
                     colorValues[2] * 16 + colorValues[3],
@@ -199,11 +202,13 @@ export class Color {
                     this.setOpacity((colorValues[6] * 16 + colorValues[7]) / 255);
             }
 
-        } else if (colorId.startsWith('rgb')) {
+        }
+        else if (colorId.startsWith('rgb')) {
             const parts = colorId.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,?\s*(\d*(?:\.\d+\s*)?)\)$/);
             if (!parts) {
                 throw new Error('Unrecognized color format rgb[a](...): ' + colorId);
-            } else {
+            }
+            else {
                 // [ str, r, g, b, a|undefined ]
                 this.setRgb(
                     parseInt(parts[1]),
@@ -214,7 +219,8 @@ export class Color {
                     this.setOpacity(parseFloat(parts[4]));
                 }
             }
-        } else {
+        }
+        else {
             if (allowNames) {
                 // small hack: https://stackoverflow.com/a/47355187/1341409
                 const ctx = document.createElement('canvas').getContext('2d');
@@ -253,15 +259,20 @@ export class Color {
         let r1 = 0, g1 = 0, b1 = 0;
         if (hue1 >= 0 && hue1 <= 1) {
             ([r1, g1, b1] = [chroma, x, 0]);
-        } else if (hue1 >= 1 && hue1 <= 2) {
+        }
+        else if (hue1 >= 1 && hue1 <= 2) {
             ([r1, g1, b1] = [x, chroma, 0]);
-        } else if (hue1 >= 2 && hue1 <= 3) {
+        }
+        else if (hue1 >= 2 && hue1 <= 3) {
             ([r1, g1, b1] = [0, chroma, x]);
-        } else if (hue1 >= 3 && hue1 <= 4) {
+        }
+        else if (hue1 >= 3 && hue1 <= 4) {
             ([r1, g1, b1] = [0, x, chroma]);
-        } else if (hue1 >= 4 && hue1 <= 5) {
+        }
+        else if (hue1 >= 4 && hue1 <= 5) {
             ([r1, g1, b1] = [x, 0, chroma]);
-        } else if (hue1 >= 5 && hue1 <= 6) {
+        }
+        else if (hue1 >= 5 && hue1 <= 6) {
             ([r1, g1, b1] = [chroma, 0, x]);
         }
 
@@ -291,7 +302,8 @@ export class Color {
         let h = 0, s;
         if (diff == 0) {
             h = s = 0;
-        } else {
+        }
+        else {
             s = diff / v;
             const rr = diffc(rabs);
             const gg = diffc(gabs);
@@ -299,14 +311,17 @@ export class Color {
 
             if (rabs === v) {
                 h = bb - gg;
-            } else if (gabs === v) {
+            }
+            else if (gabs === v) {
                 h = (1 / 3) + rr - bb;
-            } else if (babs === v) {
+            }
+            else if (babs === v) {
                 h = (2 / 3) + gg - rr;
             }
             if (h < 0) {
                 h += 1;
-            } else if (h > 1) {
+            }
+            else if (h > 1) {
                 h -= 1;
             }
         }
@@ -350,7 +365,8 @@ export class Color {
                 Math.round(g1),
                 Math.round(b1)
             ];
-        } else {
+        }
+        else {
             const k = (kelvin - tres) / (end - tres); // normalize
             const r2 = linearScale(k, tresRgb[0], endRgb[0]);
             const g2 = linearScale(k, tresRgb[1], endRgb[1]);

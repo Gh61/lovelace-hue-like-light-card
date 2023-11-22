@@ -12,7 +12,8 @@ export class GlobalLights {
             //console.log(`[GlobalLights] Creating instance for '${entity_id}'`);
             instance = new LightContainer(entity_id);
             this._containers[entity_id] = instance;
-        } else {
+        }
+        else {
             //console.log(`[GlobalLights] Reusing instance for '${entity_id}'`);
         }
         return instance;

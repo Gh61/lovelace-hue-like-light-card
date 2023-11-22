@@ -43,7 +43,8 @@ export class HueColorTempModeSelector extends LitElement {
     public selectPossibleMode() {
         if (this.showColor) {
             this.mode = 'color';
-        } else if (this.showTemp) {
+        }
+        else if (this.showTemp) {
             this.mode = 'temp';
         }
     }

@@ -25,7 +25,8 @@ class HueColorWheelCache {
         const dataUrl = canvas.toDataURL(); // we're using dataUrl, because in raw format, the image exceeds localStorage size limit
         try {
             localStorage.setItem(key, dataUrl);
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
         }
     }
@@ -40,7 +41,8 @@ class HueColorWheelCache {
                     dataUrl
                 };
             }
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
         }
 
@@ -82,7 +84,8 @@ export class HueColorTempPicker extends LitElement {
         // if browser (or test engine) not support ResizeObserver
         if (typeof ResizeObserver == 'undefined') {
             this._ro = null;
-        } else {
+        }
+        else {
             this._ro = new ResizeObserver(() => this.onResize());
         }
     }
@@ -182,7 +185,8 @@ export class HueColorTempPicker extends LitElement {
             };
             img.src = cacheItem.dataUrl!;
 
-        } else {
+        }
+        else {
             const image = ctx.createImageData(2 * radius, 2 * radius);
             const data = image.data;
 
@@ -232,7 +236,8 @@ export class HueColorTempPicker extends LitElement {
         let point;
         if ('changedTouches' in ev) {
             point = new TouchPoint(ev.changedTouches[0]);
-        } else {
+        }
+        else {
             point = new MousePoint(ev);
         }
 
@@ -256,7 +261,8 @@ export class HueColorTempPicker extends LitElement {
     public getColorAndValue(x: number, y: number, radius: number) {
         if (this.mode == 'color') {
             return this.getColorAndHSV(x, y, radius);
-        } else if (this.mode == 'temp') {
+        }
+        else if (this.mode == 'temp') {
             return this.getTempAndKelvin(x, y, radius);
         }
 
@@ -405,9 +411,11 @@ export class HueColorTempPicker extends LitElement {
             const coef = (max / min) / 65;
             if (t <= 0.1) {
                 addon = this.linearScale(t * 10, 0, coef);
-            } else if (t <= 0.97) {
+            }
+            else if (t <= 0.97) {
                 addon = coef - this.linearScale((t - 0.1) / 0.9, 0, 2 * coef);
-            } else {
+            }
+            else {
                 addon = -coef + this.linearScale((t - 0.97) / 0.03, 0, coef);
             }
 
@@ -431,7 +439,8 @@ export class HueColorTempPicker extends LitElement {
 
                 if (midValue < targetValue) {
                     low = t;
-                } else {
+                }
+                else {
                     high = t;
                 }
 
@@ -523,7 +532,8 @@ export class HueColorTempPicker extends LitElement {
                 offset = maxOffset - offset;
                 if (lower) {
                     value -= offset / 360;
-                } else {
+                }
+                else {
                     value += offset / 360;
                 }
             }
@@ -699,7 +709,8 @@ export class HueColorTempPickerMarker {
             if ('hsv' in colorAndValue) {
                 const [hue, saturation, value] = colorAndValue.hsv;
                 this._color = new Color(hue, saturation, value, 1, 'hsv');
-            } else {
+            }
+            else {
                 const [red, green, blue] = colorAndValue.color;
                 this._color = new Color(red, green, blue);
             }
@@ -745,7 +756,8 @@ export class HueColorTempPickerMarker {
     public refresh() {
         if (this.mode == 'temp') {
             this.temp = this.temp;
-        } else {
+        }
+        else {
             this.color = this.color;
         }
     }
@@ -861,7 +873,8 @@ export class HueColorTempPickerMarker {
         if (this._isOff) {
             this._markerG.style.color = 'rgb(0,0,0)';
             this._iconPath.style.fill = Consts.LightColor.toString();
-        } else {
+        }
+        else {
             this._markerG.style.color = this._color.toString();
 
             // for temp view I want only one change of foreground in the middle of the wheel

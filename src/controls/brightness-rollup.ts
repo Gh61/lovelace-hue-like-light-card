@@ -162,7 +162,8 @@ export class HueBrightnessRollup extends LitElement {
     private onBarMouseDown(ev: MouseEvent | TouchEvent, isTouch: boolean) {
         if (isTouch) {
             this._clickPosition = new TouchPoint((<TouchEvent>ev).changedTouches[0]);
-        } else {
+        }
+        else {
             this._clickPosition = new MousePoint((<MouseEvent>ev));
         }
 
@@ -185,7 +186,8 @@ export class HueBrightnessRollup extends LitElement {
         if (this._isMouseDown) {
             if (!this._hasMouseMoved) {
                 this.toggleBar(!this._isOpened, false);
-            } else {
+            }
+            else {
                 this.toggleBar(false, true);
             }
         }
@@ -207,7 +209,8 @@ export class HueBrightnessRollup extends LitElement {
             let currentPos: Point;
             if (isTouch) {
                 currentPos = new TouchPoint((<TouchEvent>ev).changedTouches[0]);
-            } else {
+            }
+            else {
                 currentPos = new MousePoint(<MouseEvent>ev);
             }
 
@@ -408,7 +411,8 @@ export class HueBrightnessRollup extends LitElement {
                 this.clearWheelTimeouts(false);
                 this.disconnectListeners();
                 this.toggleBar(false, true); // close bar
-            } else {
+            }
+            else {
                 // enable back
                 this.connectListeners();
             }

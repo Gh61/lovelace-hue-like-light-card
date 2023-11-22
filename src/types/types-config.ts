@@ -39,12 +39,14 @@ export class ClickActionData {
     public constructor(plainConfig: string | Record<string, string> | ClickActionData | undefined) {
         if (typeof plainConfig == 'string') {
             this._onlyValue = plainConfig;
-        } else if (plainConfig instanceof ClickActionData) {
+        }
+        else if (plainConfig instanceof ClickActionData) {
             // eslint-disable-next-line no-underscore-dangle
             this._onlyValue = plainConfig._onlyValue;
             // eslint-disable-next-line no-underscore-dangle
             this._valueStore = plainConfig._valueStore;
-        } else {
+        }
+        else {
             this._valueStore = plainConfig || {};
         }
     }
@@ -112,7 +114,8 @@ export class SceneData {
     public constructor(configOrEntityId: SceneConfig | string) {
         if (typeof configOrEntityId == 'string') {
             this._config = new SceneConfig(configOrEntityId);
-        } else {
+        }
+        else {
             this._config = configOrEntityId;
         }
     }

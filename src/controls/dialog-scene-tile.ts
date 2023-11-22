@@ -58,8 +58,12 @@ export class HueDialogSceneTile extends HueDialogTile {
             const animationMs = (HueDialogSceneTile.animationSeconds * 1000);
             this._effectQueue.addEffect(0, () => sceneElement.classList.add('clicked'));
             this._effectQueue.addEffect(3000, () => sceneElement.classList.add('unclicked'));
-            this._effectQueue.addEffect(animationMs, () => { sceneElement.classList.add('stop-color-animate'); sceneElement.classList.remove('clicked'); });
-            this._effectQueue.addEffect(50, () => { sceneElement.classList.remove('stop-color-animate', 'unclicked'); });
+            this._effectQueue.addEffect(animationMs, () => {
+                sceneElement.classList.add('stop-color-animate'); sceneElement.classList.remove('clicked'); 
+            });
+            this._effectQueue.addEffect(50, () => {
+                sceneElement.classList.remove('stop-color-animate', 'unclicked'); 
+            });
             this._effectQueue.start();
         }
 

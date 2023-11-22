@@ -44,7 +44,8 @@ export class PointerDragHelper {
                 document.addEventListener('touchmove', this._onDragMove);
                 document.addEventListener('touchend', this._onDragEnd);
                 ev.preventDefault();
-            } else {
+            }
+            else {
                 document.addEventListener('mousemove', this._onDragMove);
                 document.addEventListener('mouseup', this._onDragEnd);
             }

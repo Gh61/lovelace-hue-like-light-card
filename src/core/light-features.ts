@@ -85,7 +85,8 @@ export class LightFeaturesCombined implements ILightFeatures {
             const f = features[i];
             if (f.isOnlyBrightness()) {
                 isBrightness = true;
-            } else if (!f.isEmpty()) {
+            }
+            else if (!f.isEmpty()) {
                 // not brightness and not empty
                 return false;
             }

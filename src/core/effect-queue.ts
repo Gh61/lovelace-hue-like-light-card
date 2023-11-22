@@ -32,7 +32,9 @@ export class HueEffectQueue {
 
     public start() {
         let i = 0;
-        const callback = () => { this.planEffect(++i, callback); };
+        const callback = () => {
+            this.planEffect(++i, callback); 
+        };
         this.planEffect(i, callback);
     }
 

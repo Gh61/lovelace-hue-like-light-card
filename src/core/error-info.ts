@@ -5,10 +5,12 @@ export class ErrorInfo {
     public constructor(er: unknown) {
         if (typeof er === 'string') {
             this._message = er;
-        } else if (er instanceof Error) {
+        }
+        else if (er instanceof Error) {
             this._message = er.message;
             this._stack = er.stack;
-        } else {
+        }
+        else {
             this._message = er?.toString() || 'UNKNOWN ERROR';
         }
     }

@@ -87,11 +87,13 @@ export class ViewUtils {
             if (value != null) {
                 ctrl.brightnessValue = parseInt(value);
             }
-        } else { // isToggle
+        }
+        else { // isToggle
             const checked = (target as HTMLInputElement).checked;
             if (checked) {
                 ctrl.turnOn();
-            } else {
+            }
+            else {
                 ctrl.turnOff();
             }
         }
@@ -115,7 +117,8 @@ export class ViewUtils {
         let foreground: Color | null;
         if (currentBackground == null) {
             foreground = null;
-        } else {
+        }
+        else {
             const fgx = this.calculateForeground(ctrl, currentBackground, assumeShadow);
             foreground = fgx.foreground;
         }
@@ -155,7 +158,8 @@ export class ViewUtils {
         if (ctrl.isOff()) {
             if (foreground == Consts.DarkColor) {
                 foreground = Consts.DarkOffColor;
-            } else {
+            }
+            else {
                 foreground = Consts.LightOffColor;
             }
         }

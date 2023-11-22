@@ -92,7 +92,8 @@ export class HueDialog extends IdLitElement {
             this._lightDetailHistoryStep = new HueHistoryStep(show, hide, HueLightDetail.ElementName);
             HueHistoryStateManager.instance.addStep(this._lightDetailHistoryStep);
 
-        } else if (this._selectedLight == ev.detail.lightContainer) {
+        }
+        else if (this._selectedLight == ev.detail.lightContainer) {
             this.hideLightDetail();
         }
     }
@@ -118,7 +119,8 @@ export class HueDialog extends IdLitElement {
                 if (show) {
                     contentDiv.style.overflowY = 'hidden';
                     contentDiv.scrollBy({ top: contentDiv.scrollHeight, behavior: 'smooth' });
-                } else {
+                }
+                else {
                     contentDiv.style.overflowY = '';
                 }
             }
@@ -160,7 +162,8 @@ export class HueDialog extends IdLitElement {
 
         if (isBefore) {
             tileScroller.scrollBy({ left: elStart - tileScrollerStart, behavior: 'smooth' });
-        } else {
+        }
+        else {
             tileScroller.scrollBy({ left: elEnd - tileScrollerEnd, behavior: 'smooth' });
         }
     }
@@ -201,7 +204,8 @@ export class HueDialog extends IdLitElement {
         const haRoot = haDom.length ? haDom[0].shadowRoot : null;
         if (haRoot) {
             haRoot.appendChild(this);
-        } else {
+        }
+        else {
             document.body.appendChild(this);
         }
 
@@ -218,7 +222,8 @@ export class HueDialog extends IdLitElement {
         if (haDialog) {
             // if dialog closed - will call onDialogClose event
             haDialog.close();
-        } else {
+        }
+        else {
             // no haDialog found - use legacy way
             this.onDialogClose();
         }
@@ -517,7 +522,8 @@ export class HueDialog extends IdLitElement {
 
                     this._lightDetailElement = detailElement;
                 }
-            } else if (throwError) {
+            }
+            else if (throwError) {
                 throw new Error('Cannot create backdrop and lightDetail. Surface not found.');
             }
         }
@@ -563,10 +569,12 @@ export class HueDialog extends IdLitElement {
             const offColor = this._config.getOffColor();
             if (!offColor.isThemeColor()) {
                 offBackground = new Background([offColor.getBaseColor()]);
-            } else {
+            }
+            else {
                 offBackground = null;
             }
-        } else {
+        }
+        else {
             offBackground = new Background([new Color(Consts.DialogOffColor)]);
         }
 
@@ -594,7 +602,8 @@ export class HueDialog extends IdLitElement {
                 '--hue-text-color',
                 bfg.foreground.toString()
             );
-        } else {
+        }
+        else {
             this.style.removeProperty('--hue-text-color');
         }
     }

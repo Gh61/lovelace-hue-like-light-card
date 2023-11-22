@@ -14,10 +14,12 @@ export class Background {
                 throw new Error('ColorExtended cannot be used in Background. Resolve it first.');
             } if (b instanceof Color) {
                 return [b];
-            } else if (b instanceof Background) {
+            }
+            else if (b instanceof Background) {
                 // eslint-disable-next-line no-underscore-dangle
                 return b._colors;
-            } else {
+            }
+            else {
                 throw new Error('Only array of Colors or Backgrounds is supported for new Background(...).');
             }
         });

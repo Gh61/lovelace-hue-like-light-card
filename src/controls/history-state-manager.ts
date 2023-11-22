@@ -208,7 +208,8 @@ class HistoryStack {
                 this._pointer = i;
                 found = true;
                 break;
-            } else {
+            }
+            else {
                 // not found, but is on the path - should be exited
                 toExit.push(item);
             }
@@ -216,7 +217,8 @@ class HistoryStack {
         if (!found) {
             // clear items
             toExit.length = 0;
-        } else {
+        }
+        else {
             this.logState('Moved to ' + id);
             return {
                 found,
@@ -243,7 +245,8 @@ class HistoryStack {
             // clear items
             toEnter.length = 0;
             logMessage('NOT moved to ' + id);
-        } else {
+        }
+        else {
             this.logState('Moved to ' + id);
         }
 
@@ -305,16 +308,19 @@ export class HueHistoryStateManager {
 
             // move to the current state
             moveResult = this._states.moveTo(state.hueId);
-        } else if (state != null) {
+        }
+        else if (state != null) {
             moveResult = this._states.moveToExternal(state);
             if (!moveResult.found) {
                 // our stack is ruined, reset everything
                 moveResult = this._states.resetBeforeStart();
-            } else {
+            }
+            else {
                 // don't fire any functions
                 moveResult.found = false;
             }
-        } else {
+        }
+        else {
             // we're at the very beginning
             moveResult = this._states.resetBeforeStart();
         }
@@ -377,7 +383,8 @@ export class HueHistoryStateManager {
 
             // save oldItem's position into newItem
             newStep.position = replaceResult.oldItem?.position;
-        } else { // replace not possible, classic push
+        }
+        else { // replace not possible, classic push
 
             // push it to stack
             this._states.push(newStep);

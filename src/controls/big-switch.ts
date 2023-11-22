@@ -99,7 +99,8 @@ export class HueBigSwitch extends LitElement {
                     this.checked = !this.reversed;
                     fireEvent(this, 'change');
                 });
-            } else {
+            }
+            else {
                 this._mc.on('swiperight', () => {
                     if (this.disabled) return;
                     this.checked = !this.reversed;

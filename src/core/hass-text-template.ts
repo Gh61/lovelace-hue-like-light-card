@@ -17,7 +17,8 @@ class VariableTemplatePart implements IHassTextTemplate {
         if (firstDot != lastDot) {
             this._textOrEntity = templatePart.substring(0, lastDot);
             this._attribute = templatePart.substring(lastDot + 1);
-        } else {
+        }
+        else {
             this._textOrEntity = templatePart;
         }
     }
@@ -25,7 +26,8 @@ class VariableTemplatePart implements IHassTextTemplate {
     public resolveToString(hass: HomeAssistant | null) {
         if (!hass) {
             return '';
-        } else {
+        }
+        else {
             const entity = hass.states[this._textOrEntity];
             if (!entity) {
                 // error indication
@@ -132,7 +134,8 @@ export class HassTextTemplate implements IHassTextTemplate {
 
                 // change state to inside variable
                 insideVariable = true;
-            } else {
+            }
+            else {
                 // searching for end of variable part
                 index = templateText.indexOf('}}', lastIndex);
                 if (index < 0)

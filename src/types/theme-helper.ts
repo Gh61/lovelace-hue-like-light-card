@@ -65,7 +65,8 @@ export class ThemeHelper {
         applyThemesOnElement(element, themes, theme);
         if (theme != Consts.ThemeDefault) {
             element.dataset.themeLocal = theme;
-        } else {
+        }
+        else {
             delete element.dataset.themeLocal;
         }
 
@@ -137,7 +138,8 @@ export class ThemeHelper {
                     );
                     break;
                 }
-            } else {
+            }
+            else {
                 element.style.setProperty(
                     targetVariable,
                     `var(${possibleVar})`

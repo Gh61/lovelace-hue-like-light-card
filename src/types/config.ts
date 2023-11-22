@@ -175,7 +175,9 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly iconSize: number;
     public readonly showSwitch: boolean;
     public readonly slider: SliderType;
-    public get scenes() { return this._scenes || []; }
+    public get scenes() {
+        return this._scenes || []; 
+    }
     public readonly sceneOrder: SceneOrder;
     public readonly offClickAction: ClickAction;
     public readonly offClickData: ClickActionData;
@@ -222,7 +224,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.entities && this.entities.forEach(e => {
             if (typeof e == 'string') {
                 ents.push(e);
-            } else if (e.entity) {
+            }
+            else if (e.entity) {
                 ents.push(e.entity);
             }
         });
@@ -273,7 +276,9 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
             try {
                 // get entities, and create ordered list based on order of entities in config
                 const entities = removeDuplicites(this.getEntities());
-                const lightRelations = entities.map(entityId => { return { entityId }; }) as EntityRelations[];
+                const lightRelations = entities.map(entityId => {
+                    return { entityId }; 
+                }) as EntityRelations[];
 
                 // load all areas
                 await Promise.all(lightRelations.map(async relation => {
@@ -303,7 +308,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
 
                 // set to config
                 this._scenes = HueLikeLightCardConfig.getScenesArray(loadedScenes);
-            } catch (error) {
+            }
+            catch (error) {
                 console.error('Cannot load scenes from HA.');
                 console.error(error);
             }

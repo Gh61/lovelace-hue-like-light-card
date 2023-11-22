@@ -66,7 +66,8 @@ export class ActionHandler {
                     // if is on, get first onLight
                     if (this._ctrl.isOn()) {
                         entityId = this._ctrl.getLitLights()[0].getEntityId();
-                    } else {
+                    }
+                    else {
                         entityId = this._config.getEntities()[0];
                     }
                 }

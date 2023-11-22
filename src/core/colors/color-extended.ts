@@ -9,7 +9,8 @@ export class ColorExtended extends Color {
         if (colorName == ColorExtended.themeColor) {
             super(0, 0, 0);
             this._isThemeColor = true;
-        } else {
+        }
+        else {
             super(colorName);
             this._isThemeColor = false;
         }

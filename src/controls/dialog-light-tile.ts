@@ -140,7 +140,8 @@ export class HueDialogLightTile extends HueDialogTile {
                         bfg.foreground.toString()
                     );
                 }
-            } else {
+            }
+            else {
                 this.style.removeProperty(
                     '--hue-light-background'
                 );

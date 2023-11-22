@@ -29,6 +29,7 @@
         "@typescript-eslint/lines-between-class-members": "off",
         "@typescript-eslint/keyword-spacing": ["error", {"overrides": { "this": { "before": false }}}],
         "@typescript-eslint/explicit-member-accessibility": "error",
+        "@typescript-eslint/brace-style": ["error", "stroustrup"],
 
         "react/jsx-filename-extension": "off",
         "import/extensions": "off",

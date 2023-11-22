@@ -64,7 +64,8 @@ export class HueLightDetail extends IdLitElement {
         if (lightFeatures.isOnlyBrightness()) {
             this._modeSelector.mode = 'brightness';
             this.toggleFullSizedBrightness(true);
-        } else {
+        }
+        else {
             this._modeSelector.selectPossibleMode();
             this.toggleFullSizedBrightness(false);
         }
@@ -93,7 +94,8 @@ export class HueLightDetail extends IdLitElement {
             if (this.lightContainer.color) {
                 this._colorMarker.color = this.lightContainer.color;
             }
-        } else if (this.lightContainer.isColorModeTemp()) {
+        }
+        else if (this.lightContainer.isColorModeTemp()) {
             if (setMode) {
                 this._modeSelector.mode = 'temp';
             }
@@ -119,7 +121,8 @@ export class HueLightDetail extends IdLitElement {
 
         if (ev.detail.mode == 'temp') {
             this.lightContainer.colorTemp = ev.detail.newTemp;
-        } else if (ev.detail.mode == 'color') {
+        }
+        else if (ev.detail.mode == 'color') {
             this.lightContainer.color = ev.detail.newColor;
         }
     }
@@ -151,7 +154,8 @@ export class HueLightDetail extends IdLitElement {
         this.classList.remove('visible');
         if (instant) {
             this.style.display = 'none';
-        } else {
+        }
+        else {
             this._hideTimeout = setTimeout(() => {
                 this._hideTimeout = null;
                 this.style.display = 'none';
@@ -261,7 +265,8 @@ export class HueLightDetail extends IdLitElement {
         const checked = target.checked;
         if (checked) {
             ctrl.turnOn();
-        } else {
+        }
+        else {
             ctrl.turnOff();
         }
     }
@@ -351,7 +356,8 @@ export class HueLightDetail extends IdLitElement {
             const addMargin = verticalSpace / 2;
             colorPicker.style.marginTop = (HueLightDetail.colorPickerMarginTop + addMargin) + 'px';
             colorPicker.style.marginBottom = (HueLightDetail.colorPickerMarginBottom + addMargin) + 'px';
-        } else {
+        }
+        else {
             colorPicker.style.marginTop = '';
             colorPicker.style.marginBottom = '';
         }
@@ -377,7 +383,8 @@ export class HueLightDetail extends IdLitElement {
             rollup.width = rollupSize;
             rollup.height = rollup.heightOpened = size;
             rollup.iconSize = HueLightDetail.rollupBigIconSize;
-        } else {
+        }
+        else {
             rollup.style.width = '';
             rollup.width = HueLightDetail.rollupWidth;
             rollup.height = HueLightDetail.rollupHeight;
