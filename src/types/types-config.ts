@@ -203,10 +203,6 @@ export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
     readonly offColor?: string;
     readonly hueScreenBgColor?: string;
     readonly offShadow?: boolean;
-    /**
-     * @deprecated Use offShadow instead.
-     */
-    readonly disableOffShadow?: boolean;
     readonly hueBorders?: boolean;
 
     /** Support for card-mod styling */

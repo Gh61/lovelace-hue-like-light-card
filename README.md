@@ -192,7 +192,7 @@ Also this card will detect these icons installed and will use them prior to HA i
     <td><s><code>disableOffShadow</code></s></td>
     <td>boolean</td>
     <td>no</td>
-    <td><i>deprecated in 1.3.0</i></td>
+    <td><i>removed in 1.6.0</i></td>
     <td><code>false</code></td>
     <td><s>If turned on, the card will not have inner shadow, when all lights are off.</s></td>
   </tr>

@@ -43,12 +43,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.offColor = plainConfig.offColor || Consts.OffColor;
         this.wasOffColorSet = !!plainConfig.offColor;
         this.hueScreenBgColor = plainConfig.hueScreenBgColor || Consts.DialogBgColor;
-
-        if (plainConfig.disableOffShadow != null) {
-            console.warn("[HueLikeLightCard] Use 'offShadow' (with inverted value) property instead of deprecated 'disableOffShadow'");
-        }
-
-        this.offShadow = HueLikeLightCardConfig.getBoolean(plainConfig.offShadow, !HueLikeLightCardConfig.getBoolean(plainConfig.disableOffShadow, false));
+        this.offShadow = HueLikeLightCardConfig.getBoolean(plainConfig.offShadow, true);
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
 
         this.style = plainConfig.style;
@@ -196,12 +191,6 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly offColor: string;
     public readonly hueScreenBgColor: string;
     public readonly offShadow: boolean;
-    /**
-     * @deprecated Use offShadow instead.
-     */
-    public get disableOffShadow() {
-        return !this.offShadow;
-    }
     public readonly hueBorders: boolean;
 
     /** Support for card-mod styling */
