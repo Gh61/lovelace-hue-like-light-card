@@ -193,6 +193,10 @@ export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
     readonly offClickData?: string | Record<string, string> | ClickActionData;
     readonly onClickAction?: ClickAction;
     readonly onClickData?: string | Record<string, string> | ClickActionData;
+    readonly offHoldAction?: ClickAction;
+    readonly offHoldData?: string | Record<string, string> | ClickActionData;
+    readonly onHoldAction?: ClickAction;
+    readonly onHoldData?: string | Record<string, string> | ClickActionData;
     readonly allowZero?: boolean;
     readonly theme?: string;
     readonly defaultColor?: string;

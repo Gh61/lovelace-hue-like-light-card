@@ -27,23 +27,30 @@ export class ActionHandler {
 
         // resolve the default action
         if (action == ClickAction.Default) {
-            if (isOn) {
-                action = this.resolveDefaultWhenOn();
-            } else {
-                action = this.resolveDefaultWhenOff();
-            }
+            action = ClickAction.HueScreen;
         }
 
-        // executed resolved or config action
+        // execute resolved or config action
         this.executeClickAction(action, actionData);
     }
 
-    private resolveDefaultWhenOn(): ClickAction {
-        return ClickAction.HueScreen;
-    }
+    public handleCardHold(): void {
+        const isOn = this._ctrl.isOn();
+        let action = isOn ? this._config.onHoldAction : this._config.offHoldAction;
+        const actionData = isOn ? this._config.onHoldData : this._config.offHoldData;
 
-    private resolveDefaultWhenOff(): ClickAction {
-        return ClickAction.HueScreen;
+        // resolve the default action
+        if (action == ClickAction.Default) {
+            // more info if the card has only one light
+            if (this._ctrl.getLights().length == 1) {
+                action = ClickAction.MoreInfo;
+            } else {
+                action = ClickAction.NoAction;
+            }
+        }
+
+        // execute resolved or config action
+        this.executeClickAction(action, actionData);
     }
 
     private executeClickAction(action: ClickAction, actionData: ClickActionData) {

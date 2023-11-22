@@ -305,7 +305,7 @@ export class HueHistoryStateManager {
 
             // move to the current state
             moveResult = this._states.moveTo(state.hueId);
-        } else {
+        } else if (state != null) {
             moveResult = this._states.moveToExternal(state);
             if (!moveResult.found) {
                 // our stack is ruined, reset everything
@@ -314,6 +314,9 @@ export class HueHistoryStateManager {
                 // don't fire any functions
                 moveResult.found = false;
             }
+        } else {
+            // we're at the very beginning
+            moveResult = this._states.resetBeforeStart();
         }
 
         // execute the moveResult

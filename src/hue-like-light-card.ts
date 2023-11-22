@@ -15,6 +15,7 @@ import { HueLikeLightCardConfigInterface, KnownIconSize } from './types/types-co
 import { ErrorInfo } from './core/error-info';
 import { Action } from './types/functions';
 import { VersionNotifier } from './version-notifier';
+import { Manager, Press, Tap } from '@egjs/hammerjs';
 
 // Show version info in console
 VersionNotifier.toConsole();
@@ -29,11 +30,12 @@ VersionNotifier.toConsole();
 
 @customElement(Consts.CardElementName)
 export class HueLikeLightCard extends LitElement implements LovelaceCard {
-    private _config: HueLikeLightCardConfig | undefined;
-    private _hass: HomeAssistant | undefined;
-    private _ctrl: LightController | undefined;
-    private _actionHandler: ActionHandler | undefined;
-    private _error: ErrorInfo | undefined;
+    private _config?: HueLikeLightCardConfig;
+    private _hass?: HomeAssistant;
+    private _ctrl?: LightController;
+    private _actionHandler?: ActionHandler;
+    private _error?: ErrorInfo;
+    private _mc?: HammerManager;
 
     /**
      * Off background color.
@@ -128,6 +130,16 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         // handle the click
         if (this._actionHandler) {
             this._actionHandler.handleCardClick();
+        }
+
+        // update styles
+        this.updateStylesInner();
+    }
+
+    private cardHolded(): void {
+        // handle the hold
+        if (this._actionHandler) {
+            this._actionHandler.handleCardHold();
         }
 
         // update styles
@@ -348,7 +360,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         };
 
         return html`<ha-card class="${classMap(cardClass)}">
-            <div class="tap-area" @click="${(): void => this.cardClicked()}">
+            <div class="tap-area">
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
                 <div class="${classMap(textClass)}">
                     <h2>${title}</h2>
@@ -361,13 +373,39 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         </ha-card>`;
     }
 
-    //#region updateStyles hooks
+    protected override firstUpdated(changedProperties: PropertyValues): void {
+        super.firstUpdated(changedProperties);
+        this.setupListeners();
+    }
 
     public override connectedCallback(): void {
         super.connectedCallback();
         // CSS
         this.updateStylesInner();
+        // Listeners
+        this.setupListeners();
     }
 
-    //#endregion
+    public override disconnectedCallback(): void {
+        super.disconnectedCallback();
+        this.destroyListeners();
+    }
+
+    private setupListeners() {
+        const tapArea = this.renderRoot.querySelector('.tap-area');
+        if (tapArea && !this._mc) {
+            this._mc = new Manager(tapArea);
+            this._mc.add(new Press());
+            this._mc.on('press', ():void => { this.cardHolded(); });
+            this._mc.add(new Tap());
+            this._mc.on('tap', ():void => { this.cardClicked(); });
+        }
+    }
+
+    private destroyListeners() {
+        if (this._mc) {
+            this._mc.destroy();
+            this._mc = undefined;
+        }
+    }
 }

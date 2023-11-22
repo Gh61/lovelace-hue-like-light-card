@@ -33,6 +33,10 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.offClickData = new ClickActionData(plainConfig.offClickData);
         this.onClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.onClickAction);
         this.onClickData = new ClickActionData(plainConfig.onClickData);
+        this.offHoldAction = HueLikeLightCardConfig.getClickAction(plainConfig.offHoldAction);
+        this.offHoldData = new ClickActionData(plainConfig.offHoldData);
+        this.onHoldAction = HueLikeLightCardConfig.getClickAction(plainConfig.onHoldAction);
+        this.onHoldData = new ClickActionData(plainConfig.onHoldData);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
         this.theme = plainConfig.theme || Consts.ThemeDefault;
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
@@ -182,6 +186,10 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly offClickData: ClickActionData;
     public readonly onClickAction: ClickAction;
     public readonly onClickData: ClickActionData;
+    public readonly offHoldAction: ClickAction;
+    public readonly offHoldData: ClickActionData;
+    public readonly onHoldAction: ClickAction;
+    public readonly onHoldData: ClickActionData;
     public readonly allowZero: boolean;
     public readonly theme: string;
     public readonly defaultColor: string;
