@@ -133,6 +133,7 @@ export interface HassSearchDeviceResult {
     area?: string[];
     automation?: string[];
     config_entry: string[];
+    entity?: string[];
     scene?: string[];
 }
 

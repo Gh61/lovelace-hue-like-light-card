@@ -13,7 +13,7 @@ import { ThemeHelper } from './types/theme-helper';
 import { IHassWindow } from './types/types-hass';
 import { HueLikeLightCardConfigInterface, KnownIconSize } from './types/types-config';
 import { ErrorInfo } from './core/error-info';
-import { Action } from './types/functions';
+import { Action, AsyncAction } from './types/functions';
 import { VersionNotifier } from './version-notifier';
 import { Manager, Press, Tap } from '@egjs/hammerjs';
 
@@ -60,18 +60,27 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         return this._hass;
     }
 
-    private catchErrors(action: Action) {
-        try {
-            this._error = undefined;
-
-            action();
-        }
-        catch (e) {
+    private catchErrors(action: Action | AsyncAction) {
+        const catchRoutine = (e: unknown) => {
             this._error = new ErrorInfo(e);
             this.requestUpdate(); // render error
 
             // rethrow
             throw e;
+        };
+
+        try {
+            this._error = undefined;
+
+            if (action.constructor.name === 'AsyncFunction') {
+                (action as AsyncAction)().catch(catchRoutine);
+            }
+            else {
+                action();
+            }
+        }
+        catch (e) {
+            catchRoutine(e);
         }
     }
 
@@ -80,26 +89,63 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             const oldConfig = this._config;
             this._config = new HueLikeLightCardConfig(<HueLikeLightCardConfigInterface>plainConfig);
 
-            this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor());
-            this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
-
-            // For theme color set background to null
-            const offColor = this._config.getOffColor();
-            if (!offColor.isThemeColor()) {
-                this._offBackground = new Background([offColor.getBaseColor()]);
+            if (this._config.isInitialized) {
+                this.useInitializedConfig(oldConfig);
             }
             else {
-                this._offBackground = null;
+                this._oldConfig = oldConfig;
+                this._configInitPending = true;
+                // try to call init immediately (if hass is present)
+                this.tryInitializeConfig(this.hass);
             }
-
-            this._error = undefined;
-
-            // try set hass
-            this.trySetHassWhereNeeded();
-
-            // custom @property() implementation
-            this.requestUpdate('_config', oldConfig);
         });
+    }
+
+    private _oldConfig?: HueLikeLightCardConfig;
+    private _configInitPending = false;
+
+    private tryInitializeConfig(hass: HomeAssistant | undefined) {
+        if (!hass || !this._configInitPending)
+            return;
+
+        const oldConfig = this._oldConfig;
+
+        // no longer pending
+        this._configInitPending = false;
+        this._oldConfig = undefined;
+
+        this.catchErrors(async () => {
+            // try to init the config
+            await this._config!.init(hass);
+
+            // if it ended up well, use the initialized config
+            this.useInitializedConfig(oldConfig);
+        });
+    }
+
+    private useInitializedConfig(oldConfig: HueLikeLightCardConfig | undefined) {
+        if (this._config?.isInitialized != true)
+            throw new Error('Config is not initialized.');
+
+        this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor());
+        this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
+
+        // For theme color set background to null
+        const offColor = this._config.getOffColor();
+        if (!offColor.isThemeColor()) {
+            this._offBackground = new Background([offColor.getBaseColor()]);
+        }
+        else {
+            this._offBackground = null;
+        }
+
+        this._error = undefined;
+
+        // try set hass
+        this.trySetHassWhereNeeded();
+
+        // custom @property() implementation
+        this.requestUpdate('_config', oldConfig);
     }
 
     /** Will try to set Hass to lightController (will not fail if no lightController exists) */
@@ -107,19 +153,13 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         if (!this.hass)
             return;
 
-        const hass = this.hass;
-        this.catchErrors(() => {
+        // try to init config, if needed
+        this.tryInitializeConfig(this.hass);
 
-            // try load scenes
-            if (this._config && !this._config.scenesLoaded) {
-                this._config.tryLoadScenes(hass);
-            }
-
-            // pass hass instance to Controller
-            if (this._ctrl) {
-                this._ctrl.hass = hass;
-            }
-        });
+        // pass hass instance to Controller
+        if (this._ctrl) {
+            this._ctrl.hass = this.hass;
+        }
     }
 
     // The height of your card. Home Assistant uses this to automatically
@@ -229,6 +269,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
     protected override updated(changedProps: PropertyValues): void {
         super.updated(changedProps);
+        this.setupListeners();
         this.updateStylesInner();
 
         if (!this._config || !this.hass) {
@@ -347,9 +388,9 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
 
         const title = titleTemplate.resolveToString(this._hass);
         const description = descriptionTemplate.resolveToString(this._hass);
-        
+
         const showSwitch = this._config.showSwitch;
-        const textClass = { 'text-area':true, 'no-switch': !showSwitch };
+        const textClass = { 'text-area': true, 'no-switch': !showSwitch };
         const cardClass = {
             'state-on': this._ctrl.isOn(),
             'state-off': this._ctrl.isOff(),
@@ -376,11 +417,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         </ha-card>`;
     }
 
-    protected override firstUpdated(changedProperties: PropertyValues): void {
-        super.firstUpdated(changedProperties);
-        this.setupListeners();
-    }
-
     public override connectedCallback(): void {
         super.connectedCallback();
         // CSS
@@ -399,12 +435,12 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         if (tapArea && !this._mc) {
             this._mc = new Manager(tapArea);
             this._mc.add(new Press());
-            this._mc.on('press', ():void => {
-                this.cardHolded(); 
+            this._mc.on('press', (): void => {
+                this.cardHolded();
             });
             this._mc.add(new Tap());
-            this._mc.on('tap', ():void => {
-                this.cardClicked(); 
+            this._mc.on('tap', (): void => {
+                this.cardClicked();
             });
         }
     }

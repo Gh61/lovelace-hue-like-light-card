@@ -21,7 +21,7 @@ export class LightController extends NotifyBase<LightController> implements ILig
 
         // we need at least one
         if (!entity_ids.length)
-            throw new Error('No entity specified (use "entity" and/or "entities").');
+            throw new Error('No entity specified.');
 
         this._defaultColor = defaultColor;
         this._lights = entity_ids.map(e => GlobalLights.getLightContainer(e));

@@ -16,10 +16,17 @@ export function ensureEntityDomain(entityId: string, expectedDomain: string, ...
 }
 
 /**
- * Returns new array from passed array, but with removed duplicites.
+ * @returns new array from passed array, but with removed duplicites.
  */
 export function removeDuplicites<T>(array: Array<T>): Array<T> {
     return array.filter(function (elem, index, self) {
         return index === self.indexOf(elem);
     });
+}
+
+/**
+ * @returns given text without diacritics, using normalized state for removal.
+ */
+export function removeDiacritics(str: string): string {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 }
