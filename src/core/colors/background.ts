@@ -32,7 +32,7 @@ export class Background {
                 result += 360;
             }
             return result;
-        }
+        };
         this._colors.sort((a, b) => getSortValue(a) - getSortValue(b));
     }
 
