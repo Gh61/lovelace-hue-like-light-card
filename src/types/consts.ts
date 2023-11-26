@@ -23,7 +23,7 @@ export class Consts {
     public static readonly DialogBgColor = '#171717';
     public static readonly DialogFgLightColor = new Color('#aaa');
     public static readonly DialogOffColor = '#363636';
-    public static readonly GradientOffset = 10; // percent
+    public static readonly GradientOffset = 7; // percent
     public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
     public static readonly TimeCacheInterval = 1500; // ms
 

@@ -23,8 +23,17 @@ export class Background {
                 throw new Error('Only array of Colors or Backgrounds is supported for new Background(...).');
             }
         });
-        // sort the colors from the brightest
-        this._colors.sort((a, b) => a.getLuminance() - b.getLuminance());
+        // sort the colors based on hue (starting from around 195 - light blue)
+        // the Official app is olso showing only 5 colors, so every color gets wide enough stripe in card
+        // I think it's like cheating, so we don't do this (at least not now)
+        const getSortValue = (c: Color) => {
+            let result = c.getHue() - 195; // this hue value should be first
+            if (result < 0) {
+                result += 360;
+            }
+            return result;
+        }
+        this._colors.sort((a, b) => getSortValue(a) - getSortValue(b));
     }
 
     /**
@@ -66,6 +75,6 @@ export class Background {
             colors += `, ${this._colors[i]} ${Math.round(currentStep)}%`;
         }
 
-        return `linear-gradient(90deg, ${colors})`;
+        return `linear-gradient(100deg, ${colors})`;
     }
 }
