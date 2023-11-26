@@ -1,6 +1,12 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { HassSearchDeviceResult } from '../types/types-hass';
+import { HassSearchDeviceResult, HomeAssistantEx } from '../types/types-hass';
 import { removeDiacritics } from '../types/extensions';
+
+export interface HassAreaLightsResult {
+    areaName: string,
+    lights: string[],
+    dataResult: HassSearchDeviceResult
+}
 
 /**
  * Functions to call Hass WebSocket services to get data.
@@ -25,25 +31,35 @@ export class HassWsClient {
      * @param area - Area name.
      * @returns Ids of all light entities in given area or null, when nothing is returned - indicating, the area does not exist.
      */
-    public async getLightEntities(area: string): Promise<string[] | null> {
+    public async getLightEntities(area: string) : Promise<HassAreaLightsResult | null> {
         // area codes are lowercase, underscore instead of spaces and removed diacritics
-        area = removeDiacritics(area).toLowerCase().replaceAll(' ', '_');
+        const areaId = removeDiacritics(area).toLowerCase().replaceAll(' ', '_');
 
         const areaResult = await this._hass.connection.sendMessagePromise<HassSearchDeviceResult>({
             type: 'search/related',
             item_type: 'area',
-            item_id: area
+            item_id: areaId
         });
 
         if (!areaResult || Object.keys(areaResult).length === 0) {
             return null;
         }
 
+        const areaName = (<HomeAssistantEx>this._hass).areas[areaId]?.name || area;
+
         if (areaResult.entity && areaResult.entity.length) {
-            return areaResult.entity.filter((e) => e.startsWith('light.'));
+            return {
+                areaName: areaName,
+                lights: areaResult.entity.filter((e) => e.startsWith('light.')),
+                dataResult: areaResult
+            };
         }
 
-        return [];
+        return {
+            areaName: areaName,
+            lights: [],
+            dataResult: areaResult
+        };
     }
 
     /**
@@ -75,6 +91,14 @@ export class HassWsClient {
             item_id: area
         });
 
+        return this.getScenesFromResult(areaResult);
+    }
+
+    /**
+     * Will get all scenes in given area from @param areaResult.
+     * @returns Ids of all scenes in given area or empty array.
+     */
+    public getScenesFromResult(areaResult: HassSearchDeviceResult) {
         if (areaResult && areaResult.scene && areaResult.scene.length) {
             return areaResult.scene;
         }

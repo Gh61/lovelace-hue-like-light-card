@@ -7,7 +7,7 @@ import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
 import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SliderType } from './types-config';
-import { HassWsClient } from '../core/hass-ws-client';
+import { HassAreaLightsResult, HassWsClient } from '../core/hass-ws-client';
 
 declare type EntityRelations = {
     entityId: string;
@@ -16,7 +16,8 @@ declare type EntityRelations = {
 };
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
-    private _areaEntities: string[] | null;
+    private _areaEntities?: string[];
+    private _title?: string;
     private _scenes: SceneConfig[] | null;
 
     public constructor(plainConfig: HueLikeLightCardConfigInterface) {
@@ -29,7 +30,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.entity = plainConfig.entity;
         this.entities = plainConfig.entities;
         this.area = plainConfig.area;
-        this.title = plainConfig.title;
+        this._title = plainConfig.title;
         this.description = plainConfig.description;
         this.icon = plainConfig.icon;
         this.iconSize = HueLikeLightCardConfig.getIconSize(plainConfig.iconSize);
@@ -57,7 +58,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.style = plainConfig.style;
         this.card_mod = plainConfig.card_mod;
 
-        // do we need some init?
+        // need some init?
         if (this.getEntities().length == 0 || this._scenes == null) {
             this._isInitialized = false;
         }
@@ -186,7 +187,9 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly entity?: string;
     public readonly entities?: string[] | ConfigEntityInterface[];
     public readonly area?: string;
-    public readonly title?: string;
+    public get title() {
+        return this._title;
+    }
     public readonly description?: string;
     public readonly icon?: string;
     public readonly iconSize: number;
@@ -299,27 +302,29 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this._isInitialized = true;
 
         // load entities from area, if needed
-        await this.tryLoadAreaEntities(hass);
+        await this.tryLoadAreaInfo(hass);
 
         // load scenes if needed
-        await this.tryLoadScenes(hass);
+        // fire&forget, no need to wait for these
+        this.tryLoadScenes(hass);
     }
 
     private _areaEntitiesLoaded = false;
     /**
-     * Will try to load area entities from HA WS.
+     * Will try to load area light entities from HA WS.
+     * Will also set title and scenes, if possible.
      */
-    private async tryLoadAreaEntities(hass: HomeAssistant) {
+    private async tryLoadAreaInfo(hass: HomeAssistant) {
         if (this._areaEntitiesLoaded || !this.area || this._areaEntities != null)
             return;
 
         this._areaEntitiesLoaded = true;
 
         const client = new HassWsClient(hass);
-        let lightEntities: string[] | null;
+        let areaLightsInfo: HassAreaLightsResult | null;
 
         try {
-            lightEntities = await client.getLightEntities(this.area);
+            areaLightsInfo = await client.getLightEntities(this.area);
         }
         catch (error) {
             console.error('Cannot load light entities from HA.');
@@ -329,16 +334,25 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
             throw new Error(`Cannot load entities from area '${this.area}'. See console for more info.`);
         }
 
-        if (lightEntities == null) {
+        if (areaLightsInfo == null) {
             throw new Error(`Area '${this.area}' does not exist.`);
         }
 
         // check for at least one light entity
-        if (lightEntities.length == 0) {
+        if (areaLightsInfo.lights.length == 0) {
             throw new Error(`Area '${this.area}' has no light entities.`);
         }
 
-        this._areaEntities = lightEntities;
+        this._areaEntities = areaLightsInfo.lights;
+        // if no title is given, use area name
+        if (this._title == null) {
+            this._title = areaLightsInfo.areaName;
+        }
+        // if no other entities are set, use scenes from area
+        if (this._scenes == null && this.getEntities().length == this._areaEntities.length) {
+            const loadedScenes = client.getScenesFromResult(areaLightsInfo.dataResult);
+            this.setLoadedScenes(loadedScenes);
+        }
     }
 
     private _scenesLoaded = false;
@@ -354,6 +368,13 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         const client = new HassWsClient(hass);
 
         try {
+
+            /**
+             * Potential optimization:
+             * - load first areaInfo and check, if any other lights are in there (no need to call getArea so many times)
+             * - areaResult can be passed to this method if some entities were loaded from area (this can be used with the point above)
+             */
+
             // get entities, and create ordered list based on order of entities in config
             const entities = removeDuplicites(this.getEntities());
             const lightRelations = entities.map(entityId => {
@@ -376,22 +397,29 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
             let loadedScenes = lightRelations.filter(r => !!r.areaScenes).flatMap(r => r.areaScenes);
             loadedScenes = removeDuplicites(loadedScenes);
 
-            switch (this.sceneOrder) {
-                case SceneOrder.NameAsc:
-                    loadedScenes.sort((s1, s2) => s1.localeCompare(s2));
-                    break;
-
-                case SceneOrder.NameDesc:
-                    loadedScenes.sort((s1, s2) => s2.localeCompare(s1));
-                    break;
-            }
-
-            // set to config
-            this._scenes = HueLikeLightCardConfig.getScenesArray(loadedScenes);
+            this.setLoadedScenes(loadedScenes);
         }
         catch (error) {
             console.error('Cannot load scenes from HA.');
             console.error(error);
         }
+    }
+
+    /**
+     * Will set loaded scenes to this config (using configured ordering)
+     */
+    private setLoadedScenes(loadedScenes: string[]) {
+        switch (this.sceneOrder) {
+            case SceneOrder.NameAsc:
+                loadedScenes.sort((s1, s2) => s1.localeCompare(s2));
+                break;
+
+            case SceneOrder.NameDesc:
+                loadedScenes.sort((s1, s2) => s2.localeCompare(s1));
+                break;
+        }
+
+        // set to config
+        this._scenes = HueLikeLightCardConfig.getScenesArray(loadedScenes);
     }
 }
