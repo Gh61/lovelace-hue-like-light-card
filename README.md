@@ -67,7 +67,7 @@ Also this card will detect these icons installed and will use them prior to HA i
     <td>yes*</td>
     <td>1.0.0</td>
     <td>-</td>
-    <td><b>Light</b> entity name (eg. <code>light.my_light</code>)</td>
+    <td><b>Light</b> entity ID (eg. <code>light.my_light</code>)</td>
   </tr>
   <tr>
     <td><code>entities</code></td>
@@ -75,7 +75,18 @@ Also this card will detect these icons installed and will use them prior to HA i
     <td>yes*</td>
     <td>1.0.0</td>
     <td>-</td>
-    <td>Multiple <b>Light</b> entity names</td>
+    <td>Multiple <b>Light</b> entity IDs</td>
+  </tr>
+  <tr>
+    <td><code>area</code></td>
+    <td>string</td>
+    <td>yes*</td>
+    <td>1.6.0</td>
+    <td>-</td>
+    <td>
+      Name or ID of <b>Area</b> with lights<br/>
+      (eg. <code>Living room</code> or <code>living_room</code>)
+    </td>
   </tr>
   <tr>
     <td><code>title</code></td>
@@ -238,7 +249,7 @@ Also this card will detect these icons installed and will use them prior to HA i
   </tr>
   <tr>
     <td colspan="6">
-      <i>* At least one of this two must be filled in. <b>Only entities of <code>light</code> domain are supported.</b></i>
+      <i>* At least one of these options must be filled in. <b>Only entities of <code>light</code> domain and/or areas with <code>light</code> domain entities are supported.</b></i>
     </td>
   </tr>
 </table>
@@ -705,6 +716,15 @@ Hue screen will allow you to activate [scenes](#scenes-configuration), set light
 <img alt="Hue-Screen-Detail1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen-detail-1.png" height="540" />
 
 ## Examples of configuration
+#### Area
+![Screen10](/doc/screen10.png)
+```yaml
+type: custom:hue-like-light-card
+area: Living room
+icon: mdi:sofa
+offColor: '#363636'
+```
+
 #### Multiple lights
 ![Screen2](/doc/screen2.png)
 ```yaml
