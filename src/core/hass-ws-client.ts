@@ -33,7 +33,7 @@ export class HassWsClient {
      */
     public async getLightEntities(area: string) : Promise<HassAreaLightsResult | null> {
         // area codes are lowercase, underscore instead of spaces and removed diacritics
-        const areaId = removeDiacritics(area).toLowerCase().replaceAll(' ', '_');
+        const areaId = removeDiacritics(area).toLowerCase().replaceAll(/[ _-]+/g, '_');
 
         const areaResult = await this._hass.connection.sendMessagePromise<HassSearchDeviceResult>({
             type: 'search/related',
