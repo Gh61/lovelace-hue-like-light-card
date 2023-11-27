@@ -185,6 +185,7 @@ export class SceneData {
 export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
     readonly entities?: string[] | ConfigEntityInterface[];
     readonly area?: string;
+    readonly groupEntity?: string;
     readonly title?: string;
     readonly description?: string;
     readonly icon?: string;

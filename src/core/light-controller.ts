@@ -12,11 +12,12 @@ import { localize } from '../localize/localize';
 
 export class LightController extends NotifyBase<LightController> implements ILightContainer {
     private _hass: HomeAssistant;
+    private _lightGroup?: LightContainer;
     private _lights: LightContainer[];
     private _lightsFeatures: LightFeaturesCombined;
     private _defaultColor: Color;
 
-    public constructor(entity_ids: string[], defaultColor: Color) {
+    public constructor(entity_ids: string[], defaultColor: Color, lightGroupEntityId?: string) {
         super();
 
         // we need at least one
@@ -26,6 +27,9 @@ export class LightController extends NotifyBase<LightController> implements ILig
         this._defaultColor = defaultColor;
         this._lights = entity_ids.map(e => GlobalLights.getLightContainer(e));
         this._lightsFeatures = new LightFeaturesCombined(() => this._lights.map(l => l.features));
+        if (lightGroupEntityId) {
+            this._lightGroup = GlobalLights.getLightContainer(lightGroupEntityId);
+        }
     }
 
     /**
@@ -52,6 +56,9 @@ export class LightController extends NotifyBase<LightController> implements ILig
     public set hass(hass: HomeAssistant) {
         this._hass = hass;
         this._lights.forEach(l => l.hass = hass);
+        if (this._lightGroup) {
+            this._lightGroup.hass = hass;
+        }
         this.raisePropertyChanged('hass');
     }
     public get hass() {
@@ -59,18 +66,33 @@ export class LightController extends NotifyBase<LightController> implements ILig
     }
 
     public isOn(): boolean {
+        if (this._lightGroup) {
+            return this._lightGroup.isOn();
+        }
         return this._lights.some(l => l.isOn());
     }
     public isOff(): boolean {
+        if (this._lightGroup) {
+            return this._lightGroup.isOff();
+        }
         return this._lights.every(l => l.isOff());
     }
     public isUnavailable(): boolean {
+        if (this._lightGroup) {
+            return this._lightGroup.isUnavailable();
+        }
         return this._lights.every(l => l.isUnavailable());
     }
     public turnOn(): void {
+        if (this._lightGroup) {
+            return this._lightGroup.turnOn();
+        }
         this._lights.filter(l => l.isOff()).forEach(l => l.turnOn());
     }
     public turnOff(): void {
+        if (this._lightGroup) {
+            return this._lightGroup.turnOff();
+        }
         this._lights.filter(l => l.isOn()).forEach(l => l.turnOff());
     }
 
@@ -145,6 +167,10 @@ export class LightController extends NotifyBase<LightController> implements ILig
     }
 
     public getTitle() {
+        if (this._lightGroup) {
+            return this._lightGroup.getTitle();
+        }
+
         let title = '';
         for (let i = 0; i < this._lights.length && i < 3; i++) {
             if (i > 0) {

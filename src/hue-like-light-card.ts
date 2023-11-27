@@ -127,7 +127,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         if (this._config?.isInitialized != true)
             throw new Error('Config is not initialized.');
 
-        this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor());
+        this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor(), this._config.groupEntity);
         this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
 
         // For theme color set background to null

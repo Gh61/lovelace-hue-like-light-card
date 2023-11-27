@@ -30,6 +30,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.entity = plainConfig.entity;
         this.entities = plainConfig.entities;
         this.area = plainConfig.area;
+        this.groupEntity = plainConfig.groupEntity;
         this._title = plainConfig.title;
         this.description = plainConfig.description;
         this.icon = plainConfig.icon;
@@ -187,6 +188,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly entity?: string;
     public readonly entities?: string[] | ConfigEntityInterface[];
     public readonly area?: string;
+    public readonly groupEntity?: string;
     public get title() {
         return this._title;
     }
