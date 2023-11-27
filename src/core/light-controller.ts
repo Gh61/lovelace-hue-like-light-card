@@ -12,11 +12,12 @@ import { localize } from '../localize/localize';
 
 export class LightController extends NotifyBase<LightController> implements ILightContainer {
     private _hass: HomeAssistant;
+    private _lightGroupEntity: LightContainer | undefined;
     private _lights: LightContainer[];
     private _lightsFeatures: LightFeaturesCombined;
     private _defaultColor: Color;
 
-    public constructor(entity_ids: string[], defaultColor: Color) {
+    public constructor(entity_ids: string[], defaultColor: Color, _lightGroupEntityId: string | undefined) {
         super();
 
         // we need at least one
@@ -26,6 +27,9 @@ export class LightController extends NotifyBase<LightController> implements ILig
         this._defaultColor = defaultColor;
         this._lights = entity_ids.map(e => GlobalLights.getLightContainer(e));
         this._lightsFeatures = new LightFeaturesCombined(() => this._lights.map(l => l.features));
+        if (_lightGroupEntityId !== undefined) {
+            this._lightGroupEntity = GlobalLights.getLightContainer(_lightGroupEntityId);
+        }
     }
 
     /**
@@ -52,6 +56,9 @@ export class LightController extends NotifyBase<LightController> implements ILig
     public set hass(hass: HomeAssistant) {
         this._hass = hass;
         this._lights.forEach(l => l.hass = hass);
+        if (this._lightGroupEntity != undefined) {
+            this._lightGroupEntity.hass = hass;
+        }
         this.raisePropertyChanged('hass');
     }
     public get hass() {
@@ -59,18 +66,33 @@ export class LightController extends NotifyBase<LightController> implements ILig
     }
 
     public isOn(): boolean {
+        if (this._lightGroupEntity != undefined) {
+            return this._lightGroupEntity.isOn();
+        }
         return this._lights.some(l => l.isOn());
     }
     public isOff(): boolean {
+        if (this._lightGroupEntity != undefined) {
+            return this._lightGroupEntity.isOff();
+        }
         return this._lights.every(l => l.isOff());
     }
     public isUnavailable(): boolean {
+        if (this._lightGroupEntity != undefined) {
+            return this._lightGroupEntity.isUnavailable();
+        }
         return this._lights.every(l => l.isUnavailable());
     }
     public turnOn(): void {
+        if (this._lightGroupEntity != undefined) {
+            return this._lightGroupEntity.turnOn();
+        }
         this._lights.filter(l => l.isOff()).forEach(l => l.turnOn());
     }
     public turnOff(): void {
+        if (this._lightGroupEntity != undefined) {
+            return this._lightGroupEntity.turnOff();
+        }
         this._lights.filter(l => l.isOn()).forEach(l => l.turnOff());
     }
 
@@ -145,6 +167,10 @@ export class LightController extends NotifyBase<LightController> implements ILig
     }
 
     public getTitle() {
+        if (this._lightGroupEntity != undefined) {
+            return this._lightGroupEntity.getTitle();
+        }
+
         let title = '';
         for (let i = 0; i < this._lights.length && i < 3; i++) {
             if (i > 0) {
