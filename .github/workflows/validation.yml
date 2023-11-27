@@ -27,3 +27,4 @@ jobs:
       uses: hacs/action@22.5.0
       with:
         category: 'plugin'
+      if: github.event_name != 'pull_request'
