@@ -9,6 +9,7 @@ import { StaticTextTemplate } from './hass-text-template';
 import { LightFeatures } from './light-features';
 import { TimeCache, TimeCacheValue } from './time-cache';
 import { NotifyBase } from './notify-base';
+import { SceneData } from '../types/types-config';
 
 type CacheKeys = 'state' | 'brightnessValue' | 'colorMode' | 'colorTemp' | 'color';
 
@@ -142,18 +143,26 @@ export class LightController extends NotifyBase<LightController> implements ISin
     public isOff(): boolean {
         return !this.isOn();
     }
-    public turnOn(): void {
-        this.toggle(true);
+    public turnOn(scene?: string): void {
+        this.toggle(true, scene);
     }
     public turnOff(): void {
         this.toggle(false);
     }
-    public toggle(on: boolean) {
+    public toggle(on: boolean, scene?: string) {
         if (this.isUnavailable())
             return;
 
         if (on) {
             this.notifyTurnOn();
+
+            // if scene is passed, activate it
+            if (scene) {
+                const data = new SceneData(scene);
+                data.hass = this._hass;
+                data.activate();
+                return;
+            }
         }
         else {
             this.notifyTurnOff();

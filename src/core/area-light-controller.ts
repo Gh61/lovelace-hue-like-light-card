@@ -88,11 +88,11 @@ export class AreaLightController extends NotifyBase<AreaLightController> impleme
         }
         return this._lights.every(l => l.isUnavailable());
     }
-    public turnOn(): void {
+    public turnOn(scene?: string): void {
         if (this._lightGroup) {
-            return this._lightGroup.turnOn();
+            return this._lightGroup.turnOn(scene);
         }
-        this._lights.filter(l => l.isOff()).forEach(l => l.turnOn());
+        this._lights.filter(l => l.isOff()).forEach(l => l.turnOn(scene));
     }
     public turnOff(): void {
         if (this._lightGroup) {

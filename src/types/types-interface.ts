@@ -88,8 +88,9 @@ export interface ILightContainer extends ILightConfig, INotify {
 
     /**
      * Will turn all lights on.
+     *  @param scene When passed, instead of turning on the light, given scene will be activated.
      */
-    turnOn(): void;
+    turnOn(scene?: string): void;
 
     /**
      * Will turn all lights off.

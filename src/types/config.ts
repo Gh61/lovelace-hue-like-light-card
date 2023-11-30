@@ -36,6 +36,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.icon = plainConfig.icon;
         this.iconSize = HueLikeLightCardConfig.getIconSize(plainConfig.iconSize);
         this.showSwitch = HueLikeLightCardConfig.getBoolean(plainConfig.showSwitch, true);
+        this.switchOnScene = plainConfig.switchOnScene;
         this.slider = HueLikeLightCardConfig.getSliderType(plainConfig.slider);
         this._scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
         this.sceneOrder = HueLikeLightCardConfig.getSceneOrder(plainConfig.sceneOrder);
@@ -196,6 +197,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly icon?: string;
     public readonly iconSize: number;
     public readonly showSwitch: boolean;
+    public readonly switchOnScene?: string;
     public readonly slider: SliderType;
     public get scenes() {
         return this._scenes || [];
