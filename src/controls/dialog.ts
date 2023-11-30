@@ -4,7 +4,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
-import { LightController } from '../core/light-controller';
+import { AreaLightController } from '../core/area-light-controller';
 import { ViewUtils } from '../core/view-utils';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
@@ -16,7 +16,7 @@ import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-ti
 import { ILightContainer } from '../types/types-interface';
 import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
-import { LightContainer } from '../core/light-container';
+import { LightController } from '../core/light-controller';
 import { HueHistoryStateManager, HueHistoryStep } from './history-state-manager';
 import { localize } from '../localize/localize';
 import { ActionHandler } from '../core/action-handler';
@@ -36,13 +36,13 @@ export class HueDialog extends IdLitElement {
 
     private _isRendered = false;
     private _config: HueLikeLightCardConfig;
-    private _ctrl: LightController;
+    private _ctrl: AreaLightController;
     private _actionHandler: ActionHandler;
 
     @state()
     private _selectedLight: ILightContainer | null;
 
-    public constructor(config: HueLikeLightCardConfig, lightController: LightController, actionHandler: ActionHandler) {
+    public constructor(config: HueLikeLightCardConfig, lightController: AreaLightController, actionHandler: ActionHandler) {
         super('HueDialog');
 
         this._config = config;
@@ -52,7 +52,7 @@ export class HueDialog extends IdLitElement {
 
     //#region Hass changes
 
-    private onLightControllerChanged(propertyName: keyof LightController) {
+    private onLightControllerChanged(propertyName: keyof AreaLightController) {
         // when LightController changed - update this
         if (propertyName == 'hass') {
             this.requestUpdate();
@@ -77,7 +77,7 @@ export class HueDialog extends IdLitElement {
 
                 // set light into detail
                 if (this._lightDetailElement) {
-                    this._lightDetailElement.lightContainer = <LightContainer>this._selectedLight;
+                    this._lightDetailElement.lightContainer = <LightController>this._selectedLight;
                     this._lightDetailElement.show();
                 }
             };

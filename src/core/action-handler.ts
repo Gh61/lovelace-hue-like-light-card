@@ -2,15 +2,15 @@ import { fireEvent } from 'custom-card-helpers';
 import { HueDialog } from '../controls/dialog';
 import { HueLikeLightCardConfig } from '../types/config';
 import { ClickAction, ClickActionData, SceneData } from '../types/types-config';
-import { LightController } from './light-controller';
+import { AreaLightController } from './area-light-controller';
 import { HueLikeLightCard } from '../hue-like-light-card';
 
 export class ActionHandler {
     private _config: HueLikeLightCardConfig;
-    private _ctrl: LightController;
+    private _ctrl: AreaLightController;
     private _owner: HueLikeLightCard;
 
-    public constructor(config: HueLikeLightCardConfig, ctrl: LightController, element: HueLikeLightCard) {
+    public constructor(config: HueLikeLightCardConfig, ctrl: AreaLightController, element: HueLikeLightCard) {
         this._config = config;
         this._ctrl = ctrl;
         this._owner = element;

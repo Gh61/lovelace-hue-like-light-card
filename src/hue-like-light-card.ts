@@ -4,7 +4,7 @@ import { classMap } from 'lit-html/directives/class-map.js';
 import { customElement } from 'lit/decorators.js';
 import { ActionHandler } from './core/action-handler';
 import { Background } from './core/colors/background';
-import { LightController } from './core/light-controller';
+import { AreaLightController } from './core/area-light-controller';
 import { ViewUtils } from './core/view-utils';
 import { HueLikeLightCardConfig } from './types/config';
 import { Consts } from './types/consts';
@@ -32,7 +32,7 @@ VersionNotifier.toConsole();
 export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
-    private _ctrl?: LightController;
+    private _ctrl?: AreaLightController;
     private _actionHandler?: ActionHandler;
     private _error?: ErrorInfo;
     private _mc?: HammerManager;
@@ -127,7 +127,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         if (this._config?.isInitialized != true)
             throw new Error('Config is not initialized.');
 
-        this._ctrl = new LightController(this._config.getEntities(), this._config.getDefaultColor(), this._config.groupEntity);
+        this._ctrl = new AreaLightController(this._config.getEntities(), this._config.getDefaultColor(), this._config.groupEntity);
         this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
 
         // For theme color set background to null

@@ -7,7 +7,7 @@ import { Consts } from '../types/consts';
 import { PropertyValues, css, unsafeCSS } from 'lit';
 import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness-rollup';
 import { HueColorTempPicker, HueColorTempPickerMarker, IHueColorTempPickerEventDetail } from './color-temp-picker';
-import { LightContainer } from '../core/light-container';
+import { LightController } from '../core/light-controller';
 import { HueColorTempModeSelector } from './color-temp-mode-selector';
 import { HaControlSwitch } from '../types/types-hass';
 import { HueBigSwitch } from './big-switch';
@@ -32,7 +32,7 @@ export class HueLightDetail extends IdLitElement {
     }
 
     @property()
-    public lightContainer: LightContainer | null = null;
+    public lightContainer: LightController | null = null;
 
     /**
      * Called after new lightContainer is set.
@@ -180,7 +180,7 @@ export class HueLightDetail extends IdLitElement {
     protected override updated(changedProps: PropertyValues<HueLightDetail>): void {
         // register for changes on light
         if (changedProps.has('lightContainer')) {
-            const oldValue = changedProps.get('lightContainer') as LightContainer | null;
+            const oldValue = changedProps.get('lightContainer') as LightController | null;
             if (oldValue) {
                 oldValue.unregisterOnPropertyChanged(this._id);
             }
@@ -245,7 +245,7 @@ export class HueLightDetail extends IdLitElement {
     }
     `;
 
-    private _lastRenderedContainer: LightContainer | null;
+    private _lastRenderedContainer: LightController | null;
     protected override render() {
         this._lastRenderedContainer = this.lightContainer || this._lastRenderedContainer;
         const onlySwitch = this._lastRenderedContainer?.features.isEmpty() == true;
@@ -257,7 +257,7 @@ export class HueLightDetail extends IdLitElement {
         </div>`;
     }
 
-    private onSwitch(ctrl: LightContainer, ev: Event) {
+    private onSwitch(ctrl: LightController, ev: Event) {
         const target = <HaControlSwitch>ev.target;
         if (!target)
             return;

@@ -1,16 +1,16 @@
-import { LightContainer } from './light-container';
+import { LightController } from './light-controller';
 
 /**
  * Static class making LightContainer instances global.
  */
 export class GlobalLights {
-    private static _containers:Record<string, LightContainer> = {};
+    private static _containers:Record<string, LightController> = {};
 
-    public static getLightContainer(entity_id: string): LightContainer {
+    public static getLightContainer(entity_id: string): LightController {
         let instance = this._containers[entity_id];
         if (!instance) {
             //console.log(`[GlobalLights] Creating instance for '${entity_id}'`);
-            instance = new LightContainer(entity_id);
+            instance = new LightController(entity_id);
             this._containers[entity_id] = instance;
         }
         else {
