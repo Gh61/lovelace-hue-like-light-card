@@ -94,7 +94,7 @@ Also this card will detect these icons installed and will use them prior to HA i
     <td>no</td>
     <td>1.6.0</td>
     <td>-</td>
-    <td><b>Light</b> entity ID that represents the group of light entities (eg. <code>light.my_light_group</code>). This is useful for some platforms like hue which provide an entity representing the room, in addition to the individual light entities. This can be defined to toggle the lights all at once, rather than successively.</td>
+    <td><b>Light</b> entity ID that represents the group of light entities (eg. <code>light.my_light_group</code>). Some platforms (<i>like hue</i>) will provide an entity representing the room, in addition to the individual light entities (<i>might be disabled by default</i>). This can be defined to toggle the lights all at once, rather than successively.</td>
   </tr>
   <tr>
     <td><code>title</code></td>
