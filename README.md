@@ -138,6 +138,14 @@ Also this card will detect these icons installed and will use them prior to HA i
     (You can then use <code>offClickAction</code> and <code>onClickAction</code> to turn the lights on/off.)</td>
   </tr>
   <tr>
+    <td><code>switchOnScene</code></td>
+    <td>string</td>
+    <td>no</td>
+    <td>1.6.0</td>
+    <td>-</td>
+    <td><b>Scene</b> entity ID (eg. <code>scene.office_bright</code>).<br/>If set, this scene will be activated when switch changes from OFF to ON (instead of just runing all lights on).</td>
+  </tr>
+  <tr>
     <td><code>slider</code></td>
     <td><a href="#slider-type">Slider type</a></td>
     <td>no</td>
@@ -587,7 +595,7 @@ When no scenes are defined, scenes will be detected [automatically](#scenes-dete
     <td>yes</td>
     <td>1.1.0</td>
     <td>-</td>
-    <td>Scene entity name (eg. <code>scene.tv_orange</code>)</td>
+    <td><b>Scene</b> entity ID (eg. <code>scene.tv_orange</code>)</td>
   </tr>
   <tr>
     <td><code>title</code></td>
