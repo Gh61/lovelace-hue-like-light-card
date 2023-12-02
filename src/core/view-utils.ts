@@ -18,7 +18,7 @@ export class ViewUtils {
      * Creates switch for given ILightContainer.
      * @param onChange Be careful - this function is called on different scope, better pack your function to arrow call.
      */
-    public static createSwitch(ctrl: ILightContainer, onChange: Action) {
+    public static createSwitch(ctrl: ILightContainer, onChange: Action, switchOnScene?: string) {
         // To help change themes on the fly
         const styles = ThemeHelper.getSwitchThemeStyle();
 
@@ -28,7 +28,7 @@ export class ViewUtils {
             .disabled=${ctrl.isUnavailable()}
             .haptic=true
             style=${styleMap(styles)}
-            @change=${(ev: Event) => this.changed(ctrl, onChange, false, ev)}
+            @change=${(ev: Event) => this.changed(ev, false, ctrl, onChange, switchOnScene)}
         ></ha-switch>`;
     }
 
@@ -56,7 +56,7 @@ export class ViewUtils {
                     .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()}
                     .value=${ctrl.brightnessValue}
                     .showActive=${true}
-                    @change=${(ev: Event) => this.changed(ctrl, onChange, true, ev)}
+                    @change=${(ev: Event) => this.changed(ev, true, ctrl, onChange)}
                 />`;
 
             // @current-change=${this.onCurrentChange}
@@ -70,11 +70,11 @@ export class ViewUtils {
             .step=${step}
             .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()}
             .value=${ctrl.brightnessValue}
-            @change=${(ev: Event) => this.changed(ctrl, onChange, true, ev)}
+            @change=${(ev: Event) => this.changed(ev, true, ctrl, onChange)}
         ></ha-slider>`;
     }
 
-    private static changed(ctrl: ILightContainer, onChange: Action, isSlider: boolean, ev: Event) {
+    private static changed(ev: Event, isSlider: boolean, ctrl: ILightContainer, onChange: Action, switchOnScene?: string) {
 
         // TODO: try to update on sliding (use throttle) not only on change. (https://www.webcomponents.org/element/@polymer/paper-slider/elements/paper-slider#events)
 
@@ -91,7 +91,7 @@ export class ViewUtils {
         else { // isToggle
             const checked = (target as HTMLInputElement).checked;
             if (checked) {
-                ctrl.turnOn();
+                ctrl.turnOn(switchOnScene);
             }
             else {
                 ctrl.turnOff();

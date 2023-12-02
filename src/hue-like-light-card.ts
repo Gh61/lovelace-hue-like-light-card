@@ -411,7 +411,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
                     <div class="desc">${description}</div>
                 </div>
             </div>
-            ${showSwitch ? ViewUtils.createSwitch(this._ctrl, onChangeCallback) : nothing}
+            ${showSwitch ? ViewUtils.createSwitch(this._ctrl, onChangeCallback, this._config.switchOnScene) : nothing}
 
             ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
         </ha-card>`;

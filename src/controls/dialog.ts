@@ -648,7 +648,7 @@ export class HueDialog extends IdLitElement {
               ${cardTitle}
             </div>
             <div slot="actionItems">
-              ${ViewUtils.createSwitch(this._ctrl, onChangeCallback)}
+              ${ViewUtils.createSwitch(this._ctrl, onChangeCallback, this._config.switchOnScene)}
             </div>
             ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
           </ha-dialog-header>
