@@ -188,8 +188,9 @@ export class SceneData {
 
                     this._pictureColor = c.toString();
                     resolve(this._pictureColor);
-                }
-            } else {
+                };
+            }
+            else {
                 return resolve(undefined);
             }
         });
