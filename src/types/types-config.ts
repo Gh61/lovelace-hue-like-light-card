@@ -176,6 +176,19 @@ export class SceneData {
         return ColorResolver.getColor(this._config.color);
     }
 
+    /**
+     * @returns brightness value [0-100] of scene, if present in entity data.
+     */
+    public getBrightnessValue(): number | null {
+        this.ensureHass();
+
+        const result = this._entity.attributes.brightness;
+        if (typeof result === 'number') {
+            return result;
+        }
+        return null;
+    }
+
     private ensureHass() {
         if (!this._hass)
             throw new Error('Scene data not initialized - call setHass first!');

@@ -98,8 +98,15 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this.getDontCacheState() || this._entity.attributes?.brightness == null;
     }
 
-    private notifyTurnOn(): void {
+    private notifyTurnOn(sceneData?: SceneData): void {
         this._cache.setValue('state', 'on');
+
+        // try read brightness from scene
+        const brightness = sceneData?.getBrightnessValue();
+        if (brightness) {
+            this._lastOnBrightnessValue = brightness;
+        }
+
         if (this._lastOnBrightnessValue) {
             this._cache.setValue('brightnessValue', this._lastOnBrightnessValue);
         }
@@ -143,24 +150,37 @@ export class LightController extends NotifyBase<LightController> implements ISin
     public isOff(): boolean {
         return !this.isOn();
     }
-    public turnOn(scene?: string): void {
+    public turnOn(scene?: string | SceneData): void {
         this.toggle(true, scene);
     }
     public turnOff(): void {
         this.toggle(false);
     }
-    public toggle(on: boolean, scene?: string) {
+    public toggle(on: boolean, scene?: string | SceneData) {
         if (this.isUnavailable())
             return;
 
         if (on) {
-            this.notifyTurnOn();
+
+            let activateScene = false;
+            // we want the scene to activate
+            if (typeof scene === 'string') {
+                activateScene = true;
+                scene = new SceneData(scene);
+                scene.hass = this._hass;
+            }
+
+            this.notifyTurnOn(scene);
 
             // if scene is passed, activate it
             if (scene) {
-                const data = new SceneData(scene);
-                data.hass = this._hass;
-                data.activate();
+
+                // if scene id was passed, activate it
+                if (activateScene) {
+                    scene.hass = this._hass;
+                    scene.activate();
+                }
+
                 return;
             }
         }

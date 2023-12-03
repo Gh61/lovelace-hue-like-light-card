@@ -9,6 +9,7 @@ import { LightFeaturesCombined } from './light-features';
 import { NotifyBase } from './notify-base';
 import { IconHelper } from './icon-helper';
 import { localize } from '../localize/localize';
+import { SceneData } from '../types/types-config';
 
 /**
  * Serves as a controller for lights in single area.
@@ -92,7 +93,16 @@ export class AreaLightController extends NotifyBase<AreaLightController> impleme
         if (this._lightGroup) {
             return this._lightGroup.turnOn(scene);
         }
-        this._lights.filter(l => l.isOff()).forEach(l => l.turnOn(scene));
+
+        // if scene is passed, activate it once and pass data to all lights
+        let sceneData: SceneData;
+        if (scene) {
+            sceneData = new SceneData(scene);
+            sceneData.hass = this._hass;
+            sceneData.activate();
+        }
+
+        this._lights.filter(l => l.isOff()).forEach(l => l.turnOn(sceneData));
     }
     public turnOff(): void {
         if (this._lightGroup) {
