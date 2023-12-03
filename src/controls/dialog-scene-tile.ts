@@ -111,9 +111,6 @@ export class HueDialogSceneTile extends HueDialogTile {
         color: var(--hue-tile-fg-color, ${unsafeCSS(Consts.LightColor)});
         transform: scale(${HueDialogSceneTile.iconScale});
     }
-    .scene .icon-background .picture-color {
-        background-color: var(--hue-tile-picture-color, darkgoldenrod);
-    }
     .scene .icon-background .picture-color .picture {
         display: inline-block;
         height: ${HueDialogSceneTile.pictureDimensions}px;
@@ -123,6 +120,9 @@ export class HueDialogSceneTile extends HueDialogTile {
         background-size: cover;
     }
 
+    .scene.clicked .icon-background .picture-color {
+        background: var(--hue-tile-accent-color, darkgoldenrod);
+    }
     .scene.clicked .icon-background .color,
     .scene.clicked .icon-background .picture-color {
         height: ${HueDialogTile.height * 2}px;
@@ -169,31 +169,23 @@ export class HueDialogSceneTile extends HueDialogTile {
 
     protected override updated(changedProps: PropertyValues<HueDialogSceneTile>) {
         if (this._scene && changedProps.has('sceneConfig')) {
-            const accentColor = this._scene.getColor();
-            if (accentColor) {
-                const fg = accentColor.getForeground(Consts.LightColor, Consts.DarkColor, 20); // offset:20 - lets make the text color light sooner
-                const textFg = accentColor.getForeground(Consts.LightColor, new Color('black'), 20); // offset:20 - lets make the text color light sooner
-
-                this.style.setProperty(
-                    '--hue-tile-accent-color',
-                    accentColor.toString()
-                );
-                this.style.setProperty(
-                    '--hue-tile-fg-color',
-                    fg.toString()
-                );
-                this.style.setProperty(
-                    '--hue-tile-fg-text-color',
-                    textFg.toString()
-                );
-            }
-
-            // set picture color
-            this._scene.getPictureColor().then(pictureColor => {
-                if (pictureColor) {
+            // set accent color
+            this._scene.getAccentColor().then(accentColor => {
+                if (accentColor) {
+                    const fg = accentColor.getForeground(Consts.LightColor, Consts.DarkColor, 20); // offset:20 - lets make the text color light sooner
+                    const textFg = accentColor.getForeground(Consts.LightColor, new Color('black'), 20); // offset:20 - lets make the text color light sooner
+    
                     this.style.setProperty(
-                        '--hue-tile-picture-color',
-                        pictureColor
+                        '--hue-tile-accent-color',
+                        accentColor.toString()
+                    );
+                    this.style.setProperty(
+                        '--hue-tile-fg-color',
+                        fg.toString()
+                    );
+                    this.style.setProperty(
+                        '--hue-tile-fg-text-color',
+                        textFg.toString()
                     );
                 }
             });

@@ -111,7 +111,7 @@ export class SceneData {
     private _config: SceneConfig;
     private _hass: HomeAssistant;
     private _entity: HassEntity;
-    private _pictureColor?: string;
+    private _pictureColor?: Color;
 
     public constructor(configOrEntityId: SceneConfig | string) {
         if (typeof configOrEntityId == 'string') {
@@ -165,38 +165,6 @@ export class SceneData {
     }
 
     /**
-     * @returns dominating color from entity_picture of scene entity.
-     */
-    public async getPictureColor(): Promise<string | undefined> {
-        this.ensureHass();
-
-        return new Promise((resolve) => {
-
-            if (this._pictureColor) {
-                return resolve(this._pictureColor);
-            }
-
-            const picture = this.getPicture();
-            if (picture) {
-                const img = new Image();
-                img.crossOrigin = '';
-                img.src = picture;
-                img.onload = () => {
-                    const ct = new ColorThief();
-                    const mainColor = ct.getColor(img);
-                    const c = new Color(mainColor[0], mainColor[1], mainColor[2]);
-
-                    this._pictureColor = c.toString();
-                    resolve(this._pictureColor);
-                };
-            }
-            else {
-                return resolve(undefined);
-            }
-        });
-    }
-
-    /**
      * @returns icon from config or from entity settings or passed defaultIcon.
      */
     public getIcon(defaultIcon: string | null = null): string | null {
@@ -210,13 +178,38 @@ export class SceneData {
     }
 
     /**
-     * @returns color as instance of Color or null, if no color is present.
+     * @returns color from config, or from picture, or undefined.
      */
-    public getColor(): Color | null {
-        if (!this._config.color)
-            return null;
+    public getAccentColor(): Promise<Color | undefined> {
+        this.ensureHass();
 
-        return ColorResolver.getColor(this._config.color);
+        return new Promise((resolve) => {
+
+            if (this._config.color) {
+                return resolve(ColorResolver.getColor(this._config.color));
+            }
+
+            if (this._pictureColor) {
+                return resolve(this._pictureColor);
+            }
+
+            const picture = this.getPicture();
+            if (picture) {
+                const img = new Image();
+                img.crossOrigin = '';
+                img.src = picture;
+                img.onload = () => {
+                    const ct = new ColorThief();
+                    const mainColor = ct.getColor(img);
+                    this._pictureColor = new Color(mainColor[0], mainColor[1], mainColor[2]);
+
+                    resolve(this._pictureColor);
+                };
+            }
+            else {
+                return resolve(undefined);
+            }
+        });
     }
 
     /**
