@@ -60,10 +60,10 @@ export class HueDialogSceneTile extends HueDialogTile {
             this._effectQueue.addEffect(3000, () => sceneElement.classList.add('unclicked'));
             this._effectQueue.addEffect(animationMs, () => {
                 sceneElement.classList.add('stop-color-animate');
-                sceneElement.classList.remove('clicked'); 
+                sceneElement.classList.remove('clicked');
             });
             this._effectQueue.addEffect(50, () => {
-                sceneElement.classList.remove('stop-color-animate', 'unclicked'); 
+                sceneElement.classList.remove('stop-color-animate', 'unclicked');
             });
             this._effectQueue.start();
         }
@@ -111,15 +111,20 @@ export class HueDialogSceneTile extends HueDialogTile {
         color: var(--hue-tile-fg-color, ${unsafeCSS(Consts.LightColor)});
         transform: scale(${HueDialogSceneTile.iconScale});
     }
+    .scene .icon-background .picture-color {
+        background-color: var(--hue-tile-picture-color, darkgoldenrod);
+    }
     .scene .icon-background .picture-color .picture {
         display: inline-block;
-        width: 100%;
-        height: 100%;
+        height: ${HueDialogSceneTile.pictureDimensions}px;
+        width: ${HueDialogSceneTile.pictureDimensions}px;
+        border-radius: ${HueDialogSceneTile.pictureDimensions / 2}px;
         background-position: center;
         background-size: cover;
     }
 
-    .scene.clicked .icon-background .color {
+    .scene.clicked .icon-background .color,
+    .scene.clicked .icon-background .picture-color {
         height: ${HueDialogTile.height * 2}px;
         width: ${HueDialogTile.width * 2}px;
         border-radius: ${HueDialogTile.height}px;
@@ -129,15 +134,17 @@ export class HueDialogSceneTile extends HueDialogTile {
     .scene.clicked .icon-background .color ha-icon {
         animation: pop-icon 0.5s linear 1;
     }
-    .scene.unclicked .icon-background .color {
-        background: transparent;
-    }
-    .scene.stop-color-animate .icon-background .color {
-        transition: none;
-    }
-
     .scene.clicked .icon-background .picture {
         animation: pop-picture 0.5s linear 1;
+    }
+
+    .scene.unclicked .icon-background .color,
+    .scene.unclicked .icon-background .picture-color {
+        background: transparent;
+    }
+    .scene.stop-color-animate .icon-background .color,
+    .scene.stop-color-animate .icon-background .picture-color {
+        transition: none;
     }
 
     .scene .title {
@@ -180,6 +187,16 @@ export class HueDialogSceneTile extends HueDialogTile {
                     textFg.toString()
                 );
             }
+
+            // set picture color
+            this._scene.getPictureColor().then(pictureColor => {
+                if (pictureColor) {
+                    this.style.setProperty(
+                        '--hue-tile-picture-color',
+                        pictureColor
+                    );
+                }
+            });
         }
     }
 
@@ -194,17 +211,16 @@ export class HueDialogSceneTile extends HueDialogTile {
         return html`
         <div class='hue-tile scene' title='${title}'>
             <div class='icon-background'>
-                ${
-                    picture
-                    ? html`
+                ${picture
+                ? html`
                     <div class='picture-color'>
                         <div class='picture' style='background-image:url("${picture}")'></div>
                     </div>`
-                    : html`
+                : html`
                     <div class='color'>
                         <ha-icon icon="${this._scene.getIcon('mdi:palette')}"></ha-icon>
                     </div>`
-                }
+            }
             </div>
             <div class='title'>
                 <span>${title}</span>

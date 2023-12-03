@@ -3,6 +3,7 @@ import { HassEntity } from 'home-assistant-js-websocket';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
 import { ensureEntityDomain } from './extensions';
+import ColorThief from 'colorthief';
 
 export enum KnownIconSize {
     Big = 'big',
@@ -110,6 +111,7 @@ export class SceneData {
     private _config: SceneConfig;
     private _hass: HomeAssistant;
     private _entity: HassEntity;
+    private _pictureColor?: string;
 
     public constructor(configOrEntityId: SceneConfig | string) {
         if (typeof configOrEntityId == 'string') {
@@ -137,7 +139,7 @@ export class SceneData {
         this._hass.callService(serviceParts[0], serviceParts[1], data);
     }
 
-    public getTitle(cardTitle: string) : string | undefined {
+    public getTitle(cardTitle: string): string | undefined {
         this.ensureHass();
 
         if (this._config.title)
@@ -154,12 +156,43 @@ export class SceneData {
     }
 
     /**
-     * Returns path to picture of scene entity, if set in HA.
+     * @returns path to entity_picture of scene entity, if set in HA.
      */
-    public getPicture() : string | undefined {
+    public getPicture(): string | undefined {
         this.ensureHass();
 
         return this._entity.attributes.entity_picture;
+    }
+
+    /**
+     * @returns dominating color from entity_picture of scene entity.
+     */
+    public async getPictureColor(): Promise<string | undefined> {
+        this.ensureHass();
+
+        return new Promise((resolve) => {
+
+            if (this._pictureColor) {
+                return resolve(this._pictureColor);
+            }
+
+            const picture = this.getPicture();
+            if (picture) {
+                const img = new Image();
+                img.crossOrigin = '';
+                img.src = picture;
+                img.onload = () => {
+                    const ct = new ColorThief();
+                    const mainColor = ct.getColor(img);
+                    const c = new Color(mainColor[0], mainColor[1], mainColor[2]);
+
+                    this._pictureColor = c.toString();
+                    resolve(this._pictureColor);
+                }
+            } else {
+                return resolve(undefined);
+            }
+        });
     }
 
     /**

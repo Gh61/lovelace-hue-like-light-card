@@ -16,6 +16,7 @@
     "license": "LGPLv2.1",
     "dependencies": {
         "@egjs/hammerjs": "^2.0.17",
+        "colorthief": "npm:@pioug/colorthief@^3.0.1",
         "custom-card-helpers": "^1.9.0",
         "home-assistant-js-websocket": "^9.1.0",
         "lit": "^3.1.0"
