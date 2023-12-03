@@ -59,7 +59,8 @@ export class HueDialogSceneTile extends HueDialogTile {
             this._effectQueue.addEffect(0, () => sceneElement.classList.add('clicked'));
             this._effectQueue.addEffect(3000, () => sceneElement.classList.add('unclicked'));
             this._effectQueue.addEffect(animationMs, () => {
-                sceneElement.classList.add('stop-color-animate'); sceneElement.classList.remove('clicked'); 
+                sceneElement.classList.add('stop-color-animate');
+                sceneElement.classList.remove('clicked'); 
             });
             this._effectQueue.addEffect(50, () => {
                 sceneElement.classList.remove('stop-color-animate', 'unclicked'); 
@@ -75,8 +76,8 @@ export class HueDialogSceneTile extends HueDialogTile {
         }));
     }
 
-    private static readonly colorDimensions = HueDialogTile.height / 2; // px
-    public static readonly iconScale = (HueDialogSceneTile.colorDimensions * 0.75) / 24; // 24 = default icon size
+    private static readonly pictureDimensions = HueDialogTile.height / 2; // px
+    public static readonly iconScale = (HueDialogSceneTile.pictureDimensions * 0.75) / 24; // 24 = default icon size
     private static readonly animationSeconds = 1.0;
 
     public static override get styles() {
@@ -92,21 +93,32 @@ export class HueDialogSceneTile extends HueDialogTile {
         align-items: center;
         justify-content: center;
     }
-    .scene .icon-background .color {
-        background: var(--hue-tile-accent-color, darkgoldenrod);
-        height: ${HueDialogSceneTile.colorDimensions}px;
-        width: ${HueDialogSceneTile.colorDimensions}px;
-        border-radius: ${HueDialogSceneTile.colorDimensions / 2}px;
+    .scene .icon-background .color,
+    .scene .icon-background .picture-color {
+        height: ${HueDialogSceneTile.pictureDimensions}px;
+        width: ${HueDialogSceneTile.pictureDimensions}px;
+        border-radius: ${HueDialogSceneTile.pictureDimensions / 2}px;
         box-shadow: ${unsafeCSS(Consts.HueShadow)}, inset rgba(0,0,0,0.1) -8px -8px 15px;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all ${HueDialogSceneTile.animationSeconds}s linear;
     }
+    .scene .icon-background .color {
+        background: var(--hue-tile-accent-color, darkgoldenrod);
+    }
     .scene .icon-background .color ha-icon {
         color: var(--hue-tile-fg-color, ${unsafeCSS(Consts.LightColor)});
         transform: scale(${HueDialogSceneTile.iconScale});
     }
+    .scene .icon-background .picture-color .picture {
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        background-position: center;
+        background-size: cover;
+    }
+
     .scene.clicked .icon-background .color {
         height: ${HueDialogTile.height * 2}px;
         width: ${HueDialogTile.width * 2}px;
@@ -114,7 +126,7 @@ export class HueDialogSceneTile extends HueDialogTile {
         margin-left: -${HueDialogTile.padding * 2}px;
         margin-right: -${HueDialogTile.padding * 2}px;
     }
-    .scene.clicked .icon-background .color ha-icon{
+    .scene.clicked .icon-background .color ha-icon {
         animation: pop-icon 0.5s linear 1;
     }
     .scene.unclicked .icon-background .color {
@@ -124,6 +136,10 @@ export class HueDialogSceneTile extends HueDialogTile {
         transition: none;
     }
 
+    .scene.clicked .icon-background .picture {
+        animation: pop-picture 0.5s linear 1;
+    }
+
     .scene .title {
         transition: all ${HueDialogSceneTile.animationSeconds / 2}s linear;
     }
@@ -131,8 +147,11 @@ export class HueDialogSceneTile extends HueDialogTile {
         color:var(--hue-tile-fg-text-color, ${unsafeCSS(Consts.LightColor)});
     }
 
-    @keyframes pop-icon{
+    @keyframes pop-icon {
         50% { transform: scale(${HueDialogSceneTile.iconScale * 2}); }
+    }
+    @keyframes pop-picture {
+        50% { transform: scale(1.5); }
     }
     `];
     }
@@ -169,14 +188,23 @@ export class HueDialogSceneTile extends HueDialogTile {
             return nothing;
 
         const title = this._scene.getTitle(this.cardTitle);
+        const picture = this._scene.getPicture();
 
         /*eslint-disable */
         return html`
         <div class='hue-tile scene' title='${title}'>
             <div class='icon-background'>
-                <div class='color'>
-                    <ha-icon icon="${this._scene.getIcon('mdi:palette')}"></ha-icon>
-                </div>
+                ${
+                    picture
+                    ? html`
+                    <div class='picture-color'>
+                        <div class='picture' style='background-image:url("${picture}")'></div>
+                    </div>`
+                    : html`
+                    <div class='color'>
+                        <ha-icon icon="${this._scene.getIcon('mdi:palette')}"></ha-icon>
+                    </div>`
+                }
             </div>
             <div class='title'>
                 <span>${title}</span>

@@ -137,7 +137,7 @@ export class SceneData {
         this._hass.callService(serviceParts[0], serviceParts[1], data);
     }
 
-    public getTitle(cardTitle: string) {
+    public getTitle(cardTitle: string) : string | undefined {
         this.ensureHass();
 
         if (this._config.title)
@@ -154,9 +154,18 @@ export class SceneData {
     }
 
     /**
+     * Returns path to picture of scene entity, if set in HA.
+     */
+    public getPicture() : string | undefined {
+        this.ensureHass();
+
+        return this._entity.attributes.entity_picture;
+    }
+
+    /**
      * @returns icon from config or from entity settings or passed defaultIcon.
      */
-    public getIcon(defaultIcon: string | null = null) {
+    public getIcon(defaultIcon: string | null = null): string | null {
         this.ensureHass();
 
         // if config has empty icon defined - return empty
