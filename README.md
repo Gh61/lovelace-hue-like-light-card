@@ -666,6 +666,12 @@ scenes:
 ```
 For the best experience, please fill in both `icon` and `color` for all scenes.
 
+*Since version 1.6.0*
+
+Hue screen will load `entity_picture` from entity itself.<br/>
+You can set custom image as `entity_picture` using the `customize_glob` option in [HA configuration](https://www.home-assistant.io/docs/configuration/customizing-devices/#manual-customization).<br/>
+As an inspiration look at [this project](https://github.com/mattmon/hue-scene-icons) containing OG hue icons and default config for english scene names.
+
 ### Scenes detection
 Automatic scene detection will take place when no scenes are configured.
 
