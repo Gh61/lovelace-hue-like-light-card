@@ -1,5 +1,5 @@
 import { html, css, nothing, unsafeCSS, PropertyValues } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { ViewUtils } from '../core/view-utils';
@@ -181,6 +181,9 @@ export class HueDialogLightTile extends HueDialogTile {
         this.requestUpdate();
     }
 
+    @query('.hue-tile .tap-area')
+    protected override clickTarget!: HTMLDivElement;
+
     protected override tileClicked() {
         // toggle select this light
         this.isSelected = !this.isSelected;
@@ -209,7 +212,7 @@ export class HueDialogLightTile extends HueDialogTile {
                         <span>${title}</span>
                     </div>
                 </div>
-                <div class='switch' @mouseenter=${() => this.disableClick()} @mouseleave=${() => this.enableClick()}>
+                <div class='switch'>
                     ${ViewUtils.createSwitch(this.lightContainer, noop)}
                 </div>
             </div>

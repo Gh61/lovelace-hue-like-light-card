@@ -93,11 +93,11 @@ export abstract class HueDialogTile extends IdLitElement {
     private _mc?: HammerManager;
 
     @query('.hue-tile')
-    private tile!: HTMLDivElement;
+    protected clickTarget!: HTMLDivElement;
 
     private setupListeners() {
-        if (this.tile && !this._mc) {
-            this._mc = new Manager(this.tile);
+        if (this.clickTarget && !this._mc) {
+            this._mc = new Manager(this.clickTarget);
             this._mc.add(new Press());
             this._mc.on('press', () => {
                 const entityId = this.getEntityId();
@@ -111,9 +111,7 @@ export abstract class HueDialogTile extends IdLitElement {
             });
             this._mc.add(new Tap());
             this._mc.on('tap', (e) => {
-                if (!this.tile.classList.contains('no-click')) {
-                    this.tileClicked(e);
-                }
+                this.tileClicked(e);
             });
         }
     }
@@ -122,18 +120,6 @@ export abstract class HueDialogTile extends IdLitElement {
         if (this._mc) {
             this._mc.destroy();
             this._mc = undefined;
-        }
-    }
-
-    protected disableClick(): void {
-        if (this.tile) {
-            this.tile.classList.add('no-click');
-        }
-    }
-
-    protected enableClick(): void {
-        if (this.tile) {
-            this.tile.classList.remove('no-click');
         }
     }
 
