@@ -53,7 +53,7 @@ Also this card will detect these icons installed and will use them prior to HA i
 
 ## Configuration
 
-<b style='color:red'>This table may contain not yet released options.</b><br/>
+<b>This table may contain not yet released options.❗❗❗</b><br/>
 Some of these options may not be in the latest version. Please always check the **Since** column.
 
 <table>
