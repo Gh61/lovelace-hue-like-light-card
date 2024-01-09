@@ -71,7 +71,7 @@ jobs:
 
     - name: Generate Issues Changelog
       id: issues_changelog
-      uses: heinrichreimer/action-github-changelog-generator@v2.3
+      uses: heinrichreimer/action-github-changelog-generator@v2.4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         onlyLastTag: true
