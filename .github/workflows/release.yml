@@ -68,6 +68,19 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         filter: '(version\s+[v|V]\d(\.\d+){0,2}|[m|M]erge\s)'
+        template: |
+          ## Fixed bugs 🐞
+          {{fix}}
+          ## Features 🌟
+          {{feat}}
+          ## Improved 📈
+          {{refactor,perf,clean,type}}
+          ## Documentation 📖
+          {{doc}}
+          ## Misc 💢
+          {{chore,style,ci,build,test||🔶 Nothing changed}}
+          ## Unknown
+          {{__unknown__}}
 
     - name: Generate Issues Changelog
       id: issues_changelog
@@ -92,7 +105,6 @@ jobs:
         body: |
           ![Downloads](https://img.shields.io/github/downloads/gh61/lovelace-hue-like-light-card/${{ github.event.inputs.new_version }}/total)
 
-          # Changes
           ${{ steps.commits_changelog.outputs.changelog }}
 
           ## Closed Issues
