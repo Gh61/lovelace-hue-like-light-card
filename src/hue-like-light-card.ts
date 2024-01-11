@@ -16,6 +16,7 @@ import { ErrorInfo } from './core/error-info';
 import { Action, AsyncAction } from './types/functions';
 import { VersionNotifier } from './version-notifier';
 import { Manager, Press, Tap } from '@egjs/hammerjs';
+import { PreventGhostClick } from './types/prevent-ghostclick';
 
 // Show version info in console
 VersionNotifier.toConsole();
@@ -36,6 +37,7 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     private _actionHandler?: ActionHandler;
     private _error?: ErrorInfo;
     private _mc?: HammerManager;
+    private _gc?: PreventGhostClick;
 
     /**
      * Off background color.
@@ -438,10 +440,11 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             this._mc.on('press', (): void => {
                 this.cardHolded();
             });
-            this._mc.add(new Tap());
-            this._mc.on('tap', (): void => {
+            this._mc.add(new Tap({ event: 'singletap' }));
+            this._mc.on('singletap', (): void => {
                 this.cardClicked();
             });
+            this._gc = new PreventGhostClick(tapArea);
         }
     }
 
@@ -449,6 +452,10 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         if (this._mc) {
             this._mc.destroy();
             this._mc = undefined;
+        }
+        if (this._gc) {
+            this._gc.destroy();
+            this._gc = undefined;
         }
     }
 }

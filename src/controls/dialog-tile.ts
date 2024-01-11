@@ -7,6 +7,7 @@ import { nameof } from '../types/extensions';
 import { Manager, Press, Tap } from '@egjs/hammerjs';
 import { ActionHandler } from '../core/action-handler';
 import { HueHistoryStateManager } from './history-state-manager';
+import { PreventGhostClick } from '../types/prevent-ghostclick';
 
 export interface ITileEventDetail {
     tileElement: HueDialogTile;
@@ -91,6 +92,7 @@ export abstract class HueDialogTile extends IdLitElement {
     `;
 
     private _mc?: HammerManager;
+    private _gc?: PreventGhostClick;
 
     @query('.hue-tile')
     protected clickTarget!: HTMLDivElement;
@@ -109,10 +111,11 @@ export abstract class HueDialogTile extends IdLitElement {
                     HueHistoryStateManager.instance.tryAddExternalStep();
                 }
             });
-            this._mc.add(new Tap());
-            this._mc.on('tap', (e) => {
+            this._mc.add(new Tap({ event: 'singletap' }));
+            this._mc.on('singletap', (e) => {
                 this.tileClicked(e);
             });
+            this._gc = new PreventGhostClick(this.clickTarget);
         }
     }
 
@@ -120,6 +123,10 @@ export abstract class HueDialogTile extends IdLitElement {
         if (this._mc) {
             this._mc.destroy();
             this._mc = undefined;
+        }
+        if (this._gc) {
+            this._gc.destroy();
+            this._gc = undefined;
         }
     }
 
