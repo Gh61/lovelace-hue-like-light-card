@@ -52,7 +52,7 @@ export class HueDialog extends IdLitElement {
 
     //#region Hass changes
 
-    private onLightControllerChanged(propertyNames: (keyof AreaLightController)[]) {
+    private onLightControllerChanged(propertyNames: (keyof LightController)[]) {
         // when LightController changed - update this
         if (propertyNames.includes('hass')) {
             this.requestUpdate();
@@ -210,7 +210,7 @@ export class HueDialog extends IdLitElement {
         }
 
         // register update delegate
-        this._ctrl.registerOnPropertyChanged(this._id, (p) => this.onLightControllerChanged(p));
+        this._ctrl.registerOnPropertyChanged(this._elementId, (p) => this.onLightControllerChanged(p));
     }
 
     public close(): void {
@@ -242,7 +242,7 @@ export class HueDialog extends IdLitElement {
             this.remove();
 
             // unregister update delegate
-            this._ctrl.unregisterOnPropertyChanged(this._id);
+            this._ctrl.unregisterOnPropertyChanged(this._elementId);
 
             this._isRendered = false;
         }

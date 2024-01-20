@@ -1,5 +1,5 @@
 import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
-import { LitElement, css, html, nothing, unsafeCSS, PropertyValues } from 'lit';
+import { css, html, nothing, unsafeCSS, PropertyValues } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { customElement } from 'lit/decorators.js';
 import { ActionHandler } from './core/action-handler';
@@ -17,6 +17,7 @@ import { Action, AsyncAction } from './types/functions';
 import { VersionNotifier } from './version-notifier';
 import { Manager, Press, Tap } from '@egjs/hammerjs';
 import { PreventGhostClick } from './types/prevent-ghostclick';
+import { IdLitElement } from './core/id-lit-element';
 
 // Show version info in console
 VersionNotifier.toConsole();
@@ -30,14 +31,19 @@ VersionNotifier.toConsole();
 });
 
 @customElement(Consts.CardElementName)
-export class HueLikeLightCard extends LitElement implements LovelaceCard {
+export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
     private _ctrl?: AreaLightController;
+    private _ctrlListenerRegistered = false;
     private _actionHandler?: ActionHandler;
     private _error?: ErrorInfo;
     private _mc?: HammerManager;
     private _gc?: PreventGhostClick;
+
+    public constructor() {
+        super('HueLikeLightCard');
+    }
 
     /**
      * Off background color.
@@ -374,6 +380,13 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
         );
     }
 
+    private onChangeHandler = () => this.onChangeCallback();
+    private onChangeCallback() {
+        console.log(this._elementId + ' Requesting update');
+        this.requestUpdate();
+        this.updateStylesInner();
+    }
+
     protected override render() {
         if (this._error) {
             return html`<ha-alert alert-type="error" .title=${this._error.message}>
@@ -400,11 +413,6 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
             'hue-borders': this._config.hueBorders
         };
 
-        const onChangeCallback = () => {
-            this.requestUpdate();
-            this.updateStylesInner();
-        };
-
         return html`<ha-card class="${classMap(cardClass)}">
             <div class="tap-area">
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
@@ -413,9 +421,9 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
                     <div class="desc">${description}</div>
                 </div>
             </div>
-            ${showSwitch ? ViewUtils.createSwitch(this._ctrl, onChangeCallback, this._config.switchOnScene) : nothing}
+            ${showSwitch ? ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene) : nothing}
 
-            ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
+            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}
         </ha-card>`;
     }
 
@@ -433,6 +441,18 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
 
     private setupListeners() {
+        if (!this._ctrlListenerRegistered && this._ctrl) {
+            this._ctrlListenerRegistered = true;
+            this._ctrl.registerOnPropertyChanged(this._elementId, (props) => {
+                if (props[0] == 'hass' && props.length == 1) {
+                    // ignore
+                }
+                else {
+                    this.onChangeCallback();
+                }
+            });
+        }
+
         const tapArea = this.renderRoot.querySelector('.tap-area');
         if (tapArea && !this._mc) {
             this._mc = new Manager(tapArea);
@@ -449,6 +469,10 @@ export class HueLikeLightCard extends LitElement implements LovelaceCard {
     }
 
     private destroyListeners() {
+        if (this._ctrl) {
+            this._ctrl.unregisterOnPropertyChanged(this._elementId);
+            this._ctrlListenerRegistered = false;
+        }
         if (this._mc) {
             this._mc.destroy();
             this._mc = undefined;

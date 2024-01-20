@@ -1,5 +1,5 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { IHassTextTemplate, ILightContainer, ILightFeatures, INotifyGeneric } from '../types/types-interface';
+import { IHassTextTemplate, ILightContainer, ILightFeatures, INotifyGeneric, ISingleLightContainer } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { GlobalLights } from './global-lights';
@@ -46,14 +46,14 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
     /**
      * @returns all lit lights.
      */
-    public getLitLights(): ILightContainer[] {
+    public getLitLights(): ISingleLightContainer[] {
         return this._lights.filter(l => l.isOn());
     }
 
     /**
      * @returns all lights in this controller.
      */
-    public getLights(): ILightContainer[] {
+    public getLights(): ISingleLightContainer[] {
         return this._lights.map(l => l); // map will cause creation of new array
     }
 

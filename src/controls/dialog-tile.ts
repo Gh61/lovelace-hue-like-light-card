@@ -105,7 +105,7 @@ export abstract class HueDialogTile extends IdLitElement {
                 const entityId = this.getEntityId();
                 if (entityId) {
                     if (!this.actionHandler)
-                        throw new Error('Cannot open more-info - ActionHandler not set in ' + this._id);
+                        throw new Error('Cannot open more-info - ActionHandler not set in ' + this._elementId);
 
                     this.actionHandler.showMoreInfo(entityId);
                     HueHistoryStateManager.instance.tryAddExternalStep();

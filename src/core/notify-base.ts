@@ -1,3 +1,4 @@
+import { Consts } from '../types/consts';
 import { Action2 } from '../types/functions';
 import { INotifyGeneric } from '../types/types-interface';
 
@@ -8,8 +9,15 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
         this._propertyChangedCallbacks = {};
     }
 
+    /*
+     * TODO: Remove HueDialogTiles hanging registered, when dialog no longer exists.
+     * TODO: filter hass PropertyChanged?
+     */
+
     protected raisePropertyChanged(...propertyNames: (keyof TThis)[]): void {
+        this.log(`Firing ${this.constructor.name}.PropertyChanged changed [${propertyNames.join(', ')}].`);
         for (const callbackId in this._propertyChangedCallbacks) {
+            this.log(`Firing ${this.constructor.name}.PropertyChanged changed [${propertyNames.join(', ')}] for ${callbackId}.`);
             this._propertyChangedCallbacks[callbackId](propertyNames, <TThis><unknown>this);
         }
     }
@@ -21,6 +29,7 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
      */
     public registerOnPropertyChanged(id: string, callback: Action2<(keyof TThis)[], TThis>) {
         this._propertyChangedCallbacks[id] = callback;
+        this.log(`Registered ${this.constructor.name}.PropertyChanged by control ID: '${id}'`);
     }
 
     /**
@@ -29,5 +38,12 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
      */
     public unregisterOnPropertyChanged(id: string) {
         delete this._propertyChangedCallbacks[id];
+        this.log(`Unregistered ${this.constructor.name}.PropertyChanged by control ID: '${id}'`);
+    }
+
+    private log(message: string) {
+        if (Consts.Dev) {
+            console.log(message);
+        }
     }
 }

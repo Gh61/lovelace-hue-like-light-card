@@ -182,10 +182,10 @@ export class HueLightDetail extends IdLitElement {
         if (changedProps.has('lightContainer')) {
             const oldValue = changedProps.get('lightContainer') as LightController | null;
             if (oldValue) {
-                oldValue.unregisterOnPropertyChanged(this._id);
+                oldValue.unregisterOnPropertyChanged(this._elementId);
             }
             if (this.lightContainer) {
-                this.lightContainer.registerOnPropertyChanged(this._id, () => {
+                this.lightContainer.registerOnPropertyChanged(this._elementId, () => {
                     this.onLightContainerState();
                     this.requestUpdate();
                 });

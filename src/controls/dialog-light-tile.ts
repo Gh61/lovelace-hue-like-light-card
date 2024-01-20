@@ -4,7 +4,7 @@ import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { ViewUtils } from '../core/view-utils';
 import { Consts } from '../types/consts';
-import { ILightContainer } from '../types/types-interface';
+import { ISingleLightContainer } from '../types/types-interface';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 import { noop } from '../types/functions';
@@ -12,7 +12,7 @@ import { IconHelper } from '../core/icon-helper';
 
 export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
-    lightContainer: ILightContainer | null;
+    lightContainer: ISingleLightContainer | null;
 }
 
 /**
@@ -27,7 +27,7 @@ export class HueDialogLightTile extends HueDialogTile {
     public static override readonly ElementName = HueDialogTile.ElementName + '-light';
 
     @property()
-    public lightContainer: ILightContainer | null = null;
+    public lightContainer: ISingleLightContainer | null = null;
 
     @property()
     public defaultColor: Color | null = null;
@@ -113,12 +113,12 @@ export class HueDialogLightTile extends HueDialogTile {
     protected override updated(changedProps: PropertyValues<HueDialogLightTile>): void {
         // register for changes on light
         if (changedProps.has('lightContainer')) {
-            const oldValue = changedProps.get('lightContainer') as ILightContainer | null;
+            const oldValue = changedProps.get('lightContainer') as ISingleLightContainer | null;
             if (oldValue) {
-                oldValue.unregisterOnPropertyChanged(this._id);
+                oldValue.unregisterOnPropertyChanged(this._elementId);
             }
             if (this.lightContainer) {
-                this.lightContainer.registerOnPropertyChanged(this._id, () => this.lightUpdated());
+                this.lightContainer.registerOnPropertyChanged(this._elementId, () => this.lightUpdated());
             }
         }
 
