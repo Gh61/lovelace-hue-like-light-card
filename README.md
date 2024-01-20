@@ -846,5 +846,4 @@ description: false
 ```
 ## Coming soon features
 - reactions on sliding event instead of on change (value will be changed in the moment of sliding, not after)
-- faster reactions between multiple cards (instant change of value on other cards)
 - ui editor?

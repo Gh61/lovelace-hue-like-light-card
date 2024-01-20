@@ -1,10 +1,8 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { Background } from '../core/colors/background';
-import { Action1 } from './functions';
+import { Action1, Action2 } from './functions';
 import { Color } from '../core/colors/color';
 import { HassLightColorMode } from './types-hass';
-
-export type ValueFactory = () => unknown;
 
 export interface INotify {
     /**
@@ -27,7 +25,7 @@ export interface INotifyGeneric<TThis> extends INotify {
      * @param id Id for this specific callback. If this id already exists, it's callback will be overwriten.
      * @param callback Action that will be called when any supported property if changed (takes propertyName as parameter).
      */
-    registerOnPropertyChanged(id: string, callback: Action1<(keyof TThis)[]>): void;
+    registerOnPropertyChanged(id: string, callback: Action2<(keyof TThis)[], TThis>): void;
 }
 
 export interface IHassTextTemplate {
@@ -70,7 +68,7 @@ export interface ILightConfig {
     get features(): ILightFeatures;
 }
 
-export interface ILightContainer extends ILightConfig, INotify {
+export interface ILightContainer extends ILightConfig {
     /**
      * @returns true if any light in this container is on.
      */
@@ -104,7 +102,7 @@ export interface ILightContainer extends ILightConfig, INotify {
     brightnessValue: number;
 }
 
-export interface ISingleLightContainer extends ILightContainer {
+export interface ISingleLightContainer extends ILightContainer, INotify {
     /**
      * @returns if light is in COLOR color mode.
      */

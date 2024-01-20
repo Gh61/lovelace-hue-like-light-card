@@ -1,8 +1,8 @@
-import { Action1 } from '../types/functions';
+import { Action2 } from '../types/functions';
 import { INotifyGeneric } from '../types/types-interface';
 
 export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
-    private _propertyChangedCallbacks: Record<string, Action1<(keyof TThis)[]>>;
+    private _propertyChangedCallbacks: Record<string, Action2<(keyof TThis)[], TThis>>;
 
     protected constructor() {
         this._propertyChangedCallbacks = {};
@@ -10,7 +10,7 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
 
     protected raisePropertyChanged(...propertyNames: (keyof TThis)[]): void {
         for (const callbackId in this._propertyChangedCallbacks) {
-            this._propertyChangedCallbacks[callbackId](propertyNames);
+            this._propertyChangedCallbacks[callbackId](propertyNames, <TThis><unknown>this);
         }
     }
 
@@ -19,7 +19,7 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
      * @param id Id for this specific callback. If this id already exists, it's callback will be overwriten.
      * @param callback Action that will be called when any supported property if changed (takes propertyName as parameter).
      */
-    public registerOnPropertyChanged(id: string, callback: Action1<(keyof TThis)[]>) {
+    public registerOnPropertyChanged(id: string, callback: Action2<(keyof TThis)[], TThis>) {
         this._propertyChangedCallbacks[id] = callback;
     }
 

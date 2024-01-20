@@ -1,22 +1,22 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { IHassTextTemplate, ILightContainer, ILightFeatures } from '../types/types-interface';
+import { IHassTextTemplate, ILightContainer, ILightFeatures, INotifyGeneric } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { GlobalLights } from './global-lights';
 import { HassTextTemplate, StaticTextTemplate } from './hass-text-template';
 import { LightController } from './light-controller';
 import { LightFeaturesCombined } from './light-features';
-import { NotifyBase } from './notify-base';
 import { IconHelper } from './icon-helper';
 import { localize } from '../localize/localize';
 import { SceneData } from '../types/types-config';
+import { Action2 } from '../types/functions';
 
 /**
  * Serves as a controller for lights in single area.
  * This can contain multiple lights even some interactions can be different.
  * (Instead of turnOn, activate scene).
  */
-export class AreaLightController extends NotifyBase<AreaLightController> implements ILightContainer {
+export class AreaLightController implements ILightContainer, INotifyGeneric<LightController> {
     private _hass: HomeAssistant;
     private _lightGroup?: LightController;
     private _lights: LightController[];
@@ -24,8 +24,6 @@ export class AreaLightController extends NotifyBase<AreaLightController> impleme
     private _defaultColor: Color;
 
     public constructor(entity_ids: string[], defaultColor: Color, lightGroupEntityId?: string) {
-        super();
-
         // we need at least one
         if (!entity_ids.length)
             throw new Error('No entity specified.');
@@ -59,13 +57,26 @@ export class AreaLightController extends NotifyBase<AreaLightController> impleme
         return this._lights.map(l => l); // map will cause creation of new array
     }
 
+    /**
+     * Will register for light changed events.
+     */
+    public registerOnPropertyChanged(id: string, callback: Action2<(keyof LightController)[], LightController>): void {
+        this._lights.forEach(l => l.registerOnPropertyChanged(id, callback));
+    }
+
+    /**
+     * Will unregister light changed events.
+     */
+    public unregisterOnPropertyChanged(id: string): void {
+        this._lights.forEach(l => l.unregisterOnPropertyChanged(id));
+    }
+
     public set hass(hass: HomeAssistant) {
         this._hass = hass;
         this._lights.forEach(l => l.hass = hass);
         if (this._lightGroup) {
             this._lightGroup.hass = hass;
         }
-        this.raisePropertyChanged('hass');
     }
     public get hass() {
         return this._hass;
@@ -211,7 +222,7 @@ export class AreaLightController extends NotifyBase<AreaLightController> impleme
             }
         });
 
-        let result:string;
+        let result: string;
 
         if (description != null) {
             if (description) {

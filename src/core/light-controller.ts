@@ -77,21 +77,21 @@ export class LightController extends NotifyBase<LightController> implements ISin
             this._lightState.brightnessValue = brightnessValue;
         }
 
-        this.raisePropertyChanged('state', 'brightnessValue');
+        this.raisePropertyChanged('isOn', 'isOff', 'brightnessValue');
     }
 
     private notifyTurnOff(): void {
         this._lightState.state = 'off';
         this._lightState.brightnessValue = 0;
 
-        this.raisePropertyChanged('state', 'brightnessValue');
+        this.raisePropertyChanged('isOn', 'isOff', 'brightnessValue');
     }
 
     private notifyBrightnessValueChanged(value: number): void {
         this._lightState.brightnessValue = value;
         this._lightState.state = value > 0 ? 'on' : 'off';
 
-        this.raisePropertyChanged('state', 'brightnessValue');
+        this.raisePropertyChanged('isOn', 'isOff', 'brightnessValue');
     }
 
     private notifyColorTempChanged(value: number): void {
@@ -113,10 +113,6 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
     //#region State ON/OFF
 
-    public get state(): string {
-        return this._lightState.state;
-    }
-
     public isUnavailable(): boolean {
         return this._lightState.isUnavailable();
     }
@@ -132,7 +128,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     public turnOff(): void {
         this.toggle(false);
     }
-    public toggle(on: boolean, scene?: string | SceneData) {
+    private toggle(on: boolean, scene?: string | SceneData) {
         if (this.isUnavailable())
             return;
 
