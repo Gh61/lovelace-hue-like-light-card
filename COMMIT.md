@@ -13,7 +13,7 @@ Only use the following Git Commit Messages. A simple and small footprint is crit
 9. 🌍 `website` Documentation website changes. E.g. `website(Alert): Add example.`
 10. 🔙 `revert` Revert last commit. E.g. `revert: Add test case.`
 11. 💊 `clean` clean up. E.g. `clean: remove comment code.`
-12. 📈 `perf` Change the code to improve performance. E.g. `revert: Add test case.`
+12. 📈 `perf` Change the code to improve performance. E.g. `perf: optimalize search.`
 13. 💢 `ci` Continuous integration related file modification. E.g. `ci: Update workflows config.`
 14. 🧯 `build` Changes that affect the build system or external dependencies (example scopes: gulp, webpack, vite, npm)
 

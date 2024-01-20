@@ -1,17 +1,14 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassLightColorMode, HassLightEntity } from '../types/types-hass';
-import { Consts } from '../types/consts';
 import { ensureEntityDomain } from '../types/extensions';
 import { ISingleLightContainer, ILightFeatures } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
 import { StaticTextTemplate } from './hass-text-template';
 import { LightFeatures } from './light-features';
-import { TimeCache, TimeCacheValue } from './time-cache';
 import { NotifyBase } from './notify-base';
 import { SceneData } from '../types/types-config';
-
-type CacheKeys = 'state' | 'brightnessValue' | 'colorMode' | 'colorTemp' | 'color';
+import { LightState } from './light-state';
 
 /**
  * Serves as controller for single light.
@@ -28,8 +25,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
         ensureEntityDomain(entity_id, 'light');
 
         this._entity_id = entity_id;
-
-        this.initTimeCache();
+        this._lightState = new LightState(<HassLightEntity>{ state:'unavailable' });
     }
 
     public set hass(value: HomeAssistant) {
@@ -43,6 +39,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
             throw new Error(`Entity '${this._entity_id}' not found in states.`);
         }
 
+        this._lightState.refresh(this._entity);
         this._entityFeatures = new LightFeatures(this._entity);
         this.raisePropertyChanged('hass');
     }
@@ -67,74 +64,39 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
     //#endregion
 
-    //#region TimeCache
+    //#region StateCache
 
-    /*
-     * This TimeCache is here, so the UI control can react instantly on changes.
-     * When user do some change, it might take up to about 2 seconds for HA to register these changes on devices.
-     * So the cache is here to tell the UI that the expected change has happened instantly.
-     * After the specified interval, cached values are invalidated and in the moment of getting these values, live values are read from HA.
-     */
-
-    // TODO: also implement some change notify mechanizm
-
-    private _cache: TimeCache<CacheKeys>;
-    private _lastOnBrightnessValue: number;
-    private _lastColorTemp: number | null;
-
-    private initTimeCache(): void {
-        this._cache = new TimeCache(Consts.TimeCacheInterval);// ms
-        this._cache.registerProperty('state', () => new TimeCacheValue(this._entity?.state, this.getDontCacheState()));
-        this._cache.registerProperty('brightnessValue', () => new TimeCacheValue(this.brightnessValueGetFactory(), this.getDontCacheBrightnessValue()));
-        this._cache.registerProperty('colorMode', () => this.colorModeGetFactory());
-        this._cache.registerProperty('colorTemp', () => this.colorTempGetFactory());
-        this._cache.registerProperty('color', () => this.colorGetFactory());
-    }
-
-    private getDontCacheState(): boolean {
-        return !this._entity || this._entity.state == 'unavailable';
-    }
-    private getDontCacheBrightnessValue(): boolean {
-        return this.getDontCacheState() || this._entity.attributes?.brightness == null;
-    }
+    private readonly _lightState: LightState;
 
     private notifyTurnOn(sceneData?: SceneData): void {
-        this._cache.setValue('state', 'on');
+        this._lightState.state = 'on';
 
         // try read brightness from scene
-        const brightness = sceneData?.getBrightnessValue();
-        if (brightness) {
-            this._lastOnBrightnessValue = brightness;
-        }
-
-        if (this._lastOnBrightnessValue) {
-            this._cache.setValue('brightnessValue', this._lastOnBrightnessValue);
+        const brightnessValue = sceneData?.getBrightnessValue();
+        if (brightnessValue) {
+            this._lightState.brightnessValue = brightnessValue;
         }
     }
 
     private notifyTurnOff(): void {
-        this._cache.setValue('state', 'off');
-        this._cache.setValue('brightnessValue', 0);
+        this._lightState.state = 'off';
+        this._lightState.brightnessValue = 0;
     }
 
     private notifyBrightnessValueChanged(value: number): void {
-        if (value > 0) {
-            this._lastOnBrightnessValue = value;
-        }
-        this._cache.setValue('brightnessValue', value);
-        this._cache.setValue('state', value > 0 ? 'on' : 'off');
+        this._lightState.brightnessValue = value;
+        this._lightState.state = value > 0 ? 'on' : 'off';
     }
 
     private notifyColorTempChanged(value: number): void {
-        this._lastColorTemp = value;
-        this._cache.setValue('colorTemp', value);
-        this._cache.setValue('colorMode', HassLightColorMode.color_temp);
+        this._lightState.colorTemp = value;
+        this._lightState.colorMode = HassLightColorMode.color_temp;
     }
 
     private notifyColorChanged(value: Color, mode: HassLightColorMode): void {
-        this._cache.setValue('colorTemp', null);
-        this._cache.setValue('colorMode', mode);
-        this._cache.setValue('color', value);
+        this._lightState.colorTemp = null;
+        this._lightState.colorMode = mode;
+        this._lightState.color = value;
     }
 
     //#endregion
@@ -142,10 +104,10 @@ export class LightController extends NotifyBase<LightController> implements ISin
     //#region State ON/OFF
 
     public isUnavailable(): boolean {
-        return this._cache.getValue('state') == 'unavailable';
+        return !this._entity || this._entity.state == 'unavailable';
     }
     public isOn(): boolean {
-        return this._cache.getValue('state') == 'on';
+        return this._entity && this._entity.state == 'on';
     }
     public isOff(): boolean {
         return !this.isOn();
@@ -194,17 +156,8 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
     //#region Brightness Value
 
-    private brightnessValueGetFactory() {
-        if (this.isOff())
-            return 0;
-
-        const attr = this._entity.attributes;
-        const brightness = attr?.brightness ?? 255;
-        this._lastOnBrightnessValue = Math.round((brightness / 255.0) * 100); // brightness is 0-255
-        return this._lastOnBrightnessValue;
-    }
     public get brightnessValue() {
-        return <number>this._cache.getValue('brightnessValue');
+        return this._lightState.brightnessValue;
     }
     public set brightnessValue(value: number) {
         // just to be sure
@@ -227,67 +180,24 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
     //#region Color mode
 
-    private colorModeGetFactory(): TimeCacheValue {
-        let result = HassLightColorMode.unknown;
-        let dontCache = true;
-        if (this.isOn()) {
-            const entityMode = this._entity.attributes.color_mode;
-            if (entityMode) {
-                result = entityMode;
-                dontCache = false;
-
-                // There is bug with unoriginal hue lights 
-                // - color_temp is set only for a while, then the mode is switched back to xy (0,0) and temperature is not known
-
-                // So, when we have last saved colortemp, and mode is xy = 00, then return color_temp
-                if (this._lastColorTemp && result == HassLightColorMode.xy && this._entity.attributes.xy_color) {
-                    const [x, y] = this._entity.attributes.xy_color;
-                    if (x === 0 && y === 0) {
-                        result = HassLightColorMode.color_temp;
-                    }
-                }
-            }
-        }
-
-        return new TimeCacheValue(result, dontCache);
-    }
     public get colorMode(): HassLightColorMode {
-        return <HassLightColorMode>this._cache.getValue('colorMode');
+        return this._lightState.colorMode;
     }
 
-    public isColorModeColor() {
-        const colorModes = [
-            HassLightColorMode.hs,
-            HassLightColorMode.xy,
-            HassLightColorMode.rgb,
-            HassLightColorMode.rgbw,
-            HassLightColorMode.rgbww
-        ];
-
-        return colorModes.includes(this.colorMode);
+    public isColorModeColor(): boolean {
+        return this._lightState.isColorModeColor();
     }
 
     public isColorModeTemp(): boolean {
-        return this.colorMode == HassLightColorMode.color_temp;
+        return this._lightState.isColorModeTemp();
     }
 
     //#endregion
 
     //#region Color Temp
 
-    private colorTempGetFactory(): TimeCacheValue {
-        // when is off or not in temp mode, return default
-        if (this.isOff() || !this.isColorModeTemp())
-            return new TimeCacheValue(null, true);
-
-        const attr = this._entity.attributes;
-        if (attr?.color_temp_kelvin) {
-            this._lastColorTemp = attr?.color_temp_kelvin;
-        }
-        return new TimeCacheValue(this._lastColorTemp, !this._lastColorTemp);
-    }
     public get colorTemp(): number | null {
-        return <number | null>this._cache.getValue('colorTemp');
+        return this._lightState.colorTemp;
     }
     public set colorTemp(newTemp: number | null) {
         if (!newTemp)
@@ -315,26 +225,8 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
     //#region Color
 
-    private colorGetFactory() {
-        // when is off or not in color mode, return default
-        if (this.isOff() || !this.isColorModeColor())
-            return new TimeCacheValue(null, true);
-
-        const attr = this._entity?.attributes;
-        let result: Color | null = null;
-        if (attr.hs_color) {
-            const [h, s] = attr.hs_color;
-            result = new Color(h, s / 100, 1, 1, 'hsv');
-        }
-        else if (attr.rgb_color) {
-            const [r, g, b] = attr.rgb_color;
-            result = new Color(r, g, b);
-        }
-
-        return new TimeCacheValue(result, !result);
-    }
     public get color(): Color | null {
-        return <Color | null>this._cache.getValue('color');
+        return this._lightState.color;
     }
     public set color(newColor: Color | null) {
         if (!newColor)

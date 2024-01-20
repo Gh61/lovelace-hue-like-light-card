@@ -6,8 +6,8 @@ export class Consts {
     public static readonly Dev = true;
     public static readonly CardElementName = Consts.Dev ? 'hue-like-light-card-test' : 'hue-like-light-card';
     public static readonly ElementPostfix = Consts.Dev ? '-test' : '';
-    public static readonly CardName = 'Hue-Like Light Card';
-    public static readonly CardDescription = 'Hue-like way to control your lights';
+    public static readonly CardName = 'Hue-Like Light Card' + (Consts.Dev ? ' [TEST]' : '');
+    public static readonly CardDescription = 'Hue-like way to control your lights' + (Consts.Dev ? ' [TEST]' : '');
 
     public static readonly HueBorderRadius = 10;
     public static readonly HueShadow = '0px 2px 3px rgba(0,0,0,0.4)';
@@ -25,7 +25,6 @@ export class Consts {
     public static readonly DialogOffColor = '#363636';
     public static readonly GradientOffset = 7; // percent
     public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
-    public static readonly TimeCacheInterval = 1500; // ms
 
     // Theme colors
     public static readonly ThemeDefault = 'default';
