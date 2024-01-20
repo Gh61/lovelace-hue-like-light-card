@@ -25,7 +25,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
         ensureEntityDomain(entity_id, 'light');
 
         this._entity_id = entity_id;
-        this._lightState = new LightState(<HassLightEntity>{ state:'unavailable' });
+        this._lightState = new LightState(<HassLightEntity>{ state: 'unavailable' });
     }
 
     public set hass(value: HomeAssistant) {
@@ -76,38 +76,52 @@ export class LightController extends NotifyBase<LightController> implements ISin
         if (brightnessValue) {
             this._lightState.brightnessValue = brightnessValue;
         }
+
+        this.raisePropertyChanged('state', 'brightnessValue');
     }
 
     private notifyTurnOff(): void {
         this._lightState.state = 'off';
         this._lightState.brightnessValue = 0;
+
+        this.raisePropertyChanged('state', 'brightnessValue');
     }
 
     private notifyBrightnessValueChanged(value: number): void {
         this._lightState.brightnessValue = value;
         this._lightState.state = value > 0 ? 'on' : 'off';
+
+        this.raisePropertyChanged('state', 'brightnessValue');
     }
 
     private notifyColorTempChanged(value: number): void {
         this._lightState.colorTemp = value;
         this._lightState.colorMode = HassLightColorMode.color_temp;
+
+        this.raisePropertyChanged('colorTemp', 'colorMode');
     }
 
     private notifyColorChanged(value: Color, mode: HassLightColorMode): void {
         this._lightState.colorTemp = null;
         this._lightState.colorMode = mode;
         this._lightState.color = value;
+
+        this.raisePropertyChanged('colorTemp', 'colorMode', 'color');
     }
 
     //#endregion
 
     //#region State ON/OFF
 
+    public get state(): string {
+        return this._lightState.state;
+    }
+
     public isUnavailable(): boolean {
-        return !this._entity || this._entity.state == 'unavailable';
+        return this._lightState.isUnavailable();
     }
     public isOn(): boolean {
-        return this._entity && this._entity.state == 'on';
+        return this._lightState.isOn();
     }
     public isOff(): boolean {
         return !this.isOn();

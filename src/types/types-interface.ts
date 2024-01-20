@@ -12,7 +12,7 @@ export interface INotify {
      * @param id Id for this specific callback. If this id already exists, it's callback will be overwriten.
      * @param callback Action that will be called when any supported property if changed (takes propertyName as parameter).
      */
-    registerOnPropertyChanged(id: string, callback: Action1<string | number | symbol>): void;
+    registerOnPropertyChanged(id: string, callback: Action1<(string | number | symbol)[]>): void;
 
     /**
      * Will unregister callback from property change events.
@@ -27,7 +27,7 @@ export interface INotifyGeneric<TThis> extends INotify {
      * @param id Id for this specific callback. If this id already exists, it's callback will be overwriten.
      * @param callback Action that will be called when any supported property if changed (takes propertyName as parameter).
      */
-    registerOnPropertyChanged(id: string, callback: Action1<keyof TThis>): void;
+    registerOnPropertyChanged(id: string, callback: Action1<(keyof TThis)[]>): void;
 }
 
 export interface IHassTextTemplate {

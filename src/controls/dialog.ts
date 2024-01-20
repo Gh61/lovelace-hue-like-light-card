@@ -52,9 +52,9 @@ export class HueDialog extends IdLitElement {
 
     //#region Hass changes
 
-    private onLightControllerChanged(propertyName: keyof AreaLightController) {
+    private onLightControllerChanged(propertyNames: (keyof AreaLightController)[]) {
         // when LightController changed - update this
-        if (propertyName == 'hass') {
+        if (propertyNames.includes('hass')) {
             this.requestUpdate();
         }
     }

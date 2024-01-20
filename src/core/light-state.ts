@@ -29,6 +29,10 @@ export class LightState {
 
     //#region Helper methods
 
+    public isUnavailable(): boolean {
+        return !this._entity || this._entity.state == 'unavailable';
+    }
+
     public isOn(): boolean {
         return this.state == 'on';
     }
