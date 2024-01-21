@@ -177,18 +177,26 @@ export class HueLightDetail extends IdLitElement {
         }
     }
 
+    private registerLightContainerPropertyChanged(lightContainer: LightController) {
+        lightContainer.registerOnPropertyChanged(this._elementId, () => {
+            this.onLightContainerState();
+            this.requestUpdate();
+        }, /* includeHass: */ true);
+    }
+
+    private unregisterLightContainerPropertyChanged(lightContainer: LightController) {
+        lightContainer.unregisterOnPropertyChanged(this._elementId);
+    }
+
     protected override updated(changedProps: PropertyValues<HueLightDetail>): void {
         // register for changes on light
         if (changedProps.has('lightContainer')) {
             const oldValue = changedProps.get('lightContainer') as LightController | null;
             if (oldValue) {
-                oldValue.unregisterOnPropertyChanged(this._elementId);
+                this.unregisterLightContainerPropertyChanged(oldValue);
             }
             if (this.lightContainer) {
-                this.lightContainer.registerOnPropertyChanged(this._elementId, () => {
-                    this.onLightContainerState();
-                    this.requestUpdate();
-                }, /* includeHass: */ true);
+                this.registerLightContainerPropertyChanged(this.lightContainer);
                 this.onLightContainerChanged();
             }
         }
@@ -320,6 +328,10 @@ export class HueLightDetail extends IdLitElement {
     public override connectedCallback(): void {
         super.connectedCallback();
 
+        if (this.lightContainer) {
+            this.registerLightContainerPropertyChanged(this.lightContainer);
+        }
+
         this.updateComplete.then(() => {
             if (!this._colorPicker) {
                 this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
@@ -336,6 +348,14 @@ export class HueLightDetail extends IdLitElement {
                 this._brightnessRollup = <HueBrightnessRollup>this.renderRoot.querySelector('.brightness-rollup');
             }
         });
+    }
+
+    public override disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        if (this.lightContainer) {
+            this.unregisterLightContainerPropertyChanged(this.lightContainer);
+        }
     }
 
     private updateColorPickerSize(): void {
