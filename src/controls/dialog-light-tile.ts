@@ -220,4 +220,20 @@ export class HueDialogLightTile extends HueDialogTile {
         `;
         /*eslint-enable */
     }
+
+    public override connectedCallback(): void {
+        super.connectedCallback();
+
+        if (this.lightContainer) {
+            this.lightContainer.registerOnPropertyChanged(this._elementId, () => this.lightUpdated());
+        }
+    }
+
+    public override disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        if (this.lightContainer) {
+            this.lightContainer.unregisterOnPropertyChanged(this._elementId);
+        }
+    }
 }

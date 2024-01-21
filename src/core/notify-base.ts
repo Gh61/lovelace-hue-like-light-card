@@ -10,7 +10,7 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
     }
 
     /*
-     * TODO: Remove HueDialogTiles hanging registered, when dialog no longer exists.
+     * !!!!!
      * TODO: filter hass PropertyChanged?
      */
 
