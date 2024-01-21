@@ -188,7 +188,7 @@ export class HueLightDetail extends IdLitElement {
                 this.lightContainer.registerOnPropertyChanged(this._elementId, () => {
                     this.onLightContainerState();
                     this.requestUpdate();
-                });
+                }, /* includeHass: */ true);
                 this.onLightContainerChanged();
             }
         }

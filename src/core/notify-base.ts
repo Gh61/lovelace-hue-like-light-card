@@ -3,22 +3,26 @@ import { Action2 } from '../types/functions';
 import { INotifyGeneric } from '../types/types-interface';
 
 export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
-    private _propertyChangedCallbacks: Record<string, Action2<(keyof TThis)[], TThis>>;
+    private _propertyChangedCallbacks: Record<string, {
+        invoke: Action2<(keyof TThis)[], TThis>,
+        includeHass: boolean
+    }>;
 
     protected constructor() {
         this._propertyChangedCallbacks = {};
     }
 
-    /*
-     * !!!!!
-     * TODO: filter hass PropertyChanged?
-     */
-
     protected raisePropertyChanged(...propertyNames: (keyof TThis)[]): void {
-        this.log(`Firing ${this.constructor.name}.PropertyChanged changed [${propertyNames.join(', ')}].`);
+        const onlyHass = propertyNames.length == 1 && propertyNames[0] == 'hass';
+        this.log(`${this.constructor.name} changed [${propertyNames.join(', ')}] (onlyHass:${onlyHass})`);
+
         for (const callbackId in this._propertyChangedCallbacks) {
-            this.log(`Firing ${this.constructor.name}.PropertyChanged changed [${propertyNames.join(', ')}] for ${callbackId}.`);
-            this._propertyChangedCallbacks[callbackId](propertyNames, <TThis><unknown>this);
+            const handler = this._propertyChangedCallbacks[callbackId];
+
+            if (handler.includeHass || !onlyHass) {
+                this.log(`${this.constructor.name} changed [${propertyNames.join(', ')}] for ${callbackId}`);
+                handler.invoke(propertyNames, <TThis><unknown>this);
+            }
         }
     }
 
@@ -26,10 +30,14 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
      * Will register callback on property change events. 
      * @param id Id for this specific callback. If this id already exists, it's callback will be overwriten.
      * @param callback Action that will be called when any supported property if changed (takes propertyName as parameter).
+     * @param includeHass Specifies, whether change only in 'hass' property should be included (set to false to ignore).
      */
-    public registerOnPropertyChanged(id: string, callback: Action2<(keyof TThis)[], TThis>) {
-        this._propertyChangedCallbacks[id] = callback;
-        this.log(`Registered ${this.constructor.name}.PropertyChanged by control ID: '${id}'`);
+    public registerOnPropertyChanged(id: string, callback: Action2<(keyof TThis)[], TThis>, includeHass = false) {
+        this._propertyChangedCallbacks[id] = {
+            invoke: callback,
+            includeHass: includeHass
+        };
+        this.log(`Registered change of ${this.constructor.name} by control: '${id}' (includeHass:${includeHass})`);
     }
 
     /**
@@ -38,12 +46,12 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
      */
     public unregisterOnPropertyChanged(id: string) {
         delete this._propertyChangedCallbacks[id];
-        this.log(`Unregistered ${this.constructor.name}.PropertyChanged by control ID: '${id}'`);
+        this.log(`Unregistered change of ${this.constructor.name} for control: '${id}'`);
     }
 
     private log(message: string) {
         if (Consts.Dev) {
-            console.log(message);
+            console.log('[HueNotify] ' + message);
         }
     }
 }

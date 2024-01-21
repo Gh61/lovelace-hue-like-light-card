@@ -9,8 +9,9 @@ export interface INotify {
      * Will register callback on property change events. 
      * @param id Id for this specific callback. If this id already exists, it's callback will be overwriten.
      * @param callback Action that will be called when any supported property if changed (takes propertyName as parameter).
+     * @param includeHass Specifies, whether change only in 'hass' property should be included (set to false to ignore).
      */
-    registerOnPropertyChanged(id: string, callback: Action1<(string | number | symbol)[]>): void;
+    registerOnPropertyChanged(id: string, callback: Action1<(string | number | symbol)[]>, includeHass?: boolean): void;
 
     /**
      * Will unregister callback from property change events.
@@ -24,8 +25,9 @@ export interface INotifyGeneric<TThis> extends INotify {
      * Will register callback on property change events. 
      * @param id Id for this specific callback. If this id already exists, it's callback will be overwriten.
      * @param callback Action that will be called when any supported property if changed (takes propertyName as parameter).
+     * @param includeHass Specifies, whether change only in 'hass' property should be included (set to false to ignore).
      */
-    registerOnPropertyChanged(id: string, callback: Action2<(keyof TThis)[], TThis>): void;
+    registerOnPropertyChanged(id: string, callback: Action2<(keyof TThis)[], TThis>, includeHass?: boolean): void;
 }
 
 export interface IHassTextTemplate {

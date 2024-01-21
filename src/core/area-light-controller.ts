@@ -60,8 +60,8 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
     /**
      * Will register for light changed events.
      */
-    public registerOnPropertyChanged(id: string, callback: Action2<(keyof LightController)[], LightController>): void {
-        this._lights.forEach(l => l.registerOnPropertyChanged(id, callback));
+    public registerOnPropertyChanged(id: string, callback: Action2<(keyof LightController)[], LightController>, includeHass = false): void {
+        this._lights.forEach(l => l.registerOnPropertyChanged(id, callback, includeHass));
     }
 
     /**

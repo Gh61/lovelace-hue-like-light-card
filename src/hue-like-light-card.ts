@@ -382,7 +382,6 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     private onChangeHandler = () => this.onChangeCallback();
     private onChangeCallback() {
-        console.log(this._elementId + ' Requesting update');
         this.requestUpdate();
         this.updateStylesInner();
     }
@@ -443,14 +442,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     private setupListeners() {
         if (!this._ctrlListenerRegistered && this._ctrl) {
             this._ctrlListenerRegistered = true;
-            this._ctrl.registerOnPropertyChanged(this._elementId, (props) => {
-                if (props[0] == 'hass' && props.length == 1) {
-                    // ignore
-                }
-                else {
-                    this.onChangeCallback();
-                }
-            });
+            this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler);
         }
 
         const tapArea = this.renderRoot.querySelector('.tap-area');

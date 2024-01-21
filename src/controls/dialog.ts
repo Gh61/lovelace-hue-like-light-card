@@ -50,17 +50,6 @@ export class HueDialog extends IdLitElement {
         this._actionHandler = actionHandler;
     }
 
-    //#region Hass changes
-
-    private onLightControllerChanged(propertyNames: (keyof LightController)[]) {
-        // when LightController changed - update this
-        if (propertyNames.includes('hass')) {
-            this.requestUpdate();
-        }
-    }
-
-    //#endregion
-
     //#region Tile interactions
 
     // lightDetail as history step
@@ -209,8 +198,8 @@ export class HueDialog extends IdLitElement {
             document.body.appendChild(this);
         }
 
-        // register update delegate
-        this._ctrl.registerOnPropertyChanged(this._elementId, (p) => this.onLightControllerChanged(p));
+        // register update delegate (include hass - we need to update the dialog)
+        this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler, /* includeHass: */ true);
     }
 
     public close(): void {
@@ -608,6 +597,12 @@ export class HueDialog extends IdLitElement {
         }
     }
 
+    private onChangeHandler = () => this.onChangeCallback();
+    private onChangeCallback() {
+        this.requestUpdate();
+        this.updateStylesInner(false);
+    }
+
     protected override render() {
         this._isRendered = true;
 
@@ -615,11 +610,6 @@ export class HueDialog extends IdLitElement {
 
         const cardTitle = this._config.getTitle(this._ctrl).resolveToString(this._ctrl.hass);
         const mdiClose = 'mdi:close';
-
-        const onChangeCallback = () => {
-            this.requestUpdate();
-            this.updateStylesInner(false);
-        };
 
         /*eslint-disable */
         return html`
@@ -648,9 +638,9 @@ export class HueDialog extends IdLitElement {
               ${cardTitle}
             </div>
             <div slot="actionItems">
-              ${ViewUtils.createSwitch(this._ctrl, onChangeCallback, this._config.switchOnScene)}
+              ${ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene)}
             </div>
-            ${ViewUtils.createSlider(this._ctrl, this._config, onChangeCallback)}
+            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}
           </ha-dialog-header>
           <div class="${classMap({
             'content': true,
