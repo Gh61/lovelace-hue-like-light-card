@@ -1,6 +1,6 @@
 import { HueLikeLightCard } from '../hue-like-light-card';
 import { Consts } from '../types/consts';
-import { IApiRouter } from '../types/types-api';
+import { CreateApiMethodName, IApiRouter } from '../types/types-api';
 import { IHassWindow } from '../types/types-hass';
 
 const logMessage = (message: string) => {
@@ -33,6 +33,7 @@ export class HueApiProvider {
         }
 
         HueApiProvider._registeredCards[apiId] = card;
+        HueApiProvider.registerRouterMethods(apiId);
 
         logMessage(`Registered '${apiId}'`);
         HueApiProvider.publishRouter();
@@ -44,6 +45,7 @@ export class HueApiProvider {
      */
     public static unregisterCard(apiId: string) {
         delete HueApiProvider._registeredCards[apiId];
+        HueApiProvider.unregisterRouterMethods(apiId);
 
         logMessage(`Unregistered '${apiId}'`);
     }
@@ -58,5 +60,22 @@ export class HueApiProvider {
             w[Consts.ApiProviderName] = HueApiProvider._router;
             logMessage('Router published to window.' + Consts.ApiProviderName);
         }
+    }
+
+    private static registerRouterMethods(apiId: string) {
+        HueApiProvider._router[CreateApiMethodName(apiId, '_openHueScreen')] = () => HueApiProvider.openHueScreen(apiId);
+    }
+
+    private static unregisterRouterMethods(apiId: string) {
+        delete HueApiProvider._router[CreateApiMethodName(apiId, '_openHueScreen')];
+    }
+
+    private static openHueScreen(apiId: string) {
+        const card = HueApiProvider._registeredCards[apiId];
+        if (!card) {
+            throw new Error(`[HueApiProvider] Card with API ID ${apiId} not found`);
+        }
+
+        card.api().openHueScreen();
     }
 }

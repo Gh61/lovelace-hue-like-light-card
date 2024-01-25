@@ -20,6 +20,11 @@ export class ActionHandler {
         fireEvent(this._owner, 'hass-more-info', { entityId: entityId });
     }
 
+    public openHueScreen(): void {
+        const dialog = new HueDialog(this._config, this._ctrl, this);
+        dialog.show();
+    }
+
     public handleCardClick(): void {
         const isOn = this._ctrl.isOn();
         let action = isOn ? this._config.onClickAction : this._config.offClickAction;
@@ -86,8 +91,7 @@ export class ActionHandler {
 
                 break;
             case ClickAction.HueScreen:
-                const dialog = new HueDialog(this._config, this._ctrl, this);
-                dialog.show();
+                this.openHueScreen();
                 break;
 
             case ClickAction.Default:

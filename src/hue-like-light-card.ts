@@ -18,6 +18,8 @@ import { VersionNotifier } from './version-notifier';
 import { Manager, Press, Tap } from '@egjs/hammerjs';
 import { PreventGhostClick } from './types/prevent-ghostclick';
 import { IdLitElement } from './core/id-lit-element';
+import { HueApiProvider } from './core/api-provider';
+import { ICardApi } from './types/types-api';
 
 // Show version info in console
 VersionNotifier.toConsole();
@@ -432,11 +434,15 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         this.updateStylesInner();
         // Listeners
         this.setupListeners();
+        // API
+        HueApiProvider.registerCard(this._elementId, this);
     }
 
     public override disconnectedCallback(): void {
         super.disconnectedCallback();
         this.destroyListeners();
+        // API
+        HueApiProvider.unregisterCard(this._elementId);
     }
 
     private setupListeners() {
@@ -474,4 +480,13 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             this._gc = undefined;
         }
     }
+
+    /**
+     * @returns Public API object
+     */
+    public api(): ICardApi {
+        return {
+            openHueScreen: () => this._actionHandler?.openHueScreen()
+        };
+    } 
 }

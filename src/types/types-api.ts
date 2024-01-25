@@ -1,11 +1,24 @@
 import { Action } from './functions';
 
-type OpenHueScreenMethodName = `${string}_openHueScreen`;
+export type ApiMethodPostFix =
+    '_openHueScreen' |
+    '_test';
+export type ApiMethodName = `${string}${ApiMethodPostFix}`;
+export const CreateApiMethodName = (apiId: string, method: ApiMethodPostFix) => {
+    return <ApiMethodName>(apiId + method);
+};
 
 /**
  * Defines API interface in JS for controling registered cards over API.
  */
 export interface IApiRouter {
     version: string,
-    [key: OpenHueScreenMethodName]: Action,
+    [key: ApiMethodName]: Action,
+}
+
+/**
+ * Defines interface for card (API object) to fulfill.
+ */
+export interface ICardApi {
+    openHueScreen(): void;
 }
