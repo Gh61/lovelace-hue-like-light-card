@@ -24,7 +24,13 @@
         "linebreak-style": ["error", "unix"],
         "@typescript-eslint/indent": ["error", 4],
         "@typescript-eslint/comma-dangle": ["error", "never"],
-        "no-underscore-dangle": ["error", { "allowAfterThis": true }],
+        // is not working very well, replace soon with https://typescript-eslint.io/rules/naming-convention/
+        "no-underscore-dangle": ["error", {
+            "allow": ["_containers", "_args", "_instance", "_isMouseDown", "_router", "__provider" ], // allow static members, private (field) getters
+            "allowAfterThis": true,
+            "enforceInMethodNames": true,
+            "allowFunctionParams": false
+        }],
         "@typescript-eslint/no-unused-expressions": ["error", { "allowShortCircuit":true }],
         "@typescript-eslint/lines-between-class-members": "off",
         "@typescript-eslint/keyword-spacing": ["error", {"overrides": { "this": { "before": false }}}],
@@ -34,6 +40,19 @@
         "react/jsx-filename-extension": "off",
         "import/extensions": "off",
         "import/no-extraneous-dependencies": "off",
+
+        // allow private empty ctor
+        "@typescript-eslint/no-empty-function": [
+            "error",
+            {
+                "allow": [
+                    "functions",
+                    "methods",
+                    "private-constructors",
+                    "protected-constructors"
+                ]
+            }
+        ],
 
         // unused variables for interface
         "@typescript-eslint/no-unused-vars": [

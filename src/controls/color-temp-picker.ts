@@ -136,8 +136,8 @@ export class HueColorTempPicker extends LitElement {
         this._isRendered = true;
     }
 
-    protected override updated(_changedProperties: PropertyValues<HueColorTempPicker>): void {
-        if (_changedProperties.has('mode') && _changedProperties.get('mode')) {
+    protected override updated(changedProperties: PropertyValues<HueColorTempPicker>): void {
+        if (changedProperties.has('mode') && changedProperties.get('mode')) {
             this.drawWheel();
         }
     }

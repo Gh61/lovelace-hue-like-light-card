@@ -74,7 +74,7 @@ export class StaticTextTemplate implements IHassTextTemplate {
         this._text = text;
     }
 
-    public resolveToString(_hass: HomeAssistant | null = null): string {
+    public resolveToString(): string {
         return this._text;
     }
 

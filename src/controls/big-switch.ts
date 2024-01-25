@@ -55,7 +55,7 @@ export class HueBigSwitch extends LitElement {
         }
     }
 
-    private _toggle() {
+    private toggle() {
         if (this.disabled) return;
         this.checked = !this.checked;
         fireEvent(this, 'change');
@@ -116,9 +116,9 @@ export class HueBigSwitch extends LitElement {
 
             this._mc.on('singletap', () => {
                 if (this.disabled) return;
-                this._toggle();
+                this.toggle();
             });
-            this.addEventListener('keydown', this._keydown);
+            this.addEventListener('keydown', this.onKeydown);
         }
     }
 
@@ -127,15 +127,15 @@ export class HueBigSwitch extends LitElement {
             this._mc.destroy();
             this._mc = undefined;
         }
-        this.removeEventListener('keydown', this._keydown);
+        this.removeEventListener('keydown', this.onKeydown);
     }
 
-    private _keydown(ev: KeyboardEvent) {
+    private onKeydown(ev: KeyboardEvent) {
         if (ev.key !== 'Enter' && ev.key !== ' ') {
             return;
         }
         ev.preventDefault();
-        this._toggle();
+        this.toggle();
     }
 
     protected override render(): TemplateResult {
