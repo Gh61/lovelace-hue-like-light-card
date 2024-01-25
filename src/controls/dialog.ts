@@ -448,7 +448,7 @@ export class HueDialog extends IdLitElement {
         .detail-active .tile-scroller.light-tiles{
             position: absolute;
             bottom: 30px;
-            width: calc(100% - ${2 * this.haPadding}px);
+            width: calc(100% - ${2 * HueDialog.haPadding}px);
         }
     }
     `];

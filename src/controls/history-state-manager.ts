@@ -286,7 +286,7 @@ export class HueHistoryStateManager {
 
     private static _instance: HueHistoryStateManager;
     public static get instance(): HueHistoryStateManager {
-        return this._instance || (this._instance = new this());
+        return HueHistoryStateManager._instance || (HueHistoryStateManager._instance = new HueHistoryStateManager());
     }
 
     //#endregion

@@ -87,7 +87,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         if (!plain)
             return SliderType.Default;
 
-        return this.tryParseEnum<SliderType>(SliderType, plain, 'Slider type');
+        return HueLikeLightCardConfig.tryParseEnum<SliderType>(SliderType, plain, 'Slider type');
     }
 
     /**
@@ -97,7 +97,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         if (!plain)
             return ClickAction.Default;
 
-        return this.tryParseEnum<ClickAction>(ClickAction, plain, 'Click action');
+        return HueLikeLightCardConfig.tryParseEnum<ClickAction>(ClickAction, plain, 'Click action');
     }
 
     /**
@@ -112,7 +112,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         }
 
         plain = plain.toString().toLowerCase();
-        const iconSize = this.tryParseEnum<KnownIconSize>(KnownIconSize, plain, 'Icon size');
+        const iconSize = HueLikeLightCardConfig.tryParseEnum<KnownIconSize>(KnownIconSize, plain, 'Icon size');
         return Consts.IconSize[iconSize];
     }
 
@@ -123,7 +123,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         if (!plain)
             return SceneOrder.Default;
 
-        return this.tryParseEnum<SceneOrder>(SceneOrder, plain, 'Scene order');
+        return HueLikeLightCardConfig.tryParseEnum<SceneOrder>(SceneOrder, plain, 'Scene order');
     }
 
     private static tryParseEnum<T>(enumType: Record<string, T>, plain: string, name: string) {

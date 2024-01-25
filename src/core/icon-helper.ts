@@ -15,16 +15,16 @@ export class IconHelper {
         let lightIcon: string;
 
         if (lightCount <= 1) {
-            lightIcon = hasHueIcons ? this.HueOneIcon : this.DefaultOneIcon;
+            lightIcon = hasHueIcons ? IconHelper.HueOneIcon : IconHelper.DefaultOneIcon;
         }
         else if (lightCount <= 2) {
-            lightIcon = hasHueIcons ? this.HueTwoIcon : this.DefaultTwoIcon;
+            lightIcon = hasHueIcons ? IconHelper.HueTwoIcon : IconHelper.DefaultTwoIcon;
         }
         else if (lightCount <= 3) {
-            lightIcon = hasHueIcons ? this.HueThreeIcon : this.DefaultMoreIcon;
+            lightIcon = hasHueIcons ? IconHelper.HueThreeIcon : IconHelper.DefaultMoreIcon;
         }
         else {
-            lightIcon = hasHueIcons ? this.HueMoreIcon : this.DefaultMoreIcon;
+            lightIcon = hasHueIcons ? IconHelper.HueMoreIcon : IconHelper.DefaultMoreIcon;
         }
 
         return lightIcon;

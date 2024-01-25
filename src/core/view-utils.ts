@@ -28,7 +28,7 @@ export class ViewUtils {
             .disabled=${ctrl.isUnavailable()}
             .haptic=true
             style=${styleMap(styles)}
-            @change=${(ev: Event) => this.changed(ev, false, ctrl, onChange, switchOnScene)}
+            @change=${(ev: Event) => ViewUtils.changed(ev, false, ctrl, onChange, switchOnScene)}
         ></ha-switch>`;
     }
 
@@ -56,7 +56,7 @@ export class ViewUtils {
                     .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()}
                     .value=${ctrl.brightnessValue}
                     .showActive=${true}
-                    @change=${(ev: Event) => this.changed(ev, true, ctrl, onChange)}
+                    @change=${(ev: Event) => ViewUtils.changed(ev, true, ctrl, onChange)}
                 />`;
 
             // @current-change=${this.onCurrentChange}
@@ -70,7 +70,7 @@ export class ViewUtils {
             .step=${step}
             .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()}
             .value=${ctrl.brightnessValue}
-            @change=${(ev: Event) => this.changed(ev, true, ctrl, onChange)}
+            @change=${(ev: Event) => ViewUtils.changed(ev, true, ctrl, onChange)}
         ></ha-slider>`;
     }
 
@@ -119,7 +119,7 @@ export class ViewUtils {
             foreground = null;
         }
         else {
-            const fgx = this.calculateForeground(ctrl, currentBackground, assumeShadow);
+            const fgx = ViewUtils.calculateForeground(ctrl, currentBackground, assumeShadow);
             foreground = fgx.foreground;
         }
 

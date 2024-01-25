@@ -21,7 +21,7 @@ class HueColorWheelCache {
     private static readonly version = 2;
 
     public static saveWheel(mode: HueColorTempPickerMode, radius: number, tempMin: number, tempMax: number, canvas: HTMLCanvasElement) {
-        const key = this.createKey(mode, radius, tempMin, tempMax);
+        const key = HueColorWheelCache.createKey(mode, radius, tempMin, tempMax);
         const dataUrl = canvas.toDataURL(); // we're using dataUrl, because in raw format, the image exceeds localStorage size limit
         try {
             localStorage.setItem(key, dataUrl);
@@ -32,7 +32,7 @@ class HueColorWheelCache {
     }
 
     public static tryGetWheel(mode: HueColorTempPickerMode, radius: number, tempMin: number, tempMax: number) {
-        const key = this.createKey(mode, radius, tempMin, tempMax);
+        const key = HueColorWheelCache.createKey(mode, radius, tempMin, tempMax);
         try {
             const dataUrl = localStorage.getItem(key) || null;
             if (dataUrl) {
@@ -58,7 +58,7 @@ class HueColorWheelCache {
             modeString += `(${tempMin}-${tempMax})`;
         }
 
-        return `HueColorWheelCache_${modeString}${radius}x${radius}v${this.version}`;
+        return `HueColorWheelCache_${modeString}${radius}x${radius}v${HueColorWheelCache.version}`;
     }
 }
 
@@ -972,7 +972,7 @@ export class HueColorTempPickerMarker {
             'path'
         );
         i.setAttribute('class', 'icon');
-        i.setAttribute('d', this.defaultIcon);
+        i.setAttribute('d', HueColorTempPickerMarker.defaultIcon);
 
         g.appendChild(m);
         g.appendChild(i);

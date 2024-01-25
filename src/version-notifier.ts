@@ -11,7 +11,7 @@ export class VersionNotifier {
             new Color('#FF8B00')
         ];
 
-        const textInfo = this.getText();
+        const textInfo = VersionNotifier.getText();
         const consoleColors = new Array<Color>();
         const segmentSteps = Math.floor(textInfo.colorCount / (stopColors.length - 1));
 
@@ -19,7 +19,7 @@ export class VersionNotifier {
             const color1 = stopColors[i];
             const color2 = stopColors[i + 1];
 
-            const segmentGradient = this.generateGradientArray(color1, color2, segmentSteps);
+            const segmentGradient = VersionNotifier.generateGradientArray(color1, color2, segmentSteps);
             consoleColors.push(...segmentGradient);
         }
 
@@ -53,7 +53,7 @@ export class VersionNotifier {
         const gradientArray = [];
         for (let i = 0; i < steps; i++) {
             const factor = i / steps;
-            gradientArray.push(this.interpolateColor(color1, color2, factor));
+            gradientArray.push(VersionNotifier.interpolateColor(color1, color2, factor));
         }
         return gradientArray;
     }
