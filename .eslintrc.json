@@ -43,6 +43,12 @@
             }
         ],
 
+        // no this. in static calls
+        "no-restricted-syntax": ["error", {
+            "selector": "MethodDefinition[static = true] ThisExpression",
+            "message": "this.member is prohibited for static members. Only ClassName.member is allowed."
+        }],
+
         "@typescript-eslint/no-use-before-define": ["error", {
             "functions": true,
             "classes": false, // Allow use of classes defined under
