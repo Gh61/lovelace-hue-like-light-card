@@ -1,6 +1,7 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity, HassEntityAttributeBase } from 'home-assistant-js-websocket';
 import { LitElement } from 'lit';
+import { IApiRouter } from './types-api';
 
 export class HassCustomCardInfo {
     public type: string;
@@ -11,6 +12,8 @@ export class HassCustomCardInfo {
 export interface IHassWindow extends Window {
     customCards?: HassCustomCardInfo[];
     customIcons?: Record<string, object>;
+    hue_card?: IApiRouter;
+    hue_card_test?: IApiRouter;
 }
 
 export interface HassLightAttributes extends HassEntityAttributeBase {

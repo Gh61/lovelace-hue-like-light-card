@@ -26,7 +26,7 @@
         "@typescript-eslint/comma-dangle": ["error", "never"],
         // is not working very well, replace soon with https://typescript-eslint.io/rules/naming-convention/
         "no-underscore-dangle": ["error", {
-            "allow": ["_containers", "_args", "_instance", "_isMouseDown", "_router", "__provider" ], // allow static members, private (field) getters
+            "allow": ["_containers", "_args", "_instance", "_isMouseDown", "_router", "_registeredCards" ], // allow static members, private (field) getters
             "allowAfterThis": true,
             "enforceInMethodNames": true,
             "allowFunctionParams": false

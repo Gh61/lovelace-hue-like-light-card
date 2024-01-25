@@ -4,8 +4,10 @@ import { KnownIconSize } from './types-config';
 export class Consts {
     public static readonly Version = 'v1.6.1';
     public static readonly Dev = true;
-    public static readonly CardElementName = Consts.Dev ? 'hue-like-light-card-test' : 'hue-like-light-card';
     public static readonly ElementPostfix = Consts.Dev ? '-test' : '';
+    public static readonly CardElementName = 'hue-like-light-card' + Consts.ElementPostfix;
+    public static readonly ApiProviderName = Consts.Dev ? 'hue_card_test' : 'hue_card';
+
     public static readonly CardName = 'Hue-Like Light Card' + (Consts.Dev ? ' [TEST]' : '');
     public static readonly CardDescription = 'Hue-like way to control your lights' + (Consts.Dev ? ' [TEST]' : '');
 
