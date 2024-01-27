@@ -1,4 +1,4 @@
-import { Consts } from "../types/consts";
+import { Consts } from '../types/consts';
 
 /*
  * This class will monitor changes in window.history.state by overriding pushState and replaceState methods.
@@ -27,6 +27,6 @@ export class LocationStateTracker {
         };
 
         if (Consts.Dev)
-            console.log("[LocationStateTracker] History overriden")
+            console.log('[LocationStateTracker] History overriden');
     }
 }

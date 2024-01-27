@@ -12,8 +12,9 @@ export const CreateApiMethodName = (apiId: string, method: ApiMethodPostFix) => 
  * Defines API interface in JS for controling registered cards over API.
  */
 export interface IApiWrapper {
-    version: string,
-    [key: ApiMethodName]: Action,
+    version: string;
+    [key: ApiMethodName]: Action;
+    [index: string]: Action | string | undefined;
 }
 
 /**

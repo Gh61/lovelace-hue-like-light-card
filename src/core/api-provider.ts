@@ -58,8 +58,41 @@ export class HueApiProvider {
         if (location.hash == HueApiProvider._lastHash)
             return;
 
-        logMessage(`Hash changed (${location.hash} != ${HueApiProvider._lastHash})!`);
+        // first save the new value, then call the handler
         HueApiProvider._lastHash = location.hash;
+        HueApiProvider.onHashChanged(location.hash);
+    }
+
+    private static onHashChanged(hash: string, retry = 0) {
+        // we only react to '#hue_card:' prefixed hash
+        if (hash.indexOf('#' + Consts.ApiProviderName + ':') != 0)
+            return;
+
+        const methodName = hash.substring(Consts.ApiProviderName.length + 2);
+        const method = HueApiProvider._wrapper[methodName];
+        if (typeof method === 'function') {
+            logMessage('Hash - Calling API function ' + methodName);
+
+            // call the method 'async', because some other events can be running, rendering must not be completely alright
+            setTimeout(() => {
+                method();
+            }, 10);
+
+            // API method called, clean the history hash
+            if (location.hash == hash) {
+                // if not changed in the meantime
+                location.hash = '';
+            }
+        }
+        else {
+            // retry logic for when all cards are not registered
+            if (retry < 5) {
+                setTimeout(() => HueApiProvider.onHashChanged(hash, retry + 1), 50);
+            }
+            else {
+                console.error(`[HueApiProvider] API function named ${methodName} was NOT found on API object window.${Consts.ApiProviderName}`);
+            }
+        }
     }
 
     /**
@@ -82,7 +115,7 @@ export class HueApiProvider {
             window.addEventListener('pushstate', HueApiProvider.onLocationChanged);
             window.addEventListener('replacestate', HueApiProvider.onLocationChanged);
             logMessage('Registered for hash changes');
-            
+
             HueApiProvider.onLocationChanged(); // initial read
         }
     }
