@@ -1,7 +1,7 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity, HassEntityAttributeBase } from 'home-assistant-js-websocket';
 import { LitElement } from 'lit';
-import { IApiRouter } from './types-api';
+import { IApiWrapper } from './types-api';
 
 export class HassCustomCardInfo {
     public type: string;
@@ -9,11 +9,22 @@ export class HassCustomCardInfo {
     public description: string;
 }
 
+interface HassWindowEventMap extends WindowEventMap {
+    'pushstate': Event,
+    'replacestate': Event
+}
+
 export interface IHassWindow extends Window {
     customCards?: HassCustomCardInfo[];
     customIcons?: Record<string, object>;
-    hue_card?: IApiRouter;
-    hue_card_test?: IApiRouter;
+    hue_card?: IApiWrapper;
+    hue_card_test?: IApiWrapper;
+
+    // custom window events
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    addEventListener<K extends keyof HassWindowEventMap>(type: K, listener: (this: Window, ev: HassWindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    removeEventListener<K extends keyof HassWindowEventMap>(type: K, listener: (this: Window, ev: HassWindowEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
 }
 
 export interface HassLightAttributes extends HassEntityAttributeBase {
