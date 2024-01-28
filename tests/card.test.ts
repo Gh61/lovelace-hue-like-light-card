@@ -1,10 +1,12 @@
 import { HueLikeLightCard } from '../src/hue-like-light-card';
+import { Consts } from '../src/types/consts';
 import { hassMockup } from './mockup-hass-states';
 
 describe('Card', () => {
     it('creates card instance, config first', () => {
         const card = new HueLikeLightCard();
         card.setConfig({
+            type: 'custom:' + Consts.CardElementName,
             entity: 'light.test'
         });
         card.hass = hassMockup;
@@ -14,6 +16,7 @@ describe('Card', () => {
         const card = new HueLikeLightCard();
         card.hass = hassMockup;
         card.setConfig({
+            type: 'custom:' + Consts.CardElementName,
             entity: 'light.test'
         });
     });
@@ -22,6 +25,7 @@ describe('Card', () => {
         const s = '*{color:white}';
         const card = new HueLikeLightCard();
         card.setConfig({
+            type: 'custom:' + Consts.CardElementName,
             entity: 'light.test',
             style: '*{color:white}'
         });
@@ -34,6 +38,7 @@ describe('Card', () => {
         const s = { style: '*{color:white}' };
         const card = new HueLikeLightCard();
         card.setConfig({
+            type: 'custom:' + Consts.CardElementName,
             entity: 'light.test',
             card_mod: s
         });
