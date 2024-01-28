@@ -189,7 +189,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             return 'editor';
         }
 
-        return 'inplace'
+        return 'inplace';
     }
 
     // The height of your card. Home Assistant uses this to automatically
