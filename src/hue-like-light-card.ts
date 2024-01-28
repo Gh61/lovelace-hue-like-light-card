@@ -42,6 +42,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     private _error?: ErrorInfo;
     private _mc?: HammerManager;
     private _gc?: PreventGhostClick;
+    private _apiUnregister?: Action;
 
     public constructor() {
         super('HueLikeLightCard');
@@ -170,6 +171,25 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         if (this._ctrl) {
             this._ctrl.hass = this.hass;
         }
+    }
+
+    /*
+     * Gets or sets whether the card is in edit mode (in place editor or dialog editor). 
+     */
+    public editMode?: boolean;
+
+    /**
+     * Returns actual edit mode of the card.
+     */
+    private getEditMode() {
+        if (!this.editMode)
+            return null;
+
+        if (this.parentElement?.tagName.toLowerCase() == 'hui-card-preview') {
+            return 'editor';
+        }
+
+        return 'inplace'
     }
 
     // The height of your card. Home Assistant uses this to automatically
@@ -396,7 +416,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         }
 
         // no config, ctrl or hass
-        if (!this._config || !this._ctrl || !this._hass)
+        if (!this._config || !this._ctrl || !this._hass || this._config.isHidden)
             return nothing;
 
         const titleTemplate = this._config.getTitle(this._ctrl);
@@ -434,15 +454,11 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         this.updateStylesInner();
         // Listeners
         this.setupListeners();
-        // API
-        HueApiProvider.registerCard(this._elementId, this);
     }
 
     public override disconnectedCallback(): void {
         super.disconnectedCallback();
         this.destroyListeners();
-        // API
-        HueApiProvider.unregisterCard(this._elementId);
     }
 
     private setupListeners() {
@@ -464,6 +480,11 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             });
             this._gc = new PreventGhostClick(tapArea);
         }
+
+        // API
+        if (this._config?.apiId && !this._apiUnregister && this.getEditMode() != 'editor') {
+            this._apiUnregister = HueApiProvider.registerCard(this._config.apiId, this);
+        }
     }
 
     private destroyListeners() {
@@ -479,6 +500,11 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             this._gc.destroy();
             this._gc = undefined;
         }
+        // API
+        if (this._apiUnregister) {
+            this._apiUnregister();
+            this._apiUnregister = undefined;
+        }
     }
 
     /**
@@ -488,5 +514,5 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         return {
             openHueScreen: () => this._actionHandler?.openHueScreen()
         };
-    } 
+    }
 }

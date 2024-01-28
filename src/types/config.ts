@@ -56,6 +56,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.hueScreenBgColor = plainConfig.hueScreenBgColor || Consts.DialogBgColor;
         this.offShadow = HueLikeLightCardConfig.getBoolean(plainConfig.offShadow, true);
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
+        this.apiId = plainConfig.apiId;
+        this.isHidden = HueLikeLightCardConfig.getBoolean(plainConfig.isHidden, this.apiId ? true : false);
 
         this.style = plainConfig.style;
         this.card_mod = plainConfig.card_mod;
@@ -218,6 +220,8 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly hueScreenBgColor: string;
     public readonly offShadow: boolean;
     public readonly hueBorders: boolean;
+    public readonly apiId?: string;
+    public readonly isHidden: boolean;
 
     /** Support for card-mod styling */
     public readonly style?: unknown;

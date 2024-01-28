@@ -1,5 +1,6 @@
 import { HueLikeLightCard } from '../hue-like-light-card';
 import { Consts } from '../types/consts';
+import { Action } from '../types/functions';
 import { CreateApiMethodName, IApiWrapper } from '../types/types-api';
 import { IHassWindow } from '../types/types-hass';
 import { LocationStateTracker } from './location-state-tracker';
@@ -27,7 +28,7 @@ export class HueApiProvider {
      * @param apiId Id of the card, to identify it in the API
      * @param card The card instance itself
      */
-    public static registerCard(apiId: string, card: HueLikeLightCard) {
+    public static registerCard(apiId: string, card: HueLikeLightCard) : Action {
         const existingCard = HueApiProvider._registeredCards[apiId];
         if (existingCard && existingCard.isConnected) {
             throw new Error(`Card with ID '${apiId}' already registered!`);
@@ -38,6 +39,8 @@ export class HueApiProvider {
 
         logMessage(`Registered '${apiId}'`);
         HueApiProvider.publishWrapper();
+
+        return () => HueApiProvider.unregisterCard(apiId);
     }
 
     /**
