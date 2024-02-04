@@ -609,7 +609,7 @@ apiId: room1
 *This will hide the card on the dashboard. If you want to card to be shown, add `isHidden: false` to settings.*
 
 ### Javascript usage
-When any card on the dashboard has `apiId` filled in, global object named `hue_card` will be available on `window` object.
+When any card on the dashboard has `apiId` filled in, global object named `hue_card` will be available on `window` object.<br/>
 ![Api-object](/doc/api-object.png)
 <br/>
 There will be API functions for every card, that has `apiId` defined. Functions are named `{apiId}_functionName`.
