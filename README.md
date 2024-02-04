@@ -244,10 +244,27 @@ Some of these options may not be in the latest version. Please always check the 
     <td>If turned off, the card will take border settings from current Home Assistant theme.</td>
   </tr>
   <tr>
+    <td><code>apiId</code></td>
+    <td>string</td>
+    <td>no</td>
+    <td>1.7.0</td>
+    <td>-</td>
+    <td>Identifier of the card for the <a href="#api-interface">API interface</a>.</td>
+  </tr>
+  <tr>
+    <td><code>isHidden</code></td>
+    <td>boolean</td>
+    <td>no</td>
+    <td>1.7.0</td>
+    <td><code>true</code> if <i><code>apiId</code></i> is set<br/>
+    Otherwise <code>false</code></td>
+    <td>If turned off, the card will be visible even if API functions are active.</td>
+  </tr>
+  <tr>
     <td><s><code>resources</code></s></td>
     <td>Resources object</td>
     <td>no</td>
-    <td><i>removed in 1.5.0<i><br/></td>
+    <td><i>removed in 1.5.0<i></td>
     <td>-</td>
     <td><s>Can change (localize) texts on this card</s><br/><i>Replaced with integrated localization.</i></td>
   </tr>
@@ -578,6 +595,62 @@ type: custom:hue-like-light-card
 offClickAction: scene
 offClickData:
   scene: scene.tv_citron
+```
+
+## API interface
+*Since version 1.7.0*
+
+You can enable the API functions of certain card by passing the `apiId` identifier in the settings. The identifier can be any string you want (although there could be issues with special characters).
+```yaml
+type: custom:hue-like-light-card
+...
+apiId: room1
+```
+*This will hide the card on the dashboard. If you want to card to be shown, add `isHidden: false` to settings.*
+
+### Javascript usage
+When any card on the dashboard has `apiId` filled in, global object named `hue_card` will be available on `window` object.
+![Api-object](/doc/api-object.png)
+<br/>
+There will be API functions for every card, that has `apiId` defined. Functions are named `{apiId}_functionName`.
+#### Available functions
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Since</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>{apiId}_openHueScreen</code></td>
+    <td>1.7.0</td>
+    <td>Will open <a href="#hue-screen">Hue Screen</a> of the identified card</td>
+  </tr>
+</table>
+
+### URL usage
+The API functions can be called by setting the hash part of the current URL. The URL must be in this format:
+
+```
+{anything}#hue_card:{apiId}_{functionName}
+```
+For example:
+```
+https://10.0.0.1:8123/lovelace/lights#hue_card:room1_openHueScreen
+```
+When the URL is correctly set, the API will make the call (in this example to `hue_card.room1_openHueScreen()` which will open the hue screen).
+The URL will be then set back to non-hash version (eg. `https://10.0.0.1:8123/lovelace/lights`).
+
+*This is achieved by monitoring the hash part of the current URL and checking for `#hue_card:` prefix.*
+
+This way you can create link, leading to certain lovelace dashboard page and instantly opening Hue Screen for one of your hue-cards.
+You can also create navigate action from other card. The click will then result in opening the Hue Screen:
+
+```yaml
+type: custom:mushroom-light-card
+entity: light.living_room
+tap_action:
+  action: navigate
+  navigation_path: '#hue_card:room1_openHueScreen'
 ```
 
 ## Scenes configuration
