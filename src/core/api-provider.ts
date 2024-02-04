@@ -84,7 +84,8 @@ export class HueApiProvider {
             // API method called, clean the history hash
             if (location.hash == hash) {
                 // if not changed in the meantime
-                location.hash = '';
+                //location.hash = '';
+                history.replaceState(history.state, '', location.pathname + location.search);
             }
         }
         else {
