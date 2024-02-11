@@ -126,6 +126,7 @@ export class HueColorTempPicker extends LitElement {
     private _backgroundLayer: HTMLCanvasElement;
     private _interactionLayer: SVGElement;
     private _markers = new Array<HueColorTempPickerMarker>();
+    private _activeMarker: HueColorTempPickerMarker;
 
     protected override firstUpdated(changedProps: PropertyValues) {
         super.firstUpdated(changedProps);
@@ -155,6 +156,10 @@ export class HueColorTempPicker extends LitElement {
         this._backgroundLayer.height = HueColorTempPicker.renderWidthHeight;
     }
 
+    public get activeMarker() {
+        return this._activeMarker;
+    }
+
     /**
      * Will add new marker to rendering.
      * @returns Reference to the marker (so you can set icon, color, temp, etc. and also get events when something changes)
@@ -162,8 +167,24 @@ export class HueColorTempPicker extends LitElement {
     public addMarker(name?: string): HueColorTempPickerMarker {
         const m = new HueColorTempPickerMarker(this, name);
         this._markers.push(m);
+        this.activateMarker(m, false);
         this.requestUpdate('_markers');
         return m;
+    }
+
+    /**
+     * Will activate given marker and deactivate all the other markers.
+     * @param marker Reference to the marker, that should be activated.
+     */
+    public activateMarker(marker: HueColorTempPickerMarker, doBoing = true) {
+        const oldMarker = this.activeMarker;
+        this._activeMarker = marker;
+
+        oldMarker?.render();
+        marker.render();
+        if (doBoing) {
+            marker.boing();
+        }
     }
 
     /**
@@ -573,19 +594,45 @@ export class HueColorTempPicker extends LitElement {
         box-shadow: ${unsafeCSS(Consts.HueShadow)}
     }
 
+    .marker-outline {
+        fill: white;
+        filter: url(#dot-shadow);
+        transform: translate(-2px, -2px);
+    }
     .marker {
         fill: currentColor;
-        filter: url(#new-shadow);
     }
     .icon {
         transform: scale(1.2) translate(8px, 8px);
         transition: ${unsafeCSS(Consts.TransitionDefault)};
         fill: white;
+        display: none;
     }
+
+    .gm.off-mode {
+        opacity: 0.7;
+    }
+    .gm.off-mode .marker-outline {
+        display: none;
+    }
+    .gm.off-mode .marker {
+        filter: url(#dot-shadow);
+    }
+
+    .gm.active .marker-outline {
+        display: none;
+    }
+    .gm.active .marker {
+        filter: url(#active-shadow);
+    }
+    .gm.active .icon {
+        display: inline;
+    }
+
     .gm.boing {
         animation: boing 150ms ease-in-out;
     }
-    .marker, .icon{
+    .marker-outline, .marker, .icon{
         cursor: pointer;
     }
 
@@ -608,7 +655,10 @@ export class HueColorTempPicker extends LitElement {
         <div id="canvas">
             <svg id="interactionLayer">
                 <defs>
-                    <filter id="new-shadow">
+                    <filter id="dot-shadow">
+                        <feDropShadow dx="0" dy="0.5" stdDeviation="1" flood-opacity="1"></feDropShadow>
+                    </filter>
+                    <filter id="active-shadow">
                         <!-- Shadow offset -->
                         <feOffset dx="0" dy="-10" />
 
@@ -655,6 +705,7 @@ export class HueColorTempPicker extends LitElement {
 export class HueColorTempPickerMarker {
     private readonly _parent: HueColorTempPicker;
     private readonly _markerG: SVGGraphicsElement;
+    private readonly _markerPath: SVGPathElement;
     private readonly _iconPath: SVGPathElement;
 
     public readonly name: string;
@@ -668,11 +719,18 @@ export class HueColorTempPickerMarker {
     private static counter = 1;
     private static readonly defaultIconName = 'default';
     private static readonly defaultIcon = 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
+    /** SVG path of marker in it's full active form. (48x60 px) */
+    private static readonly markerActivePath = 'M 24,0 C 10.745166,0 0,10.575951 0,23.622046 0,39.566928 21,57.578739 22.05,58.346457 L 24,60 25.95,58.346457 C 27,57.578739 48,39.566928 48,23.622046 48,10.575951 37.254834,0 24,0 Z';
+    private static readonly markerActivePathSize = { width: 48, height: 60 };
+    /** SVG path of marker in it's small non-active form. (12x12 px) */
+    private static readonly markerNonActivePath = 'M6 0A6 6 0 006 12 6 6 0 006 0Z';
+    private static readonly markerNonActivePathSize = { width: 12, height: 12 };
+    private static readonly markerNonActiveOutlinePath = 'M8 0A8 8 0 008 16 8 8 0 008 0Z';
 
     public constructor(parent: HueColorTempPicker, name?: string) {
-        this.name = name ?? 'm' + HueColorTempPickerMarker.counter++;
+        this.name = name ?? ('m' + HueColorTempPickerMarker.counter++);
         this._parent = parent;
-        [this._markerG, this._iconPath] = HueColorTempPickerMarker.drawMarker();
+        [this._markerG, this._markerPath, this._iconPath] = HueColorTempPickerMarker.drawMarker();
         this.position = new Point(this.getRadius(), this.getRadius());
         this.makeDraggable();
     }
@@ -760,6 +818,13 @@ export class HueColorTempPickerMarker {
             this._position.X - radius,
             this._position.Y - radius
         );
+    }
+
+    public get isActive() {
+        return this._parent.activeMarker === this;
+    }
+    public setActive(doBoing = true) {
+        this._parent.activateMarker(this, doBoing);
     }
 
     public get mode() {
@@ -876,17 +941,30 @@ export class HueColorTempPickerMarker {
      * @returns offset of marker tip (point where color is taken).
      */
     private getMarkerOffset() {
-        const rect = this._markerG.getBBox();
+        let rect = <{ width: number, height: number }>this._markerPath.getBBox();
 
         // init fallback
         if (rect.width == 0) {
-            rect.width = 48;
-            rect.height = 60;
+            if (this.isActive) {
+                rect = HueColorTempPickerMarker.markerActivePathSize;
+            }
+            else {
+                rect = HueColorTempPickerMarker.markerNonActivePathSize;
+            }
         }
 
-        const x = rect.width / 2;
-        const y = rect.height;
-        return new Point(x, y);
+        if (this.isActive) {
+            // we want the pointer (bottom middle) of active marker
+            const x = rect.width / 2;
+            const y = rect.height;
+            return new Point(x, y);
+        }
+        else {
+            // we want the middle point of non-active marker
+            const x = rect.width / 2;
+            const y = rect.height / 2;
+            return new Point(x, y);
+        }
     }
 
     private renderColor() {
@@ -904,8 +982,24 @@ export class HueColorTempPickerMarker {
         }
     }
 
+    private renderActive() {
+        if (this.isActive) {
+            this._markerG.classList.add('active');
+            this._markerPath.setAttribute('d', HueColorTempPickerMarker.markerActivePath);
+        }
+        else {
+            this._markerG.classList.remove('active');
+            this._markerPath.setAttribute('d', HueColorTempPickerMarker.markerNonActivePath);
+        }
+    }
+
     private renderMode() {
-        this._markerG.style.opacity = this.mode == this._parent.mode ? '1.0' : '0.6';
+        if (this.mode == this._parent.mode) {
+            this._markerG.classList.remove('off-mode');
+        }
+        else {
+            this._markerG.classList.add('off-mode');
+        }
     }
 
     private renderPosition() {
@@ -922,6 +1016,7 @@ export class HueColorTempPickerMarker {
     public render() {
         // render property dependencies
         this.renderColor();
+        this.renderActive();
         this.renderPosition();
         this.renderMode();
 
@@ -948,6 +1043,7 @@ export class HueColorTempPickerMarker {
     private onDragStart(ev: MouseEvent | TouchEvent) {
         const mousePoint = this._parent.getCanvasMousePoint(ev);
         this._dragOffset = mousePoint.getDiff(this.position);
+        this.setActive(false);
     }
 
     private onDrag(ev: MouseEvent | TouchEvent) {
@@ -971,12 +1067,20 @@ export class HueColorTempPickerMarker {
     /**
      * Draws and returns marker element.
      */
-    private static drawMarker(): [SVGGraphicsElement, SVGPathElement] {
+    private static drawMarker(): [SVGGraphicsElement, SVGPathElement, SVGPathElement] {
         const g = document.createElementNS(
             'http://www.w3.org/2000/svg',
             'g'
         );
         g.setAttribute('class', 'gm');
+
+        const o = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'path'
+        );
+
+        o.setAttribute('class', 'marker-outline');
+        o.setAttribute('d', HueColorTempPickerMarker.markerNonActiveOutlinePath);
 
         const m = document.createElementNS(
             'http://www.w3.org/2000/svg',
@@ -984,8 +1088,7 @@ export class HueColorTempPickerMarker {
         );
 
         m.setAttribute('class', 'marker');
-        m.setAttribute('d', 'M 24,0 C 10.745166,0 0,10.575951 0,23.622046 0,39.566928 21,57.578739 22.05,58.346457 L 24,60 25.95,58.346457 C 27,57.578739 48,39.566928 48,23.622046 48,10.575951 37.254834,0 24,0 Z');
-        // 48x60 px
+        m.setAttribute('d', HueColorTempPickerMarker.markerActivePath);
 
         const i = document.createElementNS(
             'http://www.w3.org/2000/svg',
@@ -994,10 +1097,11 @@ export class HueColorTempPickerMarker {
         i.setAttribute('class', 'icon');
         i.setAttribute('d', HueColorTempPickerMarker.defaultIcon);
 
+        g.appendChild(o);
         g.appendChild(m);
         g.appendChild(i);
 
-        return [g, i];
+        return [g, m, i];
     }
 
     /**

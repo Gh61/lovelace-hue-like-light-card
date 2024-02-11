@@ -22,10 +22,10 @@
     </div>
     <script>
         function onChange(ev) {
-            console.log(`[Changed] ${ev.detail.newColor}/${ev.detail.newTemp}`);
+            console.log(`[Changed ${ev.detail.marker.name}] ${ev.detail.newColor}/${ev.detail.newTemp}`);
         }
         function onImmediateChange(ev) {
-            console.log(`[Drag] ${ev.detail.newColor}/${ev.detail.newTemp}`);
+            console.log(`[Drag ${ev.detail.marker.name}] ${ev.detail.newColor}/${ev.detail.newTemp}`);
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -33,9 +33,12 @@
             picker.addEventListener("change", onChange);
             picker.addEventListener("immediate-value-change", onImmediateChange);
 
-            var marker = picker.addMarker();
-            var modeSelector = document.getElementById("mode-selector");
+            window.marker = picker.addMarker();
+            window.marker2 = picker.addMarker();
+            marker2.isOff = true;
+            window.marker3 = picker.addMarker();
 
+            var modeSelector = document.getElementById("mode-selector");
             modeSelector.colorPicker = picker;
 
             document.getElementById("c");
