@@ -206,7 +206,7 @@ export class ViewUtils {
     /** Will set size of icon inside of HaIcon */
     public static setIconSize(haIcon: HaIcon, sizePx: number) {
         sizePx = Math.round(sizePx);
-        if (haIcon) {
+        if (haIcon?.updateComplete) {
             // wait for render
             haIcon.updateComplete.then(() => {
                 const innerIcon = <HTMLElement>haIcon.renderRoot.children[0];

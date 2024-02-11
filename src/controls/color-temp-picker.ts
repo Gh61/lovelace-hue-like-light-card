@@ -159,8 +159,8 @@ export class HueColorTempPicker extends LitElement {
      * Will add new marker to rendering.
      * @returns Reference to the marker (so you can set icon, color, temp, etc. and also get events when something changes)
      */
-    public addMarker(): HueColorTempPickerMarker {
-        const m = new HueColorTempPickerMarker(this);
+    public addMarker(name?: string): HueColorTempPickerMarker {
+        const m = new HueColorTempPickerMarker(this, name);
         this._markers.push(m);
         this.requestUpdate('_markers');
         return m;
@@ -605,10 +605,27 @@ export class HueColorTempPicker extends LitElement {
 
     protected override render() {
         return html`
-        <div id='canvas'>
+        <div id="canvas">
             <svg id="interactionLayer">
                 <defs>
                     <filter id="new-shadow">
+                        <!-- Shadow offset -->
+                        <feOffset dx="0" dy="-10" />
+
+                        <!-- Shadow blur -->
+                        <feGaussianBlur stdDeviation="7" result="offset-blur"/>
+
+                        <!-- Invert drop shadow to make an inset shadow -->
+                        <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+                        
+                        <!-- Cut color inside shadow -->
+                        <feFlood flood-color="#0005" flood-opacity=".95" result="color"/>
+                        <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+
+                        <!-- Placing shadow over element -->
+                        <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
+
+                        <!-- Classic drop shadow -->
                         <feDropShadow dx="0" dy="1.0" stdDeviation="2.0" flood-opacity="1"></feDropShadow>
                     </filter>
                 </defs>
@@ -640,6 +657,7 @@ export class HueColorTempPickerMarker {
     private readonly _markerG: SVGGraphicsElement;
     private readonly _iconPath: SVGPathElement;
 
+    public readonly name: string;
     private _color: Color = new Color(0, 0, 0);
     private _temp = 0;
     private _position: Point;
@@ -647,13 +665,15 @@ export class HueColorTempPickerMarker {
     private _icon: string = HueColorTempPickerMarker.defaultIconName;
     private _isOff = false;
 
+    private static counter = 1;
     private static readonly defaultIconName = 'default';
     private static readonly defaultIcon = 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
 
-    public constructor(parent: HueColorTempPicker) {
+    public constructor(parent: HueColorTempPicker, name?: string) {
+        this.name = name ?? 'm' + HueColorTempPickerMarker.counter++;
         this._parent = parent;
         [this._markerG, this._iconPath] = HueColorTempPickerMarker.drawMarker();
-        this.position = new Point(this.getRadius() * 0.3, this.getRadius() * 0.6);
+        this.position = new Point(this.getRadius(), this.getRadius());
         this.makeDraggable();
     }
 
