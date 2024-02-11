@@ -177,11 +177,15 @@ export class HueColorTempPicker extends LitElement {
      * @param marker Reference to the marker, that should be activated.
      */
     public activateMarker(marker: HueColorTempPickerMarker, doBoing = true) {
-        const oldMarker = this.activeMarker;
         this._activeMarker = marker;
 
-        oldMarker?.render();
-        marker.render();
+        // the active marker must be rendered last - to be on top
+        const index = this._markers.indexOf(this._activeMarker);
+        if ((index + 1) < this._markers.length) {
+            this._markers.push(this._markers.splice(index, 1)[0]);
+        }
+
+        this.requestUpdate('_markers');
         if (doBoing) {
             marker.boing();
         }
@@ -752,11 +756,9 @@ export class HueColorTempPickerMarker {
     }
 
     public boing() {
-        const normalClass = 'gm';
-        const boingClass = 'gm boing';
-        this._markerG.setAttribute('class', boingClass);
+        this._markerG.classList.add('boing');
         setTimeout(() => {
-            this._markerG.setAttribute('class', normalClass);
+            this._markerG.classList.remove('boing');
         }, 200); // animation takes 150ms, 
     }
 
