@@ -23,3 +23,7 @@ updates:
       prefix-development: 'chore'
       include: 'scope'
     open-pull-requests-limit: 10
+    groups:
+      ts-eslint:
+        patterns:
+          - "@typescript-eslint/*"
