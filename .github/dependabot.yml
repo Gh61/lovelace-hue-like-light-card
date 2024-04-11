@@ -24,6 +24,7 @@ updates:
       include: 'scope'
     open-pull-requests-limit: 10
     groups:
-      ts-eslint:
+      eslint-group:
         patterns:
           - "@typescript-eslint/*"
+          - "@eslint"
