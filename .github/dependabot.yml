@@ -27,4 +27,4 @@ updates:
       eslint-group:
         patterns:
           - "@typescript-eslint/*"
-          - "eslint"
+          - "eslint-config-airbnb-typescript"
