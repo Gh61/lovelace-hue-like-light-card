@@ -4,6 +4,7 @@ import { Point } from '../types/point';
 import { PointerDragHelper } from './pointer-drag-helper';
 import { HaIcon } from '../types/types-hass';
 import { HueColorTempPicker, HueColorTempPickerMode, IHueColorTempPickerEventDetail } from './color-temp-picker';
+import { css, unsafeCSS } from 'lit';
 
 export class HueColorTempPickerMarker {
     private readonly _parent: HueColorTempPicker;
@@ -18,6 +19,7 @@ export class HueColorTempPickerMarker {
     private _mode: HueColorTempPickerMode = 'color';
     private _icon: string = HueColorTempPickerMarker.defaultIconName;
     private _isOff = false;
+    private _isPreview = false;
 
     private static counter = 1;
     private static readonly defaultIconName = 'default';
@@ -55,7 +57,7 @@ export class HueColorTempPickerMarker {
     }
 
     public boing() {
-        this._markerG.classList.add(this.isDrag ? 'big-boing' : 'boing');
+        this._markerG.classList.add((this.isDrag || this.isPreview) ? 'big-boing' : 'boing');
         setTimeout(() => {
             this._markerG.classList.remove('big-boing', 'boing');
         }, 200); // animation takes 150ms, 
@@ -138,6 +140,18 @@ export class HueColorTempPickerMarker {
         else {
             this._markerG.classList.remove('drag');
         }
+    }
+
+    public get isPreview() {
+        return this._isPreview;
+    }
+    public set isPreview(value: boolean) {
+        if (this._isPreview == value)
+            return;
+
+        this._isPreview = value;
+        this.render();
+        this.boing();
     }
 
     public get mode() {
@@ -250,6 +264,95 @@ export class HueColorTempPickerMarker {
 
     // #region Rendering
 
+    public static styles = css`
+        .marker-outline {
+            fill: white;
+            filter: url(#dot-shadow);
+            transform: translate(-2px, -2px);
+        }
+        .marker {
+            fill: currentColor;
+        }
+        .icon {
+            transform: scale(1.2) translate(8px, 8px);
+            transition: ${unsafeCSS(Consts.TransitionDefault)};
+            fill: white;
+            display: none;
+        }
+
+        .gm.off-mode {
+            opacity: 0.7;
+        }
+        .gm.off-mode .marker-outline {
+            display: none;
+        }
+        .gm.off-mode .marker {
+            filter: url(#dot-shadow);
+        }
+
+        .gm.active,
+        .gm.preview {
+            transition: scale 0.1s ease-in-out;
+        }
+        .gm.active  .marker-outline,
+        .gm.preview .marker-outline {
+            display: none;
+        }
+        .gm.active  .marker,
+        .gm.preview .marker {
+            filter: url(#active-shadow);
+        }
+        .gm.active  .icon,
+        .gm.preview .icon {
+            display: inline;
+        }
+
+        .gm.active.drag {
+            scale:1.1;
+        }
+        .gm.preview {
+            scale:1.25;
+            opacity:0.7;
+        }
+
+        .gm.boing {
+            animation: boing 150ms ease-in-out;
+        }
+        .gm.big-boing {
+            animation: big-boing 150ms ease-in-out;
+        }
+
+        .marker-outline, .marker, .icon{
+            cursor: pointer;
+        }
+
+        @keyframes boing {
+            0% {
+                scale:0.7;
+            }
+            50% {
+                scale:1.05;
+                translate: 0 -5px;
+            }
+            100% {
+                /*scale:1;*/
+            }
+        }
+
+        @keyframes big-boing {
+            0% {
+                scale:0.7;
+            }
+            50% {
+                scale:1.15;
+                translate: 0 -5px;
+            }
+            100% {
+                /*scale:1;*/
+            }
+        }
+    `;
+
     /**
      * @returns offset of marker tip (point where color is taken).
      */
@@ -258,7 +361,7 @@ export class HueColorTempPickerMarker {
 
         // init fallback
         if (rect.width == 0) {
-            if (this.isActive) {
+            if (this.isActive || this.isPreview) {
                 rect = HueColorTempPickerMarker.markerActivePathSize;
             }
             else {
@@ -266,7 +369,7 @@ export class HueColorTempPickerMarker {
             }
         }
 
-        if (this.isActive) {
+        if (this.isActive || this.isPreview) {
             // we want the pointer (bottom middle) of active marker
             const x = rect.width / 2;
             const y = rect.height;
@@ -295,13 +398,13 @@ export class HueColorTempPickerMarker {
         }
     }
 
-    private renderActive() {
-        if (this.isActive) {
-            this._markerG.classList.add('active');
+    private renderPreviewActive() {
+        if (this.isActive || this.isPreview) {
+            this._markerG.classList.add(this.isActive ? 'active' : 'preview');
             this._markerPath.setAttribute('d', HueColorTempPickerMarker.markerActivePath);
         }
         else {
-            this._markerG.classList.remove('active');
+            this._markerG.classList.remove('active', 'preview');
             this._markerPath.setAttribute('d', HueColorTempPickerMarker.markerNonActivePath);
         }
     }
@@ -329,7 +432,7 @@ export class HueColorTempPickerMarker {
     public render() {
         // render property dependencies
         this.renderColor();
-        this.renderActive();
+        this.renderPreviewActive();
         this.renderPosition();
         this.renderMode();
 
@@ -365,12 +468,12 @@ export class HueColorTempPickerMarker {
         this.position = this._parent.getCanvasMousePoint(ev, this._dragOffset);
 
         // merge target
-        var newMergeTarget = this._parent.searchMergeTarget(this);
+        const newMergeTarget = this._parent.searchMergeTarget(this);
         if (this._mergeTarget && this._mergeTarget != newMergeTarget) {
-            //this._mergeTarget. hideMergePreview();
+            this._mergeTarget.isPreview = false;
         }
         if (newMergeTarget) {
-            //newMergeTarget. showMergePreview();
+            newMergeTarget.isPreview = true;
         }
         this._mergeTarget = newMergeTarget;
     }
@@ -378,7 +481,7 @@ export class HueColorTempPickerMarker {
     private onDragEnd() {
         this.isDrag = false;
 
-        if (this._mergeTarget){
+        if (this._mergeTarget) {
             // TODO:
         }
 
