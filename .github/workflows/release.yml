@@ -64,7 +64,7 @@ jobs:
 
     - name: Generate changelog
       id: commits_changelog
-      uses: jaywcjlove/changelog-generator@v2.0.0
+      uses: jaywcjlove/changelog-generator@v2.1.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         filter: '(version\s+[v|V]\d(\.\d+){0,2}|[m|M]erge\s)'
