@@ -623,6 +623,9 @@ export class HueColorTempPicker extends LitElement {
         filter: url(#dot-shadow);
     }
 
+    .gm.active {
+        transition: scale 0.1s ease-in-out;
+    }
     .gm.active .marker-outline {
         display: none;
     }
@@ -633,23 +636,44 @@ export class HueColorTempPicker extends LitElement {
         display: inline;
     }
 
+    .gm.active.drag {
+        scale:1.1;
+    }
+
     .gm.boing {
         animation: boing 150ms ease-in-out;
     }
+    .gm.big-boing {
+        animation: big-boing 150ms ease-in-out;
+    }
+
     .marker-outline, .marker, .icon{
         cursor: pointer;
     }
 
     @keyframes boing {
         0% {
-            scale:0.9;
+            scale:0.7;
         }
         50% {
-            scale:1;
+            scale:1.05;
             translate: 0 -5px;
         }
         100% {
-            scale:1;
+            /*scale:1;*/
+        }
+      }
+
+    @keyframes big-boing {
+        0% {
+            scale:0.7;
+        }
+        50% {
+            scale:1.15;
+            translate: 0 -5px;
+        }
+        100% {
+            /*scale:1;*/
         }
       }
     `;
@@ -756,9 +780,9 @@ export class HueColorTempPickerMarker {
     }
 
     public boing() {
-        this._markerG.classList.add('boing');
+        this._markerG.classList.add(this.isDrag ? 'big-boing' : 'boing');
         setTimeout(() => {
-            this._markerG.classList.remove('boing');
+            this._markerG.classList.remove('big-boing', 'boing');
         }, 200); // animation takes 150ms, 
     }
 
@@ -827,6 +851,18 @@ export class HueColorTempPickerMarker {
     }
     public setActive(doBoing = true) {
         this._parent.activateMarker(this, doBoing);
+    }
+
+    public get isDrag() {
+        return this._markerG.classList.contains('drag');
+    }
+    public set isDrag(value: boolean) {
+        if (value) {
+            this._markerG.classList.add('drag');
+        }
+        else {
+            this._markerG.classList.remove('drag');
+        }
     }
 
     public get mode() {
@@ -1045,7 +1081,8 @@ export class HueColorTempPickerMarker {
     private onDragStart(ev: MouseEvent | TouchEvent) {
         const mousePoint = this._parent.getCanvasMousePoint(ev);
         this._dragOffset = mousePoint.getDiff(this.position);
-        this.setActive(false);
+        this.isDrag = true;
+        this.setActive(!this.isActive);
     }
 
     private onDrag(ev: MouseEvent | TouchEvent) {
@@ -1053,6 +1090,7 @@ export class HueColorTempPickerMarker {
     }
 
     private onDragEnd() {
+        this.isDrag = false;
         this.dispatchChangeEvent(false);
     }
 
