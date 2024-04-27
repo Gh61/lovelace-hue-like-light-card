@@ -13,8 +13,11 @@
         <div style="width: 200px; margin:20px auto">
             <hue-color-temp-mode-selector-test id="mode-selector"></hue-color-temp-mode-selector-test>
         </div>
-        <div style="width: 100px; margin: 10px auto;">
+        <div style="width: 300px; margin: 10px auto;">
             <input type="color" id="c" />
+            <button id="mb1">Marker 1</button>
+            <button id="mb2">Marker 2</button>
+            <button id="mb3">Marker 3</button>
         </div>
         <div style="width:60px; margin: auto; position: fixed; bottom:200px;right:200px;">
             <hue-brightness-rollup-test width="60" height="40" value="40"></hue-brightness-rollup-test>
@@ -41,9 +44,18 @@
             var modeSelector = document.getElementById("mode-selector");
             modeSelector.colorPicker = picker;
 
-            document.getElementById("c");
-            c.addEventListener("input", (ev) => {
+            document.getElementById("c").addEventListener("input", (ev) => {
                 marker.color = c.value;
+            });
+
+            document.getElementById("mb1").addEventListener("click", () => {
+                marker.setActive();
+            });
+            document.getElementById("mb2").addEventListener("click", () => {
+                marker2.setActive();
+            });
+            document.getElementById("mb3").addEventListener("click", () => {
+                marker3.setActive();
             });
         });
     </script>

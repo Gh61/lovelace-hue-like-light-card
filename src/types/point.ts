@@ -27,6 +27,13 @@ export class Point {
         );
     }
 
+    public getDistance(startPoint: Point) {
+        const xDiff = this.getXDiff(startPoint);
+        const yDiff = this.getYDiff(startPoint);
+
+        return Math.abs(Math.sqrt(xDiff * xDiff + yDiff * yDiff));
+    }
+
     public toString() {
         return `[${this.X},${this.Y}]`;
     }

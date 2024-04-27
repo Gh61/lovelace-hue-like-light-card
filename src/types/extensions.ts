@@ -25,6 +25,18 @@ export function removeDuplicites<T>(array: Array<T>): Array<T> {
 }
 
 /**
+ * In place removal of passed items from given array.
+ */
+export function removeFrom<T>(array: Array<T>, ...items: Array<T>): void {
+    items.forEach(i => {
+        const index = array.indexOf(i);
+        if (index >= 0) {
+            array.splice(index, 1);
+        }
+    });
+}
+
+/**
  * @returns given text without diacritics, using normalized state for removal.
  */
 export function removeDiacritics(str: string): string {
