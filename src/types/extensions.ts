@@ -42,3 +42,12 @@ export function removeFrom<T>(array: Array<T>, ...items: Array<T>): void {
 export function removeDiacritics(str: string): string {
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
+
+/**
+ * Will vibrate for given amount of ms, if the current device supports this function.
+ */
+export function doVibrate(...ms: number[]) {
+    if (window?.navigator?.vibrate) {
+        window.navigator.vibrate(ms);
+    }
+}
