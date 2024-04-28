@@ -140,6 +140,7 @@ export class HueColorTempPicker extends LitElement {
     protected override updated(changedProperties: PropertyValues<HueColorTempPicker>): void {
         if (changedProperties.has('mode') && changedProperties.get('mode')) {
             this.drawWheel();
+            this.dispatchEvent(new Event('mode-change'));
         }
     }
 

@@ -15,8 +15,9 @@ export class HueColorTempPickerMarker {
 
     public readonly name: string;
     private _color: Color = new Color(0, 0, 0);
-    private _temp = 0;
+    private _temp = 3008;
     private _position: Point;
+    private _fixedMode?: HueColorTempPickerMode;
     private _mode: HueColorTempPickerMode = 'color';
     private _icon: string = HueColorTempPickerMarker.defaultIconName;
     private _isOff = false;
@@ -82,6 +83,12 @@ export class HueColorTempPickerMarker {
 
         // Get color and value from parent
         const centerPos = this.getPositionFromCenter(radius);
+
+        // If fixed mode, set parent to the fixed mode before getting the value
+        if (this.fixedMode && this.fixedMode != this._parent.mode) {
+            this._parent.mode = this.fixedMode;
+        }
+
         const colorAndValue = this._parent.getColorAndValue(
             centerPos.X,
             centerPos.Y,
@@ -159,10 +166,27 @@ export class HueColorTempPickerMarker {
         this.boing();
     }
 
+    public get fixedMode() {
+        return this._fixedMode;
+    }
+    public set fixedMode(fMod: HueColorTempPickerMode | undefined) {
+        this._fixedMode = fMod;
+
+        // set mode if needed
+        if (fMod && this.mode != fMod) {
+            this.mode = fMod;
+            this.refresh();
+        }
+    }
+
     public get mode() {
         return this._mode;
     }
     public set mode(mod: HueColorTempPickerMode) {
+        if (this.fixedMode && this.fixedMode != mod) {
+            return;
+        }
+
         this._mode = mod;
         this.renderMode();
     }
@@ -192,6 +216,10 @@ export class HueColorTempPickerMarker {
         return this._color;
     }
     public set color(col: Color | string) {
+        // when fixed mode not color, we cannot set color
+        if (this.fixedMode && this.fixedMode != 'color')
+            return;
+
         if (typeof col == 'string') {
             col = new Color(col);
         }
@@ -215,6 +243,10 @@ export class HueColorTempPickerMarker {
         return this._temp;
     }
     public set temp(tmp: number) {
+        // when fixed mode not temp, we cannot set temp
+        if (this.fixedMode && this.fixedMode != 'temp')
+            return;
+
         this._temp = tmp;
 
         const wasColorMode = this.mode == 'color';

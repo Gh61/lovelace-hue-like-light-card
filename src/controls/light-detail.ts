@@ -479,8 +479,20 @@ class LightMarkerManager {
     }
 
     public add(light: ISingleLightContainer) {
+        // no marker for light without color/temp features
+        if (light.features.isEmpty() || light.features.isOnlyBrightness())
+            return;
+
         const marker = this._picker.addMarker();
         marker.icon = light.getIcon() || IconHelper.getIcon(1);
+
+        // fixed mode for lights that supports only single mode
+        if (!light.features.color && light.features.colorTemp) {
+            marker.fixedMode = 'temp';
+        }
+        else if (light.features.color && !light.features.colorTemp) {
+            marker.fixedMode = 'color';
+        }
 
         this._markerToLight[marker.name] = light;
         this._lightToMarker[light.getEntityId()] = marker;
@@ -491,6 +503,8 @@ class LightMarkerManager {
     /** Will apply current light state to corresponding marker. */
     public applyState(light: ISingleLightContainer) {
         const marker = this.getMarker(light);
+        if (!marker)
+            return;
 
         if (light.isColorModeColor()) {
             if (light.color) {

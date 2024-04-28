@@ -52,6 +52,14 @@ export class HueColorTempModeSelector extends LitElement {
     protected override updated(changedProps: PropertyValues<HueColorTempModeSelector>): void {
         super.updated(changedProps);
 
+        if (changedProps.has('colorPicker')) {
+            this.unregisterColorPickerEvent(changedProps.get('colorPicker'));
+            if (this.colorPicker) {
+                this.onColorPickerModeChange();
+                this.registerColorPickerEvent();
+            }
+        }
+
         if (changedProps.has('mode') && this.colorPicker) {
             if (this.mode == 'color' || this.mode == 'temp') {
                 this.colorPicker.mode = this.mode;
@@ -168,5 +176,36 @@ export class HueColorTempModeSelector extends LitElement {
         <div class='${classMap(wrapperClass)}' @click=${() => this.mode = mode}>
             <span class='wheel ${mode}'></span>
         </div>`;
+    }
+
+    private onColorPickerModeChange = () => {
+        if (this.colorPicker) {
+            this.mode = this.colorPicker.mode;
+        }
+    };
+
+    private registerColorPickerEvent() {
+        if (this.colorPicker) {
+            this.colorPicker.addEventListener('mode-change', this.onColorPickerModeChange);
+        }
+    }
+
+    private unregisterColorPickerEvent(picker?: HueColorTempPicker | null) {
+        if (picker) {
+            picker.addEventListener('mode-change', this.onColorPickerModeChange);
+        }
+    }
+
+    public override connectedCallback(): void {
+        super.connectedCallback();
+
+
+        this.registerColorPickerEvent();
+    }
+
+    public override disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        this.unregisterColorPickerEvent(this.colorPicker);
     }
 }
