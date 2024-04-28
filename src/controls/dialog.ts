@@ -1,6 +1,6 @@
 import { css, nothing, PropertyValues, unsafeCSS } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
@@ -48,10 +48,16 @@ export class HueDialog extends IdLitElement {
      * @returns count of selected lights.
      */
     private addSelectedLight(light: ILightContainer) {
+        this._selectedLights.length = 0;
+        this._selectedLights.push(light);
+        this.requestUpdate('_selectedLights');
+
+        /*
         if (this._selectedLights.indexOf(light) == -1) {
             this._selectedLights.push(light);
             this.requestUpdate('_selectedLights');
         }
+        */
 
         return this._selectedLights.length;
     }
@@ -61,7 +67,7 @@ export class HueDialog extends IdLitElement {
      * @returns count of selected lights.
      */
     private removeSelectedLight(light: ILightContainer) {
-        var index = this._selectedLights.indexOf(light);
+        const index = this._selectedLights.indexOf(light);
         if (index >= 0) {
             this._selectedLights.splice(index, 1);
             this.requestUpdate('_selectedLights');
@@ -95,8 +101,7 @@ export class HueDialog extends IdLitElement {
 
     private onLightSelected(ev: CustomEvent<ILightSelectedEventDetail>) {
         const hide = () => {
-            if (this.removeSelectedLight(ev.detail.lightContainer!) == 0)
-            {
+            if (this.removeSelectedLight(ev.detail.lightContainer!) == 0) {
                 // hide detail of selected light
                 this._lightDetailElement?.hide();
             }
@@ -540,6 +545,8 @@ export class HueDialog extends IdLitElement {
                     detailElement.style.width = '100%';
                     detailElement.style.height = 'calc(100% - 200px)';
                     detailElement.style.zIndex = '2'; // over header
+
+                    detailElement.areaController = this._ctrl;
 
                     // action for show and hide
                     detailElement.addEventListener('show', () => {

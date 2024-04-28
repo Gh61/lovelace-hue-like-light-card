@@ -161,6 +161,18 @@ export class HueColorTempPicker extends LitElement {
     }
 
     /**
+     * Will return all single active markers in array.
+     * If multi marker is active, it will return all his submarkers.
+     */
+    public getActiveMarkers() {
+        if (this._activeMarker instanceof HueColorTempPickerMultiMarker) {
+            return this._activeMarker.markers;
+        }
+
+        return [this._activeMarker];
+    }
+
+    /**
      * Will add new marker to rendering.
      * @returns Reference to the marker (so you can set icon, color, temp, etc. and also get events when something changes)
      */
@@ -170,6 +182,14 @@ export class HueColorTempPicker extends LitElement {
         this.activateMarker(m, false);
         this.requestUpdate('_markers');
         return m;
+    }
+
+    /**
+     * Will remove all markers from this color picker.
+     */
+    public clearMarkers() {
+        this._markers.length = 0;
+        this.requestUpdate('_markers');
     }
 
     /**
