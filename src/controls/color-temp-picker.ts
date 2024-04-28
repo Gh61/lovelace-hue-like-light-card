@@ -764,6 +764,8 @@ class HueColorTempPickerMultiMarker extends HueColorTempPickerMarker {
                 HueColorTempPickerMultiMarker.applyState(target, m);
             }
         });
+
+        this.renderIcon();
     }
 
     public override get position() {
@@ -789,4 +791,43 @@ class HueColorTempPickerMultiMarker extends HueColorTempPickerMarker {
             throw new Error(`Unknown mode '${from.mode}'.`);
         }
     }
+
+    // #region Number icon
+
+    private renderIcon() {
+        this._iconElement.innerHTML = this.icon;
+    }
+
+    public override get icon(): string {
+        return this.markers?.length.toString() ?? '';
+    }
+    public override set icon(_: string) {
+        // noop
+    }
+
+    public override render(): SVGGraphicsElement {
+        const result = super.render();
+
+        this.renderIcon();
+
+        return result;
+    }
+
+    protected override drawMarkerIcon(): SVGElement {
+        const i = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'text'
+        );
+        i.setAttribute('class', 'icon text');
+        i.setAttribute('x', '6%'); // why 6?
+        i.setAttribute('y', '6%');
+        i.setAttribute('text-anchor', 'middle');
+        i.setAttribute('dominant-baseline', 'middle');
+
+        i.innerHTML = this.icon;
+
+        return i;
+    }
+
+    // #endregion
 }

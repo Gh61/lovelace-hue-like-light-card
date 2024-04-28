@@ -11,7 +11,7 @@ export class HueColorTempPickerMarker {
     private readonly _parent: HueColorTempPicker;
     private readonly _markerG: SVGGraphicsElement;
     private readonly _markerPath: SVGPathElement;
-    private readonly _iconPath: SVGPathElement;
+    protected readonly _iconElement: SVGElement;
 
     public readonly name: string;
     private _color: Color = new Color(0, 0, 0);
@@ -36,7 +36,7 @@ export class HueColorTempPickerMarker {
     public constructor(parent: HueColorTempPicker, name?: string) {
         this.name = name ?? ('m' + HueColorTempPickerMarker.counter++);
         this._parent = parent;
-        [this._markerG, this._markerPath, this._iconPath] = HueColorTempPickerMarker.drawMarker();
+        [this._markerG, this._markerPath, this._iconElement] = this.drawMarker();
         this.position = new Point(this.getRadius(), this.getRadius());
         this.makeDraggable();
     }
@@ -247,7 +247,7 @@ export class HueColorTempPickerMarker {
             }
 
             // Apply icon
-            this._iconPath.setAttribute('d', path);
+            this._iconElement.setAttribute('d', path);
         });
     }
 
@@ -283,6 +283,12 @@ export class HueColorTempPickerMarker {
             transition: ${unsafeCSS(Consts.TransitionDefault)};
             fill: white;
             display: none;
+        }
+        .icon.text {
+            transform: none;
+            /*font-family: Roboto, Noto, sans-serif;*/
+            font-size: 20px;
+            font-weight: bold;
         }
 
         .gm.off-mode {
@@ -391,7 +397,7 @@ export class HueColorTempPickerMarker {
     private renderColor() {
         if (this._isOff) {
             this._markerG.style.color = 'rgb(0,0,0)';
-            this._iconPath.style.fill = Consts.LightColor.toString();
+            this._iconElement.style.fill = Consts.LightColor.toString();
         }
         else {
             this._markerG.style.color = this._color.toString();
@@ -399,7 +405,7 @@ export class HueColorTempPickerMarker {
             // for temp view I want only one change of foreground in the middle of the wheel
             const luminanceOffset = this.mode == 'temp' ? -25 : 0;
             const foreground = this._color.getForeground(Consts.LightColor, Consts.DarkColor, luminanceOffset);
-            this._iconPath.style.fill = foreground.toString();
+            this._iconElement.style.fill = foreground.toString();
         }
     }
 
@@ -511,7 +517,7 @@ export class HueColorTempPickerMarker {
     /**
      * Draws and returns marker element.
      */
-    private static drawMarker(): [SVGGraphicsElement, SVGPathElement, SVGPathElement] {
+    private drawMarker(): [SVGGraphicsElement, SVGPathElement, SVGElement] {
         const g = document.createElementNS(
             'http://www.w3.org/2000/svg',
             'g'
@@ -534,6 +540,16 @@ export class HueColorTempPickerMarker {
         m.setAttribute('class', 'marker');
         m.setAttribute('d', HueColorTempPickerMarker.markerActivePath);
 
+        const i = this.drawMarkerIcon();
+
+        g.appendChild(o);
+        g.appendChild(m);
+        g.appendChild(i);
+
+        return [g, m, i];
+    }
+
+    protected drawMarkerIcon(): SVGElement {
         const i = document.createElementNS(
             'http://www.w3.org/2000/svg',
             'path'
@@ -541,11 +557,7 @@ export class HueColorTempPickerMarker {
         i.setAttribute('class', 'icon');
         i.setAttribute('d', HueColorTempPickerMarker.defaultIcon);
 
-        g.appendChild(o);
-        g.appendChild(m);
-        g.appendChild(i);
-
-        return [g, m, i];
+        return i;
     }
 
     /**
