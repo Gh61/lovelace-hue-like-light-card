@@ -217,16 +217,14 @@ export class HueColorTempPicker extends LitElement {
 
     /**
      * Will create merged marker (containing all markers passed to this function) at the position of first.
-     * @param first Reference to the marker, from which the position and other initial values are taken
+     * @param target Reference to the marker, from which the position and other initial values are taken
      * @param markers Rest of the markers
      */
-    public mergeMarkers(first: HueColorTempPickerMarker, ...markers: HueColorTempPickerMarker[]) {
-        // TODO: merged markers arguments passed into this method
-
-        const mm = new HueColorTempPickerMultiMarker(this, first, ...markers);
+    public mergeMarkers(target: HueColorTempPickerMarker, ...markers: HueColorTempPickerMarker[]) {
+        const mm = new HueColorTempPickerMultiMarker(this, target, ...markers);
 
         // we need to remove all inner markers from collection
-        removeFrom(this._markers, first);
+        removeFrom(this._markers, target);
         removeFrom(this._markers, ...markers);
 
         // add new merged marker
@@ -702,24 +700,50 @@ export class HueColorTempPicker extends LitElement {
 class HueColorTempPickerMultiMarker extends HueColorTempPickerMarker {
     private static mm_counter = 1;
 
-    private readonly _markers = new Array<HueColorTempPickerMarker>();
+    public readonly markers = new Array<HueColorTempPickerMarker>();
 
-    public constructor(parent: HueColorTempPicker, first: HueColorTempPickerMarker, ...markers: HueColorTempPickerMarker[]) {
+    public constructor(parent: HueColorTempPicker, target: HueColorTempPickerMarker, ...markers: HueColorTempPickerMarker[]) {
         super(parent, 'mm' + HueColorTempPickerMultiMarker.mm_counter++);
 
-        if (first == null || markers.length < 1)
+        if (target == null || markers.length < 1)
             throw new Error('At least two markers needs to be passed to create HueColorTempPickerMultiMarker');
 
-        HueColorTempPickerMultiMarker.applyState(first, this);
+        HueColorTempPickerMultiMarker.applyState(target, this);
 
-        // array of markers in this merged marker
-        this._markers.push(first);
+        // check if tha passed markers are already merged
+        if (target instanceof HueColorTempPickerMultiMarker) {
+            target.markers.forEach(m => this.markers.push(m));
+        }
+        else {
+            this.markers.push(target);
+        }
+
         markers.forEach(m => {
-            this._markers.push(m);
-
-            // also synchronize mode and position
-            HueColorTempPickerMultiMarker.applyState(first, m);
+            if (m instanceof HueColorTempPickerMultiMarker) {
+                m.markers.forEach(mm => {
+                    this.markers.push(mm);
+                    // also synchronize states
+                    HueColorTempPickerMultiMarker.applyState(target, mm);
+                });
+            }
+            else {
+                this.markers.push(m);
+                // also synchronize states
+                HueColorTempPickerMultiMarker.applyState(target, m);
+            }
         });
+    }
+
+    public override get position() {
+        return super.position;
+    }
+    protected override set position(pos: Point) {
+        super.position = pos;
+        this.markers?.forEach(m => HueColorTempPickerMultiMarker.applyState(this, m));
+    }
+
+    public override dispatchChangeEvent(immediate: boolean) {
+        this.markers?.forEach(m => m.dispatchChangeEvent(immediate));
     }
 
     private static applyState(from: HueColorTempPickerMarker, to: HueColorTempPickerMarker) {

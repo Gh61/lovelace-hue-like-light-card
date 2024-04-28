@@ -45,7 +45,7 @@ export class HueColorTempPickerMarker {
         return this._parent.getRadius();
     }
 
-    private dispatchChangeEvent(immediate: boolean) {
+    public dispatchChangeEvent(immediate: boolean) {
         const type = immediate ? 'immediate-value-change' : 'change';
         this._parent.dispatchEvent(new CustomEvent<IHueColorTempPickerEventDetail>(type, {
             detail: {
@@ -487,7 +487,12 @@ export class HueColorTempPickerMarker {
         this.isDrag = false;
 
         if (this._mergeTarget) {
-            // TODO:
+            const target = this._mergeTarget;
+
+            this._mergeTarget.isPreview = false;
+            this._mergeTarget = undefined;
+
+            this._parent.mergeMarkers(target, this);
         }
 
         this.dispatchChangeEvent(false);
