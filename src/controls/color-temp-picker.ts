@@ -179,10 +179,42 @@ export class HueColorTempPicker extends LitElement {
     public activateMarker(marker: HueColorTempPickerMarker, doBoing = true) {
         this._activeMarker = marker;
 
-        // the active marker must be rendered last - to be on top
         const index = this._markers.indexOf(this._activeMarker);
-        if ((index + 1) < this._markers.length) {
-            this._markers.push(this._markers.splice(index, 1)[0]);
+
+        // marker was not found, try to find it inside of multi markers
+        if (index < 0) {
+            this._markers.forEach((mm, mmIndex) => {
+                if (!(mm instanceof HueColorTempPickerMultiMarker))
+                    return true; // continue
+
+                const innerIndex = mm.markers.indexOf(marker);
+                if (innerIndex < 0)
+                    return true; // continue
+
+                // remove marker from multi marker
+                mm.markers.splice(innerIndex, 1);
+
+                // if inner marker is only one (or zero), get it out
+                if (mm.markers.length == 1) {
+                    // replace multi marker with the remaining one
+                    this._markers[mmIndex] = mm.markers[0];
+                }
+                else if (mm.markers.length == 0) {
+                    // remove empty multi marker (should not happen, but anyway)
+                    this._markers.splice(mmIndex, 1);
+                }
+
+                // add found marker at the end
+                this._markers.push(marker);
+
+                return false;// break
+            });
+        }
+        else {
+            // the active marker must be rendered last - to be on top
+            if ((index + 1) < this._markers.length) {
+                this._markers.push(this._markers.splice(index, 1)[0]);
+            }
         }
 
         this.requestUpdate('_markers');
