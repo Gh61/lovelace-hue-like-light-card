@@ -67,7 +67,7 @@ export class HueColorTempPickerMarker {
     public get position() {
         return this._position;
     }
-    protected set position(pos: Point) {
+    public set position(pos: Point) {
 
         // if is position from mousemove - turn on
         if (this._dragHelper?.isMoving) {
@@ -162,7 +162,7 @@ export class HueColorTempPickerMarker {
     public get mode() {
         return this._mode;
     }
-    protected set mode(mod: HueColorTempPickerMode) {
+    public set mode(mod: HueColorTempPickerMode) {
         this._mode = mod;
         this.renderMode();
     }

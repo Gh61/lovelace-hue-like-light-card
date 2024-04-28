@@ -263,7 +263,7 @@ export class HueColorTempPicker extends LitElement {
         this._markers.push(mm);
 
         // make it active
-        this.activateMarker(mm, false);
+        this.activateMarker(mm);
         this.requestUpdate('_markers');
 
         return mm;
@@ -771,25 +771,24 @@ class HueColorTempPickerMultiMarker extends HueColorTempPickerMarker {
     public override get position() {
         return super.position;
     }
-    protected override set position(pos: Point) {
+    public override set position(pos: Point) {
         super.position = pos;
         this.markers?.forEach(m => HueColorTempPickerMultiMarker.applyState(this, m));
     }
 
     public override dispatchChangeEvent(immediate: boolean) {
-        this.markers?.forEach(m => m.dispatchChangeEvent(immediate));
+        // fire only non immediate events (immediate are fired in applyState)
+        if (!immediate) {
+            this.markers?.forEach(m => m.dispatchChangeEvent(immediate));
+        }
     }
 
     private static applyState(from: HueColorTempPickerMarker, to: HueColorTempPickerMarker) {
-        if (from.mode == 'color') {
-            to.color = from.color;
+        if (to.mode != from.mode) {
+            to.mode = from.mode;
         }
-        else if (from.mode == 'temp') {
-            to.temp = from.temp;
-        }
-        else {
-            throw new Error(`Unknown mode '${from.mode}'.`);
-        }
+        // this also fires dispatch
+        to.position = from.position;
     }
 
     // #region Number icon
@@ -819,7 +818,7 @@ class HueColorTempPickerMultiMarker extends HueColorTempPickerMarker {
             'text'
         );
         i.setAttribute('class', 'icon text');
-        i.setAttribute('x', '6%'); // why 6?
+        i.setAttribute('x', '6%'); // why 6? - probably some scaling
         i.setAttribute('y', '6%');
         i.setAttribute('text-anchor', 'middle');
         i.setAttribute('dominant-baseline', 'middle');
