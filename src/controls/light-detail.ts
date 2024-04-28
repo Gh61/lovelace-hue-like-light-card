@@ -152,6 +152,10 @@ export class HueLightDetail extends IdLitElement {
 
     /** Will hide this element (with animation). */
     public hide(instant = false) {
+        // prevent duplicate hide
+        if (!this.classList.contains('visible'))
+            return;
+
         this.classList.remove('visible');
         if (instant) {
             this.style.display = 'none';
