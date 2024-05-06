@@ -177,13 +177,19 @@ export class HueColorTempPicker extends LitElement {
      * Will add new marker to rendering.
      * @returns Reference to the marker (so you can set icon, color, temp, etc. and also get events when something changes)
      */
-    public addMarker(name?: string): HueColorTempPickerMarker {
+    public addMarker(name?: string, activate = true): HueColorTempPickerMarker {
         const m = new HueColorTempPickerMarker(this, name);
         this._markers.push(m);
-        this.activateMarker(m, false);
+        if (activate) {
+            this.activateMarker(m, false);
+        }
         this.requestUpdate('_markers');
         return m;
     }
+
+    //TODO:
+    // - add tryMergeMarkers method (with marker parameter, for not checking everything with everything)
+    // - add unmergeMarker method
 
     /**
      * Will remove all markers from this color picker.
