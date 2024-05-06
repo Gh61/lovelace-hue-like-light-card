@@ -198,6 +198,9 @@ export class HueColorTempPicker extends LitElement {
      * @param marker Reference to the marker, that should be activated.
      */
     public activateMarker(marker: HueColorTempPickerMarker, doBoing = true) {
+        if (this._activeMarker == marker)
+            return;
+
         this._activeMarker = marker;
 
         const index = this._markers.indexOf(this._activeMarker);
@@ -242,6 +245,8 @@ export class HueColorTempPicker extends LitElement {
         if (doBoing) {
             marker.boing();
         }
+
+        this.dispatchEvent(new Event('activemarkers-change'));
     }
 
     /**

@@ -30,11 +30,19 @@
         function onImmediateChange(ev) {
             console.log(`[Drag ${ev.detail.marker.name}] ${ev.detail.newColor}/${ev.detail.newTemp}`);
         }
+        function onModeChange(ev) {
+            console.log("[Mode changed]");
+        }
+        function onActiveMarkersChange(ev) {
+            console.log("[Active markers changed]");
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             var picker = document.getElementById("picker");
             picker.addEventListener("change", onChange);
             picker.addEventListener("immediate-value-change", onImmediateChange);
+            picker.addEventListener("mode-change", onModeChange);
+            picker.addEventListener("activemarkers-change", onActiveMarkersChange);
 
             window.marker = picker.addMarker();
             window.marker2 = picker.addMarker();

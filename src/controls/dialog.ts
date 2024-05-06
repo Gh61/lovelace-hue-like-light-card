@@ -39,41 +39,24 @@ export class HueDialog extends IdLitElement {
     private _ctrl: AreaLightController;
     private _actionHandler: ActionHandler;
 
-    // #region selectedLight
+    // #region selectedLights
 
     private readonly _selectedLights = new Array<ILightContainer>();
 
     /**
-     * Will add light to collection of selected lights.
-     * @returns count of selected lights.
+     * @returns Whether the given light is the only selected light.
      */
-    private addSelectedLight(light: ILightContainer) {
-        this._selectedLights.length = 0;
-        this._selectedLights.push(light);
-        this.requestUpdate('_selectedLights');
-
-        /*
-        if (this._selectedLights.indexOf(light) == -1) {
-            this._selectedLights.push(light);
-            this.requestUpdate('_selectedLights');
-        }
-        */
-
-        return this._selectedLights.length;
+    private isOnlySelectedLight(light: ILightContainer) {
+        return this._selectedLights.length == 1 && this._selectedLights[0] == light;
     }
 
     /**
-     * Will remove light from collection of selected lights.
-     * @returns count of selected lights.
+     * Will add light to collection of selected lights.
      */
-    private removeSelectedLight(light: ILightContainer) {
-        const index = this._selectedLights.indexOf(light);
-        if (index >= 0) {
-            this._selectedLights.splice(index, 1);
-            this.requestUpdate('_selectedLights');
-        }
-
-        return this._selectedLights.length;
+    private setSelectedLights(...lights: ILightContainer[]) {
+        this._selectedLights.length = 0;
+        lights.forEach(l => this._selectedLights.push(l));
+        this.requestUpdate('_selectedLights');
     }
 
     /**
@@ -101,16 +84,17 @@ export class HueDialog extends IdLitElement {
 
     private onLightSelected(ev: CustomEvent<ILightSelectedEventDetail>) {
         const hide = () => {
-            if (this.removeSelectedLight(ev.detail.lightContainer!) == 0) {
-                // hide detail of selected light
-                this._lightDetailElement?.hide();
-            }
+            this.clearSelectedLights();
+
+            // hide detail of selected light
+            this._lightDetailElement?.hide();
         };
 
-        if (ev.detail.isSelected) {
+        // only hide selector if unselected the only one last selected light
+        if (ev.detail.isSelected || !this.isOnlySelectedLight(ev.detail.lightContainer!)) {
 
             const show = () => {
-                this.addSelectedLight(ev.detail.lightContainer!);
+                this.setSelectedLights(ev.detail.lightContainer!);
 
                 // scroll to selected light
                 HueDialog.tileScrollTo(ev.detail.tileElement);

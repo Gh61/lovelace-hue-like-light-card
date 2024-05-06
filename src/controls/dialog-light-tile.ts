@@ -160,15 +160,6 @@ export class HueDialogLightTile extends HueDialogTile {
         if (changedProps.has('isSelected')) {
             const selector = <Element>this.renderRoot.querySelector('.selector');
             selector.classList.toggle('active', !!this.isSelected);
-
-            // fire event on change
-            this.dispatchEvent(new CustomEvent<ILightSelectedEventDetail>('selected-change', {
-                detail: {
-                    isSelected: this.isSelected,
-                    lightContainer: this.lightContainer,
-                    tileElement: this
-                }
-            }));
         }
 
         if (changedProps.has('isUnselected')) {
@@ -187,6 +178,15 @@ export class HueDialogLightTile extends HueDialogTile {
     protected override tileClicked() {
         // toggle select this light
         this.isSelected = !this.isSelected;
+
+        // fire event onclick
+        this.dispatchEvent(new CustomEvent<ILightSelectedEventDetail>('selected-change', {
+            detail: {
+                isSelected: this.isSelected,
+                lightContainer: this.lightContainer,
+                tileElement: this
+            }
+        }));
     }
 
     protected override getEntityId() {
