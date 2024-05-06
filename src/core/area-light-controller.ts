@@ -37,7 +37,14 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
     }
 
     /**
-     * Returns count of registered lights.
+     * @returns the default color (used when no light has color info).
+     */
+    public get defaultColor() {
+        return this._defaultColor;
+    }
+
+    /**
+     * @returns count of registered lights.
      */
     public get count() {
         return this._lights.length;

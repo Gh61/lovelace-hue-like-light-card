@@ -844,8 +844,8 @@ class HueColorTempPickerMultiMarker extends HueColorTempPickerMarker {
             'text'
         );
         i.setAttribute('class', 'icon text');
-        i.setAttribute('x', '6%'); // why 6? - probably some scaling
-        i.setAttribute('y', '6%');
+        i.setAttribute('x', '24');
+        i.setAttribute('y', '24');
         i.setAttribute('text-anchor', 'middle');
         i.setAttribute('dominant-baseline', 'middle');
 

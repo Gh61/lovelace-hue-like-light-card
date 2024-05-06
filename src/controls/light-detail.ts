@@ -8,13 +8,13 @@ import { PropertyValues, css, unsafeCSS } from 'lit';
 import { HueBrightnessRollup, IRollupValueChangeEventDetail } from './brightness-rollup';
 import { HueColorTempPicker, IHueColorTempPickerEventDetail } from './color-temp-picker';
 import { HueColorTempPickerMarker } from './color-temp-picker.marker';
-import { LightController } from '../core/light-controller';
 import { HueColorTempModeSelector } from './color-temp-mode-selector';
 import { HaControlSwitch } from '../types/types-hass';
 import { HueBigSwitch } from './big-switch';
 import { IconHelper } from '../core/icon-helper';
 import { AreaLightController } from '../core/area-light-controller';
-import { ISingleLightContainer } from '../types/types-interface';
+import { ILightContainer, ISingleLightContainer } from '../types/types-interface';
+import { Action1 } from '../types/functions';
 
 @customElement(HueLightDetail.ElementName)
 export class HueLightDetail extends IdLitElement {
@@ -38,7 +38,7 @@ export class HueLightDetail extends IdLitElement {
     public areaController: AreaLightController;
 
     @property()
-    public lightContainer: LightController | null = null;
+    public lightContainer: ILightContainer | null = null;
 
     /**
      * Called after new lightContainer is set.
@@ -85,6 +85,19 @@ export class HueLightDetail extends IdLitElement {
         }
     }
 
+    private setLightContainerFromPicker(lights: ISingleLightContainer[]) {
+        if (lights.length == 1) {
+            this.lightContainer = lights[0];
+        }
+        else {
+            const entities = lights.map(l => l.getEntityId());
+            const controller = new AreaLightController(entities, this.areaController.defaultColor);
+            this.lightContainer = controller;
+        }
+
+        this.dispatchEvent(new Event('lightcontainer-change'));
+    }
+
     private toggleFullSizedBrightness(show: boolean) {
         if (show) {
             this._colorPicker.style.display = 'none';
@@ -95,24 +108,35 @@ export class HueLightDetail extends IdLitElement {
         }
     }
 
-    private onLightContainerState(light: ISingleLightContainer, activate = false) {
-        this._lightMarkerManager.applyState(light);
-
-        if (activate) {
-            if (light.isColorModeColor()) {
-                this._modeSelector.mode = 'color';
-            }
-            else if (light.isColorModeTemp()) {
-                this._modeSelector.mode = 'temp';
-            }
+    private onLightContainerState(light: ILightContainer, activate = false) {
+        const lights = light.getLights();
+        let singleLight = null;
+        if (lights.length == 1) {
+            singleLight = lights[0];
         }
 
-        // enable or disable brightness rollup
-        this._brightnessRollup.enabled = light.isOn();
+        if (singleLight) {
+            this._lightMarkerManager.applyState(singleLight);
+        }
 
-        if (activate) {
-            const marker = this._lightMarkerManager.getMarker(light);
-            marker.setActive();
+        // only apply current state if activating or the light is the selected one
+        if (this.lightContainer == light) {
+
+            // enable or disable brightness rollup
+            this._brightnessRollup.enabled = light.isOn();
+        }
+
+        if (activate && singleLight) {
+
+            if (singleLight.isColorModeColor()) {
+                this._modeSelector.mode = 'color';
+            }
+            else if (singleLight.isColorModeTemp()) {
+                this._modeSelector.mode = 'temp';
+            }
+
+            const marker = this._lightMarkerManager.getMarker(singleLight);
+            marker?.setActive();
         }
     }
 
@@ -276,7 +300,7 @@ export class HueLightDetail extends IdLitElement {
     }
     `;
 
-    private _lastRenderedContainer: LightController | null;
+    private _lastRenderedContainer: ILightContainer | null;
     protected override render() {
         this._lastRenderedContainer = this.lightContainer || this._lastRenderedContainer;
         const onlySwitch = this._lastRenderedContainer?.features.isEmpty() == true;
@@ -288,7 +312,7 @@ export class HueLightDetail extends IdLitElement {
         </div>`;
     }
 
-    private onSwitch(ctrl: LightController, ev: Event) {
+    private onSwitch(ctrl: ILightContainer, ev: Event) {
         const target = <HaControlSwitch>ev.target;
         if (!target)
             return;
@@ -358,7 +382,7 @@ export class HueLightDetail extends IdLitElement {
         this.updateComplete.then(() => {
             if (!this._colorPicker) {
                 this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
-                this._lightMarkerManager = new LightMarkerManager(this._colorPicker);
+                this._lightMarkerManager = new LightMarkerManager(this._colorPicker, l => this.setLightContainerFromPicker(l));
                 this.createAreaControllerMarkers();
             }
 
@@ -472,9 +496,21 @@ class LightMarkerManager {
     private _markerToLight: Record<string, ISingleLightContainer>;
     private _lightToMarker: Record<string, HueColorTempPickerMarker>;
     private _picker: HueColorTempPicker;
+    private _onMarkerActivation: Action1<ISingleLightContainer[]>;
 
-    public constructor(picker: HueColorTempPicker) {
+    public constructor(picker: HueColorTempPicker, onMarkerActivation: Action1<ISingleLightContainer[]>) {
         this._picker = picker;
+        this._onMarkerActivation = onMarkerActivation;
+
+        this._picker.addEventListener('activemarkers-change', _ => {
+            const markers = this._picker.getActiveMarkers();
+            const lights = markers.map(m => this.getLight(m)).filter(m => !!m);
+            if (lights.length) {
+                // could not resolve markers to lights - event fired probably after adding new marker
+                this._onMarkerActivation(lights);
+            }
+        });
+
         this.clear();
     }
 
@@ -503,7 +539,7 @@ class LightMarkerManager {
     /** Will apply current light state to corresponding marker. */
     public applyState(light: ISingleLightContainer) {
         const marker = this.getMarker(light);
-        if (!marker)
+        if (!marker || marker.isDrag)
             return;
 
         if (light.isColorModeColor()) {

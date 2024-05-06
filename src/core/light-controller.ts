@@ -46,6 +46,10 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
     //#region Info
 
+    public getLights(): ISingleLightContainer[] {
+        return [this];
+    }
+
     public getIcon() {
         return this._entity && this._entity.attributes.icon;
     }

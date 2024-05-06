@@ -72,6 +72,11 @@ export interface ILightConfig {
 
 export interface ILightContainer extends ILightConfig {
     /**
+     * @returns all lights in this container. May return array containing only itself, when current container is already single light.
+     */
+    getLights(): ISingleLightContainer[];
+
+    /**
      * @returns true if any light in this container is on.
      */
     isOn(): boolean;

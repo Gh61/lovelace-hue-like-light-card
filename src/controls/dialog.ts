@@ -67,6 +67,13 @@ export class HueDialog extends IdLitElement {
         this.requestUpdate('_selectedLights');
     }
 
+    private loadSelectedLights(detail: HueLightDetail) {
+        const lights = detail.lightContainer?.getLights();
+        if (lights) {
+            this.setSelectedLights(...lights);
+        }
+    }
+
     // #endregion
 
     public constructor(config: HueLikeLightCardConfig, lightController: AreaLightController, actionHandler: ActionHandler) {
@@ -92,7 +99,6 @@ export class HueDialog extends IdLitElement {
 
         // only hide selector if unselected the only one last selected light
         if (ev.detail.isSelected || !this.isOnlySelectedLight(ev.detail.lightContainer!)) {
-
             const show = () => {
                 this.setSelectedLights(ev.detail.lightContainer!);
 
@@ -105,6 +111,9 @@ export class HueDialog extends IdLitElement {
                     this._lightDetailElement.show();
                 }
             };
+
+            // to be in sync
+            (<HueDialogLightTile>ev.detail.tileElement).isSelected = true;
 
             // show with history
             this._lightDetailHistoryStep = new HueHistoryStep(show, hide, HueLightDetail.ElementName);
@@ -539,6 +548,10 @@ export class HueDialog extends IdLitElement {
                     detailElement.addEventListener('hide', () => {
                         this.toggleUnderDetailControls(false);
                         this.hideLightDetail();
+                    });
+                    // when lightContainer changes from picker
+                    detailElement.addEventListener('lightcontainer-change', () => {
+                        this.loadSelectedLights(detailElement);
                     });
 
                     surface.prepend(detailElement);
