@@ -511,7 +511,7 @@ export class HueColorTempPickerMarker {
         this.position = this._parent.getCanvasMousePoint(ev, this._dragOffset);
 
         // merge target
-        const newMergeTarget = this._parent.searchMergeTarget(this);
+        const newMergeTarget = this._parent.searchMergeMarkerTarget(this);
         if (this._mergeTarget && this._mergeTarget != newMergeTarget) {
             this._mergeTarget.isPreview = false;
         }
@@ -530,7 +530,8 @@ export class HueColorTempPickerMarker {
             this._mergeTarget.isPreview = false;
             this._mergeTarget = undefined;
 
-            this._parent.mergeMarkers(target, this);
+            const mm = this._parent.mergeMarkers(target, this);
+            mm.boing();
         }
 
         this.dispatchChangeEvent(false);

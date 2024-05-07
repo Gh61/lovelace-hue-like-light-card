@@ -38,7 +38,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            var picker = document.getElementById("picker");
+            window.picker = picker = document.getElementById("picker");
             picker.addEventListener("change", onChange);
             picker.addEventListener("immediate-value-change", onImmediateChange);
             picker.addEventListener("mode-change", onModeChange);

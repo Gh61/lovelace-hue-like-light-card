@@ -14,7 +14,7 @@ import { HueBigSwitch } from './big-switch';
 import { IconHelper } from '../core/icon-helper';
 import { AreaLightController } from '../core/area-light-controller';
 import { ILightContainer, ISingleLightContainer } from '../types/types-interface';
-import { Action1 } from '../types/functions';
+import { Action, Action1 } from '../types/functions';
 
 @customElement(HueLightDetail.ElementName)
 export class HueLightDetail extends IdLitElement {
@@ -81,7 +81,7 @@ export class HueLightDetail extends IdLitElement {
     private createAreaControllerMarkers() {
         if (this.areaController && this._lightMarkerManager) {
             this._lightMarkerManager.clear();
-            this.areaController.getLights().forEach(l => this._lightMarkerManager.add(l));
+            this._lightMarkerManager.add(...this.areaController.getLights());
         }
     }
 
@@ -116,7 +116,7 @@ export class HueLightDetail extends IdLitElement {
         }
 
         if (singleLight) {
-            this._lightMarkerManager.applyState(singleLight);
+            this._lightMarkerManager.applyState(singleLight, !activate); // non active lights can be unmerged
         }
 
         // only apply current state if activating or the light is the selected one
@@ -144,12 +144,14 @@ export class HueLightDetail extends IdLitElement {
         const marker = ev.detail.marker;
         const light = this._lightMarkerManager.getLight(marker);
 
-        if (ev.detail.mode == 'temp') {
-            light.colorTemp = ev.detail.newTemp;
-        }
-        else if (ev.detail.mode == 'color') {
-            light.color = ev.detail.newColor;
-        }
+        this._lightMarkerManager.suspendStateUpdate(() => {
+            if (ev.detail.mode == 'temp') {
+                light.colorTemp = ev.detail.newTemp;
+            }
+            else if (ev.detail.mode == 'color') {
+                light.color = ev.detail.newColor;
+            }
+        });
     }
 
     public activate(light: ISingleLightContainer) {
@@ -497,6 +499,7 @@ class LightMarkerManager {
     private _lightToMarker: Record<string, HueColorTempPickerMarker>;
     private _picker: HueColorTempPicker;
     private _onMarkerActivation: Action1<ISingleLightContainer[]>;
+    private _stateUpdateSuspended = false;
 
     public constructor(picker: HueColorTempPicker, onMarkerActivation: Action1<ISingleLightContainer[]>) {
         this._picker = picker;
@@ -514,30 +517,48 @@ class LightMarkerManager {
         this.clear();
     }
 
-    public add(light: ISingleLightContainer) {
-        // no marker for light without color/temp features
-        if (light.features.isEmpty() || light.features.isOnlyBrightness())
-            return;
+    public add(...lights: ISingleLightContainer[]) {
+        lights.forEach(light => {
+            // no marker for light without color/temp features
+            if (light.features.isEmpty() || light.features.isOnlyBrightness())
+                return;
 
-        const marker = this._picker.addMarker();
-        marker.icon = light.getIcon() || IconHelper.getIcon(1);
+            const marker = this._picker.addMarker(light.getEntityId());
+            marker.icon = light.getIcon() || IconHelper.getIcon(1);
 
-        // fixed mode for lights that supports only single mode
-        if (!light.features.color && light.features.colorTemp) {
-            marker.fixedMode = 'temp';
+            // fixed mode for lights that supports only single mode
+            if (!light.features.color && light.features.colorTemp) {
+                marker.fixedMode = 'temp';
+            }
+            else if (light.features.color && !light.features.colorTemp) {
+                marker.fixedMode = 'color';
+            }
+
+            this._markerToLight[marker.name] = light;
+            this._lightToMarker[light.getEntityId()] = marker;
+
+            this.applyState(light);
+        });
+
+        // try merge newly added markers
+        this._picker.tryMergeMarkers();
+    }
+
+    public suspendStateUpdate(action: Action) {
+        this._stateUpdateSuspended = true;
+        try {
+            action();
         }
-        else if (light.features.color && !light.features.colorTemp) {
-            marker.fixedMode = 'color';
+        finally {
+            this._stateUpdateSuspended = false;
         }
-
-        this._markerToLight[marker.name] = light;
-        this._lightToMarker[light.getEntityId()] = marker;
-
-        this.applyState(light);
     }
 
     /** Will apply current light state to corresponding marker. */
-    public applyState(light: ISingleLightContainer) {
+    public applyState(light: ISingleLightContainer, mergingPossible = false) {
+        if (this._stateUpdateSuspended)
+            return;
+
         const marker = this.getMarker(light);
         if (!marker || marker.isDrag)
             return;
@@ -555,6 +576,14 @@ class LightMarkerManager {
 
         // show marker as off
         marker.isOff = !light.isOn(); // unavailable state will be also off
+
+        // unmerge/remerge
+        if (mergingPossible) {
+            if (this._picker.shouldUnmergeMarker(marker)) {
+                this._picker.unmergeMarker(marker);
+            }
+            this._picker.tryMergeMarkers(marker);
+        }
     }
 
     public getLight(marker: HueColorTempPickerMarker) {

@@ -157,6 +157,8 @@ export class HueColorTempPicker extends LitElement {
         this._backgroundLayer.height = HueColorTempPicker.renderWidthHeight;
     }
 
+    // #region Markers
+
     public get activeMarker() {
         return this._activeMarker;
     }
@@ -187,10 +189,6 @@ export class HueColorTempPicker extends LitElement {
         return m;
     }
 
-    //TODO:
-    // - add tryMergeMarkers method (with marker parameter, for not checking everything with everything)
-    // - add unmergeMarker method
-
     /**
      * Will remove all markers from this color picker.
      */
@@ -213,32 +211,7 @@ export class HueColorTempPicker extends LitElement {
 
         // marker was not found, try to find it inside of multi markers
         if (index < 0) {
-            this._markers.forEach((mm, mmIndex) => {
-                if (!(mm instanceof HueColorTempPickerMultiMarker))
-                    return true; // continue
-
-                const innerIndex = mm.markers.indexOf(marker);
-                if (innerIndex < 0)
-                    return true; // continue
-
-                // remove marker from multi marker
-                mm.markers.splice(innerIndex, 1);
-
-                // if inner marker is only one (or zero), get it out
-                if (mm.markers.length == 1) {
-                    // replace multi marker with the remaining one
-                    this._markers[mmIndex] = mm.markers[0];
-                }
-                else if (mm.markers.length == 0) {
-                    // remove empty multi marker (should not happen, but anyway)
-                    this._markers.splice(mmIndex, 1);
-                }
-
-                // add found marker at the end
-                this._markers.push(marker);
-
-                return false;// break
-            });
+            this.unmergeMarker(marker, /*moveToEnd:*/ true);
         }
         else {
             // the active marker must be rendered last - to be on top
@@ -255,51 +228,194 @@ export class HueColorTempPicker extends LitElement {
         this.dispatchEvent(new Event('activemarkers-change'));
     }
 
+    // #region Merge markers
+
+    /**
+     * Will try to merge all markers close enough together, creating multi-markers.
+     * @param marker If given, will search for merging only this one marker.
+     */
+    public tryMergeMarkers(marker?: HueColorTempPickerMarker) {
+        // single marker to merge
+        if (marker) {
+
+            // BUG if marker is inside multimarker
+            // TODO: create findMultiMarker method and use it here
+
+            const target = this.searchMergeMarkerTarget(marker);
+            if (target) {
+                this.mergeMarkers(target, marker);
+            }
+
+            return;
+        }
+
+        // try merge all markers
+        for (let i = 0; i < this._markers.length; i++) {
+            const m = this._markers[i];
+            let isMerged = false;
+
+            for (let j = i + 1; j < this._markers.length; j++) {
+                const t = this._markers[j];
+
+                if (this.canBeMarkerMerged(m, t)) {
+                    this.mergeMarkers(t, m);
+
+                    // break
+                    isMerged = true;
+                    break;
+                }
+            }
+
+            // when merged, markers moved
+            if (isMerged) {
+                i--;
+            }
+        }
+    }
+
     /**
      * Will return potential merge target close to the position of given marker.
      * Also the target must be in the same mode (when different mode, it's ignored).
      * Will return null, if nothing is in merging range.
      */
-    public searchMergeTarget(marker: HueColorTempPickerMarker) {
+    public searchMergeMarkerTarget(marker: HueColorTempPickerMarker) {
+        return this._markers.find(m => this.canBeMarkerMerged(marker, m));
+    }
+
+    /**
+     * @returns whether the passed marker can be merged into the passed target.
+     */
+    private canBeMarkerMerged(marker: HueColorTempPickerMarker, target: HueColorTempPickerMarker) {
+        // turned-off marker not merging with anything
+        if (marker.isOff)
+            return false;
+
         const range = this.getRadius() * 0.1;
 
-        const target = this._markers.find(m => {
-            // ignore self
-            if (m == marker)
-                return false;
+        // ignore self
+        if (target == marker)
+            return false;
 
-            // ignore another mode
-            if (m.mode != marker.mode)
-                return false;
+        // ignore another mode
+        if (target.mode != marker.mode)
+            return false;
 
-            const distance = m.position.getDistance(marker.position);
-            return distance <= range;
-        });
+        // ignore all turned-off markers
+        if (target.isOff)
+            return false;
 
-        return target;
+        const distance = target.position.getDistance(marker.position);
+        return distance <= range;
     }
 
     /**
      * Will create merged marker (containing all markers passed to this function) at the position of first.
      * @param target Reference to the marker, from which the position and other initial values are taken
-     * @param markers Rest of the markers
+      * @param markers Rest of the markers
      */
     public mergeMarkers(target: HueColorTempPickerMarker, ...markers: HueColorTempPickerMarker[]) {
         const mm = new HueColorTempPickerMultiMarker(this, target, ...markers);
 
-        // we need to remove all inner markers from collection
-        removeFrom(this._markers, target);
+        // remove the marker
         removeFrom(this._markers, ...markers);
 
-        // add new merged marker
-        this._markers.push(mm);
+        // replace target with new multimarker
+        const targetIndex = this._markers.indexOf(target);
+        this._markers.splice(targetIndex, 1, mm);
 
-        // make it active
-        this.activateMarker(mm);
+        // if any of the markers were active, we should activate the new marker
+        if (target.isActive || markers.some(m => m.isActive)) {
+            this.activateMarker(mm, false);
+        }
+
         this.requestUpdate('_markers');
 
         return mm;
     }
+
+    /**
+     * @returns whether the given marker is no longer candidate for merge with it's parent multi-marker.
+     */
+    public shouldUnmergeMarker(marker: HueColorTempPickerMarker) {
+        let shouldUnmerge = false;
+
+        this._markers.forEach(mm => {
+            // only multi markers
+            if (!(mm instanceof HueColorTempPickerMultiMarker))
+                return true; // continue
+
+            // search for marker
+            const innerIndex = mm.markers.indexOf(marker);
+            if (innerIndex < 0)
+                return true; // continue
+
+            // found multi-marker
+            shouldUnmerge = !this.canBeMarkerMerged(marker, mm);
+            return false;// break
+        });
+
+        return shouldUnmerge;
+    }
+
+    /**
+     * Will find given marker in any merged marker and it will be unmerged.
+     * If it's not merged, nothing will happen.
+     */
+    public unmergeMarker(marker: HueColorTempPickerMarker, moveToEnd = false) {
+        let unmerged = false;
+
+        this._markers.forEach((mm, mmIndex) => {
+            // only multi markers
+            if (!(mm instanceof HueColorTempPickerMultiMarker))
+                return true; // continue
+
+            // search for marker
+            const innerIndex = mm.markers.indexOf(marker);
+            if (innerIndex < 0)
+                return true; // continue
+
+            // remove marker from multi marker
+            mm.markers.splice(innerIndex, 1);
+
+            // if inner marker is only one (or zero), get it out
+            if (mm.markers.length == 1) {
+                // replace multi marker with the remaining one
+                this._markers[mmIndex] = mm.markers[0];
+
+                // activate remaining marker
+                if (!moveToEnd && mm.isActive) {
+                    this.activateMarker(mm.markers[0], false);
+                }
+            }
+            else if (mm.markers.length == 0) {
+                // remove empty multi marker (should not happen, but anyway)
+                this._markers.splice(mmIndex, 1);
+            }
+
+            if (moveToEnd) {
+                // add unmerged marker to the end
+                this._markers.push(marker);
+            } else {
+                // add unmerged marker before the multi marker
+                this._markers.splice(mmIndex, 0, marker);
+            }
+
+            // indicate success
+            unmerged = true;
+
+            return false;// break
+        });
+
+        if (unmerged) {
+            this.requestUpdate('_markers');
+        }
+
+        // returns whether the unmerge was successfull
+        return unmerged;
+    }
+
+    // #endregion
+    // #endregion
 
     /**
      * Draws temp or color wheel depending on the selected mode.
@@ -806,6 +922,14 @@ class HueColorTempPickerMultiMarker extends HueColorTempPickerMarker {
     public override set position(pos: Point) {
         super.position = pos;
         this.markers?.forEach(m => HueColorTempPickerMultiMarker.applyState(this, m));
+    }
+
+    public override get isDrag(): boolean {
+        return super.isDrag;
+    }
+    public override set isDrag(value: boolean) {
+        super.isDrag = value;
+        this.markers?.forEach(m => m.isDrag = value);
     }
 
     public override dispatchChangeEvent(immediate: boolean) {
