@@ -15,6 +15,7 @@ import { IconHelper } from '../core/icon-helper';
 import { AreaLightController } from '../core/area-light-controller';
 import { ILightContainer, ISingleLightContainer } from '../types/types-interface';
 import { Action, Action1 } from '../types/functions';
+import { Color } from '../core/colors/color';
 
 @customElement(HueLightDetail.ElementName)
 export class HueLightDetail extends IdLitElement {
@@ -495,6 +496,9 @@ export class HueLightDetail extends IdLitElement {
 }
 
 class LightMarkerManager {
+    private static readonly MarkerOffColor = new Color(0, 0, 0);
+    private static readonly MarkerUnavailableColor = new Color(102, 102, 102);
+
     private _markerToLight: Record<string, ISingleLightContainer>;
     private _lightToMarker: Record<string, HueColorTempPickerMarker>;
     private _picker: HueColorTempPicker;
@@ -576,6 +580,7 @@ class LightMarkerManager {
 
         // show marker as off
         marker.isOff = !light.isOn(); // unavailable state will be also off
+        marker.offColor = light.isUnavailable() ? LightMarkerManager.MarkerUnavailableColor : LightMarkerManager.MarkerOffColor;
 
         // unmerge/remerge
         if (mergingPossible && !marker.isActive) { // do not merge single active marker

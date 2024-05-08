@@ -15,6 +15,7 @@ export class HueColorTempPickerMarker {
 
     public readonly name: string;
     private _color: Color = new Color(0, 0, 0);
+    private _offColor: Color = new Color(0, 0, 0);
     private _temp = 3008;
     private _position: Point;
     private _fixedMode?: HueColorTempPickerMode;
@@ -210,6 +211,17 @@ export class HueColorTempPickerMarker {
     public set isOff(value: boolean) {
         this._isOff = value;
         this.renderColor();
+    }
+
+    /** Gets or sets the color of the marker when the marker is marked as off. */
+    public get offColor() {
+        return this._offColor;
+    }
+    public set offColor(value: Color) {
+        this._offColor = value;
+        if (this.isOff) {
+            this.renderColor();
+        }
     }
 
     public get color() {
@@ -429,7 +441,7 @@ export class HueColorTempPickerMarker {
 
     private renderColor() {
         if (this._isOff) {
-            this._markerG.style.color = 'rgb(0,0,0)';
+            this._markerG.style.color = this._offColor.toString();
             this._iconElement.style.fill = Consts.LightColor.toString();
         }
         else {
