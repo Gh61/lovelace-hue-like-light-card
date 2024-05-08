@@ -5,7 +5,7 @@ import { PointerDragHelper } from './pointer-drag-helper';
 import { HaIcon } from '../types/types-hass';
 import { HueColorTempPicker, HueColorTempPickerMode, IHueColorTempPickerEventDetail } from './color-temp-picker';
 import { css, unsafeCSS } from 'lit';
-import { doVibrate } from '../types/extensions';
+import { forwardHaptic } from 'custom-card-helpers';
 
 export class HueColorTempPickerMarker {
     private readonly _parent: HueColorTempPicker;
@@ -159,7 +159,7 @@ export class HueColorTempPickerMarker {
             return;
 
         if (value) {
-            doVibrate(20);
+            forwardHaptic('light');
         }
 
         this._isPreview = value;
