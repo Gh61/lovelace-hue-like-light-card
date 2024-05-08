@@ -57,7 +57,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.offShadow = HueLikeLightCardConfig.getBoolean(plainConfig.offShadow, true);
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
         this.apiId = plainConfig.apiId;
-        this.isHidden = HueLikeLightCardConfig.getBoolean(plainConfig.isHidden, this.apiId ? true : false);
+        this.isVisible = HueLikeLightCardConfig.getBoolean(plainConfig.isVisible, true);
 
         this.style = plainConfig.style;
         this.card_mod = plainConfig.card_mod;
@@ -221,7 +221,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly offShadow: boolean;
     public readonly hueBorders: boolean;
     public readonly apiId?: string;
-    public readonly isHidden: boolean;
+    public readonly isVisible: boolean;
 
     /** Support for card-mod styling */
     public readonly style?: unknown;

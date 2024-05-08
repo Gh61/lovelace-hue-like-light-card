@@ -252,13 +252,12 @@ Some of these options may not be in the latest version. Please always check the 
     <td>Identifier of the card for the <a href="#api-interface">API interface</a>.</td>
   </tr>
   <tr>
-    <td><code>isHidden</code></td>
+    <td><code>isVisible</code></td>
     <td>boolean</td>
     <td>no</td>
     <td>1.7.0</td>
-    <td><code>true</code> if <i><code>apiId</code></i> is set<br/>
-    Otherwise <code>false</code></td>
-    <td>If turned off, the card will be visible even if API functions are active.</td>
+    <td><code>true</code></td>
+    <td>If turned off, the card will be hidden. (Use this if you only want the API functions.)</td>
   </tr>
   <tr>
     <td><s><code>resources</code></s></td>
@@ -606,7 +605,7 @@ type: custom:hue-like-light-card
 ...
 apiId: room1
 ```
-*This will hide the card on the dashboard. If you want to card to be shown, add `isHidden: false` to settings.*
+*If you only want to use the API (dialog) from another cards, you can hide this card using `isVisible: false` setting.*
 
 ### Javascript usage
 When any card on the dashboard has `apiId` filled in, global object named `hue_card` will be available on `window` object.<br/>

@@ -416,7 +416,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         }
 
         // no config, ctrl or hass
-        if (!this._config || !this._ctrl || !this._hass || this._config.isHidden)
+        if (!this._config || !this._ctrl || !this._hass || !this._config.isVisible)
             return nothing;
 
         const titleTemplate = this._config.getTitle(this._ctrl);
