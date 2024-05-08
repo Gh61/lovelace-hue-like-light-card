@@ -619,3 +619,113 @@ export class HueColorTempPickerMarker {
         return pointFromTopLeft;
     }
 }
+
+export class HueColorTempPickerMultiMarker extends HueColorTempPickerMarker {
+    private static mm_counter = 1;
+
+    public readonly markers = new Array<HueColorTempPickerMarker>();
+
+    public constructor(parent: HueColorTempPicker, target: HueColorTempPickerMarker, ...markers: HueColorTempPickerMarker[]) {
+        super(parent, 'mm' + HueColorTempPickerMultiMarker.mm_counter++);
+
+        if (target == null || markers.length < 1)
+            throw new Error('At least two markers needs to be passed to create HueColorTempPickerMultiMarker');
+
+        HueColorTempPickerMultiMarker.applyState(target, this);
+
+        // check if tha passed markers are already merged
+        if (target instanceof HueColorTempPickerMultiMarker) {
+            target.markers.forEach(m => this.markers.push(m));
+        }
+        else {
+            this.markers.push(target);
+        }
+
+        markers.forEach(m => {
+            if (m instanceof HueColorTempPickerMultiMarker) {
+                m.markers.forEach(mm => {
+                    this.markers.push(mm);
+                    // also synchronize states
+                    HueColorTempPickerMultiMarker.applyState(target, mm);
+                });
+            }
+            else {
+                this.markers.push(m);
+                // also synchronize states
+                HueColorTempPickerMultiMarker.applyState(target, m);
+            }
+        });
+
+        this.renderIcon();
+    }
+
+    public override get position() {
+        return super.position;
+    }
+    public override set position(pos: Point) {
+        super.position = pos;
+        this.markers?.forEach(m => HueColorTempPickerMultiMarker.applyState(this, m));
+    }
+
+    public override get isDrag(): boolean {
+        return super.isDrag;
+    }
+    public override set isDrag(value: boolean) {
+        super.isDrag = value;
+        this.markers?.forEach(m => m.isDrag = value);
+    }
+
+    public override dispatchChangeEvent(immediate: boolean) {
+        // fire only non immediate events (immediate are fired in applyState)
+        if (!immediate) {
+            this.markers?.forEach(m => m.dispatchChangeEvent(immediate));
+        }
+    }
+
+    private static applyState(from: HueColorTempPickerMarker, to: HueColorTempPickerMarker) {
+        if (to.mode != from.mode) {
+            to.mode = from.mode;
+        }
+        // this also fires dispatch
+        to.position = from.position;
+    }
+
+    // #region Number icon
+
+    private renderIcon() {
+        this._iconElement.innerHTML = this.icon;
+    }
+
+    public override get icon(): string {
+        return this.markers?.length.toString() ?? '';
+    }
+    public override set icon(_: string) {
+        // noop
+    }
+
+    public override render(): SVGGraphicsElement {
+        const result = super.render();
+
+        this.renderIcon();
+
+        return result;
+    }
+
+    protected override drawMarkerIcon(): SVGElement {
+        const i = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'text'
+        );
+        i.setAttribute('class', 'icon text');
+        i.setAttribute('x', '24');
+        i.setAttribute('y', '24');
+        i.setAttribute('text-anchor', 'middle');
+        i.setAttribute('dominant-baseline', 'middle');
+
+        i.innerHTML = this.icon;
+
+        return i;
+    }
+
+    // #endregion
+}
