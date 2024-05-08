@@ -64,7 +64,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.card_mod = plainConfig.card_mod;
 
         // need some init?
-        if (this.scenes == null || this.area || this.label) {
+        if (this._scenes == null || this.area || this.label) {
             this._isInitialized = false;
         }
         else {
