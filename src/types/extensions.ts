@@ -16,9 +16,9 @@ export function ensureEntityDomain(entityId: string, expectedDomain: string, ...
 }
 
 /**
- * @returns new array from passed array, but with removed duplicites.
+ * @returns new array from passed array, but with only first occurrence of every item.
  */
-export function removeDuplicites<T>(array: Array<T>): Array<T> {
+export function removeDuplicates<T>(array: Array<T>): Array<T> {
     return array.filter(function (elem, index, self) {
         return index === self.indexOf(elem);
     });

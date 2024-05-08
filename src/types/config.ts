@@ -3,7 +3,7 @@ import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
 import { HomeAssistant } from 'custom-card-helpers';
-import { removeDuplicites } from './extensions';
+import { removeDuplicates } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
 import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SliderType } from './types-config';
@@ -247,7 +247,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly wasOffColorSet: boolean;
 
     /**
-     * @returns List of entity identifiers
+     * @returns List of unique entity identifiers
      */
     public getEntities(): string[] {
         // create list of entities (prepend entity and then insert all entities)
@@ -268,7 +268,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
             result.push(e);
         });
 
-        return result;
+        return removeDuplicates(result);
     }
 
     /**
@@ -441,7 +441,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
              */
 
             // get entities, and create ordered list based on order of entities in config
-            const entities = removeDuplicites(this.getEntities());
+            const entities = this.getEntities();
             const lightRelations = entities.map(entityId => {
                 return { entityId };
             }) as EntityRelations[];
@@ -460,7 +460,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
 
             // get all scenes - order depends on entity order in config
             let loadedScenes = lightRelations.filter(r => !!r.areaScenes).flatMap(r => r.areaScenes);
-            loadedScenes = removeDuplicites(loadedScenes);
+            loadedScenes = removeDuplicates(loadedScenes);
 
             this.setLoadedScenes(loadedScenes);
         }
