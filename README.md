@@ -93,6 +93,17 @@ Some of these options may not be in the latest version. Please always check the 
     </td>
   </tr>
   <tr>
+    <td><code>label</code></td>
+    <td>string</td>
+    <td>yes*</td>
+    <td>1.7.0</td>
+    <td>-</td>
+    <td>
+      Name or ID of <b>Label</b> with lights<br/>
+      (eg. <code>Kitchen - desk</code> or <code>kitchen_desk</code>)
+    </td>
+  </tr>
+  <tr>
     <td><code>groupEntity</code></td>
     <td>string</td>
     <td>no</td>
@@ -285,7 +296,7 @@ Some of these options may not be in the latest version. Please always check the 
   </tr>
   <tr>
     <td colspan="6">
-      <i>* At least one of these options must be filled in. <b>Only entities of <code>light</code> domain and/or areas with <code>light</code> domain entities are supported.</b></i>
+      <i>* At least one of these options must be filled in. <b>Only entities of <code>light</code> domain and/or areas and labels with <code>light</code> domain entities are supported.</b></i>
     </td>
   </tr>
 </table>
@@ -367,6 +378,7 @@ Some of these options may not be in the latest version. Please always check the 
 </table>
 
 ### Automatic Icon
+- If `label` option is set and given label has icon, the icon is taken from label.
 - If the card has **one** light entity attached, the icon is taken from entity.
     - If the entity has no icon, `mdi:lightbulb` (![lightbulb](https://user-images.githubusercontent.com/10837736/171443813-5e0dc16c-de15-43a1-9e96-0917c038e0a9.svg)) is used.
 - If the card has **two** lights `mdi:lightbulb-multiple` (![lightbulb-multiple](https://user-images.githubusercontent.com/10837736/171444016-4b571fcf-0e30-4eca-9baf-61a710c17c05.svg)) is used.

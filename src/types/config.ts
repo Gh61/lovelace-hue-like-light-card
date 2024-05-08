@@ -7,7 +7,7 @@ import { removeDuplicites } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
 import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SliderType } from './types-config';
-import { HassAreaLightsResult, HassWsClient } from '../core/hass-ws-client';
+import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
 
 declare type EntityRelations = {
     entityId: string;
@@ -16,24 +16,25 @@ declare type EntityRelations = {
 };
 
 export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
-    private _areaEntities?: string[];
     private _title?: string;
+    private _icon?: string;
     private _scenes: SceneConfig[] | null;
 
     public constructor(plainConfig: HueLikeLightCardConfigInterface) {
 
         // check if we potentialy have at least one entity
-        if (!plainConfig.entity && (!plainConfig.entities || !plainConfig.entities.length) && !plainConfig.area) {
-            throw new Error('One of "entity" and/or "entities" or "area" needs to be set.');
+        if (!plainConfig.entity && (!plainConfig.entities || !plainConfig.entities.length) && !plainConfig.area && !plainConfig.label) {
+            throw new Error('At least one of "entity", "entities", "area" or "label" needs to be set.');
         }
 
         this.entity = plainConfig.entity;
         this.entities = plainConfig.entities;
         this.area = plainConfig.area;
+        this.label = plainConfig.label;
         this.groupEntity = plainConfig.groupEntity;
         this._title = plainConfig.title;
         this.description = plainConfig.description;
-        this.icon = plainConfig.icon;
+        this._icon = plainConfig.icon;
         this.iconSize = HueLikeLightCardConfig.getIconSize(plainConfig.iconSize);
         this.showSwitch = HueLikeLightCardConfig.getBoolean(plainConfig.showSwitch, true);
         this.switchOnScene = plainConfig.switchOnScene;
@@ -63,7 +64,7 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this.card_mod = plainConfig.card_mod;
 
         // need some init?
-        if (this.getEntities().length == 0 || this._scenes == null) {
+        if (this.scenes == null || this.area || this.label) {
             this._isInitialized = false;
         }
         else {
@@ -191,12 +192,15 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     public readonly entity?: string;
     public readonly entities?: string[] | ConfigEntityInterface[];
     public readonly area?: string;
+    public readonly label?: string;
     public readonly groupEntity?: string;
     public get title() {
         return this._title;
     }
     public readonly description?: string;
-    public readonly icon?: string;
+    public get icon() {
+        return this._icon;
+    }
     public readonly iconSize: number;
     public readonly showSwitch: boolean;
     public readonly switchOnScene?: string;
@@ -260,6 +264,9 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this._areaEntities && this._areaEntities.forEach(e => {
             result.push(e);
         });
+        this._labelEntities && this._labelEntities.forEach(e => {
+            result.push(e);
+        });
 
         return result;
     }
@@ -309,14 +316,18 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         // init is running
         this._isInitialized = true;
 
-        // load entities from area, if needed
+        // load entities from area if needed
         await this.tryLoadAreaInfo(hass);
+
+        // load entities from label if needed
+        await this.tryLoadLabelInfo(hass);
 
         // load scenes if needed
         // fire&forget, no need to wait for these
         this.tryLoadScenes(hass);
     }
 
+    private _areaEntities?: string[];
     private _areaEntitiesLoaded = false;
     /**
      * Will try to load area light entities from HA WS.
@@ -329,10 +340,10 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this._areaEntitiesLoaded = true;
 
         const client = new HassWsClient(hass);
-        let areaLightsInfo: HassAreaLightsResult | null;
+        let areaLightsInfo: HassSearchLightsResult | null;
 
         try {
-            areaLightsInfo = await client.getLightEntities(this.area);
+            areaLightsInfo = await client.getLightEntitiesFromArea(this.area);
         }
         catch (error) {
             console.error('Cannot load light entities from HA.');
@@ -354,12 +365,58 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         this._areaEntities = areaLightsInfo.lights;
         // if no title is given, use area name
         if (this._title == null) {
-            this._title = areaLightsInfo.areaName;
+            this._title = areaLightsInfo.groupName;
         }
         // if no other entities are set, use scenes from area
         if (this._scenes == null && this.getEntities().length == this._areaEntities.length) {
             const loadedScenes = client.getScenesFromResult(areaLightsInfo.dataResult);
             this.setLoadedScenes(loadedScenes);
+        }
+    }
+
+    private _labelEntities?: string[];
+    private _labelEntitiesLoaded = false;
+    /**
+     * Will try to load label light entities from HA WS.
+     * Will also set title and scenes, if possible.
+     */
+    private async tryLoadLabelInfo(hass: HomeAssistant) {
+        if (this._labelEntitiesLoaded || !this.label || this._labelEntities != null)
+            return;
+
+        this._labelEntitiesLoaded = true;
+
+        const client = new HassWsClient(hass);
+        let labelLightsInfo: HassSearchLightsResult | null;
+
+        try {
+            labelLightsInfo = await client.getLightEntitiesFromLabel(this.label);
+        }
+        catch (error) {
+            console.error('Cannot load light entities from HA.');
+            console.error(error);
+
+            // rethrow exception for UI
+            throw new Error(`Cannot load entities from label '${this.label}'. See console for more info.`);
+        }
+
+        if (labelLightsInfo == null) {
+            throw new Error(`Label '${this.label}' does not exist.`);
+        }
+
+        // check for at least one light entity
+        if (labelLightsInfo.lights.length == 0) {
+            throw new Error(`Label '${this.label}' has no light entities.`);
+        }
+
+        this._labelEntities = labelLightsInfo.lights;
+        // if no title is given, use label name
+        if (this._title == null) {
+            this._title = labelLightsInfo.groupName;
+        }
+        // if no icon is given, use label icon
+        if (this._icon == null && labelLightsInfo.labelInfo?.icon) {
+            this._icon = labelLightsInfo.labelInfo.icon;
         }
     }
 

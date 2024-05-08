@@ -65,6 +65,14 @@ export interface HassAreaInfo {
     name: string;
 }
 
+export interface HassLabelInfo {
+    label_id: string;
+    name: string;
+    icon?: string;
+    color?: string;
+    description?: string;
+}
+
 export enum HassLightColorMode {
     unknown = 'unknown',
 

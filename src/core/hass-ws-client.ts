@@ -1,17 +1,19 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { HassSearchDeviceResult, HomeAssistantEx } from '../types/types-hass';
+import { HassLabelInfo, HassSearchDeviceResult, HomeAssistantEx } from '../types/types-hass';
 import { removeDiacritics } from '../types/extensions';
 
-export interface HassAreaLightsResult {
-    areaName: string,
+export interface HassSearchLightsResult {
+    groupName: string,
     lights: string[],
-    dataResult: HassSearchDeviceResult
+    dataResult: HassSearchDeviceResult,
+    labelInfo?: HassLabelInfo
 }
 
 /**
  * Functions to call Hass WebSocket services to get data.
  * More info:
  * https://github.com/home-assistant/core/blob/dev/homeassistant/components/search/__init__.py
+ * https://github.com/home-assistant/core/blob/dev/homeassistant/components/config/label_registry.py
  */
 export class HassWsClient {
     private readonly _hass;
@@ -31,9 +33,8 @@ export class HassWsClient {
      * @param area - Area name.
      * @returns Ids of all light entities in given area or null, when nothing is returned - indicating, the area does not exist.
      */
-    public async getLightEntities(area: string) : Promise<HassAreaLightsResult | null> {
-        // area codes are lowercase, underscore instead of spaces and removed diacritics
-        const areaId = removeDiacritics(area).toLowerCase().replaceAll(/[ _-]+/g, '_');
+    public async getLightEntitiesFromArea(area: string) : Promise<HassSearchLightsResult | null> {
+        const areaId = this.slugify(area);
 
         const areaResult = await this._hass.connection.sendMessagePromise<HassSearchDeviceResult>({
             type: 'search/related',
@@ -49,16 +50,63 @@ export class HassWsClient {
 
         if (areaResult.entity && areaResult.entity.length) {
             return {
-                areaName: areaName,
+                groupName: areaName,
                 lights: areaResult.entity.filter((e) => e.startsWith('light.')),
                 dataResult: areaResult
             };
         }
 
         return {
-            areaName: areaName,
+            groupName: areaName,
             lights: [],
             dataResult: areaResult
+        };
+    }
+
+    /**
+     * Will get all light entities with given label.
+     * @param label - Label name.
+     * @returns Ids of all light entities with given label or null, when nothing is returned - indicating, the label does not exist.
+     */
+    public async getLightEntitiesFromLabel(label: string) : Promise<HassSearchLightsResult | null> {
+        const labelId = this.slugify(label);
+
+        // load label registry
+        const labelList = await this._hass.connection.sendMessagePromise<HassLabelInfo[]>({
+            type: 'config/label_registry/list'
+        });
+        const labelInfo = labelList.find(li => li.label_id == labelId);
+        if (!labelInfo) {
+            // label not found
+            return null;
+        }
+
+        const labelResult = await this._hass.connection.sendMessagePromise<HassSearchDeviceResult>({
+            type: 'search/related',
+            item_type: 'label',
+            item_id: labelId
+        });
+
+        if (!labelResult || Object.keys(labelResult).length === 0) {
+            return null;
+        }
+
+        const labelName = labelInfo.name || label;
+
+        if (labelResult.entity && labelResult.entity.length) {
+            return {
+                groupName: labelName,
+                lights: labelResult.entity.filter((e) => e.startsWith('light.')),
+                dataResult: labelResult,
+                labelInfo: labelInfo
+            };
+        }
+
+        return {
+            groupName: labelName,
+            lights: [],
+            dataResult: labelResult,
+            labelInfo: labelInfo
         };
     }
 
@@ -104,5 +152,11 @@ export class HassWsClient {
         }
 
         return [];
+    }
+
+    private slugify(name: string) : string {
+        // slugs are lowercase, underscore instead of spaces and removed diacritics
+        const slug = removeDiacritics(name).toLowerCase().replaceAll(/[ _-]+/g, '_');
+        return slug;
     }
 }
