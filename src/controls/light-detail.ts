@@ -578,7 +578,7 @@ class LightMarkerManager {
         marker.isOff = !light.isOn(); // unavailable state will be also off
 
         // unmerge/remerge
-        if (mergingPossible) {
+        if (mergingPossible && !marker.isActive) { // do not merge single active marker
             if (this._picker.shouldUnmergeMarker(marker)) {
                 this._picker.unmergeMarker(marker);
             }

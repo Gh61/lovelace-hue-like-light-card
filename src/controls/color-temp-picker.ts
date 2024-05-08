@@ -238,9 +238,13 @@ export class HueColorTempPicker extends LitElement {
         // single marker to merge
         if (marker) {
 
-            // BUG if marker is inside multimarker
-            // TODO: create findMultiMarker method and use it here
+            // try to find multi-marker
+            const { mm } = this.findMultiMarker(marker);
+            if (mm) {
+                marker = mm;
+            }
 
+            // search for merge target
             const target = this.searchMergeMarkerTarget(marker);
             if (target) {
                 this.mergeMarkers(target, marker);
@@ -339,20 +343,11 @@ export class HueColorTempPicker extends LitElement {
     public shouldUnmergeMarker(marker: HueColorTempPickerMarker) {
         let shouldUnmerge = false;
 
-        this._markers.forEach(mm => {
-            // only multi markers
-            if (!(mm instanceof HueColorTempPickerMultiMarker))
-                return true; // continue
-
-            // search for marker
-            const innerIndex = mm.markers.indexOf(marker);
-            if (innerIndex < 0)
-                return true; // continue
-
+        const { mm } = this.findMultiMarker(marker);
+        if (mm) {
             // found multi-marker
             shouldUnmerge = !this.canBeMarkerMerged(marker, mm);
-            return false;// break
-        });
+        }
 
         return shouldUnmerge;
     }
@@ -362,7 +357,54 @@ export class HueColorTempPicker extends LitElement {
      * If it's not merged, nothing will happen.
      */
     public unmergeMarker(marker: HueColorTempPickerMarker, moveToEnd = false) {
-        let unmerged = false;
+        // try to find marker inside multi-marker
+        const { mm, mmIndex, innerIndex } = this.findMultiMarker(marker);
+
+        // marker is not inside of any multi-marker
+        if (!mm)
+            return false;
+
+        // remove marker from multi marker
+        mm.markers.splice(innerIndex, 1);
+
+        // if inner marker is only one (or zero), get it out
+        if (mm.markers.length == 1) {
+            // replace multi marker with the remaining one
+            this._markers[mmIndex] = mm.markers[0];
+
+            // activate remaining marker
+            if (!moveToEnd && mm.isActive) {
+                this.activateMarker(mm.markers[0], false);
+            }
+        }
+        else if (mm.markers.length == 0) {
+            // remove empty multi marker (should not happen, but anyway)
+            this._markers.splice(mmIndex, 1);
+        }
+
+        if (moveToEnd) {
+            // add unmerged marker to the end
+            this._markers.push(marker);
+        }
+        else {
+            // add unmerged marker before the multi marker
+            this._markers.splice(mmIndex, 0, marker);
+        }
+
+        // refresh markers
+        this.requestUpdate('_markers');
+
+        // return successful unmerge
+        return true;
+    }
+
+    /**
+     * Will find and return the multi-marker and its index in which the given marker is held.
+     * @returns undefined if no multi-marker contains given marker
+     */
+    private findMultiMarker(marker: HueColorTempPickerMarker) {
+        let result: { mm?: HueColorTempPickerMultiMarker, mmIndex: number, innerIndex: number }
+            = { mm: undefined, mmIndex: -1, innerIndex: -1 };
 
         this._markers.forEach((mm, mmIndex) => {
             // only multi markers
@@ -374,44 +416,12 @@ export class HueColorTempPicker extends LitElement {
             if (innerIndex < 0)
                 return true; // continue
 
-            // remove marker from multi marker
-            mm.markers.splice(innerIndex, 1);
-
-            // if inner marker is only one (or zero), get it out
-            if (mm.markers.length == 1) {
-                // replace multi marker with the remaining one
-                this._markers[mmIndex] = mm.markers[0];
-
-                // activate remaining marker
-                if (!moveToEnd && mm.isActive) {
-                    this.activateMarker(mm.markers[0], false);
-                }
-            }
-            else if (mm.markers.length == 0) {
-                // remove empty multi marker (should not happen, but anyway)
-                this._markers.splice(mmIndex, 1);
-            }
-
-            if (moveToEnd) {
-                // add unmerged marker to the end
-                this._markers.push(marker);
-            } else {
-                // add unmerged marker before the multi marker
-                this._markers.splice(mmIndex, 0, marker);
-            }
-
-            // indicate success
-            unmerged = true;
-
-            return false;// break
+            // found it
+            result = { mm, mmIndex, innerIndex };
+            return false; // break
         });
 
-        if (unmerged) {
-            this.requestUpdate('_markers');
-        }
-
-        // returns whether the unmerge was successfull
-        return unmerged;
+        return result;
     }
 
     // #endregion

@@ -258,6 +258,7 @@ export class HueColorTempPickerMarker {
         const radius = this.getRadius();
         const centerPos = this.getPositionFromCenter(radius);
         const coordsAndColor = this._parent.getCoordinatesAndTemp(this._temp, radius, wasColorMode ? undefined : centerPos);
+        // due to the change of radius (after first render), the initial position of temp markers can be little bit on the side
 
         // set and render position 
         this.setPositionFromCenter(coordsAndColor.position, radius);
