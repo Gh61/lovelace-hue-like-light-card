@@ -84,7 +84,7 @@ jobs:
 
     - name: Generate Issues Changelog
       id: issues_changelog
-      uses: heinrichreimer/action-github-changelog-generator@v2.3 # version 2.4 creates malformed changelog
+      uses: heinrichreimer/action-github-changelog-generator@v2.4 # version 2.4 creates malformed changelog
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         onlyLastTag: true
