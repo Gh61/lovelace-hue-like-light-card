@@ -23,12 +23,12 @@
     },
     "devDependencies": {
         "@rollup/plugin-json": "^6.1.0",
-        "@rollup/plugin-node-resolve": "^15.3.0",
+        "@rollup/plugin-node-resolve": "^16.0.0",
         "@rollup/plugin-terser": "^0.4.4",
         "@types/jest": "^29.5.14",
-        "@typescript-eslint/eslint-plugin": "^7.16.1",
-        "@typescript-eslint/parser": "^7.16.1",
-        "eslint": "^8.57.1",
+        "@typescript-eslint/eslint-plugin": "^8.18.2",
+        "@typescript-eslint/parser": "^8.18.2",
+        "eslint": "^9.17.0",
         "eslint-config-airbnb-typescript": "^18.0.0",
         "eslint-plugin-import": "^2.31.0",
         "jest": "^29.7.0",
@@ -37,7 +37,7 @@
         "rollup-plugin-typescript2": "^0.36.0",
         "ts-jest": "^29.2.5",
         "tslib": "^2.8.1",
-        "typescript": "^5.5.4"
+        "typescript": "^5.7.2"
     },
     "scripts": {
         "start": "rollup -c --watch --runServer true",
