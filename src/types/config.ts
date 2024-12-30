@@ -6,7 +6,7 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicates } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
-import { ClickAction, ClickActionData, ConfigEntityInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SliderType } from './types-config';
+import { ClickAction, ClickActionData, HueLikeLightCardEntityConfigInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SliderType } from './types-config';
 import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
 
 declare type EntityRelations = {
@@ -15,26 +15,50 @@ declare type EntityRelations = {
     areaScenes: string[];
 };
 
-export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
-    private _title?: string;
-    private _icon?: string;
+export class HueLikeLightCardEntityConfig implements HueLikeLightCardEntityConfigInterface {
+    protected _title?: string;
+    protected _icon?: string;
+
+    public constructor(plainConfig: HueLikeLightCardEntityConfigInterface) {
+        this.entity = plainConfig.entity;
+        this._title = plainConfig.title;
+        this._icon = plainConfig.icon;
+    }
+
+    public readonly entity?: string;
+    public get title() {
+        return this._title;
+    }
+    public get icon() {
+        return this._icon;
+    };
+
+    /**
+     * @returns Title from config or from passed container.
+     */
+    public getTitle(lightContainer: ILightContainer): IHassTextTemplate {
+        return !!this.title
+            ? new HassTextTemplate(this.title)
+            : lightContainer.getTitle();
+    }
+}
+
+export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig implements HueLikeLightCardConfigInterface {
     private _scenes: SceneConfig[] | null;
 
     public constructor(plainConfig: HueLikeLightCardConfigInterface) {
+        super(plainConfig);
 
         // check if we potentialy have at least one entity
         if (!plainConfig.entity && (!plainConfig.entities || !plainConfig.entities.length) && !plainConfig.area && !plainConfig.label) {
             throw new Error('At least one of "entity", "entities", "area" or "label" needs to be set.');
         }
 
-        this.entity = plainConfig.entity;
         this.entities = plainConfig.entities;
         this.area = plainConfig.area;
         this.label = plainConfig.label;
         this.groupEntity = plainConfig.groupEntity;
-        this._title = plainConfig.title;
         this.description = plainConfig.description;
-        this._icon = plainConfig.icon;
         this.iconSize = HueLikeLightCardConfig.getIconSize(plainConfig.iconSize);
         this.showSwitch = HueLikeLightCardConfig.getBoolean(plainConfig.showSwitch, true);
         this.switchOnScene = plainConfig.switchOnScene;
@@ -189,18 +213,11 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
         return result;
     }
 
-    public readonly entity?: string;
-    public readonly entities?: string[] | ConfigEntityInterface[];
+    public readonly entities?: string[] | HueLikeLightCardEntityConfigInterface[];
     public readonly area?: string;
     public readonly label?: string;
     public readonly groupEntity?: string;
-    public get title() {
-        return this._title;
-    }
     public readonly description?: string;
-    public get icon() {
-        return this._icon;
-    }
     public readonly iconSize: number;
     public readonly showSwitch: boolean;
     public readonly switchOnScene?: string;
@@ -230,15 +247,6 @@ export class HueLikeLightCardConfig implements HueLikeLightCardConfigInterface {
     /** Support for card-mod styling */
     public readonly style?: unknown;
     public readonly card_mod?: unknown;
-
-    /**
-     * @returns Title from config or from passed container.
-     */
-    public getTitle(lightContainer: ILightContainer): IHassTextTemplate {
-        return !!this.title
-            ? new HassTextTemplate(this.title)
-            : lightContainer.getTitle();
-    }
 
     /**
      * Returns whether offColor was set in configuration.

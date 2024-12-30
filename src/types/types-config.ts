@@ -231,14 +231,12 @@ export class SceneData {
     }
 }
 
-export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
-    readonly entities?: string[] | ConfigEntityInterface[];
+export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityConfigInterface {
+    readonly entities?: string[] | HueLikeLightCardEntityConfigInterface[];
     readonly area?: string;
     readonly label?: string;
     readonly groupEntity?: string;
-    readonly title?: string;
     readonly description?: string;
-    readonly icon?: string;
     readonly iconSize?: string | number;
     readonly showSwitch?: boolean;
     readonly switchOnScene?: string;
@@ -268,6 +266,8 @@ export interface HueLikeLightCardConfigInterface extends ConfigEntityInterface {
     readonly card_mod?: unknown;
 }
 
-export interface ConfigEntityInterface {
+export interface HueLikeLightCardEntityConfigInterface {
     readonly entity?: string;
+    readonly title?: string;
+    readonly icon?: string;
 }

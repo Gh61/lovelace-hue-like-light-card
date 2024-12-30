@@ -9,6 +9,7 @@ import { HueDialogSceneTile } from './dialog-scene-tile';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 import { noop } from '../types/functions';
 import { IconHelper } from '../core/icon-helper';
+import { HueLikeLightCardEntityConfig } from '../types/config';
 
 export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
@@ -28,6 +29,9 @@ export class HueDialogLightTile extends HueDialogTile {
 
     @property()
     public lightContainer: ISingleLightContainer | null = null;
+
+    @property()
+    public entityConfig: HueLikeLightCardEntityConfig | null = null;
 
     @property()
     public defaultColor: Color | null = null;
@@ -197,8 +201,15 @@ export class HueDialogLightTile extends HueDialogTile {
         if (!this.lightContainer)
             return nothing;
 
-        const title = this.lightContainer.getTitle().resolveToString(null);
-        const icon = this.lightContainer.getIcon() ?? IconHelper.getIcon(1);
+        let title: string;
+        if (this.entityConfig) {
+            title = this.entityConfig.getTitle(this.lightContainer).resolveToString(this._hass);
+        }
+        else {
+            title = this.lightContainer.getTitle().resolveToString(null);
+        }
+
+        const icon = this.entityConfig?.icon ?? this.lightContainer.getIcon() ?? IconHelper.getIcon(1);
 
         /*eslint-disable */
         return html`
