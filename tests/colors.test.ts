@@ -6,7 +6,7 @@ describe('Color', () => {
         
         expect(() => {
             new Color(s);
-        }).toThrowError('Hex color format should have 3/6 letters or 4/8 letters for transparency.');
+        }).toThrow('Hex color format should have 3/6 letters or 4/8 letters for transparency.');
     });
 
     it('simple hex', () => {
@@ -25,7 +25,7 @@ describe('Color', () => {
 
         expect(() => {
             new Color(s);
-        }).toThrowError('Hex color format contains non hex characters - \'x\'');
+        }).toThrow('Hex color format contains non hex characters - \'x\'');
     });
 
     it('full hex', () => {
@@ -44,7 +44,7 @@ describe('Color', () => {
         
         expect(() => {
             new Color(s);
-        }).toThrowError('Hex color format should have 3/6 letters or 4/8 letters for transparency.');
+        }).toThrow('Hex color format should have 3/6 letters or 4/8 letters for transparency.');
     });
 
     it('invalid full hex', () => {
@@ -52,7 +52,7 @@ describe('Color', () => {
         
         expect(() => {
             new Color(s);
-        }).toThrowError('Hex color format contains non hex characters - \'g\'');
+        }).toThrow('Hex color format contains non hex characters - \'g\'');
     });
 
     it('unknown format', () => {
@@ -60,7 +60,7 @@ describe('Color', () => {
         
         expect(() => {
             new Color(s);
-        }).toThrowError();
+        }).toThrow();
     });
 
     it('rgb', () => {
