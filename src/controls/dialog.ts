@@ -6,7 +6,7 @@ import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { AreaLightController } from '../core/area-light-controller';
 import { ViewUtils } from '../core/view-utils';
-import { HueLikeLightCardConfig } from '../types/config';
+import { HueLikeLightCardConfig, HueLikeLightCardEntityConfigCollection } from '../types/config';
 import { Consts } from '../types/consts';
 import { HaDialog } from '../types/types-hass';
 import { ThemeHelper } from '../types/theme-helper';
@@ -36,6 +36,7 @@ export class HueDialog extends IdLitElement {
 
     private _isRendered = false;
     private _config: HueLikeLightCardConfig;
+    private _entitiesConfig: HueLikeLightCardEntityConfigCollection;
     private _ctrl: AreaLightController;
     private _actionHandler: ActionHandler;
 
@@ -80,6 +81,7 @@ export class HueDialog extends IdLitElement {
         super('HueDialog');
 
         this._config = config;
+        this._entitiesConfig = config.getEntities();
         this._ctrl = lightController;
         this._actionHandler = actionHandler;
     }
@@ -728,6 +730,7 @@ export class HueDialog extends IdLitElement {
                     html`<${unsafeStatic(HueDialogLightTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .lightContainer=${l}
+                            .entityConfig=${this._entitiesConfig.getConfig(l.getEntityId())}
                             .isSelected=${this._selectedLights.indexOf(l) >= 0}
                             .isUnselected=${this._selectedLights.length && this._selectedLights.indexOf(l) == -1}
                             @selected-change=${(e: CustomEvent) => this.onLightSelected(e)}

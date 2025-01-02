@@ -11,7 +11,7 @@ describe('Config parse', () => {
         const config = new HueLikeLightCardConfig(c);
 
         expect(config.entity).toBe('light.test');
-        expect(config.getEntities()).toStrictEqual(['light.test']);
+        expect(config.getEntities().getIdList()).toStrictEqual(['light.test']);
 
         expect(config.iconSize).toBe(Consts.IconSize[KnownIconSize.Original]);
     });
