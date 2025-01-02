@@ -73,7 +73,7 @@ export class ActionHandler {
                         entityId = this._ctrl.getLitLights()[0].getEntityId();
                     }
                     else {
-                        entityId = this._config.getEntities()[0];
+                        entityId = this._config.getEntities().getIdList()[0];
                     }
                 }
 

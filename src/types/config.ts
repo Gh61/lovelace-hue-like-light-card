@@ -19,13 +19,18 @@ export class HueLikeLightCardEntityConfig implements HueLikeLightCardEntityConfi
     protected _title?: string;
     protected _icon?: string;
 
-    public constructor(plainConfig: HueLikeLightCardEntityConfigInterface) {
-        this.entity = plainConfig.entity;
-        this._title = plainConfig.title;
-        this._icon = plainConfig.icon;
+    public constructor(plainConfigOrEntityId: HueLikeLightCardEntityConfigInterface | string) {
+        if (typeof plainConfigOrEntityId == "string"){
+            this.entity = plainConfigOrEntityId
+        }
+        else {
+            this.entity = plainConfigOrEntityId.entity!;
+            this._title = plainConfigOrEntityId.title;
+            this._icon = plainConfigOrEntityId.icon;
+        }
     }
 
-    public readonly entity?: string;
+    public readonly entity: string;
     public get title() {
         return this._title;
     }
@@ -40,6 +45,36 @@ export class HueLikeLightCardEntityConfig implements HueLikeLightCardEntityConfi
         return !!this.title
             ? new HassTextTemplate(this.title)
             : lightContainer.getTitle();
+    }
+}
+
+export class HueLikeLightCardEntityConfigCollection {
+    private readonly _entityMap: Record<string, HueLikeLightCardEntityConfig>;
+    private readonly _entityList: string[]; // to keep the order of entities
+
+    public constructor (entityConfigs: HueLikeLightCardEntityConfig[]) {
+        this._entityMap = {};
+        this._entityList = [];
+
+        entityConfigs.forEach(c => {
+            // inserting only the first occurence into the map
+            if (!this._entityMap[c.entity]) {
+                this._entityMap[c.entity] = c;
+                this._entityList.push(c.entity);
+            }
+        });
+    }
+
+    public getConfig(entityId: string): HueLikeLightCardEntityConfig {
+        return this._entityMap[entityId];
+    }
+
+    public getIdList(): string[] {
+        return this._entityList.map(e => e); // map is creating new array
+    }
+
+    public get length() {
+        return this._entityList.length;
     }
 }
 
@@ -257,26 +292,22 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     /**
      * @returns List of unique entity identifiers
      */
-    public getEntities(): string[] {
+    public getEntities(): HueLikeLightCardEntityConfigCollection {
         // create list of entities (prepend entity and then insert all entities)
-        const result: string[] = [];
-        this.entity && result.push(this.entity);
+        const result: HueLikeLightCardEntityConfig[] = [];
+
+        this.entity && result.push(new HueLikeLightCardEntityConfig(this.entity));
         this.entities && this.entities.forEach(e => {
-            if (typeof e == 'string') {
-                result.push(e);
-            }
-            else if (e.entity) {
-                result.push(e.entity);
-            }
+            result.push(new HueLikeLightCardEntityConfig(e));
         });
         this._areaEntities && this._areaEntities.forEach(e => {
-            result.push(e);
+            result.push(new HueLikeLightCardEntityConfig(e));
         });
         this._labelEntities && this._labelEntities.forEach(e => {
-            result.push(e);
+            result.push(new HueLikeLightCardEntityConfig(e));
         });
 
-        return removeDuplicates(result);
+        return new HueLikeLightCardEntityConfigCollection(result);
     }
 
     /**
@@ -449,7 +480,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
              */
 
             // get entities, and create ordered list based on order of entities in config
-            const entities = this.getEntities();
+            const entities = this.getEntities().getIdList();
             const lightRelations = entities.map(entityId => {
                 return { entityId };
             }) as EntityRelations[];
