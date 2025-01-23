@@ -170,7 +170,7 @@ Some of these options may not be in the latest version. Please always check the 
   </tr>
   <tr>
     <td><code>scenes</code></td>
-    <td>list of <a href="#scenes-configuration">Scenes</a></td>
+    <td>list of <a href="#scenes-configuration">Scenes</a><br/>OR empty list <code>[]</code></td>
     <td>no</td>
     <td>1.1.0</td>
     <td><i><a href="#scenes-detection">automatic detection</a></i></td>
@@ -698,7 +698,8 @@ tap_action:
 
 ## Scenes configuration
 To enable switching between scenes, you can configure scenes, that can be activated in [Hue Screen](#hue-screen).<br/>
-When no scenes are defined, scenes will be detected [automatically](#scenes-detection).
+When no scenes are defined, scenes will be detected [automatically](#scenes-detection).<br/>
+If you want to hide scenes completely, you can set the option to empty list <code>scenes: []</code>
 ### Scene parameters
 <table>
   <tr>
