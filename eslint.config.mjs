@@ -35,6 +35,10 @@ export default [{
         },
     },
 
+    linterOptions: {
+        reportUnusedDisableDirectives: "off" // until airbnb is migrated to eslint 9
+    },
+
     rules: {
         "@typescript-eslint/no-non-null-assertion": "off",
         "linebreak-style": ["error", "unix"],
