@@ -265,6 +265,27 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
         throw Error('Cannot get entity id from LightController');
     }
 
+    /**
+     * @returns entity if for more-info dialog fired on this area
+     */
+    public getMoreInfoEntityId(): string {
+        let entityId;
+        if (this._lightGroup){
+            // use group entity, if available
+            entityId = this._lightGroup.getEntityId();
+        }
+        else if (this.isOn()) {
+            // if is on, get first onLight
+            entityId = this.getLitLights()[0].getEntityId();
+        }
+        else {
+            // simply return first light
+            entityId = this._lights[0].getEntityId();
+        }
+
+        return entityId;
+    }
+
     public get features(): ILightFeatures {
         return this._lightsFeatures;
     }

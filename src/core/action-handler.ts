@@ -66,15 +66,9 @@ export class ActionHandler {
             case ClickAction.MoreInfo:
                 let entityId: string = actionData.getData('entity');
 
-                // no entity defined in data
+                // no entity defined in data - use entity from controller
                 if (!entityId) {
-                    // if is on, get first onLight
-                    if (this._ctrl.isOn()) {
-                        entityId = this._ctrl.getLitLights()[0].getEntityId();
-                    }
-                    else {
-                        entityId = this._config.getEntities().getIdList()[0];
-                    }
+                    entityId = this._ctrl.getMoreInfoEntityId();
                 }
 
                 this.showMoreInfo(entityId);
