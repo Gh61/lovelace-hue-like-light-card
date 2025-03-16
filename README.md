@@ -596,12 +596,13 @@ onHoldAction: hue-screen
     <td><code>more-info</code></td>
     <td>yes (<code>entity</code>)</td>
     <td>no</td>
-    <td>1.1.0</td>
+    <td>1.1.0<br/>(group entity 1.8.0)</td>
     <td>
       Shows system more-info dialog of one light.<br/>
-      If any light is on, the first lit light will be selected.<br/>
-      If all light are off, first light will be selected.<br/>
-      When action data are used, any entity can be selected.
+      Uses group entity, if set.<br/>
+      Uses first lit light if any.<br/>
+      Uses first light as backup.<br/>
+      When action data are used, any entity can be used.
     </td>
   </tr>
   <tr>
