@@ -357,7 +357,6 @@ export class HueLightDetail extends IdLitElement {
 
         return html`
             <${unsafeStatic(HueColorTempPicker.ElementName)} class='color-picker'
-                mode='color'
                 @change=${(ev: CustomEvent) => this.onColorChanged(ev)}
             >
             </${unsafeStatic(HueColorTempPicker.ElementName)}>

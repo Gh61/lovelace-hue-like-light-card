@@ -38,9 +38,16 @@ export class HueColorTempModeSelector extends LitElement {
 
     /**
      * Will select possible mode based on current property settings.
+     * Will try to let the current mode selected, if possible.
      * Will never select 'brightness mode'.
      */
     public selectPossibleMode() {
+        if (this.mode == 'color' && this.showColor)
+            return;
+
+        if (this.mode == 'temp' && this.showTemp)
+            return;
+
         if (this.showColor) {
             this.mode = 'color';
         }
