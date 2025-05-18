@@ -85,11 +85,12 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         super(plainConfig);
 
         // check if we potentialy have at least one entity
-        if (!plainConfig.entity && (!plainConfig.entities || !plainConfig.entities.length) && !plainConfig.area && !plainConfig.label) {
-            throw new Error('At least one of "entity", "entities", "area" or "label" needs to be set.');
+        if (!plainConfig.entity && (!plainConfig.entities || !plainConfig.entities.length) && !plainConfig.floor && !plainConfig.area && !plainConfig.label) {
+            throw new Error('At least one of "entity", "entities", "floor", "area" or "label" needs to be set.');
         }
 
         this.entities = plainConfig.entities;
+        this.floor = plainConfig.floor;
         this.area = plainConfig.area;
         this.label = plainConfig.label;
         this.groupEntity = plainConfig.groupEntity;
@@ -249,6 +250,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     }
 
     public readonly entities?: string[] | HueLikeLightCardEntityConfigInterface[];
+    public readonly floor?: string;
     public readonly area?: string;
     public readonly label?: string;
     public readonly groupEntity?: string;
@@ -298,6 +300,10 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
 
         this.entity && result.push(new HueLikeLightCardEntityConfig(this.entity));
         this.entities && this.entities.forEach(e => {
+            result.push(new HueLikeLightCardEntityConfig(e));
+        });
+
+        this._floorEntities && this._floorEntities.forEach(e => {
             result.push(new HueLikeLightCardEntityConfig(e));
         });
         this._areaEntities && this._areaEntities.forEach(e => {
@@ -355,6 +361,9 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         // init is running
         this._isInitialized = true;
 
+        // load entities from floor if needed
+        await this.tryLoadFloorInfo(hass);
+
         // load entities from area if needed
         await this.tryLoadAreaInfo(hass);
 
@@ -365,6 +374,59 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         // fire&forget, no need to wait for these
         this.tryLoadScenes(hass);
     }
+
+    // #region Floor
+
+    private _floorEntities?: string[];
+    private _floorEntitiesLoaded = false;
+    /**
+     * Will try to load area light entities from HA WS.
+     * Will also set title and scenes, if possible.
+     */
+    private async tryLoadFloorInfo(hass: HomeAssistant) {
+        if (this._floorEntitiesLoaded || !this.floor || this._floorEntities != null)
+            return;
+
+        this._floorEntitiesLoaded = true;
+
+        const client = new HassWsClient(hass);
+        let floorLightsInfo: HassSearchLightsResult | null;
+
+        try {
+            floorLightsInfo = await client.getLightEntitiesFromFloor(this.floor);
+        }
+        catch (error) {
+            console.error('Cannot load light entities from HA.');
+            console.error(error);
+
+            // rethrow exception for UI
+            throw new Error(`Cannot load entities from floor '${this.floor}'. See console for more info.`);
+        }
+
+        if (floorLightsInfo == null) {
+            throw new Error(`Floor '${this.floor}' does not exist.`);
+        }
+
+        // check for at least one light entity
+        if (floorLightsInfo.lights.length == 0) {
+            throw new Error(`Floor '${this.floor}' has no light entities.`);
+        }
+
+        this._floorEntities = floorLightsInfo.lights;
+        // if no title is given, use floor name
+        if (this._title == null) {
+            this._title = floorLightsInfo.groupName;
+        }
+        // if no other entities are set, use scenes from area
+        if (this._scenes == null && this.getEntities().length == this._floorEntities.length) {
+            const loadedScenes = client.getScenesFromResult(floorLightsInfo.dataResult);
+            this.setLoadedScenes(loadedScenes);
+        }
+    }
+
+    // #endregion
+
+    // #region Area
 
     private _areaEntities?: string[];
     private _areaEntitiesLoaded = false;
@@ -413,6 +475,10 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         }
     }
 
+    // #endregion
+
+    // #region Label
+
     private _labelEntities?: string[];
     private _labelEntitiesLoaded = false;
     /**
@@ -458,6 +524,8 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             this._icon = labelLightsInfo.labelInfo.icon;
         }
     }
+
+    // #endregion
 
     private _scenesLoaded = false;
     /**

@@ -29,6 +29,41 @@ export class HassWsClient {
     }
 
     /**
+     * Will get all light entities in given floor.
+     * @param floor - Floor name
+     * @returns Ids of all light entities in given area or null, when nothing is returned - indicating, the floor does not exist.
+     */
+    public async getLightEntitiesFromFloor(floor: string) : Promise<HassSearchLightsResult | null> {
+        const floorId = this.slugify(floor);
+
+        const floorResult = await this._hass.connection.sendMessagePromise<HassSearchDeviceResult>({
+            type: 'search/related',
+            item_type: 'floor',
+            item_id: floorId
+        });
+
+        if (!floorResult || Object.keys(floorResult).length === 0) {
+            return null;
+        }
+
+        const floorName = (<HomeAssistantEx>this._hass).floors[floorId]?.name || floor;
+
+        if (floorResult.entity && floorResult.entity.length) {
+            return {
+                groupName: floorName,
+                lights: floorResult.entity.filter((e) => e.startsWith('light.')),
+                dataResult: floorResult
+            };
+        }
+
+        return {
+            groupName: floorName,
+            lights: [],
+            dataResult: floorResult
+        };
+    }
+
+    /**
      * Will get all light entities in given area.
      * @param area - Area name.
      * @returns Ids of all light entities in given area or null, when nothing is returned - indicating, the area does not exist.

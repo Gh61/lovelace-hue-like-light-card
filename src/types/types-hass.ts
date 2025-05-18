@@ -60,6 +60,11 @@ export interface HassLightAttributes extends HassEntityAttributeBase {
     xy_color?: number[];
 }
 
+export interface HassFloorInfo {
+    floor_id: string;
+    name: string;
+}
+
 export interface HassAreaInfo {
     area_id: string;
     name: string;
@@ -162,6 +167,7 @@ export interface HassSearchDeviceResult {
 export interface HomeAssistantEx extends HomeAssistant {
     areas: Record<string, HassAreaInfo>;
     entities: Record<string, HassEntityInfo>;
+    floors: Record<string, HassFloorInfo>;
 
     /**
      * Format the state of an entity.
