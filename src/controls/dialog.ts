@@ -593,7 +593,8 @@ export class HueDialog extends IdLitElement {
                     '--primary-text-color',
                     contentFg.toString()
                 );
-            } else {
+            }
+            else {
                 this.style.setProperty(
                     '--hue-screen-back-button-color',
                     Consts.ThemePrimaryTextColorVar
