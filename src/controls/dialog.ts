@@ -701,7 +701,7 @@ export class HueDialog extends IdLitElement {
             <div class='tile-scroller scene-tiles detail-hide'>
                 <div class='tiles'>
                     ${(this._config.scenes.map((s, i) => i % 2 == 1 ? nothing :
-            html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
+                html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
                             .cardTitle=${cardTitle}
                             .sceneConfig=${s}
                             @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}

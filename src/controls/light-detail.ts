@@ -567,13 +567,19 @@ class LightMarkerManager {
         if (!marker || marker.isDrag)
             return;
 
+        let changed = false;
+
         if (light.isColorModeColor()) {
+            changed = changed || marker.mode != 'color';
             if (light.color) {
+                changed = changed || marker.color.toString() != light.color.toString();
                 marker.color = light.color;
             }
         }
         else if (light.isColorModeTemp()) {
+            changed = changed || marker.mode != 'temp';
             if (light.colorTemp) {
+                changed = changed || marker.temp != light.colorTemp;
                 marker.temp = light.colorTemp;
             }
         }
@@ -583,7 +589,7 @@ class LightMarkerManager {
         marker.offColor = light.isUnavailable() ? LightMarkerManager.MarkerUnavailableColor : LightMarkerManager.MarkerOffColor;
 
         // unmerge/remerge
-        if (mergingPossible && !marker.isActive) { // do not merge single active marker
+        if (mergingPossible && !marker.isActive && changed) { // do not merge single active marker and merge only changed values
             if (this._picker.shouldUnmergeMarker(marker)) {
                 this._picker.unmergeMarker(marker);
             }
