@@ -274,7 +274,7 @@ export class HueLightDetail extends IdLitElement {
     }
 
     .back-button {
-        color: white;
+        color: var(--hue-screen-back-button-color, white);
         position: absolute;
         top: 10px;
         left: 10px;
