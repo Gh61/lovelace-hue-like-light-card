@@ -82,6 +82,17 @@ Some of these options may not be in the latest version. Please always check the 
     <td>Multiple <b>Light</b> entity IDs</td>
   </tr>
   <tr>
+    <td><code>floor</code></td>
+    <td>string</td>
+    <td>yes*</td>
+    <td>1.8.0</td>
+    <td>-</td>
+    <td>
+      Name or ID of <b>Floor</b> with lights<br/>
+      (eg. <code>First floor</code> or <code>first_floor</code>)
+    </td>
+  </tr>
+  <tr>
     <td><code>area</code></td>
     <td>string</td>
     <td>yes*</td>
@@ -296,7 +307,7 @@ Some of these options may not be in the latest version. Please always check the 
   </tr>
   <tr>
     <td colspan="6">
-      <i>* At least one of these options must be filled in. <b>Only entities of <code>light</code> domain and/or areas and labels with <code>light</code> domain entities are supported.</b></i>
+      <i>* At least one of these options must be filled in. <b>Only entities of <code>light</code> domain and/or floors, areas and labels with <code>light</code> domain entities are supported.</b></i>
     </td>
   </tr>
 </table>
@@ -817,7 +828,7 @@ Scenes Detected: [`'scene.kitchen_lit'`, `'scene.sink_lit'`, `'scene.daylight'`,
 
 Automatically detected scenes can be ordered with `sceneOrder` option. Possible values are:
 - `default` 
-  - order of areas depends on order of (first area) light entities.
+  - order of scenes depends on order of (first area) light entities.
   - scenes inside areas have default order from Home assistant (alphabetically by scene id).
 - `name-asc`
   - all scenes (across all areas) are ordered alphabetically by name **a -> z**
