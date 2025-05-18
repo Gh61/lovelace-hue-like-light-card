@@ -231,7 +231,8 @@ export class LightController extends NotifyBase<LightController> implements ISin
         this.notifyColorTempChanged(newTemp);
         this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
-            ['kelvin']: newTemp
+            ['color_temp_kelvin']: newTemp
+            //['kelvin']: newTemp, // Deprecated since 2025.1, removed in 2026.1
         });
     }
 
