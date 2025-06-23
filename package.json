@@ -33,7 +33,7 @@
         "eslint": "^9.26.0",
         "eslint-plugin-import": "^2.31.0",
         "jest": "^29.7.0",
-        "jest-environment-jsdom": "^29.7.0",
+        "jest-environment-jsdom": "^30.0.2",
         "rollup-plugin-serve": "^3.0.0",
         "rollup-plugin-typescript2": "^0.36.0",
         "ts-jest": "^29.3.4",
