@@ -15,7 +15,7 @@ jobs:
     name: Bump Version
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Update Consts.ts version
       run: |
         sed -ri "s/ Version = '(v[0-9]+.[0-9]+.[0-9]+)';/ Version = '${{ github.event.inputs.new_version }}';/g" src/types/consts.ts
@@ -43,7 +43,7 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         ref: main # without this, the latest commit (version change) isn't fetched
     - name: Fetch tags # we need to fetch tags for issues_changelog generator
