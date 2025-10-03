@@ -47,7 +47,7 @@ describe('Config parse', () => {
 
         expect(() => {
             new HueLikeLightCardConfig(c);
-        }).toThrowError();
+        }).toThrow();
     });
 
     it('parse icon size bool error', () => {
@@ -59,6 +59,6 @@ describe('Config parse', () => {
 
         expect(() => {
             new HueLikeLightCardConfig(cTyped);
-        }).toThrowError();
+        }).toThrow();
     });
 });
