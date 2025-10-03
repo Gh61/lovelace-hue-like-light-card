@@ -291,6 +291,12 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     {
         width:100%;
     }
+    ha-slider.brightness-slider
+    {
+        /*since HA 2025.10*/
+        width: calc(100% - 28px);
+        margin: 14px;
+    }
     ha-alert{
         display:flex;
         overflow:auto;

@@ -388,6 +388,11 @@ export class HueDialog extends IdLitElement {
     .hue-heading .brightness-slider {
         width: 100%;
     }
+    .hue-heading ha-slider.brightness-slider {
+        width: calc(100% - 36px);
+        margin: 18px;
+        margin-top: 12px;
+    }
     /* Disable the bottom border radius */
     /* in default styles: --ha-border-radius=0 in this case */
     /*
