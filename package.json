@@ -26,19 +26,19 @@
         "@rollup/plugin-json": "^6.1.0",
         "@rollup/plugin-node-resolve": "^16.0.1",
         "@rollup/plugin-terser": "^0.4.4",
-        "@types/jest": "^29.5.14",
+        "@types/jest": "^30.0.0",
         "@typescript-eslint/eslint-plugin": "^8.32.1",
         "@typescript-eslint/parser": "^8.32.1",
         "babel-jest": "^30.2.0",
         "eslint": "^9.36.0",
         "eslint-plugin-import": "^2.32.0",
-        "jest": "^29.7.0",
+        "jest": "^30.0.5",
         "jest-environment-jsdom": "^30.2.0",
         "rollup-plugin-serve": "^3.0.0",
         "rollup-plugin-typescript2": "^0.36.0",
         "ts-jest": "^29.4.4",
         "tslib": "^2.8.1",
-        "typescript": "^5.8.3"
+        "typescript": "^5.9.2"
     },
     "scripts": {
         "start": "rollup -c --watch --runServer true",
