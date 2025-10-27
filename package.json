@@ -22,7 +22,7 @@
         "lit": "^3.3.1"
     },
     "devDependencies": {
-        "@babel/preset-env": "^7.28.3",
+        "@babel/preset-env": "^7.28.5",
         "@rollup/plugin-json": "^6.1.0",
         "@rollup/plugin-node-resolve": "^16.0.1",
         "@rollup/plugin-terser": "^0.4.4",
