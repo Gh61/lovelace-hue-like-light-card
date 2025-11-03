@@ -475,7 +475,7 @@ You can customize properties of mushroom slider using [Card mod](https://github.
 
 ![Mushroom customization](/doc/mushroom-screen2.png)
 ```yaml
-type: custom:hue-like-light-card-test
+type: custom:hue-like-light-card
 entity: light.office
 slider: mushroom
 theme: synthwave
@@ -905,7 +905,7 @@ icon: mdi:floor-lamp
 #### No toggle switch
 ![Screen7](/doc/screen7.png)
 ```yaml
-type: custom:hue-like-light-card-test
+type: custom:hue-like-light-card
 title: '[ TV - {{ light.tv_backlight }} ] No switch = more space for title'
 entity: light.tv_backlight
 icon: mdi:television
@@ -943,7 +943,7 @@ allowZero: true
 #### Custom theme
 ![Screen8](/doc/screen8.png)
 ```yaml
-type: custom:hue-like-light-card-test
+type: custom:hue-like-light-card
 title: Living room
 icon: mdi:sofa
 offColor: theme-color
