@@ -479,11 +479,12 @@ type: custom:hue-like-light-card-test
 entity: light.office
 slider: mushroom
 theme: synthwave
-style: |
-  .brightness-slider {
-    --mush-control-height: 42px;
-    --slider-color: white;
-  }
+card_mod:
+  style: |
+    .brightness-slider {
+      --mush-control-height: 42px;
+      --slider-color: white;
+    }
 ```
 
 ## Text template
