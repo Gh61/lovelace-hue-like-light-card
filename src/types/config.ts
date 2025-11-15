@@ -121,6 +121,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
         this.apiId = plainConfig.apiId;
         this.isVisible = HueLikeLightCardConfig.getBoolean(plainConfig.isVisible, true);
+        this.enable_preset = HueLikeLightCardConfig.getBoolean(plainConfig.enable_preset, false);
 
         this.style = plainConfig.style;
         this.card_mod = plainConfig.card_mod;
@@ -276,6 +277,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     public readonly allowZero: boolean;
     public readonly theme: string;
     public readonly defaultColor: string;
+    public readonly enable_preset: boolean;
     public readonly offColor: string;
     public readonly hueScreenBgColor: string;
     public readonly offShadow: boolean;
@@ -376,9 +378,11 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         // fire&forget, no need to wait for these
         this.tryLoadScenes(hass);
 
-        // load presets if needed
+        // load presets if needed and enabled
         // fire&forget, no need to wait for these
-        this.tryLoadPresets();
+        if (this.enable_preset) {
+            this.tryLoadPresets();
+        }
     }
 
     // #region Floor

@@ -737,6 +737,7 @@ export class HueDialog extends IdLitElement {
                         </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>
             </div>
+            ${this._config.enable_preset ? html`
             <div class='header detail-hide'>
                 <div class='title'>${this._config.presets.length ? localize(this._ctrl.hass, "dialog.presets") : nothing}</div>
             </div>
@@ -762,6 +763,7 @@ export class HueDialog extends IdLitElement {
                         </${unsafeStatic(HueDialogPresetTile.ElementName)}>`))}
                 </div>
             </div>
+            ` : nothing}
 
             <div class='header detail-hide'>
                 <div class='title'>${localize(this._ctrl.hass, "dialog.lights")}</div>
