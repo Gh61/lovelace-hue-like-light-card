@@ -5,6 +5,7 @@
   "card.description.someLightsAreOn": "%s lights are on",
   "dialog.lights": "Lights",
   "dialog.scenes": "My scenes",
+  "dialog.presets": "Hue Preset Scenes",
   "effects.candle": "Candle",
   "effects.fireplace": "Fireplace",
   "scenes.preset.bright": "Bright",
