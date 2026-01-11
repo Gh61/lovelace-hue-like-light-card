@@ -396,7 +396,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             floorLightsInfo = await client.getLightEntitiesFromFloor(this.floor);
         }
         catch (error) {
-            console.error('Cannot load light entities from HA.');
+            console.error('Cannot load light/switch entities from HA.');
             console.error(error);
 
             // rethrow exception for UI
@@ -407,12 +407,12 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             throw new Error(`Floor '${this.floor}' does not exist.`);
         }
 
-        // check for at least one light entity
-        if (floorLightsInfo.lights.length == 0) {
-            throw new Error(`Floor '${this.floor}' has no light entities.`);
+        // check for at least one light or switch entity
+        if (floorLightsInfo.lights.length == 0 && floorLightsInfo.switches.length == 0) {
+            throw new Error(`Floor '${this.floor}' has no light or switch entities.`);
         }
 
-        this._floorEntities = floorLightsInfo.lights;
+        this._floorEntities = [...floorLightsInfo.lights, ...floorLightsInfo.switches];
         // if no title is given, use floor name
         if (this._title == null) {
             this._title = floorLightsInfo.groupName;
@@ -447,7 +447,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             areaLightsInfo = await client.getLightEntitiesFromArea(this.area);
         }
         catch (error) {
-            console.error('Cannot load light entities from HA.');
+            console.error('Cannot load light/switch entities from HA.');
             console.error(error);
 
             // rethrow exception for UI
@@ -458,12 +458,12 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             throw new Error(`Area '${this.area}' does not exist.`);
         }
 
-        // check for at least one light entity
-        if (areaLightsInfo.lights.length == 0) {
-            throw new Error(`Area '${this.area}' has no light entities.`);
+        // check for at least one light or switch entity
+        if (areaLightsInfo.lights.length == 0 && areaLightsInfo.switches.length == 0) {
+            throw new Error(`Area '${this.area}' has no light or switch entities.`);
         }
 
-        this._areaEntities = areaLightsInfo.lights;
+        this._areaEntities = [...areaLightsInfo.lights, ...areaLightsInfo.switches];
         // if no title is given, use area name
         if (this._title == null) {
             this._title = areaLightsInfo.groupName;
@@ -498,7 +498,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             labelLightsInfo = await client.getLightEntitiesFromLabel(this.label);
         }
         catch (error) {
-            console.error('Cannot load light entities from HA.');
+            console.error('Cannot load light/switch entities from HA.');
             console.error(error);
 
             // rethrow exception for UI
@@ -509,12 +509,12 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             throw new Error(`Label '${this.label}' does not exist.`);
         }
 
-        // check for at least one light entity
-        if (labelLightsInfo.lights.length == 0) {
-            throw new Error(`Label '${this.label}' has no light entities.`);
+        // check for at least one light or switch entity
+        if (labelLightsInfo.lights.length == 0 && labelLightsInfo.switches.length == 0) {
+            throw new Error(`Label '${this.label}' has no light or switch entities.`);
         }
 
-        this._labelEntities = labelLightsInfo.lights;
+        this._labelEntities = [...labelLightsInfo.lights, ...labelLightsInfo.switches];
         // if no title is given, use label name
         if (this._title == null) {
             this._title = labelLightsInfo.groupName;
