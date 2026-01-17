@@ -16,15 +16,20 @@
     "license": "LGPLv2.1",
     "dependencies": {
         "@egjs/hammerjs": "^2.0.17",
+        "@formatjs/intl-durationformat": "^0.10.0",
         "colorthief": "npm:@pioug/colorthief@^3.0.1",
+        "culori": "^4.0.2",
         "home-assistant-js-websocket": "^9.6.0",
-        "lit": "^3.3.2"
+        "lit": "^3.3.2",
+        "memoize-one": "^6.0.0",
+        "superstruct": "^2.0.2"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.28.5",
         "@rollup/plugin-json": "^6.1.0",
         "@rollup/plugin-node-resolve": "^16.0.3",
         "@rollup/plugin-terser": "^0.4.4",
+        "@types/culori": "^4.0.1",
         "@types/jest": "^30.0.0",
         "@typescript-eslint/eslint-plugin": "^8.46.3",
         "@typescript-eslint/parser": "^8.32.1",
@@ -33,6 +38,7 @@
         "eslint-plugin-import": "^2.32.0",
         "jest": "^30.0.5",
         "jest-environment-jsdom": "^30.2.0",
+        "rimraf": "^6.1.2",
         "rollup-plugin-serve": "^3.0.0",
         "rollup-plugin-typescript2": "^0.36.0",
         "ts-jest": "^29.4.6",
@@ -46,6 +52,7 @@
         "fixnbuild": "npm run lintfix && npm run rollup",
         "lint": "eslint src/** tests/**",
         "lintfix": "eslint src/** tests/** --fix",
-        "rollup": "rollup -c"
+        "rollup": "rollup -c",
+        "clean": "rimraf node_modules/.cache"
     }
 }
