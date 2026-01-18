@@ -4,6 +4,9 @@ const esModules = ['@lit', 'lit', 'lit-element', 'lit-html', 'color-name'].join(
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
+  globals: {
+    __STATIC_PATH__: '/static/'
+  },
   transform: {
     '^.+\\.jsx?$': 'babel-jest', // Use Babel for JS and JSX files
     '^.+\\.tsx?$': 'ts-jest',    // Use TS Jest for TS and TSX files
