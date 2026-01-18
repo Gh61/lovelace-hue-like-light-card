@@ -1,15 +1,15 @@
 /* eslint-disable max-classes-per-file */
 import { noChange } from "lit";
-import { customElement } from "lit/decorators.js";
+// import { customElement } from "lit/decorators.js";
 import type { AttributePart, DirectiveParameters } from "lit/directive.js";
 import { directive, Directive } from "lit/directive.js";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { deepEqual } from "../../../../common/util/deep-equal";
+// import { fireEvent } from "../../../../common/dom/fire_event";
+// import { deepEqual } from "../../../../common/util/deep-equal";
 import type {
   ActionHandlerDetail,
   ActionHandlerOptions,
 } from "../../../../data/lovelace/action_handler";
-import { isTouch } from "../../../../util/is_touch";
+// import { isTouch } from "../../../../util/is_touch";
 
 interface ActionHandlerType extends HTMLElement {
   holdTime: number;
@@ -26,208 +26,208 @@ interface ActionHandlerElement extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "action-handler": ActionHandler;
+    "action-handler": ActionHandlerType;//ActionHandler;
   }
   interface HASSDomEvents {
     action: ActionHandlerDetail;
   }
 }
 
-@customElement("action-handler")
-class ActionHandler extends HTMLElement implements ActionHandlerType {
-  public holdTime = 500;
+// @customElement("action-handler")
+// class ActionHandler extends HTMLElement implements ActionHandlerType {
+//   public holdTime = 500;
 
-  protected timer?: number;
+//   protected timer?: number;
 
-  protected held = false;
+//   protected held = false;
 
-  private cancelled = false;
+//   private cancelled = false;
 
-  private dblClickTimeout?: number;
+//   private dblClickTimeout?: number;
 
-  // eslint-disable-next-line lit/lifecycle-super -- not a LitElement
-  public connectedCallback() {
-    Object.assign(this.style, {
-      position: "fixed",
-      width: isTouch ? "100px" : "50px",
-      height: isTouch ? "100px" : "50px",
-      transform: "translate(-50%, -50%) scale(0)",
-      pointerEvents: "none",
-      zIndex: "999",
-      background: "var(--primary-color)",
-      display: null,
-      opacity: "0.2",
-      borderRadius: "50%",
-      transition: "transform 180ms ease-in-out",
-    });
+//   // eslint-disable-next-line lit/lifecycle-super -- not a LitElement
+//   public connectedCallback() {
+//     Object.assign(this.style, {
+//       position: "fixed",
+//       width: isTouch ? "100px" : "50px",
+//       height: isTouch ? "100px" : "50px",
+//       transform: "translate(-50%, -50%) scale(0)",
+//       pointerEvents: "none",
+//       zIndex: "999",
+//       background: "var(--primary-color)",
+//       display: null,
+//       opacity: "0.2",
+//       borderRadius: "50%",
+//       transition: "transform 180ms ease-in-out",
+//     });
 
-    [
-      "touchcancel",
-      "mouseout",
-      "mouseup",
-      "touchmove",
-      "mousewheel",
-      "wheel",
-      "scroll",
-    ].forEach((ev) => {
-      document.addEventListener(
-        ev,
-        () => {
-          this.cancelled = true;
-          if (this.timer) {
-            this._stopAnimation();
-            clearTimeout(this.timer);
-            this.timer = undefined;
-          }
-        },
-        { passive: true }
-      );
-    });
-  }
+//     [
+//       "touchcancel",
+//       "mouseout",
+//       "mouseup",
+//       "touchmove",
+//       "mousewheel",
+//       "wheel",
+//       "scroll",
+//     ].forEach((ev) => {
+//       document.addEventListener(
+//         ev,
+//         () => {
+//           this.cancelled = true;
+//           if (this.timer) {
+//             this._stopAnimation();
+//             clearTimeout(this.timer);
+//             this.timer = undefined;
+//           }
+//         },
+//         { passive: true }
+//       );
+//     });
+//   }
 
-  public bind(
-    element: ActionHandlerElement,
-    options: ActionHandlerOptions = {}
-  ) {
-    if (
-      element.actionHandler &&
-      deepEqual(options, element.actionHandler.options)
-    ) {
-      return;
-    }
+//   public bind(
+//     element: ActionHandlerElement,
+//     options: ActionHandlerOptions = {}
+//   ) {
+//     if (
+//       element.actionHandler &&
+//       deepEqual(options, element.actionHandler.options)
+//     ) {
+//       return;
+//     }
 
-    if (element.actionHandler) {
-      element.removeEventListener("touchstart", element.actionHandler.start!);
-      element.removeEventListener("touchend", element.actionHandler.end!);
-      element.removeEventListener("touchcancel", element.actionHandler.end!);
+//     if (element.actionHandler) {
+//       element.removeEventListener("touchstart", element.actionHandler.start!);
+//       element.removeEventListener("touchend", element.actionHandler.end!);
+//       element.removeEventListener("touchcancel", element.actionHandler.end!);
 
-      element.removeEventListener("mousedown", element.actionHandler.start!);
-      element.removeEventListener("click", element.actionHandler.end!);
+//       element.removeEventListener("mousedown", element.actionHandler.start!);
+//       element.removeEventListener("click", element.actionHandler.end!);
 
-      element.removeEventListener(
-        "keydown",
-        element.actionHandler.handleKeyDown!
-      );
-    } else {
-      element.addEventListener("contextmenu", (ev: Event) => {
-        const e = ev || window.event;
-        if (e.preventDefault) {
-          e.preventDefault();
-        }
-        if (e.stopPropagation) {
-          e.stopPropagation();
-        }
-        e.cancelBubble = true;
-        e.returnValue = false;
-        return false;
-      });
-    }
+//       element.removeEventListener(
+//         "keydown",
+//         element.actionHandler.handleKeyDown!
+//       );
+//     } else {
+//       element.addEventListener("contextmenu", (ev: Event) => {
+//         const e = ev || window.event;
+//         if (e.preventDefault) {
+//           e.preventDefault();
+//         }
+//         if (e.stopPropagation) {
+//           e.stopPropagation();
+//         }
+//         e.cancelBubble = true;
+//         e.returnValue = false;
+//         return false;
+//       });
+//     }
 
-    element.actionHandler = { options };
+//     element.actionHandler = { options };
 
-    if (options.disabled) {
-      return;
-    }
+//     if (options.disabled) {
+//       return;
+//     }
 
-    element.actionHandler.start = (ev: Event) => {
-      this.cancelled = false;
-      let x;
-      let y;
-      if ((ev as TouchEvent).touches) {
-        x = (ev as TouchEvent).touches[0].clientX;
-        y = (ev as TouchEvent).touches[0].clientY;
-      } else {
-        x = (ev as MouseEvent).clientX;
-        y = (ev as MouseEvent).clientY;
-      }
+//     element.actionHandler.start = (ev: Event) => {
+//       this.cancelled = false;
+//       let x;
+//       let y;
+//       if ((ev as TouchEvent).touches) {
+//         x = (ev as TouchEvent).touches[0].clientX;
+//         y = (ev as TouchEvent).touches[0].clientY;
+//       } else {
+//         x = (ev as MouseEvent).clientX;
+//         y = (ev as MouseEvent).clientY;
+//       }
 
-      if (options.hasHold) {
-        this.held = false;
-        this.timer = window.setTimeout(() => {
-          this._startAnimation(x, y);
-          this.held = true;
-        }, this.holdTime);
-      }
-    };
+//       if (options.hasHold) {
+//         this.held = false;
+//         this.timer = window.setTimeout(() => {
+//           this._startAnimation(x, y);
+//           this.held = true;
+//         }, this.holdTime);
+//       }
+//     };
 
-    element.actionHandler.end = (ev: Event) => {
-      // Don't respond when moved or scrolled while touch
-      if (
-        ev.type === "touchcancel" ||
-        (ev.type === "touchend" && this.cancelled)
-      ) {
-        return;
-      }
-      const target = ev.target as HTMLElement;
-      // Prevent mouse event if touch event
-      if (ev.cancelable) {
-        ev.preventDefault();
-      }
-      if (options.hasHold) {
-        clearTimeout(this.timer);
-        this._stopAnimation();
-        this.timer = undefined;
-      }
-      if (options.hasHold && this.held) {
-        fireEvent(target, "action", { action: "hold" });
-      } else if (options.hasDoubleClick) {
-        if (
-          (ev.type === "click" && (ev as MouseEvent).detail < 2) ||
-          !this.dblClickTimeout
-        ) {
-          this.dblClickTimeout = window.setTimeout(() => {
-            this.dblClickTimeout = undefined;
-            if (options.hasTap !== false) {
-              fireEvent(target, "action", { action: "tap" });
-            }
-          }, 250);
-        } else {
-          clearTimeout(this.dblClickTimeout);
-          this.dblClickTimeout = undefined;
-          fireEvent(target, "action", { action: "double_tap" });
-        }
-      } else if (options.hasTap !== false) {
-        fireEvent(target, "action", { action: "tap" });
-      }
-    };
+//     element.actionHandler.end = (ev: Event) => {
+//       // Don't respond when moved or scrolled while touch
+//       if (
+//         ev.type === "touchcancel" ||
+//         (ev.type === "touchend" && this.cancelled)
+//       ) {
+//         return;
+//       }
+//       const target = ev.target as HTMLElement;
+//       // Prevent mouse event if touch event
+//       if (ev.cancelable) {
+//         ev.preventDefault();
+//       }
+//       if (options.hasHold) {
+//         clearTimeout(this.timer);
+//         this._stopAnimation();
+//         this.timer = undefined;
+//       }
+//       if (options.hasHold && this.held) {
+//         fireEvent(target, "action", { action: "hold" });
+//       } else if (options.hasDoubleClick) {
+//         if (
+//           (ev.type === "click" && (ev as MouseEvent).detail < 2) ||
+//           !this.dblClickTimeout
+//         ) {
+//           this.dblClickTimeout = window.setTimeout(() => {
+//             this.dblClickTimeout = undefined;
+//             if (options.hasTap !== false) {
+//               fireEvent(target, "action", { action: "tap" });
+//             }
+//           }, 250);
+//         } else {
+//           clearTimeout(this.dblClickTimeout);
+//           this.dblClickTimeout = undefined;
+//           fireEvent(target, "action", { action: "double_tap" });
+//         }
+//       } else if (options.hasTap !== false) {
+//         fireEvent(target, "action", { action: "tap" });
+//       }
+//     };
 
-    element.actionHandler.handleKeyDown = (ev: KeyboardEvent) => {
-      if (!["Enter", " "].includes(ev.key)) {
-        return;
-      }
-      (ev.currentTarget as ActionHandlerElement).actionHandler!.end!(ev);
-    };
+//     element.actionHandler.handleKeyDown = (ev: KeyboardEvent) => {
+//       if (!["Enter", " "].includes(ev.key)) {
+//         return;
+//       }
+//       (ev.currentTarget as ActionHandlerElement).actionHandler!.end!(ev);
+//     };
 
-    element.addEventListener("touchstart", element.actionHandler.start, {
-      passive: true,
-    });
-    element.addEventListener("touchend", element.actionHandler.end);
-    element.addEventListener("touchcancel", element.actionHandler.end);
+//     element.addEventListener("touchstart", element.actionHandler.start, {
+//       passive: true,
+//     });
+//     element.addEventListener("touchend", element.actionHandler.end);
+//     element.addEventListener("touchcancel", element.actionHandler.end);
 
-    element.addEventListener("mousedown", element.actionHandler.start, {
-      passive: true,
-    });
-    element.addEventListener("click", element.actionHandler.end);
+//     element.addEventListener("mousedown", element.actionHandler.start, {
+//       passive: true,
+//     });
+//     element.addEventListener("click", element.actionHandler.end);
 
-    element.addEventListener("keydown", element.actionHandler.handleKeyDown);
-  }
+//     element.addEventListener("keydown", element.actionHandler.handleKeyDown);
+//   }
 
-  private _startAnimation(x: number, y: number) {
-    Object.assign(this.style, {
-      left: `${x}px`,
-      top: `${y}px`,
-      transform: "translate(-50%, -50%) scale(1)",
-    });
-  }
+//   private _startAnimation(x: number, y: number) {
+//     Object.assign(this.style, {
+//       left: `${x}px`,
+//       top: `${y}px`,
+//       transform: "translate(-50%, -50%) scale(1)",
+//     });
+//   }
 
-  private _stopAnimation() {
-    Object.assign(this.style, {
-      left: null,
-      top: null,
-      transform: "translate(-50%, -50%) scale(0)",
-    });
-  }
-}
+//   private _stopAnimation() {
+//     Object.assign(this.style, {
+//       left: null,
+//       top: null,
+//       transform: "translate(-50%, -50%) scale(0)",
+//     });
+//   }
+// }
 
 const getActionHandler = (): ActionHandlerType => {
   const body = document.body;
