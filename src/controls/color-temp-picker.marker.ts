@@ -5,7 +5,7 @@ import { PointerDragHelper } from './pointer-drag-helper';
 import { HaIcon } from '../types/types-hass';
 import { HueColorTempPicker, HueColorTempPickerMode, IHueColorTempPickerEventDetail } from './color-temp-picker';
 import { css, unsafeCSS } from 'lit';
-import { forwardHaptic } from 'custom-card-helpers';
+import { forwardHaptic } from '../ha/data/haptics';
 
 export class HueColorTempPickerMarker {
     private readonly _parent: HueColorTempPicker;
@@ -159,7 +159,7 @@ export class HueColorTempPickerMarker {
             return;
 
         if (value) {
-            forwardHaptic('light');
+            forwardHaptic(window, 'light');
         }
 
         this._isPreview = value;

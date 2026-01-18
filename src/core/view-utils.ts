@@ -11,6 +11,9 @@ import { Color } from './colors/color';
 import { HaIcon, IHassWindow } from '../types/types-hass';
 import { SliderType } from '../types/types-config';
 import { HueMushroomSliderContainer } from '../controls/mushroom-slider-container';
+import { HomeAssistant } from '../ha/types';
+import { HassEntity } from 'home-assistant-js-websocket';
+import { computeStateDisplay } from '../ha/common/entity/compute_state_display';
 
 export class ViewUtils {
 
@@ -213,5 +216,14 @@ export class ViewUtils {
                 innerIcon.style.setProperty('--mdc-icon-size', sizePx + 'px');
             });
         }
+    }
+
+    /** Shortcut for native computeStateDisplay function */
+    public static computeStateDisplay(entity: HassEntity, hass: HomeAssistant){
+        if (hass.localize != null) {
+            return computeStateDisplay(hass.localize, entity, hass.locale, [], hass.config, hass.entities);
+        }
+
+        return entity.state;
     }
 }

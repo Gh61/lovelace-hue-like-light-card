@@ -16,7 +16,7 @@
     "license": "LGPLv2.1",
     "dependencies": {
         "@egjs/hammerjs": "^2.0.17",
-        "@formatjs/intl-durationformat": "^0.10.0",
+        "color-name": "^2.1.0",
         "colorthief": "npm:@pioug/colorthief@^3.0.1",
         "culori": "^4.0.2",
         "home-assistant-js-websocket": "^9.6.0",
@@ -29,6 +29,7 @@
         "@rollup/plugin-json": "^6.1.0",
         "@rollup/plugin-node-resolve": "^16.0.3",
         "@rollup/plugin-terser": "^0.4.4",
+        "@types/color-name": "^2.0.0",
         "@types/culori": "^4.0.1",
         "@types/jest": "^30.0.0",
         "@typescript-eslint/eslint-plugin": "^8.46.3",

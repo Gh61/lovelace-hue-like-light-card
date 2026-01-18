@@ -1,4 +1,4 @@
-const esModules = ['@lit', 'lit', 'lit-element', 'lit-html'].join('|');
+const esModules = ['@lit', 'lit', 'lit-element', 'lit-html', 'color-name'].join('|');
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {

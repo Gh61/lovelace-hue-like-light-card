@@ -1,4 +1,3 @@
-import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity, HassEntityAttributeBase } from 'home-assistant-js-websocket';
 import { LitElement } from 'lit';
 import { IApiWrapper } from './types-api';
@@ -12,6 +11,13 @@ export class HassCustomCardInfo {
 interface HassWindowEventMap extends WindowEventMap {
     'pushstate': Event,
     'replacestate': Event
+}
+
+declare global {
+  interface HASSDomEvents {
+    // known events here:
+    "hass-more-info": Record<string, unknown>;
+  }
 }
 
 export interface IHassWindow extends Window {
@@ -58,16 +64,6 @@ export interface HassLightAttributes extends HassEntityAttributeBase {
 
     /** Array [x, y] */
     xy_color?: number[];
-}
-
-export interface HassFloorInfo {
-    floor_id: string;
-    name: string;
-}
-
-export interface HassAreaInfo {
-    area_id: string;
-    name: string;
 }
 
 export interface HassLabelInfo {
@@ -162,34 +158,6 @@ export interface HassSearchDeviceResult {
     config_entry: string[];
     entity?: string[];
     scene?: string[];
-}
-
-export interface HomeAssistantEx extends HomeAssistant {
-    areas: Record<string, HassAreaInfo>;
-    entities: Record<string, HassEntityInfo>;
-    floors: Record<string, HassFloorInfo>;
-
-    /**
-     * Format the state of an entity.
-     * @param stateObj - entity state object.
-     * @param state - You can force the state value using this optional parameter.
-     */
-    formatEntityState?: (stateObj: HassEntity, state?: string) => string;
-
-    /**
-     * Format the attribute value of an entity.
-     * @param stateObj - entity state object.
-     * @param attribute - entity attribute name.
-     * @param value - You can force the state value using this optional parameter.
-     */
-    formatEntityAttributeValue?: (stateObj: HassEntity, attribute: string, value?: unknown) => string;
-
-    /**
-     * Format the attribute name of an entity.
-     * @param stateObj - entity state object.
-     * @param attribute - entity attribute name.
-     */
-    formatEntityAttributeName?: (stateObj: HassEntity, attribute: string) => string;
 }
 
 export interface HaDialog extends LitElement {

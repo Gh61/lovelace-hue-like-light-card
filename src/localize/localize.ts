@@ -1,4 +1,4 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../ha/types';
 
 import cs from './languages/cs.json';
 import da from './languages/da.json';

@@ -1,4 +1,6 @@
-import { LovelaceCard, HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
+import { HomeAssistant } from './ha/types';
+import { LovelaceCard } from './ha/panels/lovelace/types';
+import { LovelaceCardConfig } from './ha/data/lovelace/config/card';
 import { css, html, nothing, unsafeCSS, PropertyValues } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { customElement } from 'lit/decorators.js';

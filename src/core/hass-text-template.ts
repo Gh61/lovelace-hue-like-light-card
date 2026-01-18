@@ -1,6 +1,6 @@
-import { computeStateDisplay, HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../ha/types';
 import { IHassTextTemplate } from '../types/types-interface';
-import { HomeAssistantEx } from '../types/types-hass';
+import { ViewUtils } from './view-utils';
 
 class VariableTemplatePart implements IHassTextTemplate {
     private _textOrEntity: string;
@@ -34,15 +34,12 @@ class VariableTemplatePart implements IHassTextTemplate {
                 return 'MISS[' + this._textOrEntity + ']';
             }
 
-            // from HA 2023.9 we can use new formatting functions
-            const newHass = <HomeAssistantEx>hass;
-
             // try resolve attribute
             if (this._attribute && entity.attributes) {
                 const atr = entity.attributes[this._attribute];
                 if (atr) {
-                    if (newHass.formatEntityAttributeValue) {
-                        return newHass.formatEntityAttributeValue(entity, this._attribute);
+                    if (hass.formatEntityAttributeValue) {
+                        return hass.formatEntityAttributeValue(entity, this._attribute);
                     }
 
                     return atr.toString();
@@ -50,16 +47,12 @@ class VariableTemplatePart implements IHassTextTemplate {
                 // if not found, fallback to state
             }
 
-            if (newHass.formatEntityState) {
-                return newHass.formatEntityState(entity);
+            if (hass.formatEntityState) {
+                return hass.formatEntityState(entity);
             }
 
             // fallback to old localize function
-            if (hass.localize != null) {
-                return computeStateDisplay(hass.localize, entity, hass.locale);
-            }
-
-            return entity.state;
+            return ViewUtils.computeStateDisplay(entity, hass);
         }
     }
 }

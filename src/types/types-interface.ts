@@ -1,4 +1,4 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../ha/types';
 import { Background } from '../core/colors/background';
 import { Action1, Action2 } from './functions';
 import { Color } from '../core/colors/color';

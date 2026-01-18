@@ -2,7 +2,7 @@ import { IHassTextTemplate, ILightContainer } from './types-interface';
 import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../ha/types';
 import { removeDuplicates } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';

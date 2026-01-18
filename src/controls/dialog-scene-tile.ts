@@ -1,4 +1,4 @@
-import { forwardHaptic } from 'custom-card-helpers';
+import { forwardHaptic } from '../ha/data/haptics';
 import { html, css, nothing, unsafeCSS, PropertyValues } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { Color } from '../core/colors/color';
@@ -43,7 +43,7 @@ export class HueDialogSceneTile extends HueDialogTile {
             return;
 
         // vibrate a little
-        forwardHaptic('light');
+        forwardHaptic(this, 'light');
 
         // activate scene
         this._scene.activate();

@@ -1,4 +1,4 @@
-import { fireEvent } from 'custom-card-helpers';
+import { fireEvent } from '../ha/common/dom/fire_event';
 import { HueDialog } from '../controls/dialog';
 import { HueLikeLightCardConfig } from '../types/config';
 import { ClickAction, ClickActionData, SceneData } from '../types/types-config';

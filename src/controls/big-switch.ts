@@ -8,8 +8,7 @@
 import { DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, Manager, Swipe, Tap } from '@egjs/hammerjs';
 import { css, CSSResultGroup, html, LitElement, PropertyValues, TemplateResult } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
-//import { fireEvent } from "../common/dom/fire_event";
-import { fireEvent } from 'custom-card-helpers';
+import { fireEvent } from "../ha/common/dom/fire_event";
 import { Consts } from '../types/consts';
 
 declare global {

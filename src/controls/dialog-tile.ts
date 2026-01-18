@@ -1,4 +1,4 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../ha/types';
 import { css, nothing, PropertyValues, TemplateResult, unsafeCSS } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { IdLitElement } from '../core/id-lit-element';

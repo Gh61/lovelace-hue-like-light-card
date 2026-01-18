@@ -1,4 +1,4 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../ha/types';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
