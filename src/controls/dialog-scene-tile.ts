@@ -4,6 +4,7 @@ import { Color } from '../core/colors/color';
 import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
+import { actionHandler } from '../ha/panels/lovelace/common/directives/action-handler-directive';
 
 /**
  * Shared implementation for scene tiles in HueDialog. Base Class
@@ -90,7 +91,7 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
 
         /* eslint-disable @/indent */
         return html`
-        <div class='hue-tile scene' title='${title}'>
+        <div class='hue-tile scene' title='${title}' .actionHandler=${actionHandler(this.actionHandlerConfig)}>
             <div class='icon-background'>
                 ${picture
                 ? html`
