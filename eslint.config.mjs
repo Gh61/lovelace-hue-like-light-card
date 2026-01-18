@@ -15,7 +15,10 @@ const compat = new FlatCompat({
 });
 
 export default [{
-    ignores: ["**/languages/*.json"],
+    ignores: [
+        "**/languages/*.json",
+        "src/ha/**", // Home Assistant source code
+    ],
 }, ...compat.extends("plugin:@typescript-eslint/recommended"), {
     plugins: {
         "@typescript-eslint": typescriptEslint,
