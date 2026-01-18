@@ -36,6 +36,12 @@ export default cli => {
                 return;
             }
 
+            // culori known circular dependency
+            if (warning.code === 'CIRCULAR_DEPENDENCY' &&
+                warning.message.includes('culori')) {
+                return;
+            }
+
             // console.warn everything else
             if (warning.loc) {
                 console.warn(LCERROR, `${warning.loc.file} (${warning.loc.line}:${warning.loc.column})\r\n${warning.message}`);
