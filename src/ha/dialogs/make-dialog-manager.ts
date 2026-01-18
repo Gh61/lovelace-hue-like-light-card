@@ -1,6 +1,6 @@
 // import { ancestorsWithProperty } from "../common/dom/ancestors-with-property";
 // import { deepActiveElement } from "../common/dom/deep-active-element";
-import type { HASSDomEvent, ValidHassDomEvent } from "../common/dom/fire_event";
+import { fireEvent, type HASSDomEvent, type ValidHassDomEvent } from "../common/dom/fire_event";
 // import { mainWindow } from "../common/dom/get_main_window";
 // import { nextRender } from "../common/util/render-status";
 import type { ProvideHassElement } from "../mixins/provide-hass-lit-mixin";
@@ -28,7 +28,7 @@ export interface HassDialog<
 
 interface ShowDialogParams<T> {
   dialogTag: keyof HTMLElementTagNameMap;
-  dialogImport: () => Promise<unknown>;
+  dialogImport?: () => Promise<unknown>;
   dialogParams: T;
   addHistory?: boolean;
 }
@@ -46,12 +46,23 @@ export interface DialogState {
   addHistory?: boolean;
 }
 
-interface LoadedDialogInfo {
-  element: Promise<HassDialog>;
-  closedFocusTargets?: Set<Element>;
+export const showDialog = async (
+  element: HTMLElement & ProvideHassElement,
+  _root: ShadowRoot | HTMLElement,
+  dialogTag: keyof HTMLElementTagNameMap,
+  dialogParams: unknown,
+  dialogImport?: () => Promise<unknown>,
+  addHistory = true
+): Promise<void> => {
+  fireEvent(element, "show-dialog", { dialogTag, dialogParams, dialogImport, addHistory });
 }
 
-type LoadedDialogsDict = Record<string, LoadedDialogInfo>;
+// interface LoadedDialogInfo {
+//   element: Promise<HassDialog>;
+//   closedFocusTargets?: Set<Element>;
+// }
+
+// type LoadedDialogsDict = Record<string, LoadedDialogInfo>;
 
 // const LOADED: LoadedDialogsDict = {};
 // const OPEN_DIALOG_STACK: DialogState[] = [];
