@@ -51,8 +51,8 @@
         "test": "jest",
         "build": "npm run lint && npm run rollup",
         "fixnbuild": "npm run lintfix && npm run rollup",
-        "lint": "eslint src/** tests/**",
-        "lintfix": "eslint src/** tests/** --fix",
+        "lint": "eslint .",
+        "lintfix": "eslint . --fix",
         "rollup": "rollup -c",
         "clean": "rimraf node_modules/.cache"
     }
