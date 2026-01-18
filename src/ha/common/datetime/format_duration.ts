@@ -11,16 +11,6 @@ declare global{
     | "milliseconds" | "microseconds" | "nanoseconds",
     number
   >>;
-
-  namespace Intl {
-    class DurationFormat {
-      constructor(locales?: string | string[], options?: any);
-      format(duration: DurationInput): string;
-      formatToParts(duration: DurationInput): any[];
-      resolvedOptions(): any;
-      static supportedLocalesOf(locales?: string | string[], options?: any): string[];
-    }
-  }
 }
 
 export interface HaDurationData {

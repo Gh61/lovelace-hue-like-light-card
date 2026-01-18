@@ -29,58 +29,65 @@ import type {
 } from "./data/translation";
 import type { Themes } from "./data/ws-themes";
 
-// declare global {
-//   /* eslint-disable @typescript-eslint/naming-convention */
-//   var __DEV__: boolean;
-//   var __DEMO__: boolean;
-//   var __BUILD__: "modern" | "legacy";
-//   var __VERSION__: string;
-//   var __STATIC_PATH__: string;
-//   var __BACKWARDS_COMPAT__: boolean;
-//   var __SUPERVISOR__: boolean;
-//   var __HASS_URL__: string;
-//   /* eslint-enable @typescript-eslint/naming-convention */
+declare global {
+  /* eslint-disable @typescript-eslint/naming-convention */
+  var __DEV__: boolean;
+  var __DEMO__: boolean;
+  var __BUILD__: "modern" | "legacy";
+  var __VERSION__: string;
+  var __STATIC_PATH__: string;
+  var __BACKWARDS_COMPAT__: boolean;
+  var __SUPERVISOR__: boolean;
+  var __HASS_URL__: string;
+  /* eslint-enable @typescript-eslint/naming-convention */
 
-//   interface Window {
-//     // Custom panel entry point url
-//     customPanelJS: string;
-//     ShadyCSS: {
-//       nativeCss: boolean;
-//       nativeShadow: boolean;
-//       prepareTemplate(templateElement, elementName, elementExtension);
-//       styleElement(element);
-//       styleSubtree(element, overrideProperties);
-//       styleDocument(overrideProperties);
-//       getComputedStyleValue(element, propertyName);
-//     };
-//   }
+  interface Window {
+    // Custom panel entry point url
+    customPanelJS: string;
+    ShadyCSS: {
+      nativeCss: boolean;
+      nativeShadow: boolean;
+      prepareTemplate(templateElement: HTMLTemplateElement, elementName: string, elementExtension?: string): void;
+      styleElement(element: Element): void;
+      styleSubtree(element: Element, overrideProperties?: Record<string, string>): void;
+      styleDocument(overrideProperties?: Record<string, string>): void;
+      getComputedStyleValue(element: Element, propertyName: string): string;
+    };
+  }
 
-//   // for fire event
-//   interface HASSDomEvents {
-//     "value-changed": {
-//       value: unknown;
-//     };
-//     change: undefined;
-//     "hass-logout": undefined;
-//     "config-refresh": undefined;
-//     "hass-api-called": {
-//       success: boolean;
-//       response: unknown;
-//     };
-//   }
+  // for fire event
+  interface HASSDomEvents {
+    "value-changed": {
+      value: unknown;
+    };
+    change: undefined;
+    "hass-logout": undefined;
+    "config-refresh": undefined;
+    "hass-api-called": {
+      success: boolean;
+      response: unknown;
+    };
+  }
 
-//   // For loading workers in rspack
-//   interface ImportMeta {
-//     url: string;
-//   }
+  // // For loading workers in rspack
+  // interface ImportMeta {
+  //   url: string;
+  // }
 
-//   // Intl.DurationFormat is not yet part of the TypeScript standard
-//   // eslint-disable-next-line @typescript-eslint/no-namespace
-//   namespace Intl {
-//     // eslint-disable-next-line @typescript-eslint/naming-convention
-//     const DurationFormat: DurationFormatConstructor;
-//   }
-// }
+  // Intl.DurationFormat is not yet part of the TypeScript standard
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Intl {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    // const DurationFormat: DurationFormatConstructor;
+    class DurationFormat {
+      constructor(locales?: string | string[], options?: any);
+      format(duration: DurationInput): string;
+      formatToParts(duration: DurationInput): any[];
+      resolvedOptions(): any;
+      static supportedLocalesOf(locales?: string | string[], options?: any): string[];
+    }
+  }
+}
 
 export interface ValueChangedEvent<T> extends CustomEvent {
   detail: {
