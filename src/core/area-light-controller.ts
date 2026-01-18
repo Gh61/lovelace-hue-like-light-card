@@ -1,4 +1,4 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../ha/types';
 import { IHassTextTemplate, ILightContainer, ILightFeatures, INotifyGeneric, ISingleLightContainer } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';

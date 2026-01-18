@@ -1,4 +1,5 @@
-import { applyThemesOnElement, Themes } from 'custom-card-helpers';
+import { applyThemesOnElement } from '../ha/common/dom/apply_themes_on_element';
+import { Themes } from '../ha/data/ws-themes';
 import { HueDialog } from '../controls/dialog';
 import { Consts } from './consts';
 

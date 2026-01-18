@@ -1,4 +1,4 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../ha/types';
 import { HassLightColorMode, HassLightEntity } from '../types/types-hass';
 import { ISingleLightContainer, ILightFeatures } from '../types/types-interface';
 import { Background } from './colors/background';
