@@ -3,9 +3,9 @@ import type { ShowToastParams } from "../managers/notification-manager";
 
 declare global{
   interface HASSDomEvents{
-    "hass-notification": Record<string, unknown>;
+    "hass-notification": ShowToastParams;
   }
 }
 
 export const showToast = (el: HTMLElement, params: ShowToastParams) =>
-  fireEvent(el, "hass-notification", params as any);
+  fireEvent(el, "hass-notification", params);
