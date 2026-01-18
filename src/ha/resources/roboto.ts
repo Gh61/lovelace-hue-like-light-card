@@ -1,7 +1,5 @@
 import { css, unsafeCSS } from "lit";
 
-const __STATIC_PATH__ = "/static/";
-
 export const fontStyles = css`
   @font-face {
     font-family: "Roboto";
