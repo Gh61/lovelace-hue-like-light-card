@@ -11,12 +11,6 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { fireEvent } from "../ha/common/dom/fire_event";
 import { Consts } from '../types/consts';
 
-declare global {
-    interface HASSDomEvents {
-        change:void;
-    }
-}
-
 @customElement(HueBigSwitch.ElementName)
 export class HueBigSwitch extends LitElement {
     /**
