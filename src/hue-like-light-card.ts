@@ -17,8 +17,8 @@ import { HueLikeLightCardConfigInterface, KnownIconSize } from './types/types-co
 import { ErrorInfo } from './core/error-info';
 import { Action, AsyncAction } from './types/functions';
 import { VersionNotifier } from './version-notifier';
-import { Manager, Press, Tap } from '@egjs/hammerjs';
-import { PreventGhostClick } from './types/prevent-ghostclick';
+import { ActionHandlerEvent, ActionHandlerOptions } from './ha/data/lovelace/action_handler';
+import { actionHandler } from './ha/panels/lovelace/common/directives/action-handler-directive';
 import { IdLitElement } from './core/id-lit-element';
 import { HueApiProvider } from './core/api-provider';
 import { ICardApi } from './types/types-api';
@@ -42,8 +42,6 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     private _ctrlListenerRegistered = false;
     private _actionHandler?: ActionHandler;
     private _error?: ErrorInfo;
-    private _mc?: HammerManager;
-    private _gc?: PreventGhostClick;
     private _apiUnregister?: Action;
 
     public constructor() {
@@ -200,20 +198,24 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         return 3;
     }
 
-    private cardClicked(): void {
-        // handle the click
-        if (this._actionHandler) {
-            this._actionHandler.handleCardClick();
+    protected get actionHandlerConfig(): ActionHandlerOptions {
+        return {
+            hasTap: true,
+            hasHold: true,
+            hasDoubleClick: false
         }
-
-        // update styles
-        this.updateStylesInner();
     }
 
-    private cardHolded(): void {
-        // handle the hold
-        if (this._actionHandler) {
-            this._actionHandler.handleCardHold();
+    private handleAction(ev: ActionHandlerEvent): void {
+        if (this._actionHandler){
+            switch(ev.detail.action){
+                case "hold":
+                    this._actionHandler.handleCardHold();
+                    break;
+                case "tap":
+                    this._actionHandler.handleCardClick();
+                    break;
+            }
         }
 
         // update styles
@@ -443,7 +445,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         };
 
         return html`<ha-card class="${classMap(cardClass)}">
-            <div class="tap-area">
+            <div class="tap-area" @action=${this.handleAction} .actionHandler=${actionHandler(this.actionHandlerConfig)}>
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
                 <div class="${classMap(textClass)}">
                     <h2>${title}</h2>
@@ -465,28 +467,14 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     }
 
     public override disconnectedCallback(): void {
-        super.disconnectedCallback();
         this.destroyListeners();
+        super.disconnectedCallback();
     }
 
     private setupListeners() {
         if (!this._ctrlListenerRegistered && this._ctrl) {
             this._ctrlListenerRegistered = true;
             this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler);
-        }
-
-        const tapArea = this.renderRoot.querySelector('.tap-area');
-        if (tapArea && !this._mc) {
-            this._mc = new Manager(tapArea);
-            this._mc.add(new Press());
-            this._mc.on('press', (): void => {
-                this.cardHolded();
-            });
-            this._mc.add(new Tap({ event: 'singletap' }));
-            this._mc.on('singletap', (): void => {
-                this.cardClicked();
-            });
-            this._gc = new PreventGhostClick(tapArea);
         }
 
         // API
@@ -499,14 +487,6 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         if (this._ctrl) {
             this._ctrl.unregisterOnPropertyChanged(this._elementId);
             this._ctrlListenerRegistered = false;
-        }
-        if (this._mc) {
-            this._mc.destroy();
-            this._mc = undefined;
-        }
-        if (this._gc) {
-            this._gc.destroy();
-            this._gc = undefined;
         }
         // API
         if (this._apiUnregister) {

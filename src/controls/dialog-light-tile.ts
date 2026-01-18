@@ -1,5 +1,5 @@
 import { html, css, nothing, unsafeCSS, PropertyValues } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
 import { ViewUtils } from '../core/view-utils';
@@ -10,6 +10,7 @@ import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 import { noop } from '../types/functions';
 import { IconHelper } from '../core/icon-helper';
 import { HueLikeLightCardEntityConfig } from '../types/config';
+import { actionHandler } from '../ha/panels/lovelace/common/directives/action-handler-directive';
 
 export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
@@ -176,9 +177,6 @@ export class HueDialogLightTile extends HueDialogTile {
         this.requestUpdate();
     }
 
-    @query('.hue-tile .tap-area')
-    protected override clickTarget!: HTMLDivElement;
-
     protected override tileClicked() {
         // toggle select this light
         this.isSelected = !this.isSelected;
@@ -215,7 +213,7 @@ export class HueDialogLightTile extends HueDialogTile {
         return html`
         <div class='selector'>
             <div class='hue-tile light' title='${title}'>
-                <div class='tap-area'>
+                <div class='tap-area' .actionHandler=${actionHandler(this.actionHandlerConfig)}>
                     <div class='icon-slot'>
                         <ha-icon icon="${icon}"></ha-icon>
                     </div>

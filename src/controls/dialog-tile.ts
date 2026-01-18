@@ -1,13 +1,12 @@
 import { HomeAssistant } from '../ha/types';
 import { css, nothing, PropertyValues, TemplateResult, unsafeCSS } from 'lit';
-import { property, query } from 'lit/decorators.js';
+import { property } from 'lit/decorators.js';
 import { IdLitElement } from '../core/id-lit-element';
 import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
-import { Manager, Press, Tap } from '@egjs/hammerjs';
+import { ActionHandlerEvent, ActionHandlerOptions } from '../ha/data/lovelace/action_handler';
 import { ActionHandler } from '../core/action-handler';
 import { HueHistoryStateManager } from './history-state-manager';
-import { PreventGhostClick } from '../types/prevent-ghostclick';
 
 export interface ITileEventDetail {
     tileElement: HueDialogTile;
@@ -91,17 +90,17 @@ export abstract class HueDialogTile extends IdLitElement {
     }
     `;
 
-    private _mc?: HammerManager;
-    private _gc?: PreventGhostClick;
+    protected get actionHandlerConfig(): ActionHandlerOptions {
+        return {
+            hasTap: true,
+            hasHold: true,
+            hasDoubleClick: false
+        }
+    }
 
-    @query('.hue-tile')
-    protected clickTarget!: HTMLDivElement;
-
-    private setupListeners() {
-        if (this.clickTarget && !this._mc) {
-            this._mc = new Manager(this.clickTarget);
-            this._mc.add(new Press());
-            this._mc.on('press', () => {
+    private handleAction(ev: ActionHandlerEvent){
+        switch (ev.detail.action){
+            case "hold":
                 const entityId = this.getEntityId();
                 if (entityId) {
                     if (!this.actionHandler)
@@ -110,34 +109,17 @@ export abstract class HueDialogTile extends IdLitElement {
                     this.actionHandler.showMoreInfo(entityId);
                     HueHistoryStateManager.instance.tryAddExternalStep();
                 }
-            });
-            this._mc.add(new Tap({ event: 'singletap' }));
-            this._mc.on('singletap', (e) => {
-                this.tileClicked(e);
-            });
-            this._gc = new PreventGhostClick(this.clickTarget);
-        }
-    }
+                break;
 
-    private destroyListeners() {
-        if (this._mc) {
-            this._mc.destroy();
-            this._mc = undefined;
-        }
-        if (this._gc) {
-            this._gc.destroy();
-            this._gc = undefined;
+            case "tap":
+                this.tileClicked(ev);
+                break;
         }
     }
 
     protected abstract getEntityId(): string | undefined;
 
-    protected override firstUpdated(changedProperties: PropertyValues): void {
-        super.firstUpdated(changedProperties);
-        this.setupListeners();
-    }
-
-    protected abstract tileClicked(event: HammerInput): void;
+    protected abstract tileClicked(event: ActionHandlerEvent): void;
 
     protected abstract override updated(changedProps: PropertyValues): void;
 
@@ -145,11 +127,11 @@ export abstract class HueDialogTile extends IdLitElement {
 
     public override connectedCallback(): void {
         super.connectedCallback();
-        this.setupListeners();
+        this.addEventListener("action", this.handleAction as EventListener);
     }
 
     public override disconnectedCallback(): void {
+        this.removeEventListener("action", this.handleAction as EventListener);
         super.disconnectedCallback();
-        this.destroyListeners();
     }
 }

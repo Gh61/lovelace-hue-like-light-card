@@ -7,6 +7,7 @@ import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { SceneConfig, SceneData } from '../types/types-config';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
+import { actionHandler } from '../ha/panels/lovelace/common/directives/action-handler-directive';
 
 /**
  * Represents Scene tile element in HueDialog.
@@ -201,7 +202,7 @@ export class HueDialogSceneTile extends HueDialogTile {
 
         /*eslint-disable */
         return html`
-        <div class='hue-tile scene' title='${title}'>
+        <div class='hue-tile scene' title='${title}' .actionHandler=${actionHandler(this.actionHandlerConfig)}>
             <div class='icon-background'>
                 ${picture
                 ? html`
