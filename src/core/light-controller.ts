@@ -147,6 +147,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
         // Light logic (existing)
         if (on) {
+            
             let activateScene = false;
             // we want the scene to activate
             if (typeof scene === 'string') {

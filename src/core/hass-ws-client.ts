@@ -48,10 +48,15 @@ export class HassWsClient {
         }
 
         const floorName = (<HomeAssistantEx>this._hass).floors[floorId]?.name || floor;
-        const lights = floorResult.entity?.filter((e) => e.startsWith('light.')) ?? [];
-        const switches = floorResult.entity?.filter((e) => e.startsWith('switch.')) ?? [];
 
-        console.log(`HassWsClient.getLightEntitiesFromFloor: Found ${lights.length} lights and ${switches.length} switches in floor '${floorName}'`);
+        if (floorResult.entity && floorResult.entity.length) {
+            return {
+                groupName: floorName,
+                lights: floorResult.entity.filter((e) => e.startsWith('light.')),
+                switches: floorResult.entity?.filter((e) => e.startsWith('switch.')),
+                dataResult: floorResult
+            };
+        }
 
         return {
             groupName: floorName,
@@ -127,6 +132,7 @@ export class HassWsClient {
         }
 
         const labelName = labelInfo.name || label;
+
         if (labelResult.entity && labelResult.entity.length) {
             return {
                 groupName: labelName,
@@ -136,7 +142,6 @@ export class HassWsClient {
                 labelInfo: labelInfo
             };
         }
-        
 
         return {
             groupName: labelName,
