@@ -5,6 +5,7 @@ import { removeDiacritics } from '../types/extensions';
 export interface HassSearchLightsResult {
     groupName: string,
     lights: string[],
+    switches: string[], 
     dataResult: HassSearchDeviceResult,
     labelInfo?: HassLabelInfo
 }
@@ -52,6 +53,7 @@ export class HassWsClient {
             return {
                 groupName: floorName,
                 lights: floorResult.entity.filter((e) => e.startsWith('light.')),
+                switches: floorResult.entity?.filter((e) => e.startsWith('switch.')),
                 dataResult: floorResult
             };
         }
@@ -59,6 +61,7 @@ export class HassWsClient {
         return {
             groupName: floorName,
             lights: [],
+            switches: [],
             dataResult: floorResult
         };
     }
@@ -87,6 +90,7 @@ export class HassWsClient {
             return {
                 groupName: areaName,
                 lights: areaResult.entity.filter((e) => e.startsWith('light.')),
+                switches: areaResult.entity?.filter((e) => e.startsWith('switch.')),
                 dataResult: areaResult
             };
         }
@@ -94,6 +98,7 @@ export class HassWsClient {
         return {
             groupName: areaName,
             lights: [],
+            switches: [],
             dataResult: areaResult
         };
     }
@@ -132,6 +137,7 @@ export class HassWsClient {
             return {
                 groupName: labelName,
                 lights: labelResult.entity.filter((e) => e.startsWith('light.')),
+                switches: labelResult.entity?.filter((e) => e.startsWith('switch.')),
                 dataResult: labelResult,
                 labelInfo: labelInfo
             };
@@ -140,6 +146,7 @@ export class HassWsClient {
         return {
             groupName: labelName,
             lights: [],
+            switches: [],
             dataResult: labelResult,
             labelInfo: labelInfo
         };

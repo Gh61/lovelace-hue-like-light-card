@@ -1,6 +1,5 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HassLightColorMode, HassLightEntity } from '../types/types-hass';
-import { ensureEntityDomain } from '../types/extensions';
 import { ISingleLightContainer, ILightFeatures } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
@@ -18,13 +17,13 @@ export class LightController extends NotifyBase<LightController> implements ISin
     private _hass: HomeAssistant;
     private _entity: HassLightEntity;
     private _entityFeatures: LightFeatures;
+    private _domain: 'light' | 'switch';
+    private readonly _lightState: LightState;
 
     public constructor(entity_id: string) {
         super();
-
-        ensureEntityDomain(entity_id, 'light');
-
         this._entity_id = entity_id;
+        this._domain = entity_id.startsWith('switch.') ? 'switch' : 'light';
         this._lightState = new LightState(<HassLightEntity>{ state: 'unavailable' });
     }
 
@@ -69,8 +68,6 @@ export class LightController extends NotifyBase<LightController> implements ISin
     //#endregion
 
     //#region StateCache
-
-    private readonly _lightState: LightState;
 
     private notifyTurnOn(sceneData?: SceneData): void {
         this._lightState.state = 'on';
@@ -136,8 +133,21 @@ export class LightController extends NotifyBase<LightController> implements ISin
         if (this.isUnavailable())
             return;
 
-        if (on) {
+        if (this._domain === 'switch') {
+            // Switches do not support scenes or brightness
+            if (on) {
+                this.notifyTurnOn();
+            }
+            else {
+                this.notifyTurnOff();
+            }
+            this._hass.callService('switch', on ? 'turn_on' : 'turn_off', { entity_id: this._entity_id });
+            return;
+        }
 
+        // Light logic (existing)
+        if (on) {
+            
             let activateScene = false;
             // we want the scene to activate
             if (typeof scene === 'string') {
@@ -174,6 +184,10 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this._lightState.brightnessValue;
     }
     public set brightnessValue(value: number) {
+        if (this._domain === 'switch') {
+            // Switches do not support brightness
+            return;
+        }
         // just to be sure
         if (value < 0) {
             value = 0;
@@ -214,6 +228,10 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this._lightState.colorTemp;
     }
     public set colorTemp(newTemp: number | null) {
+        if (this._domain === 'switch') {
+            // Switches do not support color temp
+            return;
+        }
         if (!newTemp)
             return;
 
@@ -244,6 +262,10 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this._lightState.color;
     }
     public set color(newColor: Color | null) {
+        if (this._domain === 'switch') {
+            // Switches do not support color
+            return;
+        }
         if (!newColor)
             return;
 
