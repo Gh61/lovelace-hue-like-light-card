@@ -36,7 +36,8 @@ VersionNotifier.toConsole();
 export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
-    private _ctrl?: AreaLightController;
+    private _ctrl?: AreaLightController; // aggregated controller (all entities)
+    private _ctrls?: AreaLightController[]; // per-entity controllers (one per entity) shown in grid
     private _ctrlListenerRegistered = false;
     private _actionHandler?: ActionHandler;
     private _error?: ErrorInfo;
@@ -138,7 +139,18 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         if (this._config?.isInitialized != true)
             throw new Error('Config is not initialized.');
 
+        // aggregated controller for the whole card (keeps previous behavior)
         this._ctrl = new AreaLightController(this._config.getEntities().getIdList(), this._config.getDefaultColor(), this._config.groupEntity);
+
+        // create per-entity controllers for grid display (one AreaLightController per entity id)
+        const ids = this._config.getEntities().getIdList();
+        if (this._config.numColumns && this._config.numColumns > 0) {
+            this._ctrls = ids.map(id => new AreaLightController([id], this._config.getDefaultColor()));
+        }
+        else {
+            this._ctrls = undefined;
+        }
+
         this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
 
         // For theme color set background to null
@@ -167,9 +179,12 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         // try to init config, if needed
         this.tryInitializeConfig(this.hass);
 
-        // pass hass instance to Controller
+        // pass hass instance to Controller(s)
         if (this._ctrl) {
             this._ctrl.hass = this.hass;
+        }
+        if (this._ctrls) {
+            this._ctrls.forEach(c => c.hass = this.hass);
         }
     }
 
@@ -300,6 +315,39 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     ha-alert{
         display:flex;
         overflow:auto;
+    }
+
+    /* Grid for per-entity tiles (max 3 columns via inline style) */
+    .entities-grid {
+        display: grid;
+        gap: 8px;
+        padding: 8px 12px 12px 12px;
+        box-sizing: border-box;
+    }
+    .entity-tile {
+        display:flex;
+        flex-direction: column;
+        gap:8px;
+        padding:8px;
+        border-radius:8px;
+        background: transparent;
+    }
+    .entity-tile .tile-header {
+        display:flex;
+        align-items:center;
+        gap:8px;
+    }
+    .entity-tile ha-icon {
+        color:var(--hue-text-color);
+        transform:scale(var(--hue-icon-size, ${Consts.IconSize[KnownIconSize.Original]}));
+    }
+    .entity-tile .tile-title {
+        font-weight:500;
+        font-size:14px;
+        color:var(--hue-text-color);
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
     }
     `;
 
@@ -440,6 +488,13 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             'hue-borders': this._config.hueBorders
         };
 
+        // compute grid columns for per-entity tiles (max 3 columns)
+        let cols = 0;
+        if (this._ctrls && this._ctrls.length > 0 && this._config.numColumns && this._config.numColumns > 0) {
+            // respect requested columns, but clamp to [1..3] and to number of entities
+            cols = Math.min(3, Math.max(1, this._config.numColumns), this._ctrls.length);
+        }
+
         return html`<ha-card class="${classMap(cardClass)}">
             <div class="tap-area">
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
@@ -451,6 +506,23 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             ${showSwitch ? ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene) : nothing}
 
             ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}
+
+            ${this._ctrls && cols > 0 ? html`
+                <div class="entities-grid" style="grid-template-columns: repeat(${cols}, 1fr);">
+                    ${this._ctrls.map(ctrl => {
+                        const icon = ctrl.getIcon() || this._config.icon || '';
+                        const titleText = ctrl.getTitle().resolveToString(this._hass);
+                        return html`<div class="entity-tile">
+                            <div class="tile-header">
+                                <ha-icon icon="${icon}"></ha-icon>
+                                <div class="tile-title">${titleText}</div>
+                            </div>
+                            ${ViewUtils.createSwitch(ctrl, this.onChangeHandler, this._config.switchOnScene)}
+                            ${ViewUtils.createSlider(ctrl, this._config, this.onChangeHandler)}
+                        </div>`;
+                    })}
+                </div>
+            ` : nothing}
         </ha-card>`;
     }
 
@@ -471,6 +543,11 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         if (!this._ctrlListenerRegistered && this._ctrl) {
             this._ctrlListenerRegistered = true;
             this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler);
+        }
+
+        // register on each per-entity controller as well
+        if (this._ctrls) {
+            this._ctrls.forEach(ctrl => ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler));
         }
 
         const tapArea = this.renderRoot.querySelector('.tap-area');
@@ -497,6 +574,9 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         if (this._ctrl) {
             this._ctrl.unregisterOnPropertyChanged(this._elementId);
             this._ctrlListenerRegistered = false;
+        }
+        if (this._ctrls) {
+            this._ctrls.forEach(ctrl => ctrl.unregisterOnPropertyChanged(this._elementId));
         }
         if (this._mc) {
             this._mc.destroy();
