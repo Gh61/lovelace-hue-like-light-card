@@ -317,354 +317,102 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         overflow:auto;
     }
 
-    /* Grid for per-entity tiles (max 3 columns via inline style) */
+    /* Grid for per-entity tiles (controlled via --entity-grid-cols) */
     .entities-grid {
-      display: grid;
-      gap: 10px;
-      padding: 8px 12px 12px 12px;
-      box-sizing: border-box;
-    
-      /* number of columns is driven by CSS variable set in render() */
-      grid-template-columns: repeat(var(--entity-grid-cols, 3), 1fr);
-      align-items: start;
+        display: grid;
+        gap: 10px;
+        padding: 8px 12px 12px 12px;
+        box-sizing: border-box;
+
+        /* number of columns is driven by CSS variable set in render() */
+        grid-template-columns: repeat(var(--entity-grid-cols, 3), 1fr);
+        align-items: start;
     }
-    
+
     /* Tile */
     .entity-tile {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 10px;
-      border-radius: 10px;
-    
-      /* Background and border tuned to be subtle and theme-friendly */
-      background: rgba(255,255,255,0.02); /* fallback for older themes */
-      border: 1px solid rgba(0,0,0,0.06);
-      transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, border-color 140ms ease;
-    
-      /* Ensure consistent minimum size for controls */
-      min-height: 76px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 10px 10px 18px; /* left padding to leave room for accent */
+        border-radius: 10px;
+
+        /* subtle tile background and border to fit in themes */
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(0,0,0,0.06);
+        transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, border-color 140ms ease;
+        min-height: 76px;
     }
-    
+
+    /* Left accent bar showing light color */
+    .entity-accent {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        bottom: 10px;
+        width: 8px;
+        border-radius: 6px;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.06) inset;
+        background: transparent;
+    }
+
     /* Header (icon + title) */
     .entity-tile .tile-header {
-      display:flex;
-      align-items:center;
-      gap:10px;
+        display:flex;
+        align-items:center;
+        gap:10px;
     }
-    
+
     /* Force a consistent icon size */
     .entity-tile ha-icon {
-      color: var(--hue-text-color);
-      --mdc-icon-size: 20px;
-      width: 20px;
-      height: 20px;
-      flex: 0 0 20px;
+        color: var(--hue-text-color);
+        --mdc-icon-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
     }
-    
+
     /* Title: single line truncation */
     .entity-tile .tile-title {
-      font-weight:500;
-      font-size:14px;
-      color: var(--hue-text-color);
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      flex: 1 1 auto;
+        font-weight:500;
+        font-size:14px;
+        color: var(--hue-text-color);
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        flex: 1 1 auto;
     }
-    
+
     /* Controls area: switch + slider */
     .entity-tile .tile-controls {
-      display:flex;
-      align-items:center;
-      gap:8px;
-      width:100%;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        width:100%;
     }
-    
-    /* Make the tile feel interactive on hover/focus */
+
+    /* Hover/focus affordance */
     .entity-tile:hover,
     .entity-tile:focus-within {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-      border-color: rgba(0,0,0,0.10);
-      cursor: pointer;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        border-color: rgba(0,0,0,0.10);
+        cursor: pointer;
     }
-    
-    /* Subtle visual appearance when tile represents OFF lights */
-    .entity-tile.state-off {
-      opacity: 0.95;
-      filter: none;
-    }
-    
-    /* Accessibility focus outline */
-    .entity-tile:focus-within {
-      outline: 2px solid rgba(0,0,0,0.06);
-      outline-offset: 2px;
-    }
-    
+
     /* Responsive: collapse to single column on narrow screens */
     @media (max-width: 520px) {
       .entities-grid {
         grid-template-columns: 1fr !important;
       }
     }
-    
-    /* Optional: more compact presentation for numColumns:1 */
+
+    /* Optional: compact variant for full-width single-column layouts */
     .entity-tile.compact {
       padding: 8px;
       min-height: 64px;
     }
-    `;
-
-    protected override updated(changedProps: PropertyValues): void {
-        super.updated(changedProps);
-        this.setupListeners();
-        this.updateStylesInner();
-
-        if (!this._config || !this.hass) {
-            return;
-        }
-
-        const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
-        const oldConfig = changedProps.get('_config') as HueLikeLightCardConfig | undefined;
-
-        if (!oldHass || !oldConfig || oldHass.themes !== this.hass.themes || oldConfig.theme !== this._config.theme) {
-
-            // Try apply theme
-            if (ThemeHelper.applyTheme(this, this.hass.themes, this._config.theme)) {
-                // Update styles - when theme changes
-                this.updateStylesInner(true);
-            }
-        }
-    }
-
-    private _haShadow: string | null;
-    private _switchColorDetected = false;
-
-    // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
-    private updateStylesInner(forceRefresh = false): void {
-        // no config or controller, do nothing
-        if (!this._config || !this._ctrl)
-            return;
-
-        if (!this._switchColorDetected) {
-            // Detect switch colors
-            if (this._config.showSwitch) {
-                ThemeHelper.detectSwitchColors(this);
-            }
-            this._switchColorDetected = true;
-        }
-
-        const card = <HTMLElement>this.renderRoot.querySelector('ha-card');
-
-        // get defaultShadow (when not using hueBorders)
-        if (!this._config.hueBorders && (this._haShadow == null || forceRefresh)) {
-
-            // get default haShadow
-            const c = document.createElement('ha-card');
-            document.body.appendChild(c);
-            const s = getComputedStyle(c);
-            this._haShadow = s.boxShadow;
-            c.remove();
-
-            if (this._haShadow == 'none') {
-                if (card == null) {
-                    // wait for card element
-                    this._haShadow = null;
-                }
-                else {
-                    // since HA 2022.11 default ha-card has no shadow
-                    card.classList.add('new-borders');
-                }
-            }
-
-            // set default shadow property
-            this.style.setProperty(
-                '--ha-default-shadow',
-                this._haShadow
-            );
-        }
-
-        // Set icon size
-        this.style.setProperty(
-            '--hue-icon-size',
-            this._config.iconSize.toString()
-        );
-
-        // Detect theme color if needed
-        if (this._offBackground == null) {
-            ThemeHelper.detectThemeCardBackground(this, forceRefresh);
-        }
-
-        // Theme colors:
-        // BG: --card-background-color OR OLD: --paper-card-background-color
-        // FG: --primary-text-color (for off: --secondary-text-color)
-
-        const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
-        const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config.offShadow);
-
-        this.style.setProperty(
-            '--hue-background',
-            bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar
-        );
-        this.style.setProperty(
-            '--hue-text-color',
-            bfg.foreground?.toString() ?? Consts.ThemeSecondaryTextColorVar
-        );
-        this.style.setProperty(
-            '--ha-card-box-shadow',
-            shadow
-        );
-        this.style.setProperty(
-            '--hue-box-shadow',
-            shadow
-        );
-    }
-
-    private onChangeHandler = () => this.onChangeCallback();
-    private onChangeCallback() {
-        this.requestUpdate();
-        this.updateStylesInner();
-    }
-
-    protected override render() {
-        if (this._error) {
-            return html`<ha-alert alert-type="error" .title=${this._error.message}>
-                ${this._error.stack ? html`<pre>${this._error.stack}</pre>` : nothing}
-            </ha-alert>`;
-        }
-
-        // no config, ctrl or hass
-        if (!this._config || !this._ctrl || !this._hass || !this._config.isVisible)
-            return nothing;
-
-        const titleTemplate = this._config.getTitle(this._ctrl);
-        const descriptionTemplate = this._ctrl.getDescription(this._config.description);
-
-        const title = titleTemplate.resolveToString(this._hass);
-        const description = descriptionTemplate.resolveToString(this._hass);
-
-        const showSwitch = this._config.showSwitch;
-        const textClass = { 'text-area': true, 'no-switch': !showSwitch };
-        const cardClass = {
-            'state-on': this._ctrl.isOn(),
-            'state-off': this._ctrl.isOff(),
-            'state-unavailable': this._ctrl.isUnavailable(),
-            'hue-borders': this._config.hueBorders
-        };
-
-        // compute grid columns for per-entity tiles (max 3 columns)
-        let cols = 0;
-        if (this._ctrls && this._ctrls.length > 0 && this._config.numColumns && this._config.numColumns > 0) {
-            // respect requested columns, but clamp to [1..3] and to number of entities
-            cols = Math.min(3, Math.max(1, this._config.numColumns), this._ctrls.length);
-        }
-
-        return html`<ha-card class="${classMap(cardClass)}">
-            <div class="tap-area">
-                <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
-                <div class="${classMap(textClass)}">
-                    <h2>${title}</h2>
-                    <div class="desc">${description}</div>
-                </div>
-            </div>
-            ${showSwitch ? ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene) : nothing}
-
-            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}
-
-            ${this._ctrls && cols > 0 ? html`
-                <div class="entities-grid" style="--entity-grid-cols: ${cols};">
-                    ${this._ctrls.map(ctrl => {
-                        const icon = ctrl.getIcon() || this._config.icon || '';
-                        const titleText = ctrl.getTitle().resolveToString(this._hass);
-                        return html`<div class="entity-tile">
-                            <div class="tile-header">
-                                <ha-icon icon="${icon}"></ha-icon>
-                                <div class="tile-title">${titleText}</div>
-                            </div>
-                            ${ViewUtils.createSwitch(ctrl, this.onChangeHandler, this._config.switchOnScene)}
-                            ${ViewUtils.createSlider(ctrl, this._config, this.onChangeHandler)}
-                        </div>`;
-                    })}
-                </div>
-            ` : nothing}
-        </ha-card>`;
-    }
-
-    public override connectedCallback(): void {
-        super.connectedCallback();
-        // CSS
-        this.updateStylesInner();
-        // Listeners
-        this.setupListeners();
-    }
-
-    public override disconnectedCallback(): void {
-        super.disconnectedCallback();
-        this.destroyListeners();
-    }
-
-    private setupListeners() {
-        if (!this._ctrlListenerRegistered && this._ctrl) {
-            this._ctrlListenerRegistered = true;
-            this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler);
-        }
-
-        // register on each per-entity controller as well
-        if (this._ctrls) {
-            this._ctrls.forEach(ctrl => ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler));
-        }
-
-        const tapArea = this.renderRoot.querySelector('.tap-area');
-        if (tapArea && !this._mc) {
-            this._mc = new Manager(tapArea);
-            this._mc.add(new Press());
-            this._mc.on('press', (): void => {
-                this.cardHolded();
-            });
-            this._mc.add(new Tap({ event: 'singletap' }));
-            this._mc.on('singletap', (): void => {
-                this.cardClicked();
-            });
-            this._gc = new PreventGhostClick(tapArea);
-        }
-
-        // API
-        if (this._config?.apiId && !this._apiUnregister && this.getEditMode() != 'editor') {
-            this._apiUnregister = HueApiProvider.registerCard(this._config.apiId, this);
-        }
-    }
-
-    private destroyListeners() {
-        if (this._ctrl) {
-            this._ctrl.unregisterOnPropertyChanged(this._elementId);
-            this._ctrlListenerRegistered = false;
-        }
-        if (this._ctrls) {
-            this._ctrls.forEach(ctrl => ctrl.unregisterOnPropertyChanged(this._elementId));
-        }
-        if (this._mc) {
-            this._mc.destroy();
-            this._mc = undefined;
-        }
-        if (this._gc) {
-            this._gc.destroy();
-            this._gc = undefined;
-        }
-        // API
-        if (this._apiUnregister) {
-            this._apiUnregister();
-            this._apiUnregister = undefined;
-        }
-    }
-
-    /**
-     * @returns Public API object
-     */
-    public api(): ICardApi {
-        return {
-            openHueScreen: () => this._actionHandler?.openHueScreen()
-        };
-    }
+    `
 }
