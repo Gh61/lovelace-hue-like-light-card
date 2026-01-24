@@ -265,6 +265,9 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     /** Support for card-mod styling */
     readonly style?: unknown;
     readonly card_mod?: unknown;
+
+    // New optional parameter to enable per-entity grid and define number of columns (max 3)
+    readonly numColumns?: number;
 }
 
 export interface HueLikeLightCardEntityConfigInterface {
