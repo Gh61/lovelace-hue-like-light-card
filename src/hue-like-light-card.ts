@@ -319,35 +319,101 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     /* Grid for per-entity tiles (max 3 columns via inline style) */
     .entities-grid {
-        display: grid;
-        gap: 8px;
-        padding: 8px 12px 12px 12px;
-        box-sizing: border-box;
+      display: grid;
+      gap: 10px;
+      padding: 8px 12px 12px 12px;
+      box-sizing: border-box;
+    
+      /* number of columns is driven by CSS variable set in render() */
+      grid-template-columns: repeat(var(--entity-grid-cols, 3), 1fr);
+      align-items: start;
     }
+    
+    /* Tile */
     .entity-tile {
-        display:flex;
-        flex-direction: column;
-        gap:8px;
-        padding:8px;
-        border-radius:8px;
-        background: transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 10px;
+    
+      /* Background and border tuned to be subtle and theme-friendly */
+      background: rgba(255,255,255,0.02); /* fallback for older themes */
+      border: 1px solid rgba(0,0,0,0.06);
+      transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, border-color 140ms ease;
+    
+      /* Ensure consistent minimum size for controls */
+      min-height: 76px;
     }
+    
+    /* Header (icon + title) */
     .entity-tile .tile-header {
-        display:flex;
-        align-items:center;
-        gap:8px;
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
+    
+    /* Force a consistent icon size */
     .entity-tile ha-icon {
-        color:var(--hue-text-color);
-        transform:scale(var(--hue-icon-size, ${Consts.IconSize[KnownIconSize.Original]}));
+      color: var(--hue-text-color);
+      --mdc-icon-size: 20px;
+      width: 20px;
+      height: 20px;
+      flex: 0 0 20px;
     }
+    
+    /* Title: single line truncation */
     .entity-tile .tile-title {
-        font-weight:500;
-        font-size:14px;
-        color:var(--hue-text-color);
-        overflow:hidden;
-        text-overflow:ellipsis;
-        white-space:nowrap;
+      font-weight:500;
+      font-size:14px;
+      color: var(--hue-text-color);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      flex: 1 1 auto;
+    }
+    
+    /* Controls area: switch + slider */
+    .entity-tile .tile-controls {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      width:100%;
+    }
+    
+    /* Make the tile feel interactive on hover/focus */
+    .entity-tile:hover,
+    .entity-tile:focus-within {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      border-color: rgba(0,0,0,0.10);
+      cursor: pointer;
+    }
+    
+    /* Subtle visual appearance when tile represents OFF lights */
+    .entity-tile.state-off {
+      opacity: 0.95;
+      filter: none;
+    }
+    
+    /* Accessibility focus outline */
+    .entity-tile:focus-within {
+      outline: 2px solid rgba(0,0,0,0.06);
+      outline-offset: 2px;
+    }
+    
+    /* Responsive: collapse to single column on narrow screens */
+    @media (max-width: 520px) {
+      .entities-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    
+    /* Optional: more compact presentation for numColumns:1 */
+    .entity-tile.compact {
+      padding: 8px;
+      min-height: 64px;
     }
     `;
 
