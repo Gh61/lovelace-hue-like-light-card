@@ -574,7 +574,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}
 
             ${this._ctrls && cols > 0 ? html`
-                <div class="entities-grid" style="grid-template-columns: repeat(${cols}, 1fr);">
+                <div class="entities-grid" style="--entity-grid-cols: ${cols};">
                     ${this._ctrls.map(ctrl => {
                         const icon = ctrl.getIcon() || this._config.icon || '';
                         const titleText = ctrl.getTitle().resolveToString(this._hass);
