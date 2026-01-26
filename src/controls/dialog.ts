@@ -11,6 +11,7 @@ import { Consts } from '../types/consts';
 import { HaDialog } from '../types/types-hass';
 import { ThemeHelper } from '../types/theme-helper';
 import { HueDialogSceneTile } from './dialog-scene-tile';
+import { HueDialogPresetTile } from './dialog-preset-tile';
 import { IdLitElement } from '../core/id-lit-element';
 import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-tile';
 import { ILightContainer } from '../types/types-interface';
@@ -161,6 +162,11 @@ export class HueDialog extends IdLitElement {
 
     private afterSceneActivated(ev: CustomEvent<ITileEventDetail>) {
         // scroll to selected scene
+        HueDialog.tileScrollTo(ev.detail.tileElement);
+    }
+
+    private afterPresetActivated(ev: CustomEvent<ITileEventDetail>) {
+        // scroll to selected preset
         HueDialog.tileScrollTo(ev.detail.tileElement);
     }
 
@@ -731,6 +737,33 @@ export class HueDialog extends IdLitElement {
                         </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
                 </div>
             </div>
+            ${this._config.enable_preset ? html`
+            <div class='header detail-hide'>
+                <div class='title'>${this._config.presets.length ? localize(this._ctrl.hass, "dialog.presets") : nothing}</div>
+            </div>
+            <div class='tile-scroller scene-tiles detail-hide'>
+                <div class='tiles'>
+                    ${(this._config.presets.map((p, i) => i % 2 == 1 ? nothing :
+                html`<${unsafeStatic(HueDialogPresetTile.ElementName)}
+                            .presetConfig=${p}
+                            .targets=${this._config.getPresetTargets()}
+                            @activated=${(e: CustomEvent) => this.afterPresetActivated(e)}
+                            .hass=${this._ctrl.hass}
+                            .actionHandler=${this._actionHandler}>
+                        </${unsafeStatic(HueDialogPresetTile.ElementName)}>`))}
+                </div>
+                <div class='tiles'>
+                    ${(this._config.presets.map((p, i) => i % 2 == 0 ? nothing :
+                html`<${unsafeStatic(HueDialogPresetTile.ElementName)}
+                            .presetConfig=${p}
+                            .targets=${this._config.getPresetTargets()}
+                            @activated=${(e: CustomEvent) => this.afterPresetActivated(e)}
+                            .hass=${this._ctrl.hass}
+                            .actionHandler=${this._actionHandler}>
+                        </${unsafeStatic(HueDialogPresetTile.ElementName)}>`))}
+                </div>
+            </div>
+            ` : nothing}
 
             <div class='header detail-hide'>
                 <div class='title'>${localize(this._ctrl.hass, "dialog.lights")}</div>

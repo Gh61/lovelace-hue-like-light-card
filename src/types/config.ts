@@ -8,6 +8,7 @@ import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
 import { ClickAction, ClickActionData, HueLikeLightCardEntityConfigInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SliderType } from './types-config';
 import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
+import { LightingData, PresetConfig } from './types-hue-preset';
 
 declare type EntityRelations = {
     entityId: string;
@@ -80,6 +81,7 @@ export class HueLikeLightCardEntityConfigCollection {
 
 export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig implements HueLikeLightCardConfigInterface {
     private _scenes: SceneConfig[] | null;
+    private _presets: PresetConfig[] = [];
 
     public constructor(plainConfig: HueLikeLightCardConfigInterface) {
         super(plainConfig);
@@ -119,6 +121,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
         this.apiId = plainConfig.apiId;
         this.isVisible = HueLikeLightCardConfig.getBoolean(plainConfig.isVisible, true);
+        this.enable_preset = HueLikeLightCardConfig.getBoolean(plainConfig.enable_preset, false);
 
         this.style = plainConfig.style;
         this.card_mod = plainConfig.card_mod;
@@ -274,6 +277,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     public readonly allowZero: boolean;
     public readonly theme: string;
     public readonly defaultColor: string;
+    public readonly enable_preset: boolean;
     public readonly offColor: string;
     public readonly hueScreenBgColor: string;
     public readonly offShadow: boolean;
@@ -373,6 +377,12 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         // load scenes if needed
         // fire&forget, no need to wait for these
         this.tryLoadScenes(hass);
+
+        // load presets if needed and enabled
+        // fire&forget, no need to wait for these
+        if (this.enable_preset) {
+            this.tryLoadPresets();
+        }
     }
 
     // #region Floor
@@ -594,4 +604,88 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         // set to config
         this._scenes = HueLikeLightCardConfig.getScenesArray(loadedScenes);
     }
+
+    // #region Hue Presets
+
+    /**
+     * Get all presets
+     */
+    public get presets(): PresetConfig[] {
+        return this._presets;
+    }
+
+    private _presetsLoaded = false;
+    /**
+     * Will try to load Hue Presets from hass-scene_presets addon JSON.
+     */
+    private async tryLoadPresets() {
+        if (this._presetsLoaded)
+            return;
+
+        this._presetsLoaded = true;
+
+        try {
+            // Get base URL from Home Assistant
+            const baseUrl = window.location.origin;
+            const jsonUrl = `${baseUrl}/assets/scene_presets/scene_presets.json`;
+
+            // Fetch the JSON data
+            const response = await fetch(jsonUrl);
+            if (!response.ok) {
+                console.log('Hue Presets JSON not found. The hass-scene_presets addon may not be installed.');
+                return;
+            }
+
+            const data: LightingData = await response.json();
+
+            // Create a map of categories for quick lookup
+            const categoryMap = new Map<string, string>();
+            data.categories.forEach(cat => {
+                categoryMap.set(cat.id, cat.name);
+            });
+
+            // Convert presets to PresetConfig
+            this._presets = data.presets.map(preset => ({
+                preset: preset,
+                categoryName: categoryMap.get(preset.categoryId)
+            }));
+
+            console.log(`Loaded ${this._presets.length} Hue Presets from hass-scene_presets addon.`);
+        }
+        catch (error) {
+            console.log('Could not load Hue Presets from hass-scene_presets addon.');
+            console.error(error);
+        }
+    }
+
+    /**
+     * Get targets for preset activation based on card configuration
+     */
+    public getPresetTargets(): { entity_id?: string | string[], area_id?: string, floor_id?: string, label_id?: string } {
+        const targets: { entity_id?: string | string[], area_id?: string, floor_id?: string, label_id?: string } = {};
+
+        if (this.area) {
+            targets.area_id = this.area;
+        }
+        else if (this.floor) {
+            targets.floor_id = this.floor;
+        }
+        else if (this.label) {
+            targets.label_id = this.label;
+        }
+        else {
+            // Use entities
+            const entities = this.getEntities().getIdList();
+            if (entities.length === 1) {
+                targets.entity_id = entities[0];
+            }
+            else if (entities.length > 1) {
+                targets.entity_id = entities;
+            }
+        }
+
+        return targets;
+    }
+
+    // #endregion
 }

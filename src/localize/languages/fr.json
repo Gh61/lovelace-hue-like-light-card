@@ -5,6 +5,7 @@
   "card.description.someLightsAreOn": "%s lampes sont allumées",
   "dialog.lights": "Lumières",
   "dialog.scenes": "Mes scénarios",
+  "dialog.presets": "Scènes Hue Preset",
   "effects.candle": "Bougie",
   "effects.fireplace": "Feu de cheminée",
   "scenes.preset.bright": "Lumineux",
