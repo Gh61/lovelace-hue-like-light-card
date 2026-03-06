@@ -71,7 +71,7 @@ Some of these options may not be in the latest version. Please always check the 
     <td>yes*</td>
     <td>1.0.0</td>
     <td>-</td>
-    <td><b>Light</b> entity ID (eg. <code>light.my_light</code>)</td>
+    <td><b>Light</b> or <b>switch</b> <i>(since 1.9.0)</i> entity ID (eg. <code>light.my_light</code>)</td>
   </tr>
   <tr>
     <td><code>entities</code></td>
@@ -79,7 +79,7 @@ Some of these options may not be in the latest version. Please always check the 
     <td>yes*</td>
     <td>1.0.0</td>
     <td>-</td>
-    <td>Multiple <b>Light</b> entity IDs</td>
+    <td>Multiple <b>Light</b> and/or <b>switch</b> <i>(since 1.9.0)</i> entity IDs</td>
   </tr>
   <tr>
     <td><code>floor</code></td>
@@ -326,7 +326,7 @@ Some of these options may not be in the latest version. Please always check the 
     <td>string</td>
     <td>yes</td>
     <td>1.4.1</td>
-    <td><b>Light</b> entity ID (eg. <code>light.my_light</code>)</td>
+    <td><b>Light</b> or <b>switch</b> <i>(since 1.9.0)</i> entity ID (eg. <code>light.my_light</code>)</td>
   </tr>
   <tr>
     <td><code>title</code></td>
