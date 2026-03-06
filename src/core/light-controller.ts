@@ -8,6 +8,7 @@ import { LightFeatures } from './light-features';
 import { NotifyBase } from './notify-base';
 import { SceneData } from '../types/types-config';
 import { LightState } from './light-state';
+import { ensureEntityDomain } from '../types/extensions';
 
 /**
  * Serves as controller for single light.
@@ -22,6 +23,9 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
     public constructor(entity_id: string) {
         super();
+
+        ensureEntityDomain(entity_id, 'light', 'switch');
+
         this._entity_id = entity_id;
         this._domain = entity_id.startsWith('switch.') ? 'switch' : 'light';
         this._lightState = new LightState(<HassLightEntity>{ state: 'unavailable' });
