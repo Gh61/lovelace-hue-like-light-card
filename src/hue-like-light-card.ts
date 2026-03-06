@@ -20,6 +20,7 @@ import { PreventGhostClick } from './types/prevent-ghostclick';
 import { IdLitElement } from './core/id-lit-element';
 import { HueApiProvider } from './core/api-provider';
 import { ICardApi } from './types/types-api';
+import { LimitedTimeout } from './core/limited-timeout';
 
 // Show version info in console
 VersionNotifier.toConsole();
@@ -34,6 +35,7 @@ VersionNotifier.toConsole();
 
 @customElement(Consts.CardElementName)
 export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
+    private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
     private _ctrl?: AreaLightController;
@@ -406,6 +408,14 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             '--hue-box-shadow',
             shadow
         );
+
+        // sometimes the element is not yet displayed, so we need to try calculate shadow later
+        if (!shadow) {
+            this._lt.setTimeout(() => this.updateStylesInner(false), 100);
+        }
+        else {
+            this._lt.reset();
+        }
     }
 
     private onChangeHandler = () => this.onChangeCallback();

@@ -49,7 +49,7 @@ export class ThemeHelper {
 
         // To help change themes on the fly
         dialog.style.setProperty(
-            '--mdc-theme-surface',
+            '--ha-dialog-surface-background',
             `var(${hueBgColorVariable}, ${Consts.ThemeCardBackgroundVar})`
         );
     }

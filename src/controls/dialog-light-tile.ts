@@ -10,6 +10,7 @@ import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 import { noop } from '../types/functions';
 import { IconHelper } from '../core/icon-helper';
 import { HueLikeLightCardEntityConfig } from '../types/config';
+import { LimitedTimeout } from '../core/limited-timeout';
 
 export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
@@ -114,18 +115,10 @@ export class HueDialogLightTile extends HueDialogTile {
     `];
     }
 
-    protected override updated(changedProps: PropertyValues<HueDialogLightTile>): void {
-        // register for changes on light
-        if (changedProps.has('lightContainer')) {
-            const oldValue = changedProps.get('lightContainer') as ISingleLightContainer | null;
-            if (oldValue) {
-                oldValue.unregisterOnPropertyChanged(this._elementId);
-            }
-            if (this.lightContainer) {
-                this.lightContainer.registerOnPropertyChanged(this._elementId, () => this.lightUpdated());
-            }
-        }
+    private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
 
+    // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
+    private updateStylesInner(): void {
         if (this.lightContainer) {
             if (this.lightContainer.isOn()) {
                 const defaultColorBg = this.defaultColor ? new Background([this.defaultColor]) : null;
@@ -159,7 +152,30 @@ export class HueDialogLightTile extends HueDialogTile {
                 '--hue-light-box-shadow',
                 shadow
             );
+
+            // sometimes the element is not yet displayed, so we need to try calculate shadow later
+            if (!shadow) {
+                this._lt.setTimeout(() => this.updateStylesInner(), 100);
+            }
+            else {
+                this._lt.reset();
+            }
         }
+    }
+
+    protected override updated(changedProps: PropertyValues<HueDialogLightTile>): void {
+        // register for changes on light
+        if (changedProps.has('lightContainer')) {
+            const oldValue = changedProps.get('lightContainer') as ISingleLightContainer | null;
+            if (oldValue) {
+                oldValue.unregisterOnPropertyChanged(this._elementId);
+            }
+            if (this.lightContainer) {
+                this.lightContainer.registerOnPropertyChanged(this._elementId, () => this.lightUpdated());
+            }
+        }
+
+        this.updateStylesInner();
 
         if (changedProps.has('isSelected')) {
             const selector = <Element>this.renderRoot.querySelector('.selector');

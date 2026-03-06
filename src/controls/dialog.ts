@@ -20,6 +20,7 @@ import { LightController } from '../core/light-controller';
 import { HueHistoryStateManager, HueHistoryStep } from './history-state-manager';
 import { localize } from '../localize/localize';
 import { ActionHandler } from '../core/action-handler';
+import { LimitedTimeout } from '../core/limited-timeout';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -34,6 +35,7 @@ export class HueDialog extends IdLitElement {
     https://material-components.github.io/material-components-web-catalog/#/component/dialog
     */
 
+    private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
     private _isRendered = false;
     private _config: HueLikeLightCardConfig;
     private _entitiesConfig: HueLikeLightCardEntityConfigCollection;
@@ -291,43 +293,52 @@ export class HueDialog extends IdLitElement {
      * Default ha-dialog styles from HA.
      * See https://github.com/home-assistant/frontend/blob/dev/src/resources/styles.ts
      */
-    private static haStyleDialog = css`
-    /* mwc-dialog (ha-dialog) styles */
+    private static readonly haStyleDialog = css`
+  ha-dialog,
+  ha-adaptive-dialog {
+    --mdc-dialog-min-width: 400px;
+    --mdc-dialog-max-width: 600px;
+    --mdc-dialog-max-width: min(600px, 95vw);
+    --justify-action-buttons: space-between;
+    --dialog-container-padding: var(--safe-area-inset-top, 0)
+      var(--safe-area-inset-right, 0) var(--safe-area-inset-bottom, 0)
+      var(--safe-area-inset-left, 0);
+    --dialog-surface-padding: 0px;
+  }
+
+  ha-dialog .form,
+  ha-adaptive-dialog .form {
+    color: var(--primary-text-color);
+  }
+
+  a {
+    color: var(--primary-color);
+  }
+
+  /* make dialog fullscreen on small screens */
+  @media all and (max-width: 450px), all and (max-height: 500px) {
+    ha-dialog,
+    ha-adaptive-dialog {
+      --mdc-dialog-min-width: 100vw;
+      --mdc-dialog-max-width: 100vw;
+      --mdc-dialog-min-height: 100vh;
+      --mdc-dialog-min-height: 100svh;
+      --mdc-dialog-max-height: 100vh;
+      --mdc-dialog-max-height: 100svh;
+      --dialog-container-padding: 0px;
+      --dialog-surface-padding: var(--safe-area-inset-top, 0)
+        var(--safe-area-inset-right, 0) var(--safe-area-inset-bottom, 0)
+        var(--safe-area-inset-left, 0);
+      --vertical-align-dialog: flex-end;
+    }
     ha-dialog {
-      --mdc-dialog-min-width: 400px;
-      --mdc-dialog-max-width: 600px;
-      --mdc-dialog-heading-ink-color: var(--primary-text-color);
-      --mdc-dialog-content-ink-color: var(--primary-text-color);
-      --justify-action-buttons: space-between;
+      --ha-dialog-border-radius: var(--ha-border-radius-square);
     }
-    ha-dialog .form {
-      color: var(--primary-text-color);
-    }
-    a {
-      color: var(--primary-color);
-    }
-    /* make dialog fullscreen on small screens */
-    @media all and (max-width: 450px), all and (max-height: 500px) {
-      ha-dialog {
-        --mdc-dialog-min-width: calc(
-          100vw - env(safe-area-inset-right) - env(safe-area-inset-left)
-        );
-        --mdc-dialog-max-width: calc(
-          100vw - env(safe-area-inset-right) - env(safe-area-inset-left)
-        );
-        --mdc-dialog-min-height: 100%;
-        --mdc-dialog-max-height: 100%;
-        --vertical-align-dialog: flex-end;
-        --ha-dialog-border-radius: 0px;
-      }
-    }
-    mwc-button.warning {
-      --mdc-theme-primary: var(--error-color);
-    }
-    .error {
-      color: var(--error-color);
-    }
-  `;
+  }
+  .error {
+    color: var(--error-color);
+  }
+`;
 
     private static readonly headerMargin = 8;
     private static readonly tileGap = 10;
@@ -347,18 +358,10 @@ export class HueDialog extends IdLitElement {
         pointer-events: none;
     }
 
-    /* icon centering */
-    .mdc-icon-button i,
-    .mdc-icon-button svg,
-    .mdc-icon-button img,
-    .mdc-icon-button ::slotted(*){
-        height:auto;
-    }
-
     /* same color header */
     .hue-heading {
         --hue-heading-text-color: var(--hue-text-color, ${unsafeCSS(Consts.ThemeDialogHeadingColorVar)});
-        color:var(--hue-heading-text-color);
+        
         background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
         box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
         transition:${unsafeCSS(Consts.TransitionDefault)};
@@ -374,6 +377,10 @@ export class HueDialog extends IdLitElement {
 
         /* is above the backdrop */
         z-index:1;
+    }
+    .hue-heading ha-icon-button,
+    .hue-heading .main-title {
+        color:var(--hue-heading-text-color);
     }
     ha-dialog-header {
         --mdc-theme-on-primary: var(--hue-heading-text-color);
@@ -413,16 +420,11 @@ export class HueDialog extends IdLitElement {
     }
     .header .title{
         color: ${unsafeCSS(Consts.ThemeSecondaryTextColorVar)};
-        font-family: var(--paper-font-title_-_font-family);
-        -webkit-font-smoothing: var( --paper-font-title_-_-webkit-font-smoothing );
-        font-size: var(--paper-font-subhead_-_font-size);
-        font-weight: var(--paper-font-title_-_font-weight);
-        letter-spacing: var(--paper-font-title_-_letter-spacing);
-        line-height: var(--paper-font-title_-_line-height);
     }
 
     .content {
         outline: none;
+        padding-top: var(--ha-space-6);
     }
 
     /* tiles - scenes, lights */
@@ -511,7 +513,7 @@ export class HueDialog extends IdLitElement {
 
             // Trying to find surface element (it's not available during first load)
             const dialogShadowRoot = this.shadowRoot?.querySelector('ha-dialog')?.shadowRoot;
-            const surface = dialogShadowRoot && <HTMLElement>dialogShadowRoot.querySelector('.mdc-dialog__surface');
+            const surface = dialogShadowRoot && <HTMLElement>dialogShadowRoot.querySelector('wa-dialog');
 
             // finally got surface element, let's create backdrop and other stuff
             if (surface) {
@@ -655,6 +657,14 @@ export class HueDialog extends IdLitElement {
         else {
             this.style.removeProperty('--hue-text-color');
         }
+
+        // sometimes the element is not yet displayed, so we need to try calculate shadow later
+        if (!shadow) {
+            this._lt.setTimeout(() => this.updateStylesInner(false), 100);
+        }
+        else {
+            this._lt.reset();
+        }
     }
 
     private onChangeHandler = () => this.onChangeCallback();
@@ -679,9 +689,10 @@ export class HueDialog extends IdLitElement {
           .heading=${cardTitle}
           hideActions
         >
-          <ha-dialog-header slot="heading" class="hue-heading detail-hide">
+          <ha-dialog-header slot="header" class="hue-heading detail-hide">
             <ha-icon-button
               slot="navigationIcon"
+              data-dialog="close"
               dialogAction="cancel"
             >
               <ha-icon
@@ -759,7 +770,7 @@ export class HueDialog extends IdLitElement {
 
     //#region updateStyles hooks
 
-    protected override updated(changedProps: PropertyValues) {
+    protected override updated(changedProps: PropertyValues): void {
         super.updated(changedProps);
 
         this.updateStylesInner(false);
