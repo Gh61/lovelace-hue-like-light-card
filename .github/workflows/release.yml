@@ -96,7 +96,7 @@ jobs:
         stripGeneratorNotice: true
 
     - name: Release
-      uses: mikepenz/action-gh-release@v1
+      uses: mikepenz/action-gh-release@v2
       with:
         tag_name: ${{ github.event.inputs.new_version }}
         draft: true
