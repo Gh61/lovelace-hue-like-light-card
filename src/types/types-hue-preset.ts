@@ -127,7 +127,7 @@ export class PresetData {
     public async getAccentColor(): Promise<Color | null> {
         if (this._config.preset.lights && this._config.preset.lights.length > 0) {
             const firstLight = this._config.preset.lights[0];
-            return new Color(firstLight.x, firstLight.y, this._config.preset.bri);
+            return new Color(firstLight.x, firstLight.y, this._config.preset.bri, 1, 'xy');
         }
         return null;
     }

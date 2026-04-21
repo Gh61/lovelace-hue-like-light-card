@@ -1,4 +1,4 @@
-export type ColorMode = 'rgb' | 'hsv';
+export type ColorMode = 'rgb' | 'hsv' | 'xy';
 
 export class Color {
     private readonly _originalMode: ColorMode;

@@ -689,8 +689,6 @@ export class HueDialog extends IdLitElement {
         const cardTitle = this._config.getTitle(this._ctrl).resolveToString(this._ctrl.hass);
         const mdiClose = 'mdi:close';
         const sceneTiles: ({ kind: 'scene', config: SceneConfig } | { kind: 'preset', config: PresetConfig })[] = [];
-        console.log("SCENE PROVIDER", this._config.sceneProvider)
-        console.log("CONFIG", this._config)
         this._config.sceneProvider.forEach(provider => {
             if (provider == SceneProvider.HaScenes) {
                 sceneTiles.push(...this._config.scenes.map(sceneConfig => ({ kind: 'scene' as const, config: sceneConfig })));
@@ -699,10 +697,8 @@ export class HueDialog extends IdLitElement {
                 sceneTiles.push(...this._config.presets.map(presetConfig => ({ kind: 'preset' as const, config: presetConfig })));
             }
         });
-        console.log("sceneTiles", sceneTiles)
 
         const renderSceneTile = (tile: { kind: 'scene', config: SceneConfig } | { kind: 'preset', config: PresetConfig }) => {
-            console.log("renderSceneTile", tile)
             if (tile.kind === 'preset') {
                 return html`<${unsafeStatic(HueDialogScenePresetTile.ElementName)}
                             .presetConfig=${tile.config}
