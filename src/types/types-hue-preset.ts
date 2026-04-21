@@ -127,43 +127,9 @@ export class PresetData {
     public async getAccentColor(): Promise<Color | null> {
         if (this._config.preset.lights && this._config.preset.lights.length > 0) {
             const firstLight = this._config.preset.lights[0];
-            // Convert XY to RGB (simplified conversion)
-            const rgb = this.xyToRgb(firstLight.x, firstLight.y, this._config.preset.bri);
-            return new Color(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+            return new Color(firstLight.x, firstLight.y, this._config.preset.bri);
         }
         return null;
-    }
-
-    /**
-     * Convert XY color coordinates to RGB
-     * Based on Philips Hue color conversion
-     */
-    private xyToRgb(x: number, y: number, brightness: number): { r: number, g: number, b: number } {
-        const z = 1.0 - x - y;
-        const Y = brightness / 254.0;
-        const X = (Y / y) * x;
-        const Z = (Y / y) * z;
-
-        // Convert to RGB using Wide RGB D65 conversion
-        let r = X * 1.656492 - Y * 0.354851 - Z * 0.255038;
-        let g = -X * 0.707196 + Y * 1.655397 + Z * 0.036152;
-        let b = X * 0.051713 - Y * 0.121364 + Z * 1.011530;
-
-        // Apply reverse gamma correction
-        r = r <= 0.0031308 ? 12.92 * r : (1.0 + 0.055) * Math.pow(r, (1.0 / 2.4)) - 0.055;
-        g = g <= 0.0031308 ? 12.92 * g : (1.0 + 0.055) * Math.pow(g, (1.0 / 2.4)) - 0.055;
-        b = b <= 0.0031308 ? 12.92 * b : (1.0 + 0.055) * Math.pow(b, (1.0 / 2.4)) - 0.055;
-
-        // Clamp values to [0, 1]
-        r = Math.max(0, Math.min(1, r));
-        g = Math.max(0, Math.min(1, g));
-        b = Math.max(0, Math.min(1, b));
-
-        return {
-            r: Math.round(r * 255),
-            g: Math.round(g * 255),
-            b: Math.round(b * 255)
-        };
     }
 
     /**
@@ -173,4 +139,3 @@ export class PresetData {
         return this._config.categoryName;
     }
 }
-

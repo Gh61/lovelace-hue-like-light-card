@@ -1,74 +1,55 @@
 import { forwardHaptic } from 'custom-card-helpers';
-import { html, css, nothing, unsafeCSS, PropertyValues } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { css, html, nothing, PropertyValues, unsafeCSS } from 'lit';
 import { Color } from '../core/colors/color';
 import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
-import { nameof } from '../types/extensions';
-import { SceneConfig, SceneData } from '../types/types-config';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 
 /**
- * Represents Scene tile element in HueDialog.
+ * Shared implementation for scene tiles in HueDialog. Base Class
  */
-@customElement(HueDialogSceneTile.ElementName)
-export class HueDialogSceneTile extends HueDialogTile {
-
+export abstract class HueDialogSceneTile extends HueDialogTile {
     public static override readonly ElementName = HueDialogTile.ElementName + '-scene';
 
     private readonly _effectQueue = new HueEffectQueue();
-    private _sceneConfig: SceneConfig | null = null;
-    @state()
-    private _scene: SceneData | null = null;
 
-    public set sceneConfig(config: SceneConfig) {
-        const oldSceneConfig = this._sceneConfig;
+    private static readonly pictureDimensions = HueDialogTile.height / 2; // px
+    public static readonly iconScale = (HueDialogSceneTile.pictureDimensions * 0.75) / 24; // 24 = default icon size
+    private static readonly animationSeconds = 1.0;
 
-        this._sceneConfig = config;
-        this._scene = new SceneData(config);
-        this.updateHassDependentProps();
-
-        // custom @property() implementation
-        this.requestUpdate(nameof(this, 'sceneConfig'), oldSceneConfig);
-    }
-
-    protected override updateHassDependentProps() {
-        if (this._hass && this._scene) {
-            this._scene.hass = this._hass;
-        }
-    }
+    protected abstract getTileTitle(): string | undefined;
+    protected abstract getTilePicture(): string | undefined;
+    protected abstract getTileIcon(): string | null;
+    protected abstract getTileAccentColor(): Promise<Color | null | undefined>;
+    protected abstract activateTile(): void;
+    protected abstract isTileDataChanged(changedProps: PropertyValues): boolean;
 
     protected override tileClicked() {
-        if (!this._scene)
+        if (this.getTileTitle() == null) {
             return;
+        }
 
-        // vibrate a little
         forwardHaptic('light');
+        this.activateTile();
 
-        // activate scene
-        this._scene.activate();
-
-        // stops the animation and clears the queue
         this._effectQueue.stopAndClear();
 
-        // find tile and start animation
-        const sceneElement = this.renderRoot.querySelector('.scene');
-        if (sceneElement) {
-            sceneElement.classList.remove('clicked', 'unclicked');
-            const animationMs = (HueDialogSceneTile.animationSeconds * 1000);
-            this._effectQueue.addEffect(0, () => sceneElement.classList.add('clicked'));
-            this._effectQueue.addEffect(3000, () => sceneElement.classList.add('unclicked'));
+        const tileElement = this.renderRoot.querySelector('.scene');
+        if (tileElement) {
+            tileElement.classList.remove('clicked', 'unclicked');
+            const animationMs = HueDialogSceneTile.animationSeconds * 1000;
+            this._effectQueue.addEffect(0, () => tileElement.classList.add('clicked'));
+            this._effectQueue.addEffect(3000, () => tileElement.classList.add('unclicked'));
             this._effectQueue.addEffect(animationMs, () => {
-                sceneElement.classList.add('stop-color-animate');
-                sceneElement.classList.remove('clicked');
+                tileElement.classList.add('stop-color-animate');
+                tileElement.classList.remove('clicked');
             });
             this._effectQueue.addEffect(50, () => {
-                sceneElement.classList.remove('stop-color-animate', 'unclicked');
+                tileElement.classList.remove('stop-color-animate', 'unclicked');
             });
             this._effectQueue.start();
         }
 
-        // fire event on change
         this.dispatchEvent(new CustomEvent<ITileEventDetail>('activated', {
             detail: {
                 tileElement: this
@@ -76,11 +57,55 @@ export class HueDialogSceneTile extends HueDialogTile {
         }));
     }
 
-    private static readonly pictureDimensions = HueDialogTile.height / 2; // px
-    public static readonly iconScale = (HueDialogSceneTile.pictureDimensions * 0.75) / 24; // 24 = default icon size
-    private static readonly animationSeconds = 1.0;
+    protected override updated(changedProps: PropertyValues) {
+        if (this.isTileDataChanged(changedProps)) {
+            this.getTileAccentColor().then(accentColor => {
+                if (!accentColor) {
+                    return;
+                }
 
-    public static override get styles() {
+                const fg = accentColor.getForeground(Consts.LightColor, Consts.DarkColor, 20);
+                const textFg = accentColor.getForeground(Consts.LightColor, new Color('black'), 20);
+
+                this.style.setProperty('--hue-tile-accent-color', accentColor.toString());
+                this.style.setProperty('--hue-tile-fg-color', fg.toString());
+                this.style.setProperty('--hue-tile-fg-text-color', textFg.toString());
+            });
+        }
+    }
+
+    protected override render() {
+        const title = this.getTileTitle();
+        if (title == null) {
+            return nothing;
+        }
+
+        const picture = this.getTilePicture();
+
+        /*eslint-disable */
+        return html`
+        <div class='hue-tile scene' title='${title}'>
+            <div class='icon-background'>
+                ${picture
+                ? html`
+                    <div class='picture-color'>
+                        <div class='picture' style='background-image:url("${picture}")'></div>
+                    </div>`
+                : html`
+                    <div class='color'>
+                        <ha-icon icon="${this.getTileIcon() || 'mdi:palette'}"></ha-icon>
+                    </div>`
+            }
+            </div>
+            <div class='title'>
+                <span>${title}</span>
+            </div>
+        </div>
+        `;
+        /*eslint-enable */
+    }
+
+    public static get sceneTileStyles() {
         return [
             HueDialogTile.hueDialogStyle,
             css`
@@ -161,64 +186,5 @@ export class HueDialogSceneTile extends HueDialogTile {
         50% { transform: scale(1.5); }
     }
     `];
-    }
-
-    protected override getEntityId(): string | undefined {
-        return this._sceneConfig?.entity;
-    }
-
-    protected override updated(changedProps: PropertyValues<HueDialogSceneTile>) {
-        if (this._scene && changedProps.has('sceneConfig')) {
-            // set accent color
-            this._scene.getAccentColor().then(accentColor => {
-                if (accentColor) {
-                    const fg = accentColor.getForeground(Consts.LightColor, Consts.DarkColor, 20); // offset:20 - lets make the text color light sooner
-                    const textFg = accentColor.getForeground(Consts.LightColor, new Color('black'), 20); // offset:20 - lets make the text color light sooner
-    
-                    this.style.setProperty(
-                        '--hue-tile-accent-color',
-                        accentColor.toString()
-                    );
-                    this.style.setProperty(
-                        '--hue-tile-fg-color',
-                        fg.toString()
-                    );
-                    this.style.setProperty(
-                        '--hue-tile-fg-text-color',
-                        textFg.toString()
-                    );
-                }
-            });
-        }
-    }
-
-    protected override render() {
-        if (!this._scene)
-            return nothing;
-
-        const title = this._scene.getTitle(this.cardTitle);
-        const picture = this._scene.getPicture();
-
-        /*eslint-disable */
-        return html`
-        <div class='hue-tile scene' title='${title}'>
-            <div class='icon-background'>
-                ${picture
-                ? html`
-                    <div class='picture-color'>
-                        <div class='picture' style='background-image:url("${picture}")'></div>
-                    </div>`
-                : html`
-                    <div class='color'>
-                        <ha-icon icon="${this._scene.getIcon('mdi:palette')}"></ha-icon>
-                    </div>`
-            }
-            </div>
-            <div class='title'>
-                <span>${title}</span>
-            </div>
-        </div>
-        `;
-        /*eslint-enable */
     }
 }

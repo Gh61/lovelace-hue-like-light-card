@@ -6,7 +6,7 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { removeDuplicates } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
-import { ClickAction, ClickActionData, HueLikeLightCardEntityConfigInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SliderType } from './types-config';
+import { ClickAction, ClickActionData, HueLikeLightCardEntityConfigInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SceneProvider, SliderType } from './types-config';
 import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
 import { LightingData, PresetConfig } from './types-hue-preset';
 
@@ -103,6 +103,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.slider = HueLikeLightCardConfig.getSliderType(plainConfig.slider);
         this._scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
         this.sceneOrder = HueLikeLightCardConfig.getSceneOrder(plainConfig.sceneOrder);
+        this.sceneProvider = HueLikeLightCardConfig.getSceneProviders(plainConfig.sceneProvider);
         this.offClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.offClickAction);
         this.offClickData = new ClickActionData(plainConfig.offClickData);
         this.onClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.onClickAction);
@@ -121,7 +122,6 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
         this.apiId = plainConfig.apiId;
         this.isVisible = HueLikeLightCardConfig.getBoolean(plainConfig.isVisible, true);
-        this.enable_preset = HueLikeLightCardConfig.getBoolean(plainConfig.enable_preset, false);
 
         this.style = plainConfig.style;
         this.card_mod = plainConfig.card_mod;
@@ -190,6 +190,25 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             return SceneOrder.Default;
 
         return HueLikeLightCardConfig.tryParseEnum<SceneOrder>(SceneOrder, plain, 'Scene order');
+    }
+
+    /**
+     * @returns SceneProviders valid enum values, default for empty or throws exception.
+     */
+    private static getSceneProviders(plain: SceneProvider[] | string[] | undefined): SceneProvider[] {
+        if (!plain) {
+            return [SceneProvider.HaScenes];
+        }
+
+        const result: SceneProvider[] = [];
+        plain.forEach(provider => {
+            const parsed = HueLikeLightCardConfig.tryParseEnum<SceneProvider>(SceneProvider, provider, 'Scene provider');
+            if (!result.includes(parsed)) {
+                result.push(parsed);
+            }
+        });
+
+        return result;
     }
 
     private static tryParseEnum<T>(enumType: Record<string, T>, plain: string, name: string) {
@@ -266,6 +285,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         return this._scenes || [];
     }
     public readonly sceneOrder: SceneOrder;
+    public readonly sceneProvider: SceneProvider[];
     public readonly offClickAction: ClickAction;
     public readonly offClickData: ClickActionData;
     public readonly onClickAction: ClickAction;
@@ -277,7 +297,6 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     public readonly allowZero: boolean;
     public readonly theme: string;
     public readonly defaultColor: string;
-    public readonly enable_preset: boolean;
     public readonly offColor: string;
     public readonly hueScreenBgColor: string;
     public readonly offShadow: boolean;
@@ -341,6 +360,10 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         return new ColorExtended(this.hueScreenBgColor);
     }
 
+    public hasSceneProvider(provider: SceneProvider): boolean {
+        return this.sceneProvider.includes(provider);
+    }
+
     private _isInitialized = false;
 
     /**
@@ -374,15 +397,17 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         // load entities from label if needed
         await this.tryLoadLabelInfo(hass);
 
-        // load scenes if needed
-        // fire&forget, no need to wait for these
-        this.tryLoadScenes(hass);
+        // load scenes and presets as needed:
+        if (this.hasSceneProvider(SceneProvider.HaScenes)) {
+            // fire&forget, no need to wait for these
+            this.tryLoadScenes(hass);
+        }
 
-        // load presets if needed and enabled
-        // fire&forget, no need to wait for these
-        if (this.enable_preset) {
+        if (this.hasSceneProvider(SceneProvider.ScenePresets)) {
+            // fire&forget, no need to wait for these
             this.tryLoadPresets();
         }
+        // end loading of scenes and presets
     }
 
     // #region Floor
@@ -632,7 +657,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             // Fetch the JSON data
             const response = await fetch(jsonUrl);
             if (!response.ok) {
-                console.log('Hue Presets JSON not found. The hass-scene_presets addon may not be installed.');
+                console.error('Hue Presets JSON not found. The hass-scene_presets addon may not be installed.');
                 return;
             }
 
@@ -650,10 +675,9 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
                 categoryName: categoryMap.get(preset.categoryId)
             }));
 
-            console.log(`Loaded ${this._presets.length} Hue Presets from hass-scene_presets addon.`);
         }
         catch (error) {
-            console.log('Could not load Hue Presets from hass-scene_presets addon.');
+            console.error('Could not load Hue Presets from hass-scene_presets addon.');
             console.error(error);
         }
     }

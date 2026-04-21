@@ -33,6 +33,11 @@ export enum SceneOrder {
     NameDesc = 'name-desc'
 }
 
+export enum SceneProvider {
+    HaScenes = 'ha-scenes',
+    ScenePresets = 'scene-presets'
+}
+
 export class ClickActionData {
     private readonly _onlyValue: string;
     private readonly _valueStore: Record<string, string>;
@@ -244,6 +249,7 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     readonly slider?: string | SliderType;
     readonly scenes?: (string | SceneConfig)[];
     readonly sceneOrder?: SceneOrder;
+    readonly sceneProvider?: SceneProvider[] | string[];
     readonly offClickAction?: ClickAction;
     readonly offClickData?: string | Record<string, string> | ClickActionData;
     readonly onClickAction?: ClickAction;
@@ -261,8 +267,6 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     readonly hueBorders?: boolean;
     readonly apiId?: string;
     readonly isVisible?: boolean;
-    readonly enable_preset?: boolean;
-
     /** Support for card-mod styling */
     readonly style?: unknown;
     readonly card_mod?: unknown;
