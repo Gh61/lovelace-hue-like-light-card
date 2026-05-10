@@ -390,7 +390,8 @@ export class HueDialog extends IdLitElement {
     }
     .hue-heading ha-switch {
         padding: 12px;
-        margin: 4px 0;
+        /* from HA 2026.5 - compensate for inner label margin */
+        margin-inline-end: -0.5em;
     }
     .hue-heading .brightness-slider {
         width: 100%;

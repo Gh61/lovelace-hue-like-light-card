@@ -100,16 +100,19 @@ export class HueDialogLightTile extends HueDialogTile {
     .switch{
         display:flex;
         flex-flow:column;
+        justify-content: center;
+        align-items: center;
 
         height: ${HueDialogLightTile.switchHeight + HueDialogTile.padding}px;
-        justify-content: center;
         background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
         border-top: 1px solid rgba(80, 80, 80, 0.1);
         box-sizing: content-box;
         margin: 0 -${HueDialogTile.padding}px;
     }
-    .switch ha-switch{
-        justify-content:center;
+    .switch ha-switch
+    {
+        /* from HA 2026.5 - compensate for inner label margin */
+        margin-inline-end: -0.5em;
     }
 
     `];
