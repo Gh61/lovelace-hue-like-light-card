@@ -230,6 +230,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         position:relative;
         box-shadow:var(--hue-box-shadow), var(--ha-default-shadow);
         background-origin: border-box;
+        --hue-card-margin: 14px;
     }
     ha-card.new-borders
     {
@@ -242,26 +243,34 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         box-shadow:var(--hue-box-shadow), ${unsafeCSS(Consts.HueShadow)};
         border:none;
     }
+    ha-card div.main-info
+    {
+        display: flex;
+        justify-content: space-between;
+        padding: var(--hue-card-margin);
+        padding-bottom: 0;
+    }
     ha-card div.tap-area
     {
-        height:46px; /* card(80) - slider(32) - border(2) */
+        flex-grow:1;
+        /* height = card(80) - slider(32) - border(2) */
+        height: calc(46px - var(--hue-card-margin));
         cursor: pointer;
+        display: flex;
+        align-items: center;
     }
     ha-icon
     {
-        position:absolute;
-        left:22px;
-        top:17px;
-        transform:scale(var(--hue-icon-size, ${Consts.IconSize[KnownIconSize.Original]}));
+        display:inline-block;
+        --mdc-icon-size: calc(24px * var(--hue-icon-size, ${Consts.IconSize[KnownIconSize.Original]}));
+        width: 70px;
+        margin-left: calc(-1* var(--hue-card-margin));
+        text-align: center;
         color:var(--hue-text-color);
         transition:${unsafeCSS(Consts.TransitionDefault)};
     }
     .text-area{
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 50px;
-        margin:0px 60px 0px 70px;
+        flex-grow: 1;
         line-height:normal;
         color:var(--hue-text-color);
         transition:${unsafeCSS(Consts.TransitionDefault)};
@@ -276,18 +285,16 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         text-overflow:ellipsis;
         overflow:hidden;
         white-space:nowrap;
-        margin:4px 0 2px 0;
+        margin: 0;
     }
     .text-area .desc
     {
         font-size:13px;
-        margin-top:-2px;
     }
     ha-switch
     {
-        position:absolute;
-        right:14px;
-        top:22px;
+        /* from HA 2026.5 - compensate for inner label margin */
+        margin-inline-end: -0.5em;
     }
     .brightness-slider
     {
@@ -296,8 +303,8 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     ha-slider.brightness-slider
     {
         /*since HA 2025.10*/
-        width: calc(100% - 28px);
-        margin: 14px;
+        width: calc(100% - 2 * var(--hue-card-margin));
+        margin: var(--hue-card-margin);
     }
     ha-alert{
         display:flex;
@@ -451,15 +458,16 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         };
 
         return html`<ha-card class="${classMap(cardClass)}">
-            <div class="tap-area">
+            <div class="main-info">
+                <div class="tap-area">
                 <ha-icon icon="${this._config.icon || this._ctrl.getIcon()}"></ha-icon>
                 <div class="${classMap(textClass)}">
-                    <h2>${title}</h2>
-                    <div class="desc">${description}</div>
+                        <h2>${title}</h2>
+                        <div class="desc">${description}</div>
+                    </div>
                 </div>
+                ${showSwitch ? ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene) : nothing}
             </div>
-            ${showSwitch ? ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene) : nothing}
-
             ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}
         </ha-card>`;
     }
