@@ -253,6 +253,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     ha-card div.tap-area
     {
         flex-grow:1;
+        min-width: 0;
         /* height = card(80) - slider(32) - border(2) */
         height: calc(46px - var(--hue-card-margin));
         cursor: pointer;
@@ -261,6 +262,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     }
     ha-icon
     {
+        flex-shrink: 0;
         display:inline-block;
         --mdc-icon-size: calc(24px * var(--hue-icon-size, ${Consts.IconSize[KnownIconSize.Original]}));
         width: 70px;
@@ -271,6 +273,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     }
     .text-area{
         flex-grow: 1;
+        min-width: 0;
         line-height:normal;
         color:var(--hue-text-color);
         transition:${unsafeCSS(Consts.TransitionDefault)};
@@ -290,6 +293,11 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     .text-area .desc
     {
         font-size:13px;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
     }
     ha-switch
     {
