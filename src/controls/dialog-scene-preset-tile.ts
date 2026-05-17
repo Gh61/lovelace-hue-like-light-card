@@ -4,6 +4,9 @@ import { nameof } from '../types/extensions';
 import { PresetConfig, PresetData } from '../types/types-hue-preset';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 
+/**
+ * Represents Scene Preset (https://github.com/Hypfer/hass-scene_presets) tile element in HueDialog.
+ */
 @customElement(HueDialogScenePresetTile.ElementName)
 export class HueDialogScenePresetTile extends HueDialogSceneTile {
     public static override readonly ElementName = HueDialogSceneTile.ElementName + '-preset';
@@ -20,6 +23,7 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
         this._preset = new PresetData(config);
         this.updateHassDependentProps();
 
+        // custom @property() implementation
         this.requestUpdate(nameof(this, 'presetConfig'), oldPresetConfig);
     }
 
@@ -35,6 +39,10 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
         if (this._hass && this._preset) {
             this._preset.hass = this._hass;
         }
+    }
+
+    protected override getEntityId(): string | undefined {
+        return undefined;
     }
 
     protected override getTileTitle(): string | undefined {
@@ -59,9 +67,5 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
 
     protected override isTileDataChanged(changedProps: PropertyValues): boolean {
         return !!this._preset && changedProps.has('presetConfig');
-    }
-
-    protected override getEntityId(): string | undefined {
-        return undefined;
     }
 }

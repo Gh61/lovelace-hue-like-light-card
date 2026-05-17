@@ -9,8 +9,8 @@ import { HueDialogSceneTile } from './dialog-scene-tile';
  */
 @customElement(HueDialogSceneHATile.ElementName)
 export class HueDialogSceneHATile extends HueDialogSceneTile {
-
     public static override readonly ElementName = HueDialogSceneTile.ElementName + '-ha';
+
     private _sceneConfig: SceneConfig | null = null;
     @state()
     private _scene: SceneData | null = null;
@@ -26,14 +26,14 @@ export class HueDialogSceneHATile extends HueDialogSceneTile {
         this.requestUpdate(nameof(this, 'sceneConfig'), oldSceneConfig);
     }
 
+    public static override get styles() {
+        return HueDialogSceneTile.sceneTileStyles;
+    }
+
     protected override updateHassDependentProps() {
         if (this._hass && this._scene) {
             this._scene.hass = this._hass;
         }
-    }
-
-    public static override get styles() {
-        return HueDialogSceneTile.sceneTileStyles;
     }
 
     protected override getEntityId(): string | undefined {
