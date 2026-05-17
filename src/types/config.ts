@@ -650,9 +650,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this._presetsLoaded = true;
 
         try {
-            // Get base URL from Home Assistant
-            const baseUrl = window.location.origin;
-            const jsonUrl = `${baseUrl}/assets/scene_presets/scene_presets.json`;
+            const jsonUrl = '/assets/scene_presets/scene_presets.json';
 
             // Fetch the JSON data
             const response = await fetch(jsonUrl);
