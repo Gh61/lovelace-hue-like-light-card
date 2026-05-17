@@ -38,7 +38,7 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
         // stops the animation and clears the queue
         this._effectQueue.stopAndClear();
 
-         // find tile and start animation
+        // find tile and start animation
         const tileElement = this.renderRoot.querySelector('.scene');
         if (tileElement) {
             tileElement.classList.remove('clicked', 'unclicked');
