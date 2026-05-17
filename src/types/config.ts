@@ -195,18 +195,24 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     /**
      * @returns SceneProviders valid enum values, default for empty or throws exception.
      */
-    private static getSceneProviders(plain: SceneProvider[] | string[] | undefined): SceneProvider[] {
+    private static getSceneProviders(plain: MaybeArray<string | SceneProvider> | undefined): SceneProvider[] {
         if (!plain) {
             return [SceneProvider.HaScenes];
         }
 
         const result: SceneProvider[] = [];
-        plain.forEach(provider => {
-            const parsed = HueLikeLightCardConfig.tryParseEnum<SceneProvider>(SceneProvider, provider, 'Scene provider');
-            if (!result.includes(parsed)) {
-                result.push(parsed);
-            }
-        });
+        if (typeof plain === "string"){
+            plain = [plain];
+        }
+
+        if (plain.length > 0){
+            plain.forEach(provider => {
+                const parsed = HueLikeLightCardConfig.tryParseEnum<SceneProvider>(SceneProvider, provider, 'Scene provider');
+                if (!result.includes(parsed)) {
+                    result.push(parsed);
+                }
+            });
+        }
 
         return result;
     }
