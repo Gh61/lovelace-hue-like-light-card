@@ -29,11 +29,16 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
             return;
         }
 
+        // vibrate a little
         forwardHaptic('light');
+
+        // activate scene
         this.activateTile();
 
+        // stops the animation and clears the queue
         this._effectQueue.stopAndClear();
 
+         // find tile and start animation
         const tileElement = this.renderRoot.querySelector('.scene');
         if (tileElement) {
             tileElement.classList.remove('clicked', 'unclicked');
@@ -50,6 +55,7 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
             this._effectQueue.start();
         }
 
+        // fire event on change
         this.dispatchEvent(new CustomEvent<ITileEventDetail>('activated', {
             detail: {
                 tileElement: this
