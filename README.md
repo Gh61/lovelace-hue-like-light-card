@@ -196,6 +196,14 @@ Some of these options may not be in the latest version. Please always check the 
     <td>Order of <a href="#scenes-detection">automatically detected</a> scenes shown in <a href="#hue-screen">Hue screen</a></td>
   </tr>
   <tr>
+    <td><code>sceneProvider</code></td>
+    <td>single OR list of <a href="#scene-provider">Scene Providers</a></td>
+    <td>no</td>
+    <td>1.11.0</td>
+    <td><code>'ha-scenes'</code></td>
+    <td>The provider(s) of scenes to be displayed</td>
+  </tr>
+  <tr>
     <td><code>allowZero</code></td>
     <td>boolean</td>
     <td>no</td>
@@ -844,6 +852,31 @@ Note, that scenes are listed in two rows populated like this:
 ---------------------
 | 2 | 4 | ...
 ```
+
+#### Scene provider
+*Since version 1.11.0*
+
+You can choose whether you want to use the default HA scene provider and/or [Hypfer's Scene Presets](https://github.com/Hypfer/hass-scene_presets).
+
+This can be done by chaning the config value `sceneProvider` to `scene-presets`. Supported values are `'ha-scenes'` and `'scene-presets'`.
+You can set this value to one of them or a list of them. For example:
+```yaml
+type: custom:hue-like-light-card
+...
+sceneProvider: scene-presets
+```
+
+or
+
+```yaml
+type: custom:hue-like-light-card
+...
+sceneProvider:
+  - ha-scenes
+  - scene-presets
+```
+
+*The order of scenes in [Hue Screen](#hue-screen) depends on the order of providers passed.*
 
 ### Custom activation example (Hue dynamic scene)
 ```yaml
