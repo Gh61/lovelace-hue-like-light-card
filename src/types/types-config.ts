@@ -4,6 +4,7 @@ import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
 import { ensureEntityDomain } from './extensions';
 import ColorThief from 'colorthief';
+import { MaybeArray } from './types-helpers';
 
 export enum KnownIconSize {
     Big = 'big',

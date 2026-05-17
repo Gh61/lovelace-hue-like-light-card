@@ -9,6 +9,7 @@ import { HassTextTemplate } from '../core/hass-text-template';
 import { ClickAction, ClickActionData, HueLikeLightCardEntityConfigInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SceneProvider, SliderType } from './types-config';
 import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
 import { LightingData, PresetConfig } from './types-hue-preset';
+import { MaybeArray } from './types-helpers';
 
 declare type EntityRelations = {
     entityId: string;
