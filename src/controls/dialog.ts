@@ -164,13 +164,8 @@ export class HueDialog extends IdLitElement {
         }
     }
 
-    private afterSceneActivated(ev: CustomEvent<ITileEventDetail>) {
+    private afterSceneTileActivated(ev: CustomEvent<ITileEventDetail>) {
         // scroll to selected scene
-        HueDialog.tileScrollTo(ev.detail.tileElement);
-    }
-
-    private afterPresetActivated(ev: CustomEvent<ITileEventDetail>) {
-        // scroll to selected preset
         HueDialog.tileScrollTo(ev.detail.tileElement);
     }
 
@@ -703,7 +698,7 @@ export class HueDialog extends IdLitElement {
                 return html`<${unsafeStatic(HueDialogSceneHATile.ElementName)}
                                 .cardTitle=${cardTitle}
                                 .sceneConfig=${tile.config}
-                                @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
+                                @activated=${(e: CustomEvent) => this.afterSceneTileActivated(e)}
                                 .hass=${this._ctrl.hass}
                                 .actionHandler=${this._actionHandler}>
                             </${unsafeStatic(HueDialogSceneHATile.ElementName)}>`;
@@ -712,7 +707,7 @@ export class HueDialog extends IdLitElement {
                 return html`<${unsafeStatic(HueDialogScenePresetTile.ElementName)}
                                 .presetConfig=${tile.config}
                                 .targets=${this._config.getPresetTargets()}
-                                @activated=${(e: CustomEvent) => this.afterPresetActivated(e)}
+                                @activated=${(e: CustomEvent) => this.afterSceneTileActivated(e)}
                                 .hass=${this._ctrl.hass}
                                 .actionHandler=${this._actionHandler}>
                             </${unsafeStatic(HueDialogScenePresetTile.ElementName)}>`;
