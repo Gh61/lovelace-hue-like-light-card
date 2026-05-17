@@ -10,7 +10,9 @@ import { HueLikeLightCardConfig, HueLikeLightCardEntityConfigCollection } from '
 import { Consts } from '../types/consts';
 import { HaDialog } from '../types/types-hass';
 import { ThemeHelper } from '../types/theme-helper';
-import { HueDialogSceneTile } from './dialog-scene-tile';
+import { SceneConfig, SceneProvider } from '../types/types-config';
+import { PresetConfig } from '../types/types-hue-preset';
+import { HueDialogScenePresetTile } from './dialog-scene-preset-tile';
 import { IdLitElement } from '../core/id-lit-element';
 import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-tile';
 import { ILightContainer } from '../types/types-interface';
@@ -21,6 +23,7 @@ import { HueHistoryStateManager, HueHistoryStep } from './history-state-manager'
 import { localize } from '../localize/localize';
 import { ActionHandler } from '../core/action-handler';
 import { LimitedTimeout } from '../core/limited-timeout';
+import { HueDialogSceneHATile } from './dialog-scene-ha-tile';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -161,7 +164,7 @@ export class HueDialog extends IdLitElement {
         }
     }
 
-    private afterSceneActivated(ev: CustomEvent<ITileEventDetail>) {
+    private afterSceneTileActivated(ev: CustomEvent<ITileEventDetail>) {
         // scroll to selected scene
         HueDialog.tileScrollTo(ev.detail.tileElement);
     }
@@ -681,6 +684,38 @@ export class HueDialog extends IdLitElement {
 
         const cardTitle = this._config.getTitle(this._ctrl).resolveToString(this._ctrl.hass);
         const mdiClose = 'mdi:close';
+        const sceneTiles: ({ kind: 'scene', config: SceneConfig } | { kind: 'preset', config: PresetConfig })[] = [];
+        this._config.sceneProvider.forEach(provider => {
+            if (provider == SceneProvider.HaScenes) {
+                sceneTiles.push(...this._config.scenes.map(sceneConfig => ({ kind: 'scene' as const, config: sceneConfig })));
+            }
+            else if (provider == SceneProvider.ScenePresets) {
+                sceneTiles.push(...this._config.presets.map(presetConfig => ({ kind: 'preset' as const, config: presetConfig })));
+            }
+        });
+
+        const renderSceneTile = (tile: { kind: 'scene', config: SceneConfig } | { kind: 'preset', config: PresetConfig }) => {
+            if (tile.kind === 'scene') {
+                return html`<${unsafeStatic(HueDialogSceneHATile.ElementName)}
+                                .cardTitle=${cardTitle}
+                                .sceneConfig=${tile.config}
+                                @activated=${(e: CustomEvent) => this.afterSceneTileActivated(e)}
+                                .hass=${this._ctrl.hass}
+                                .actionHandler=${this._actionHandler}>
+                            </${unsafeStatic(HueDialogSceneHATile.ElementName)}>`;
+            }
+            else if (tile.kind === 'preset') {
+                return html`<${unsafeStatic(HueDialogScenePresetTile.ElementName)}
+                                .presetConfig=${tile.config}
+                                .targets=${this._config.getPresetTargets()}
+                                @activated=${(e: CustomEvent) => this.afterSceneTileActivated(e)}
+                                .hass=${this._ctrl.hass}
+                                .actionHandler=${this._actionHandler}>
+                            </${unsafeStatic(HueDialogScenePresetTile.ElementName)}>`;
+            } 
+
+            return nothing;
+        };
 
         /*eslint-disable */
         return html`
@@ -719,28 +754,14 @@ export class HueDialog extends IdLitElement {
             'detail-active': !!this._selectedLights.length
         })}" tabindex="-1" dialogInitialFocus>
             <div class='header detail-hide'>
-                <div class='title'>${this._config.scenes.length ? localize(this._ctrl.hass, "dialog.scenes") : nothing}</div>
+                <div class='title'>${sceneTiles.length ? localize(this._ctrl.hass, "dialog.scenes") : nothing}</div>
             </div>
             <div class='tile-scroller scene-tiles detail-hide'>
                 <div class='tiles'>
-                    ${(this._config.scenes.map((s, i) => i % 2 == 1 ? nothing :
-                html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
-                            .cardTitle=${cardTitle}
-                            .sceneConfig=${s}
-                            @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
-                            .hass=${this._ctrl.hass}
-                            .actionHandler=${this._actionHandler}>
-                        </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
+                    ${(sceneTiles.map((tile, i) => i % 2 == 1 ? nothing : renderSceneTile(tile)))}
                 </div>
                 <div class='tiles'>
-                    ${(this._config.scenes.map((s, i) => i % 2 == 0 ? nothing :
-                html`<${unsafeStatic(HueDialogSceneTile.ElementName)}
-                            .cardTitle=${cardTitle}
-                            .sceneConfig=${s}
-                            @activated=${(e: CustomEvent) => this.afterSceneActivated(e)}
-                            .hass=${this._ctrl.hass}
-                            .actionHandler=${this._actionHandler}>
-                        </${unsafeStatic(HueDialogSceneTile.ElementName)}>`))}
+                    ${(sceneTiles.map((tile, i) => i % 2 == 0 ? nothing : renderSceneTile(tile)))}
                 </div>
             </div>
 

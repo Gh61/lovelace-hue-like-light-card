@@ -4,6 +4,7 @@ import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
 import { ensureEntityDomain } from './extensions';
 import ColorThief from 'colorthief';
+import { MaybeArray } from './types-helpers';
 
 export enum KnownIconSize {
     Big = 'big',
@@ -31,6 +32,11 @@ export enum SceneOrder {
     Default = 'default',
     NameAsc = 'name-asc',
     NameDesc = 'name-desc'
+}
+
+export enum SceneProvider {
+    HaScenes = 'ha-scenes',
+    ScenePresets = 'scene-presets'
 }
 
 export class ClickActionData {
@@ -244,6 +250,7 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     readonly slider?: string | SliderType;
     readonly scenes?: (string | SceneConfig)[];
     readonly sceneOrder?: SceneOrder;
+    readonly sceneProvider?: MaybeArray<string | SceneProvider>;
     readonly offClickAction?: ClickAction;
     readonly offClickData?: string | Record<string, string> | ClickActionData;
     readonly onClickAction?: ClickAction;
@@ -261,7 +268,6 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     readonly hueBorders?: boolean;
     readonly apiId?: string;
     readonly isVisible?: boolean;
-
     /** Support for card-mod styling */
     readonly style?: unknown;
     readonly card_mod?: unknown;

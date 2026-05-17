@@ -1,4 +1,4 @@
-export type ColorMode = 'rgb' | 'hsv';
+export type ColorMode = 'rgb' | 'hsv' | 'xy';
 
 export class Color {
     private readonly _originalMode: ColorMode;
@@ -6,28 +6,36 @@ export class Color {
     private _green: number;
     private _blue: number;
     private _hsv: number[] | null;
+    private _xy: number[] | null
     private _opacity = 1;
 
     public static readonly LuminanceBreakingPoint = 192; // hue breaking point is pretty high
 
-    public constructor(colorOrRedOrHue: string | number, opacityOrGreenOrSaturation?: number, blueOrValue?: number, opacity = 1, mode: ColorMode = 'rgb') {
-        if (typeof colorOrRedOrHue == 'string') {
-            this.parse(colorOrRedOrHue);
-            this.setOpacity(opacityOrGreenOrSaturation ?? this._opacity);
+    public constructor(colorOrRedOrHueOrX: string | number, opacityOrGreenOrSaturationOrY?: number, blueOrValueOrBri?: number, opacity = 1, mode: ColorMode = 'rgb') {
+        if (typeof colorOrRedOrHueOrX == 'string') {
+            this.parse(colorOrRedOrHueOrX);
+            this.setOpacity(opacityOrGreenOrSaturationOrY ?? this._opacity);
         }
         else if (mode == 'rgb') {
             this.setRgb(
-                colorOrRedOrHue,
-                opacityOrGreenOrSaturation ?? 0,
-                blueOrValue ?? 0
+                colorOrRedOrHueOrX,
+                opacityOrGreenOrSaturationOrY ?? 0,
+                blueOrValueOrBri ?? 0
             );
             this.setOpacity(opacity);
         }
         else if (mode == 'hsv') {
             this.setHsv(
-                colorOrRedOrHue,
-                opacityOrGreenOrSaturation ?? 0,
-                blueOrValue ?? 0
+                colorOrRedOrHueOrX,
+                opacityOrGreenOrSaturationOrY ?? 0,
+                blueOrValueOrBri ?? 0
+            );
+        }
+        else if (mode == 'xy') {
+            this.setXy(
+                colorOrRedOrHueOrX,
+                opacityOrGreenOrSaturationOrY ?? 0,
+                blueOrValueOrBri ?? 0
             );
         }
         this._originalMode = mode;
@@ -59,6 +67,21 @@ export class Color {
 
         // set also rgb
         const [r, g, b] = Color.hsv2rgb(h, s, v);
+        this.setRgb(r, g, b);
+    }
+
+    protected setXy(x: number, y: number, brightness: number) {
+        if (x < 0 || x > 1)
+            throw new Error('X value must be in range [0, 1].');
+        if (y <= 0 || y > 1)
+            throw new Error('Y value must be in range (0, 1].');
+        if (brightness < 0 || brightness > 254)
+            throw new Error('Brightness value must be in range [0, 254].');
+
+        this._xy = [x, y, brightness];
+
+        // set also rgb
+        const [r, g, b] = Color.xy2rgb(x, y, brightness);
         this.setRgb(r, g, b);
     }
 
@@ -129,6 +152,38 @@ export class Color {
      */
     public getValue(): number {
         return this.ensureHSV()[2];
+    }
+
+    //#endregion
+
+    //#region XY
+
+    private ensureXY(): number[] {
+        if (!this._xy) {
+            this._xy = Color.rgb2xy(this.getRed(), this.getGreen(), this.getBlue());
+        }
+        return this._xy;
+    }
+
+    /**
+     * @returns X color component of this color (value in range 0 - 1),
+     */
+    public getX(): number {
+        return this.ensureXY()[0];
+    }
+
+    /**
+     * @returns Y color component of this color (value in range 0 - 1),
+     */
+    public getY(): number {
+        return this.ensureXY()[1];
+    }
+
+    /**
+     * @returns Brightness color component of this color (value in range 0 - 254),
+     */
+    public getBrightness(): number {
+        return this.ensureXY()[2];
     }
 
     //#endregion
@@ -330,6 +385,79 @@ export class Color {
             percentRoundFn(s),
             percentRoundFn(v)
         ];
+    }
+
+    /**
+     * @param x in range [0,1]
+     * @param y in range (0,1]
+     * @param brightness in range [0,254]
+     * @returns [r,g,b] each in range [0,255]
+     */
+    public static xy2rgb(x: number, y: number, brightness: number) {
+        if (x < 0 || x > 1)
+            throw new Error('X value must be in range [0, 1].');
+        if (y <= 0 || y > 1)
+            throw new Error('Y value must be in range (0, 1].');
+        if (brightness < 0 || brightness > 254)
+            throw new Error('Brightness value must be in range [0, 254].');
+
+        const z = 1 - x - y;
+        const luminance = brightness / 254;
+        const X = (luminance / y) * x;
+        const Z = (luminance / y) * z;
+
+        let r = X * 1.656492 - luminance * 0.354851 - Z * 0.255038;
+        let g = -X * 0.707196 + luminance * 1.655397 + Z * 0.036152;
+        let b = X * 0.051713 - luminance * 0.121364 + Z * 1.01153;
+
+        r = r <= 0.0031308 ? 12.92 * r : 1.055 * Math.pow(r, 1 / 2.4) - 0.055;
+        g = g <= 0.0031308 ? 12.92 * g : 1.055 * Math.pow(g, 1 / 2.4) - 0.055;
+        b = b <= 0.0031308 ? 12.92 * b : 1.055 * Math.pow(b, 1 / 2.4) - 0.055;
+
+        return [
+            Math.round(255 * Math.max(0, Math.min(1, r))),
+            Math.round(255 * Math.max(0, Math.min(1, g))),
+            Math.round(255 * Math.max(0, Math.min(1, b)))
+        ];
+    }
+
+    /**
+     * @param r in range [0,255]
+     * @param g in range [0,255]
+     * @param b in range [0,255]
+     * @returns [x,y,brightness] where x and y are in range [0,1] and brightness is in range [0,254]
+     */
+    public static rgb2xy(r: number, g: number, b: number) {
+        if (r < 0 || r > 255)
+            throw new Error('Red value must be in range [0, 255].');
+        if (g < 0 || g > 255)
+            throw new Error('Green value must be in range [0, 255].');
+        if (b < 0 || b > 255)
+            throw new Error('Blue value must be in range [0, 255].');
+
+        const red = r / 255;
+        const green = g / 255;
+        const blue = b / 255;
+
+        const linearize = (value: number) => value > 0.04045
+            ? Math.pow((value + 0.055) / 1.055, 2.4)
+            : value / 12.92;
+
+        const rLinear = linearize(red);
+        const gLinear = linearize(green);
+        const bLinear = linearize(blue);
+
+        const X = rLinear * 0.664511 + gLinear * 0.154324 + bLinear * 0.162028;
+        const Y = rLinear * 0.283881 + gLinear * 0.668433 + bLinear * 0.047685;
+        const Z = rLinear * 0.000088 + gLinear * 0.07231 + bLinear * 0.986039;
+
+        const brightness = Math.round(Math.max(r, g, b) / 255 * 254);
+        const sum = X + Y + Z;
+        if (sum == 0) {
+            return [0, 0, 0];
+        }
+
+        return [X / sum, Y / sum, brightness];
     }
 
     public static hueTempToRgb(kelvin: number) {

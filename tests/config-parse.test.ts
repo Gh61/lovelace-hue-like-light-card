@@ -1,6 +1,6 @@
 import { HueLikeLightCardConfig } from '../src/types/config';
 import { Consts } from '../src/types/consts';
-import { HueLikeLightCardConfigInterface, KnownIconSize } from '../src/types/types-config';
+import { HueLikeLightCardConfigInterface, KnownIconSize, SceneProvider } from '../src/types/types-config';
 
 describe('Config parse', () => {
     it('parse default config', () => {
@@ -14,6 +14,33 @@ describe('Config parse', () => {
         expect(config.getEntities().getIdList()).toStrictEqual(['light.test']);
 
         expect(config.iconSize).toBe(Consts.IconSize[KnownIconSize.Original]);
+        expect(config.sceneProvider).toStrictEqual([SceneProvider.HaScenes]);
+    });
+
+    it('parse sceneProvider', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test',
+            sceneProvider: [SceneProvider.ScenePresets, SceneProvider.HaScenes]
+        });
+
+        expect(config.sceneProvider).toStrictEqual([SceneProvider.ScenePresets, SceneProvider.HaScenes]);
+    });
+
+    it('parse unset sceneProvider', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test'
+        });
+
+        expect(config.sceneProvider).toStrictEqual([SceneProvider.HaScenes]);
+    });
+
+    it('parse set empty sceneProvider', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test',
+            sceneProvider: []
+        });
+
+        expect(config.sceneProvider).toStrictEqual([]);
     });
 
     // IconSize
