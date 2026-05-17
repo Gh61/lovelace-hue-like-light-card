@@ -699,16 +699,7 @@ export class HueDialog extends IdLitElement {
         });
 
         const renderSceneTile = (tile: { kind: 'scene', config: SceneConfig } | { kind: 'preset', config: PresetConfig }) => {
-            if (tile.kind === 'preset') {
-                return html`<${unsafeStatic(HueDialogScenePresetTile.ElementName)}
-                            .presetConfig=${tile.config}
-                            .targets=${this._config.getPresetTargets()}
-                            @activated=${(e: CustomEvent) => this.afterPresetActivated(e)}
-                            .hass=${this._ctrl.hass}
-                            .actionHandler=${this._actionHandler}>
-                        </${unsafeStatic(HueDialogScenePresetTile.ElementName)}>`;
-            } 
-            else if (tile.kind === 'scene') {
+            if (tile.kind === 'scene') {
                 return html`<${unsafeStatic(HueDialogSceneHATile.ElementName)}
                                 .cardTitle=${cardTitle}
                                 .sceneConfig=${tile.config}
@@ -716,11 +707,18 @@ export class HueDialog extends IdLitElement {
                                 .hass=${this._ctrl.hass}
                                 .actionHandler=${this._actionHandler}>
                             </${unsafeStatic(HueDialogSceneHATile.ElementName)}>`;
-
             }
+            else if (tile.kind === 'preset') {
+                return html`<${unsafeStatic(HueDialogScenePresetTile.ElementName)}
+                                .presetConfig=${tile.config}
+                                .targets=${this._config.getPresetTargets()}
+                                @activated=${(e: CustomEvent) => this.afterPresetActivated(e)}
+                                .hass=${this._ctrl.hass}
+                                .actionHandler=${this._actionHandler}>
+                            </${unsafeStatic(HueDialogScenePresetTile.ElementName)}>`;
+            } 
 
-            return nothing
-
+            return nothing;
         };
 
         /*eslint-disable */
