@@ -249,7 +249,7 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     readonly slider?: string | SliderType;
     readonly scenes?: (string | SceneConfig)[];
     readonly sceneOrder?: SceneOrder;
-    readonly sceneProvider?: SceneProvider[] | string[];
+    readonly sceneProvider?: (string | SceneProvider)[];
     readonly offClickAction?: ClickAction;
     readonly offClickData?: string | Record<string, string> | ClickActionData;
     readonly onClickAction?: ClickAction;
