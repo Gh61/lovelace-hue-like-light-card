@@ -83,7 +83,7 @@ class SmoothHorizontalScroller {
         this._targetScrollLeft = Math.max(0, Math.min(maxScrollLeft, this._targetScrollLeft + delta));
 
         if (!this._animationFrame) {
-            this._animationFrame = requestAnimationFrame(() => this._animate());
+            this._animationFrame = requestAnimationFrame(() => this.animate());
         }
     }
 
@@ -95,7 +95,7 @@ class SmoothHorizontalScroller {
         }
     }
 
-    private _animate(): void {
+    private animate(): void {
         const diff = this._targetScrollLeft - this._el.scrollLeft;
 
         if (Math.abs(diff) < 0.5) {
@@ -105,6 +105,6 @@ class SmoothHorizontalScroller {
         }
 
         this._el.scrollLeft += diff / this._easingDivisor;
-        this._animationFrame = requestAnimationFrame(() => this._animate());
+        this._animationFrame = requestAnimationFrame(() => this.animate());
     }
 }
