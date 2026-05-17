@@ -105,7 +105,7 @@ jobs:
         body: |
           ![Downloads](https://img.shields.io/github/downloads/gh61/lovelace-hue-like-light-card/${{ github.event.inputs.new_version }}/total)
 
-          ## Closed Issues 🚩
+          ## Closed Issues ✅
           ${{ steps.issues_changelog.outputs.changelog }}
 
           ${{ steps.commits_changelog.outputs.changelog }}
