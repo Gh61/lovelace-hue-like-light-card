@@ -20,7 +20,7 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
     protected abstract getTileTitle(): string | undefined;
     protected abstract getTilePicture(): string | undefined;
     protected abstract getTileIcon(): string | null;
-    protected abstract getTileAccentColor(): Promise<Color | null | undefined>;
+    protected abstract getTileAccentColor(): Promise<Color | undefined>;
     protected abstract activateTile(): void;
     protected abstract isTileDataChanged(changedProps: PropertyValues): boolean;
 

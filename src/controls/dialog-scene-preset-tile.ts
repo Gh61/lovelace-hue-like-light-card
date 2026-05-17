@@ -58,7 +58,7 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
     }
 
     protected override getTileAccentColor() {
-        return this._preset?.getAccentColor() ?? Promise.resolve(null);
+        return this._preset?.getAccentColor() ?? Promise.resolve(undefined);
     }
 
     protected override activateTile(): void {

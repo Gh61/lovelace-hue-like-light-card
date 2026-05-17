@@ -118,12 +118,12 @@ export class PresetData {
     /**
      * Get the accent color from the first light color in the preset
      */
-    public async getAccentColor(): Promise<Color | null> {
+    public async getAccentColor(): Promise<Color | undefined> {
         if (this._config.preset.lights && this._config.preset.lights.length > 0) {
             const firstLight = this._config.preset.lights[0];
             return new Color(firstLight.x, firstLight.y, this._config.preset.bri, 1, 'xy');
         }
-        return null;
+        return undefined;
     }
 
     /**
