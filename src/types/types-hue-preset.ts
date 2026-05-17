@@ -1,5 +1,6 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { Color } from '../core/colors/color';
+import ColorThief from 'colorthief';
 
 /**
  * Represents XY color coordinates in the CIE color space
@@ -65,6 +66,7 @@ export interface PresetConfig {
 export class PresetData {
     private _config: PresetConfig;
     private _hass!: HomeAssistant;
+    private _pictureColor?: Color;
 
     public constructor(config: PresetConfig) {
         this._config = config;
@@ -119,11 +121,31 @@ export class PresetData {
      * Get the accent color from the first light color in the preset
      */
     public async getAccentColor(): Promise<Color | undefined> {
-        if (this._config.preset.lights && this._config.preset.lights.length > 0) {
-            const firstLight = this._config.preset.lights[0];
-            return new Color(firstLight.x, firstLight.y, this._config.preset.bri, 1, 'xy');
-        }
-        return undefined;
+        this.ensureHass();
+        
+        return new Promise((resolve) => {
+            
+            if (this._pictureColor) {
+                return resolve(this._pictureColor);
+            }
+
+            const picture = this.getPicture();
+            if (picture) {
+                const img = new Image();
+                img.crossOrigin = '';
+                img.src = picture;
+                img.onload = () => {
+                    const ct = new ColorThief();
+                    const mainColor = ct.getColor(img);
+                    this._pictureColor = new Color(mainColor[0], mainColor[1], mainColor[2]);
+
+                    resolve(this._pictureColor);
+                };
+            }
+            else {
+                return resolve(undefined);
+            }
+        });
     }
 
     /**
