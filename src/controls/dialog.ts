@@ -24,6 +24,7 @@ import { localize } from '../localize/localize';
 import { ActionHandler } from '../core/action-handler';
 import { LimitedTimeout } from '../core/limited-timeout';
 import { HueDialogSceneHATile } from './dialog-scene-ha-tile';
+import { horizontalScroll } from '../directives/horizontal-scroll';
 
 @customElement(HueDialog.ElementName)
 export class HueDialog extends IdLitElement {
@@ -756,7 +757,7 @@ export class HueDialog extends IdLitElement {
             <div class='header detail-hide'>
                 <div class='title'>${sceneTiles.length ? localize(this._ctrl.hass, "dialog.scenes") : nothing}</div>
             </div>
-            <div class='tile-scroller scene-tiles detail-hide'>
+            <div class='tile-scroller scene-tiles detail-hide' ${horizontalScroll()}>
                 <div class='tiles'>
                     ${(sceneTiles.map((tile, i) => i % 2 == 1 ? nothing : renderSceneTile(tile)))}
                 </div>
@@ -768,7 +769,7 @@ export class HueDialog extends IdLitElement {
             <div class='header detail-hide'>
                 <div class='title'>${localize(this._ctrl.hass, "dialog.lights")}</div>
             </div>
-            <div class='tile-scroller light-tiles'>
+            <div class='tile-scroller light-tiles' ${horizontalScroll()}>
                 <div class='tiles'>
                     ${(this._ctrl.getLights().map((l) =>
                     html`<${unsafeStatic(HueDialogLightTile.ElementName)}
