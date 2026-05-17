@@ -65,7 +65,6 @@ export interface PresetConfig {
 export class PresetData {
     private _config: PresetConfig;
     private _hass!: HomeAssistant;
-    private _baseUrl: string = '';
 
     public constructor(config: PresetConfig) {
         this._config = config;
@@ -73,11 +72,6 @@ export class PresetData {
 
     public set hass(value: HomeAssistant) {
         this._hass = value;
-        // Extract base URL from Home Assistant
-        if (this._hass && !this._baseUrl) {
-            // Get the base URL from window.location or from hass config
-            this._baseUrl = window.location.origin;
-        }
     }
 
     private ensureHass() {
@@ -116,7 +110,7 @@ export class PresetData {
      */
     public getPicture(): string | undefined {
         if (this._config.preset.img) {
-            return `${this._baseUrl}/assets/scene_presets/${this._config.preset.img}`;
+            return `/assets/scene_presets/${this._config.preset.img}`;
         }
         return undefined;
     }
