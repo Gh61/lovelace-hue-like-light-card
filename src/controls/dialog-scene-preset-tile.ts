@@ -17,6 +17,10 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
     private _targets: { entity_id?: string | string[], area_id?: string, floor_id?: string, label_id?: string } = {};
 
     public set presetConfig(config: PresetConfig) {
+        // only one-time setter (disabling re-render in exchange for performance)
+        if (this._presetConfig)
+            return;
+
         const oldPresetConfig = this._presetConfig;
 
         this._presetConfig = config;

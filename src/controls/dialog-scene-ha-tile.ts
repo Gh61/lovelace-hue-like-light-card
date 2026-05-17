@@ -16,6 +16,10 @@ export class HueDialogSceneHATile extends HueDialogSceneTile {
     private _scene: SceneData | null = null;
 
     public set sceneConfig(config: SceneConfig) {
+        // only one-time setter (disabling re-render in exchange for performance)
+        if (this._sceneConfig)
+            return;
+
         const oldSceneConfig = this._sceneConfig;
 
         this._sceneConfig = config;
