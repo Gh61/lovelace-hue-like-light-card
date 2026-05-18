@@ -27,7 +27,7 @@
         "@rollup/plugin-node-resolve": "^16.0.3",
         "@rollup/plugin-terser": "^1.0.0",
         "@types/jest": "^30.0.0",
-        "@typescript-eslint/eslint-plugin": "^8.56.1",
+        "@typescript-eslint/eslint-plugin": "^8.59.3",
         "@typescript-eslint/parser": "^8.32.1",
         "babel-jest": "^30.4.1",
         "eslint": "^9.39.2",
