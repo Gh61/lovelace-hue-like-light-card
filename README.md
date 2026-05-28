@@ -350,6 +350,13 @@ Some of these options may not be in the latest version. Please always check the 
     <td>1.8.0</td>
     <td>Light icon shown on <a href="#hue-screen">Hue Screen</a></td>
   </tr>
+  <tr>
+    <td><code>count</code></td>
+    <td>number</td>
+    <td>no</td>
+    <td>1.12.0</td>
+    <td>How many lights this entity should count as in the card statistics (default <code>1</code>). Set to <code>0</code> to hide the entity from the &quot;X of Y lights on&quot; <code>description</code> and from the <a href="#automatic-icon">automatic icon</a> selection — the entity is still controlled by the card, just not counted. Values greater than <code>1</code> can be used when a single HA entity represents a light group of multiple physical bulbs. Negative values are clamped to <code>0</code>.</td>
+  </tr>
 </table>
 
 ### Click & Hold configuration

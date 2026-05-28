@@ -22,13 +22,15 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
     private _lights: LightController[];
     private _lightsFeatures: LightFeaturesCombined;
     private _defaultColor: Color;
+    private _countMap: Record<string, number>;
 
-    public constructor(entity_ids: string[], defaultColor: Color, lightGroupEntityId?: string) {
+    public constructor(entity_ids: string[], defaultColor: Color, lightGroupEntityId?: string, countMap?: Record<string, number>) {
         // we need at least one
         if (!entity_ids.length)
             throw new Error('No entity specified.');
 
         this._defaultColor = defaultColor;
+        this._countMap = countMap || {};
         this._lights = entity_ids.map(e => GlobalLights.getLightContainer(e));
         this._lightsFeatures = new LightFeaturesCombined(() => this._lights.map(l => l.features));
         if (lightGroupEntityId) {
@@ -44,10 +46,17 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
     }
 
     /**
-     * @returns count of registered lights.
+     * @returns count of registered lights (adjusted by configured count values).
      */
     public get count() {
-        return this._lights.length;
+        return this._lights.reduce((sum, l) => sum + this.getLightCount(l), 0);
+    }
+
+    /**
+     * @returns configured count value for given light (default 1).
+     */
+    private getLightCount(light: LightController): number {
+        return this._countMap[light.getEntityId()] ?? 1;
     }
 
     /**
@@ -193,10 +202,10 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
 
     public getIcon(): string {
         if (this._lights.length == 1) {
-            return this._lights[0].getIcon() || IconHelper.getIcon(1);
+            return this._lights[0].getIcon() || IconHelper.getIcon(this.count);
         }
 
-        return IconHelper.getIcon(this._lights.length);
+        return IconHelper.getIcon(this.count);
     }
 
     public getTitle() {
@@ -221,11 +230,11 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
      * @returns localized description of how many lights are on.
      */
     public getDescription(description: string | undefined): IHassTextTemplate {
-        const total = this._lights.length;
+        const total = this.count;
         let lit = 0;
         this._lights.forEach(l => {
             if (l.isOn()) {
-                lit++;
+                lit += this.getLightCount(l);
             }
         });
 

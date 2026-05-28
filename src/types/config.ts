@@ -20,6 +20,7 @@ declare type EntityRelations = {
 export class HueLikeLightCardEntityConfig implements HueLikeLightCardEntityConfigInterface {
     protected _title?: string;
     protected _icon?: string;
+    protected _count?: number;
 
     public constructor(plainConfigOrEntityId: HueLikeLightCardEntityConfigInterface | string) {
         if (typeof plainConfigOrEntityId == "string"){
@@ -29,6 +30,7 @@ export class HueLikeLightCardEntityConfig implements HueLikeLightCardEntityConfi
             this.entity = plainConfigOrEntityId.entity!;
             this._title = plainConfigOrEntityId.title;
             this._icon = plainConfigOrEntityId.icon;
+            this._count = plainConfigOrEntityId.count;
         }
     }
 
@@ -38,6 +40,10 @@ export class HueLikeLightCardEntityConfig implements HueLikeLightCardEntityConfi
     }
     public get icon() {
         return this._icon;
+    };
+    public get count(): number {
+        if (this._count == null) return 1;
+        return this._count >= 0 ? this._count : 0;
     };
 
     /**
@@ -73,6 +79,20 @@ export class HueLikeLightCardEntityConfigCollection {
 
     public getIdList(): string[] {
         return this._entityList.map(e => e); // map is creating new array
+    }
+
+    /**
+     * @returns map of entity_id to configured count value (only entries that differ from the default of 1).
+     */
+    public getCountMap(): Record<string, number> {
+        const result: Record<string, number> = {};
+        for (const entityId of this._entityList) {
+            const count = this._entityMap[entityId].count;
+            if (count !== 1) {
+                result[entityId] = count;
+            }
+        }
+        return result;
     }
 
     public get length() {

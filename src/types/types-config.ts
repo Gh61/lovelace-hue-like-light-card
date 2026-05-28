@@ -277,4 +277,5 @@ export interface HueLikeLightCardEntityConfigInterface {
     readonly entity?: string;
     readonly title?: string;
     readonly icon?: string;
+    readonly count?: number;
 }
