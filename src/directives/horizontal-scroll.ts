@@ -25,8 +25,15 @@ class HorizontalScrollDirective extends Directive {
         const scroller = new SmoothHorizontalScroller(el);
 
         const onWheel = (e: WheelEvent) => {
-            // Ignore purely horizontal wheel events (e.g. trackpad)
-            if (e.deltaY === 0) return;
+            // Horizontal wheel events (e.g. a trackpad swipe) are left to the browser
+            // to scroll natively. But an easing animation started by an earlier,
+            // vertical wheel event may still be in flight, and it will keep driving
+            // scrollLeft towards a now-stale target - fighting the native scroll and
+            // making the row spring back. Abort it and re-sync before bailing out.
+            if (Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
+                scroller.cancel();
+                return;
+            }
 
             const maxScrollLeft = el.scrollWidth - el.clientWidth;
             // Nothing to scroll if content fits
@@ -105,11 +112,17 @@ class SmoothHorizontalScroller {
         this._animationFrame = requestAnimationFrame(() => this.animate());
     }
 
-    /** Stop the animation and clean up */
-    public destroy(): void {
+    /** Abort any in-flight animation and re-sync the target to the real scroll position */
+    public cancel(): void {
         if (this._animationFrame) {
             cancelAnimationFrame(this._animationFrame);
             this._animationFrame = null;
         }
+        this._targetScrollLeft = this._el.scrollLeft;
+    }
+
+    /** Stop the animation and clean up */
+    public destroy(): void {
+        this.cancel();
     }
 }
