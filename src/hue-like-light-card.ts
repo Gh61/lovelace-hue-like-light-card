@@ -140,6 +140,9 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         if (this._config?.isInitialized !== true)
             throw new Error('Config is not initialized.');
 
+        // stop listening to the replaced controller - updated() registers on the new one
+        this.unregisterCtrlListener();
+
         this._ctrl = new AreaLightController(this._config.getEntities().getIdList(), this._config.getDefaultColor(), this._config.groupEntity);
         this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
 
@@ -521,10 +524,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     }
 
     private destroyListeners() {
-        if (this._ctrl) {
-            this._ctrl.unregisterOnPropertyChanged(this._elementId);
-            this._ctrlListenerRegistered = false;
-        }
+        this.unregisterCtrlListener();
         if (this._mc) {
             this._mc.destroy();
             this._mc = undefined;
@@ -537,6 +537,13 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         if (this._apiUnregister) {
             this._apiUnregister();
             this._apiUnregister = undefined;
+        }
+    }
+
+    private unregisterCtrlListener() {
+        if (this._ctrl) {
+            this._ctrl.unregisterOnPropertyChanged(this._elementId);
+            this._ctrlListenerRegistered = false;
         }
     }
 

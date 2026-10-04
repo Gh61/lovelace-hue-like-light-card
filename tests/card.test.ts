@@ -1,5 +1,6 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { HueLikeLightCard } from '../src/hue-like-light-card';
+import { GlobalLights } from '../src/core/global-lights';
 import { Consts } from '../src/types/consts';
 import { hassMockup } from './mockup-hass-states';
 
@@ -84,5 +85,45 @@ describe('Card', () => {
         expect(card['_mc']).toBeDefined();
 
         card.remove();
+    });
+
+    it('should move listener to the new controller when config is set again', async () => {
+        const hass = {
+            ...hassMockup,
+            states: { ...hassMockup.states, 'light.test_other': hassMockup.states['light.test'] },
+            themes: { default_theme: 'default', themes: {} }
+        } as unknown as HomeAssistant;
+        const card = new HueLikeLightCard();
+        card.setConfig({
+            type: 'custom:' + Consts.CardElementName,
+            entity: 'light.test',
+            scenes: [] // no async config init
+        });
+        card.hass = hass;
+
+        document.body.appendChild(card);
+        await card.updateComplete;
+
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        const elementId = card['_elementId'];
+        const hasCardCallback = (entityId: string) =>
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            elementId in GlobalLights.getLightContainer(entityId)['_propertyChangedCallbacks'];
+
+        expect(hasCardCallback('light.test')).toBe(true);
+
+        // e.g. card editor preview while editing YAML
+        card.setConfig({
+            type: 'custom:' + Consts.CardElementName,
+            entity: 'light.test_other',
+            scenes: []
+        });
+        await card.updateComplete;
+
+        expect(hasCardCallback('light.test_other')).toBe(true);
+        expect(hasCardCallback('light.test')).toBe(false);
+
+        card.remove();
+        expect(hasCardCallback('light.test_other')).toBe(false);
     });
 });
