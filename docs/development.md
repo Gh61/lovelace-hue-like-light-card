@@ -122,4 +122,4 @@ Releases are created only by the **Create Release** workflow (`workflow_dispatch
 
 ## AI-assisted development
 
-AI work is driven by the `/task` skill and verified by the `/verify` skill with guard agents in `.claude/agents/` (build, conventions, consistency and the browser test on the testing dashboard). See [CLAUDE.md](../CLAUDE.md). Known issues and planned cleanups are tracked in [planned-changes.md](planned-changes.md).
+AI work is driven by the `/task` skill and verified by the `/verify` skill with guard agents in `.claude/agents/` (build, conventions, consistency and the browser test on the testing dashboard). See [CLAUDE.md](../CLAUDE.md).

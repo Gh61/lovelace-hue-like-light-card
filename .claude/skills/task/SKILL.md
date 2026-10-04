@@ -13,10 +13,9 @@ Follow the phases in order. Keep the developer informed with short status lines 
 ## Phase 1 - Investigate
 
 1. Re-read `CLAUDE.md` and `docs/coding-guidelines.md` (the rules are mandatory).
-2. If the task refers to an item in `docs/planned-changes.md`, read it - it contains locations and the proposed approach.
-3. If the task references a GitHub issue (`#123`), read it with `gh issue view 123`.
-4. Find all relevant code. Use the `Explore` agent for broad searches (several in parallel for independent areas); read the key files yourself.
-5. Identify: affected files, existing helpers to reuse (guidelines §7), change sets that must move together (§8 config, §9 localization, tests, README), risks (HA compatibility, shared controllers, listeners teardown).
+2. If the task references a GitHub issue (`#123`), read it with `gh issue view 123`.
+3. Find all relevant code. Use the `Explore` agent for broad searches (several in parallel for independent areas); read the key files yourself.
+4. Identify: affected files, existing helpers to reuse (guidelines §7), change sets that must move together (§8 config, §9 localization, tests, README), risks (HA compatibility, shared controllers, listeners teardown).
 
 ## Phase 2 - Questions
 
@@ -64,6 +63,6 @@ Finish with a concise report:
    - browser scenarios to try on the testing dashboard (including edge cases the agent could not cover: other themes, mobile, HA more-info, back button).
 5. **Suggested commit(s)** per `COMMIT.md` (e.g. `fix(#123): ...`, separate `doc(#123): ...` for README).
 
-If the task resolves an item from `docs/planned-changes.md`, remove it from that file (including the execution-order table). If you discovered new **necessary** issues out of scope (bugs, duplication, rule violations - not feature ideas or optional cleanups), propose adding them there.
+If you discovered new **necessary** issues out of scope (bugs, duplication, rule violations - not feature ideas or optional cleanups), list them in the hand-off so the developer can decide how to track them.
 
 Do **not** commit or push unless the developer asks.
