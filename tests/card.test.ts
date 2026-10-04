@@ -1,8 +1,9 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../src/ha/types';
 import { HueLikeLightCard } from '../src/hue-like-light-card';
 import { GlobalLights } from '../src/core/global-lights';
 import { Consts } from '../src/types/consts';
 import { hassMockup } from './mockup-hass-states';
+import './mockup-ha-elements';
 
 describe('Card', () => {
     it('creates card instance, config first', () => {
@@ -73,16 +74,12 @@ describe('Card', () => {
         expect(registerSpy).not.toHaveBeenCalled();
         // eslint-disable-next-line @typescript-eslint/dot-notation
         expect(card['_ctrlListenerRegistered']).toBe(false);
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        expect(card['_mc']).toBeUndefined();
 
         // reconnected card registers again
         document.body.appendChild(card);
         await card.updateComplete;
 
         expect(registerSpy).toHaveBeenCalledTimes(1);
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        expect(card['_mc']).toBeDefined();
 
         card.remove();
     });

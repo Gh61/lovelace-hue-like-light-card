@@ -1,4 +1,4 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../ha/types';
 import { Color } from '../core/colors/color';
 import ColorThief from 'colorthief';
 

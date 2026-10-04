@@ -95,12 +95,12 @@ export abstract class HueDialogTile extends IdLitElement {
             hasTap: true,
             hasHold: true,
             hasDoubleClick: false
-        }
+        };
     }
 
     private handleAction(ev: ActionHandlerEvent){
         switch (ev.detail.action){
-            case "hold":
+            case 'hold':
                 const entityId = this.getEntityId();
                 if (entityId) {
                     if (!this.actionHandler)
@@ -111,7 +111,7 @@ export abstract class HueDialogTile extends IdLitElement {
                 }
                 break;
 
-            case "tap":
+            case 'tap':
                 this.tileClicked(ev);
                 break;
         }
@@ -127,11 +127,11 @@ export abstract class HueDialogTile extends IdLitElement {
 
     public override connectedCallback(): void {
         super.connectedCallback();
-        this.addEventListener("action", this.handleAction as EventListener);
+        this.addEventListener('action', this.handleAction as EventListener);
     }
 
     public override disconnectedCallback(): void {
-        this.removeEventListener("action", this.handleAction as EventListener);
+        this.removeEventListener('action', this.handleAction as EventListener);
         super.disconnectedCallback();
     }
 }

@@ -83,7 +83,7 @@ A new **static** `_field` must be added to the `no-underscore-dangle` allow-list
 - CSS custom properties: `--hue-*` prefix and always a fallback: `var(--hue-x, ${unsafeCSS(Consts.Y)})`
 - **Never name a method `updateStyles`** (HA calls it) - use `updateStylesInner`
 - Custom events: `this.dispatchEvent(new CustomEvent<IXEventDetail>('kebab-name', { detail }))`; export the detail interface
-- Gestures: hammerjs `Manager` + `PreventGhostClick`; drag via `PointerDragHelper`; horizontal wheel scroll via the `horizontalScroll()` directive; back-button support via `HueHistoryStateManager`
+- Gestures: tap/hold via the HA `actionHandler()` directive (`src/ha/.../action-handler-directive.ts`, fires the `action` event); swipes via hammerjs `Manager`; drag via `PointerDragHelper`; horizontal wheel scroll via the `horizontalScroll()` directive; back-button support via `HueHistoryStateManager`
 - Hacks reaching into HA internals (shadow roots, private APIs) must be isolated, commented with the HA version and fail gracefully
 
 ## 7. Reuse before you write

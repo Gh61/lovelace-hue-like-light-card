@@ -208,16 +208,16 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             hasTap: true,
             hasHold: true,
             hasDoubleClick: false
-        }
+        };
     }
 
     private handleAction(ev: ActionHandlerEvent): void {
         if (this._actionHandler){
             switch (ev.detail.action){
-                case "hold":
+                case 'hold':
                     this._actionHandler.handleCardHold();
                     break;
-                case "tap":
+                case 'tap':
                     this._actionHandler.handleCardClick();
                     break;
             }

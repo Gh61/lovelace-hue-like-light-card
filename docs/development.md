@@ -9,7 +9,7 @@ For code rules see [coding-guidelines.md](coding-guidelines.md).
 |---|---|
 | Language | TypeScript (strict, `noImplicitOverride`, `experimentalDecorators`) |
 | UI | [Lit 3](https://lit.dev) web components |
-| HA helpers | `custom-card-helpers`, `home-assistant-js-websocket` |
+| HA helpers | `home-assistant-js-websocket`; HA frontend source copied into `src/ha/` (see [HA source sync](#ha-source-sync)) |
 | Gestures | `@egjs/hammerjs` |
 | Bundler | Rollup (`rollup.config.mjs`) |
 | Tests | Jest + ts-jest + jsdom |

@@ -1,4 +1,4 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant } from '../src/ha/types';
 import { HueLikeLightCardConfig } from '../src/types/config';
 import { HueLikeLightCardConfigInterface, SceneOrder } from '../src/types/types-config';
 import { HassLabelInfo, HassSearchDeviceResult } from '../src/types/types-hass';

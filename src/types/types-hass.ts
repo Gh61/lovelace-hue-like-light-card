@@ -16,7 +16,7 @@ interface HassWindowEventMap extends WindowEventMap {
 declare global {
   interface HASSDomEvents {
     // known events here:
-    "hass-more-info": Record<string, unknown>;
+    'hass-more-info': Record<string, unknown>;
   }
 }
 
