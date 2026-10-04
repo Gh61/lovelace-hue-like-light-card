@@ -62,6 +62,7 @@
         "data/lovelace/action_handler.ts",
         "data/lovelace/config/action.ts",
         "data/lovelace/config/card.ts",
+        "data/main_window.ts",
         "data/registry.ts",
         "data/sensor.ts",
         "data/sensor_entity_constants.ts",
