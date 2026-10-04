@@ -24,7 +24,6 @@ declare global {
   interface HASSDomEvents {
     "ll-rebuild": Record<string, unknown>;
     "ll-upgrade": Record<string, unknown>;
-    "ll-badge-rebuild": Record<string, unknown>;
   }
 }
 
@@ -64,8 +63,6 @@ export interface LovelaceGridOptions {
   min_columns?: number;
   min_rows?: number;
   max_rows?: number;
-  fixed_rows?: boolean;
-  fixed_columns?: boolean;
 }
 
 export interface LovelaceCard extends HTMLElement {
@@ -99,6 +96,7 @@ export interface LovelaceCardConstructor extends Constructor<LovelaceCard> {
     entities: string[],
     entitiesFallback: string[]
   ) => LovelaceCardConfig;
+  getDefaultConfig?: () => Partial<LovelaceCardConfig>;
   getConfigElement?: () => LovelaceCardEditor;
   getConfigForm?: () => LovelaceConfigForm;
 }
@@ -109,6 +107,7 @@ export interface LovelaceBadgeConstructor extends Constructor<LovelaceBadge> {
     entities: string[],
     entitiesFallback: string[]
   ) => LovelaceBadgeConfig;
+  getDefaultConfig?: () => Partial<LovelaceBadgeConfig>;
   getConfigElement?: () => LovelaceBadgeEditor;
   getConfigForm?: () => LovelaceConfigForm;
 }

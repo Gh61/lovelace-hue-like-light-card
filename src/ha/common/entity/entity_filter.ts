@@ -33,7 +33,10 @@ const normalizeFilterArray = <T>(
 };
 
 export const generateEntityFilter = (
-  hass: HomeAssistant,
+  hass: Pick<
+    HomeAssistant,
+    "states" | "entities" | "devices" | "areas" | "floors"
+  >,
   filter: EntityFilter
 ): EntityFilterFunc => {
   const domains = filter.domain
@@ -117,9 +120,6 @@ export const generateEntityFilter = (
       }
     }
     if (entityCategories) {
-      if (!entity) {
-        return false;
-      }
       const category = entity?.entity_category || "none";
       if (!entityCategories.has(category)) {
         return false;

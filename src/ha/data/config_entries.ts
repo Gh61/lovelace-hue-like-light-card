@@ -25,6 +25,7 @@ export interface ConfigEntry {
   pref_disable_polling: boolean;
   disabled_by: "user" | null;
   reason: string | null;
+  error_reason_translation_domain: string | null;
   error_reason_translation_key: string | null;
   error_reason_translation_placeholders: Record<string, string> | null;
 }
@@ -95,22 +96,6 @@ export interface ConfigEntryUpdate {
   type: null | "added" | "removed" | "updated";
   entry: ConfigEntry;
 }
-
-export const subscribeAndProcessConfigEntries = (
-  hass: HomeAssistant,
-  callbackFunction: (entries: ConfigEntry[]) => void,
-  filters?: {
-    type?: IntegrationType[];
-    domain?: string;
-  }
-): Promise<UnsubscribeFunc> => {
-  const stream = new ConfigEntryStream();
-  const processCallback = (messages: ConfigEntryUpdate[]) => {
-    callbackFunction(stream.processMessage(messages));
-  };
-
-  return subscribeConfigEntries(hass, processCallback, filters);
-};
 
 export const subscribeConfigEntries = (
   hass: HomeAssistant,

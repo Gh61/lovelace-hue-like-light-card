@@ -9,6 +9,7 @@ import { debounce } from "../../common/util/debounce";
 import type { HomeAssistant } from "../../types";
 import type { LightColor } from "../light";
 import type { RegistryEntry } from "../registry";
+import type { Segment } from "../vacuum";
 
 type EntityCategory = "config" | "diagnostic";
 
@@ -72,7 +73,7 @@ export interface ExtEntityRegistryEntry extends EntityRegistryEntry {
   original_icon?: string;
   device_class?: string;
   original_device_class?: string;
-  aliases: string[];
+  aliases: (string | null)[];
 }
 
 export interface UpdateEntityRegistryEntryResult {
@@ -91,6 +92,39 @@ export interface LightEntityOptions {
   favorite_colors?: LightColor[];
 }
 
+export interface ValveEntityOptions {
+  favorite_positions?: number[];
+}
+
+export type FavoriteOption =
+  "favorite_colors" | "favorite_positions" | "favorite_tilt_positions";
+
+export type FavoritesDomain = "light" | "cover" | "valve";
+
+export type FavoriteOptionValue = LightColor[] | number[];
+
+export const DOMAINS_WITH_FAVORITES: FavoritesDomain[] = [
+  "light",
+  "cover",
+  "valve",
+];
+
+export const isFavoritesDomain = (domain: string): domain is FavoritesDomain =>
+  DOMAINS_WITH_FAVORITES.includes(domain as FavoritesDomain);
+
+export const shouldShowFavoriteOptions = (
+  values?: FavoriteOptionValue | null
+): boolean => values == null || values.length > 0;
+
+export const hasCustomFavoriteOptionValues = (
+  values?: FavoriteOptionValue | null
+): boolean => values != null;
+
+export interface CoverEntityOptions {
+  favorite_positions?: number[];
+  favorite_tilt_positions?: number[];
+}
+
 export interface NumberEntityOptions {
   unit_of_measurement?: string | null;
 }
@@ -101,6 +135,10 @@ export interface LockEntityOptions {
 
 export interface AlarmControlPanelEntityOptions {
   default_code?: string | null;
+}
+
+export interface CalendarEntityOptions {
+  color?: string | null;
 }
 
 export interface WeatherEntityOptions {
@@ -116,13 +154,27 @@ export interface SwitchAsXEntityOptions {
   invert: boolean;
 }
 
+export interface VacuumEntityOptions {
+  area_mapping?: Record<string, string[]>;
+  last_seen_segments?: Segment[];
+}
+
+export interface DeviceTrackerEntityOptions {
+  associated_zone?: string | null;
+}
+
 export interface EntityRegistryOptions {
   number?: NumberEntityOptions;
   sensor?: SensorEntityOptions;
   alarm_control_panel?: AlarmControlPanelEntityOptions;
+  calendar?: CalendarEntityOptions;
   lock?: LockEntityOptions;
   weather?: WeatherEntityOptions;
   light?: LightEntityOptions;
+  cover?: CoverEntityOptions;
+  valve?: ValveEntityOptions;
+  vacuum?: VacuumEntityOptions;
+  device_tracker?: DeviceTrackerEntityOptions;
   switch_as_x?: SwitchAsXEntityOptions;
   conversation?: Record<string, unknown>;
   "cloud.alexa"?: Record<string, unknown>;
@@ -143,25 +195,32 @@ export interface EntityRegistryEntryUpdateParams {
     | NumberEntityOptions
     | LockEntityOptions
     | AlarmControlPanelEntityOptions
+    | CalendarEntityOptions
     | WeatherEntityOptions
-    | LightEntityOptions;
-  aliases?: string[];
+    | LightEntityOptions
+    | CoverEntityOptions
+    | ValveEntityOptions
+    | VacuumEntityOptions
+    | DeviceTrackerEntityOptions;
+  aliases?: (string | null)[];
   labels?: string[];
   categories?: Record<string, string | null>;
 }
 
 const batteryPriorities = ["sensor", "binary_sensor"];
 export const findBatteryEntity = <T extends { entity_id: string }>(
-  hass: HomeAssistant,
+  states: HomeAssistant["states"],
   entities: T[]
 ): T | undefined => {
   const batteryEntities = entities
-    .filter(
-      (entity) =>
-        hass.states[entity.entity_id] &&
-        hass.states[entity.entity_id].attributes.device_class === "battery" &&
+    .filter((entity) => {
+      const state = states[entity.entity_id];
+      return (
+        state &&
+        state.attributes.device_class === "battery" &&
         batteryPriorities.includes(computeDomain(entity.entity_id))
-    )
+      );
+    })
     .sort(
       (a, b) =>
         batteryPriorities.indexOf(computeDomain(a.entity_id)) -
@@ -175,15 +234,13 @@ export const findBatteryEntity = <T extends { entity_id: string }>(
 };
 
 export const findBatteryChargingEntity = <T extends { entity_id: string }>(
-  hass: HomeAssistant,
+  states: HomeAssistant["states"],
   entities: T[]
 ): T | undefined =>
-  entities.find(
-    (entity) =>
-      hass.states[entity.entity_id] &&
-      hass.states[entity.entity_id].attributes.device_class ===
-        "battery_charging"
-  );
+  entities.find((entity) => {
+    const state = states[entity.entity_id];
+    return state && state.attributes.device_class === "battery_charging";
+  });
 
 export const computeEntityRegistryName = (
   hass: HomeAssistant,
@@ -200,7 +257,7 @@ export const computeEntityRegistryName = (
 };
 
 export const getExtendedEntityRegistryEntry = (
-  hass: HomeAssistant,
+  hass: Pick<HomeAssistant, "callWS">,
   entityId: string
 ): Promise<ExtEntityRegistryEntry> =>
   hass.callWS({
@@ -218,7 +275,7 @@ export const getExtendedEntityRegistryEntries = (
   });
 
 export const updateEntityRegistryEntry = (
-  hass: HomeAssistant,
+  hass: Pick<HomeAssistant, "callWS">,
   entityId: string,
   updates: Partial<EntityRegistryEntryUpdateParams>
 ): Promise<UpdateEntityRegistryEntryResult> =>

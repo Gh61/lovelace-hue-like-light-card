@@ -1,40 +1,6 @@
 import { formatDurationDigital } from "../../common/datetime/format_duration";
 import type { FrontendLocaleData } from "../translation";
 
-// These attributes are hidden from the more-info window for all entities.
-export const STATE_ATTRIBUTES = [
-  "entity_id",
-  "assumed_state",
-  "attribution",
-  "custom_ui_more_info",
-  "custom_ui_state_card",
-  "device_class",
-  "editable",
-  "emulated_hue_name",
-  "emulated_hue",
-  "entity_picture",
-  "event_types",
-  "friendly_name",
-  "haaska_hidden",
-  "haaska_name",
-  "icon",
-  "initial_state",
-  "last_reset",
-  "restored",
-  "state_class",
-  "supported_features",
-  "unit_of_measurement",
-  "available_tones",
-];
-
-// These attributes are hidden from the more-info window for entities of the
-// matching domain and device_class.
-export const STATE_ATTRIBUTES_DOMAIN_CLASS = {
-  sensor: {
-    enum: ["options"],
-  },
-};
-
 export const TEMPERATURE_ATTRIBUTES = new Set([
   "temperature",
   "current_temperature",
@@ -84,9 +50,6 @@ export const DOMAIN_ATTRIBUTES_UNITS = {
     azimuth: "°",
     elevation: "°",
   },
-  vacuum: {
-    battery_level: "%",
-  },
   valve: {
     current_position: "%",
   },
@@ -128,7 +91,6 @@ export const NON_NUMERIC_ATTRIBUTES = [
   "away_mode",
   "changed_by",
   "code_format",
-  "color_modes",
   "current_activity",
   "device_class",
   "editable",
@@ -178,6 +140,7 @@ export const NON_NUMERIC_ATTRIBUTES = [
   "source_type",
   "source",
   "state_class",
+  "supported_color_modes",
   "supported_features",
   "swing_mode",
   "swing_mode",
@@ -186,4 +149,28 @@ export const NON_NUMERIC_ATTRIBUTES = [
   "token",
   "unit_of_measurement",
   "xy_color",
+];
+
+export const STATE_CONDITION_HIDDEN_ATTRIBUTES = [
+  "access_token",
+  "available_modes",
+  "editable",
+  "effect_list",
+  "entity_picture",
+  "event_types",
+  "fan_modes",
+  "fan_speed_list",
+  "forecast",
+  "friendly_name",
+  "hvac_modes",
+  "icon",
+  "operation_list",
+  "options",
+  "preset_modes",
+  "sound_mode_list",
+  "source_list",
+  "state_class",
+  "supported_color_modes",
+  "swing_modes",
+  "token",
 ];

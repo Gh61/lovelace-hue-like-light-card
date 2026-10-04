@@ -1,4 +1,4 @@
-import type { DurationFormatConstructor } from "@formatjs/intl-durationformat/src/types";
+import type { DurationFormat as FormatJSDurationFormat } from "@formatjs/intl-durationformat";
 import type {
   Auth,
   Connection,
@@ -37,7 +37,6 @@ declare global {
   var __VERSION__: string;
   var __STATIC_PATH__: string;
   var __BACKWARDS_COMPAT__: boolean;
-  var __SUPERVISOR__: boolean;
   var __HASS_URL__: string;
   /* eslint-enable @typescript-eslint/naming-convention */
 
@@ -78,7 +77,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Intl {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    const DurationFormat: DurationFormatConstructor;
+    const DurationFormat: typeof FormatJSDurationFormat;
   }
 }
 
@@ -142,6 +141,8 @@ export interface PanelInfo<T = Record<string, any> | null> {
   url_path: string;
   config_panel_domain?: string;
   default_visible?: boolean;
+  require_admin?: boolean;
+  show_in_sidebar?: boolean;
 }
 
 export type Panels = Record<string, PanelInfo>;
@@ -153,12 +154,10 @@ export interface CalendarViewChanged {
 }
 
 export type FullCalendarView =
-  | "dayGridMonth"
-  | "dayGridWeek"
-  | "dayGridDay"
-  | "listWeek";
+  "dayGridMonth" | "dayGridWeek" | "dayGridDay" | "listWeek";
 
-export type ThemeMode = "auto" | "light" | "dark";
+export const THEME_MODES = ["auto", "light", "dark"] as const;
+export type ThemeMode = (typeof THEME_MODES)[number];
 
 export interface ToggleButton {
   label: string;
@@ -206,6 +205,11 @@ export interface Context {
   user_id?: string | null;
 }
 
+export interface ValuePart {
+  type: "value" | "literal" | "unit";
+  value: string;
+}
+
 export interface ServiceCallResponse<T = any> {
   context: Context;
   response?: T;
@@ -218,21 +222,14 @@ export interface ServiceCallRequest {
   target?: HassServiceTarget;
 }
 
-export interface HomeAssistant {
-  auth: Auth & { external?: ExternalMessaging };
-  connection: Connection;
-  connected: boolean;
-  states: HassEntities;
+export interface HomeAssistantRegistries {
   entities: Record<string, EntityRegistryDisplayEntry>;
   devices: Record<string, DeviceRegistryEntry>;
   areas: Record<string, AreaRegistryEntry>;
   floors: Record<string, FloorRegistryEntry>;
-  services: HassServices;
-  config: HassConfig;
-  themes: Themes;
-  selectedTheme: ThemeSettings | null;
-  panels: Panels;
-  panelUrl: string;
+}
+
+export interface HomeAssistantInternationalization {
   // i18n
   // current effective language in that order:
   //   - backend saved user selected language
@@ -243,20 +240,19 @@ export interface HomeAssistant {
   // local stored language, keep that name for backward compatibility
   selectedLanguage: string | null;
   locale: FrontendLocaleData;
-  resources: Resources;
   localize: LocalizeFunc;
   translationMetadata: TranslationMetadata;
-  suspendWhenHidden: boolean;
-  enableShortcuts: boolean;
-  vibrate: boolean;
-  debugConnection: boolean;
-  kioskMode: boolean;
-  dockedSidebar: "docked" | "always_hidden" | "auto";
-  moreInfoEntityId: string | null;
-  user?: CurrentUser;
-  userData?: CoreFrontendUserData;
-  systemData?: CoreFrontendSystemData;
-  hassUrl(path?): string;
+  loadBackendTranslation(
+    category: Parameters<typeof getHassTranslations>[2],
+    integrations?: Parameters<typeof getHassTranslations>[3],
+    configFlow?: Parameters<typeof getHassTranslations>[4]
+  ): Promise<LocalizeFunc>;
+  loadFragmentTranslation(fragment: string): Promise<LocalizeFunc | undefined>;
+}
+
+export type CallWS = <T>(msg: MessageBase) => Promise<T>;
+
+export interface HomeAssistantApi {
   callService<T = any>(
     domain: ServiceCallRequest["domain"],
     service: ServiceCallRequest["service"],
@@ -280,25 +276,74 @@ export interface HomeAssistant {
   ): Promise<Response>;
   fetchWithAuth(path: string, init?: Record<string, any>): Promise<Response>;
   sendWS(msg: MessageBase): void;
-  callWS<T>(msg: MessageBase): Promise<T>;
-  loadBackendTranslation(
-    category: Parameters<typeof getHassTranslations>[2],
-    integrations?: Parameters<typeof getHassTranslations>[3],
-    configFlow?: Parameters<typeof getHassTranslations>[4]
-  ): Promise<LocalizeFunc>;
-  loadFragmentTranslation(fragment: string): Promise<LocalizeFunc | undefined>;
+  callWS: CallWS;
+}
+
+export interface HomeAssistantFormatters {
   formatEntityState(stateObj: HassEntity, state?: string): string;
+  formatEntityStateToParts(stateObj: HassEntity, state?: string): ValuePart[];
   formatEntityAttributeValue(
     stateObj: HassEntity,
     attribute: string,
     value?: any
   ): string;
+  formatEntityAttributeValueToParts(
+    stateObj: HassEntity,
+    attribute: string,
+    value?: any
+  ): ValuePart[];
   formatEntityAttributeName(stateObj: HassEntity, attribute: string): string;
   formatEntityName(
     stateObj: HassEntity,
-    type: EntityNameItem | EntityNameItem[],
+    type: string | EntityNameItem | EntityNameItem[] | undefined,
     separator?: EntityNameOptions
   ): string;
+}
+
+export interface HomeAssistantConnection {
+  connection: Connection;
+  connected: boolean;
+  debugConnection: boolean;
+  hassUrl(path?): string;
+}
+
+export interface HomeAssistantUI {
+  themes: Themes;
+  selectedTheme: ThemeSettings | null;
+  panels: Panels;
+  panelUrl: string;
+  dockedSidebar: "docked" | "always_hidden" | "auto";
+  kioskMode: boolean;
+  enableShortcuts: boolean;
+  vibrate: boolean;
+  suspendWhenHidden: boolean;
+}
+
+export type LogFileDisabledReason = "environment";
+
+export interface HassLoggingConfig {
+  log_file_disabled_reason: LogFileDisabledReason | null;
+}
+
+export interface HomeAssistantConfig {
+  auth: Auth & { external?: ExternalMessaging };
+  config: HassConfig & { logging?: HassLoggingConfig };
+  user?: CurrentUser;
+  userData?: CoreFrontendUserData;
+  systemData?: CoreFrontendSystemData;
+}
+
+export interface HomeAssistant
+  extends
+    HomeAssistantRegistries,
+    HomeAssistantInternationalization,
+    HomeAssistantApi,
+    HomeAssistantFormatters,
+    HomeAssistantConnection,
+    HomeAssistantUI,
+    HomeAssistantConfig {
+  states: HassEntities;
+  services: HassServices;
 }
 
 export interface Route {

@@ -1,6 +1,6 @@
 {
     "repository": "https://github.com/home-assistant/frontend.git",
-    "commit": "92a36ac6873269a82b37298dd99c37f427dd9e1e",
+    "commit": "380e9b5a81ada29a1d187b4123c54fb3d6fbcc89",
     "files": [
         "common/areas/areas-floor-hierarchy.ts",
         "common/array/combinations.ts",
@@ -34,9 +34,7 @@
         "common/dom/media_query.ts",
         "common/dom/prevent_default.ts",
         "common/dom/prevent_default_stop_propagation.ts",
-        "common/dom/scroll-to-target.ts",
         "common/dom/stop_propagation.ts",
-        "common/dom/toggle_attribute.ts",
         "common/entity/attribute_class_names.ts",
         "common/entity/can_toggle_domain.ts",
         "common/entity/can_toggle_state.ts",
