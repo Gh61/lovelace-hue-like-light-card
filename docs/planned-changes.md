@@ -13,7 +13,6 @@ Legend: **P1** = do next, **P2** = should do.
 |---|---|---|---|
 | 3 | [Deduplicate `tryLoad*Info` in config](#3-deduplicate-tryloadinfo-in-config) | P2 | `refactor` |
 | 4 | [Centralize the HA 2026.5 `ha-switch` margin hack](#4-centralize-the-ha-20265-ha-switch-margin-hack) | P2 | `refactor` |
-| 5 | [Move README images from `doc/` to `doc_img/`](#5-move-readme-images-from-doc-to-doc_img) | P2 | `doc` |
 
 ### Fixes
 | # | Fix | Priority | Type |
@@ -41,22 +40,6 @@ Suggested commit: `refactor(config): unify area/floor/label loading`
 Proposed: a shared `css` fragment (e.g. in `ViewUtils` or `ThemeHelper`) with one comment explaining the HA version, composed into the three `styles`. Browser check: switch alignment on the card, in the dialog header and on light tiles.
 
 Suggested commit: `refactor: share ha-switch compatibility styles`
-
-## 5. Move README images from `doc/` to `doc_img/`
-
-**Why:** `doc/` (README screenshots) and `docs/` (developer documentation) differ by one letter and are easy to confuse - for humans and for AI agents.
-
-**How:**
-1. `git mv doc doc_img`.
-2. Update the 22 image references in [README.md](../README.md): 17 relative (`/doc/<file>.png`) and 5 absolute (`https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/<file>.png`, used in `<img>` tags with a `height`) - replace `/doc/` with `/doc_img/` in both forms.
-3. Grep the whole repository (incl. `.github/`) for other `doc/` references.
-4. Update the folder list in [development.md](development.md) (remove the "planned to move" note).
-
-**Be aware:** the absolute URLs in the README of already released versions (as rendered by HACS or on the release tags) point to `main/doc/...`, so those 5 images break after the move until the next release. The README on `main` and the next release are fine.
-
-No code change - `/task` with "Skip browser test"; verification = README preview on GitHub after push.
-
-Suggested commit: `doc: move README images to doc_img`
 
 ## Fixes
 

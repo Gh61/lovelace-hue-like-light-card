@@ -80,7 +80,7 @@ The AI workflow (`/task`) asks for the testing dashboard URL once and stores it 
 
 ## Architecture overview
 
-Repository folders: `src/` (card source), `tests/` (Jest), `docs/` (developer documentation - this folder), `doc/` (screenshots linked from README; planned to move to `doc_img/`, see [planned-changes.md](planned-changes.md)), `hue_ref/` (reference images), `.claude/` (AI skills and agents), `.github/` (CI and release workflows).
+Repository folders: `src/` (card source), `tests/` (Jest), `docs/` (developer documentation - this folder), `doc_img/` (screenshots linked from README), `hue_ref/` (reference images), `.claude/` (AI skills and agents), `.github/` (CI and release workflows).
 
 ```
 src/
