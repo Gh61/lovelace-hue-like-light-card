@@ -20,7 +20,8 @@ export default [{
         "**/languages/*.json", // json localization
         "dist", // release
         "*.config.js", // config file
-        "*.config.mjs" // config file
+        "*.config.mjs", // config file
+        "scripts/**" // node tooling, not part of the card
     ],
 }, ...compat.extends("plugin:@typescript-eslint/recommended"), {
     plugins: {

@@ -40,6 +40,7 @@ Allowed exceptions (state the reason when skipping `/task`):
 - Don't commit or push unless the developer asks. Commit format per [COMMIT.md](COMMIT.md).
 - New UI texts go into `src/localize/languages/en_us.json` only; translations into other languages only on request as the last step.
 - `npm run lint`, `npm run rollup` and `npm test` must pass before a task is done.
+- `src/ha/` is copied Home Assistant frontend source managed by `npm run ha-sync` (see [development guide](docs/development.md#ha-source-sync)): don't reformat it, keep local adaptations minimal, add new HA files via the manifest `src/ha/ha-sync.json`.
 
 ## Commands
 

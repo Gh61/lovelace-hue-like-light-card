@@ -54,6 +54,7 @@
         "lint": "eslint .",
         "lintfix": "eslint . --fix",
         "rollup": "rollup -c",
-        "clean": "rimraf node_modules/.cache"
+        "clean": "rimraf node_modules/.cache",
+        "ha-sync": "node scripts/ha-sync.mjs"
     }
 }

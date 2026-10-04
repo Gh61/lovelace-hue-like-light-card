@@ -98,6 +98,7 @@ src/
 │  └─ ...                         view-utils, icon-helper, limited-timeout, effect-queue, ...
 ├─ controls/                Lit UI elements (dialog, tiles, light detail, pickers, switches, sliders)
 ├─ directives/              Lit directives (horizontal-scroll)
+├─ ha/                      Home Assistant frontend source (copied, managed by ha-sync - see below)
 ├─ localize/                localize() + languages/*.json
 └─ types/                   Config parsing, Consts, interfaces, HA types, helpers
 ```
@@ -109,6 +110,30 @@ src/
 3. UI elements subscribe via `registerOnPropertyChanged(this._elementId, cb)` (`NotifyBase`) and re-render; they unsubscribe in `disconnectedCallback`.
 4. User interaction → controller setter → optimistic local state update → `hass.callService(...)`.
 5. Click/hold → `ActionHandler` → opens `HueDialog` (the "Hue screen") or HA more-info.
+
+## HA source sync
+
+`src/ha/` contains source files copied from the [Home Assistant frontend](https://github.com/home-assistant/frontend) (types, `HomeAssistant` interface, `fireEvent`, `forwardHaptic`, `applyThemesOnElement`, the `actionHandler()` directive, `computeStateDisplay`, ...). They replace the outdated `custom-card-helpers` package and keep the card close to HA's own behavior.
+
+The copies are managed by `npm run ha-sync` (`scripts/ha-sync.mjs`) and the manifest `src/ha/ha-sync.json` (upstream repository, synced commit, list of copied files - paths relative to the upstream `src/`, the local copy is `src/ha/<path>`).
+
+| Command | What it does |
+|---|---|
+| `npm run ha-sync -- check [<ref>]` | Compares `src/ha/` with upstream at the manifest commit (or `<ref>`): identical / locally modified / missing files. Exit code 1 when anything differs. |
+| `npm run ha-sync -- update <ref>` | Writes pristine copies of all manifest files at `<ref>` (commit, tag or branch, e.g. `dev`) into the vendor branch `ha-upstream` as one commit, together with the updated manifest. |
+
+Workflow for updating to a newer HA version:
+
+1. On the development branch: `npm run ha-sync -- update dev` (needs a clean `src/ha/`).
+2. `git merge ha-upstream` - Git does a 3-way merge (previous upstream → new upstream vs. our copy), so the local adaptations in `src/ha/` survive; conflicts appear only where HA changed the same lines.
+3. Fix compile errors (HA may have added imports that need a new file in the manifest or a stub), run lint / build / tests.
+
+Rules for `src/ha/`:
+
+- The vendor branch `ha-upstream` holds only pristine upstream files - never commit anything else to it and never merge the development branch into it. `npm run ha-sync -- check` on that branch must report no differences.
+- Local adaptations in the copies (commented-out imports of HA-only modules, removed unused parts, type fixes) are kept minimal and never reformat the file - every changed line is a potential merge conflict. New HA files are added by appending them to the manifest and running `update`.
+- `src/ha/` is excluded from ESLint (`eslint.config.mjs`) and keeps HA's formatting (2 spaces, double quotes).
+- The upstream repository is cached in `node_modules/.cache/ha-frontend` (`npm run clean` removes it).
 
 ## Commits
 
