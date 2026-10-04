@@ -9,7 +9,7 @@ export const canToggleState = (hass: HomeAssistant, stateObj: HassEntity) => {
 
   if (domain === "group") {
     if (
-      stateObj.attributes?.entity_id?.some((entity: string) => {
+      stateObj.attributes?.entity_id?.some((entity) => {
         const entityStateObj = hass.states[entity];
         if (!entityStateObj) {
           return false;

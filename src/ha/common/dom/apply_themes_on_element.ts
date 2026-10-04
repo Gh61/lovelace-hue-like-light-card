@@ -31,7 +31,7 @@ let PROCESSED_THEMES: Record<string, ProcessedTheme> = {};
  * themeSettings: Additional settings such as selected colors.
  */
 export const applyThemesOnElement = (
-  element: any,
+  element,
   themes: HomeAssistant["themes"],
   selectedTheme?: string,
   themeSettings?: Partial<HomeAssistant["selectedTheme"]>,
@@ -170,8 +170,8 @@ const processTheme = (
     ...derivedStyles,
     ...theme,
   };
-  const styles: Record<string, string> = {};
-  const keys: Record<string, ""> = {};
+  const styles = {};
+  const keys = {};
   for (const key of Object.keys(combinedTheme)) {
     const prefixedKey = `--${key}`;
     const value = String(combinedTheme[key]);

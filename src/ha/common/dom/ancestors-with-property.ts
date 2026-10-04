@@ -6,7 +6,7 @@ export const closestWithProperty = (
   element: Element | null,
   property: string | symbol,
   own = DEFAULT_OWN
-) : Element | null => {
+) => {
   if (!element || element === document.body) return null;
 
   element = element.assignedSlot ?? element;

@@ -48,7 +48,7 @@ export const computeAttributeValueDisplay = (
       ? formatter(attributeValue, locale)
       : formatNumber(attributeValue, locale);
 
-    let unit = (DOMAIN_ATTRIBUTES_UNITS as Record<string, Record<string, string>>)[domain]?.[attribute] as
+    let unit = DOMAIN_ATTRIBUTES_UNITS[domain]?.[attribute] as
       | string
       | undefined;
 

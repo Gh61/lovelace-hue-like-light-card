@@ -60,7 +60,7 @@ export const formatNumber = (
   // Polyfill for Number.isNaN, which is more reliable than the global isNaN()
   Number.isNaN =
     Number.isNaN ||
-    function isNaN(input): boolean {
+    function isNaN(input) {
       return typeof input === "number" && isNaN(input);
     };
 

@@ -1,25 +1,6 @@
-// import scrollLockStyles from "@home-assistant/webawesome/dist/styles/utilities/scroll-lock.css.js";
+import scrollLockStyles from "@home-assistant/webawesome/dist/styles/utilities/scroll-lock.css.js";
 import { css } from "lit";
 import { extractDerivedVars } from "../../common/style/derived-css-vars";
-
-// Source: https://cdn.jsdelivr.net/npm/@home-assistant/webawesome@3.0.0-ha.2/dist/styles/utilities/scroll-lock.css.js
-const scrollLockStyles = css`@layer wa-utilities {
-  @supports (scrollbar-gutter: stable) {
-    .wa-scroll-lock {
-      scrollbar-gutter: var(--wa-scroll-lock-gutter) !important;
-    }
-    .wa-scroll-lock body {
-      overflow: hidden !important;
-    }
-  }
-  @supports not (scrollbar-gutter: stable) {
-    .wa-scroll-lock body {
-      padding-right: var(--wa-scroll-lock-size) !important;
-      overflow: hidden !important;
-    }
-  }
-}
-`;
 
 export const waMainStyles = css`
   html {

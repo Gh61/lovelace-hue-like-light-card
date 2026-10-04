@@ -7,7 +7,7 @@ export const turnOnOffEntities = (
   entityIds: string[],
   turnOn = true
 ): void => {
-  const domainsToCall: Record<string, Array<string>> = {};
+  const domainsToCall = {};
   entityIds.forEach((entityId) => {
     if (STATES_OFF.includes(hass.states[entityId].state) === turnOn) {
       const stateDomain = computeDomain(entityId);

@@ -6,7 +6,7 @@ import type {
 } from "../entity/entity_registry";
 import type { RegistryEntry } from "../registry";
 
-// export { subscribeAreaRegistry } from "../ws-area_registry";
+export { subscribeAreaRegistry } from "../ws-area_registry";
 
 export interface AreaRegistryEntry extends RegistryEntry {
   aliases: string[];

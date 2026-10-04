@@ -28,25 +28,25 @@ export interface Themes {
   theme: string;
 }
 
-// const fetchThemes = (conn) =>
-//   conn.sendMessagePromise({
-//     type: "frontend/get_themes",
-//   });
+const fetchThemes = (conn) =>
+  conn.sendMessagePromise({
+    type: "frontend/get_themes",
+  });
 
-// const subscribeUpdates = (conn, store) =>
-//   conn.subscribeEvents(
-//     () => fetchThemes(conn).then((data) => store.setState(data, true)),
-//     "themes_updated"
-//   );
+const subscribeUpdates = (conn, store) =>
+  conn.subscribeEvents(
+    () => fetchThemes(conn).then((data) => store.setState(data, true)),
+    "themes_updated"
+  );
 
-// export const subscribeThemes = (
-//   conn: Connection,
-//   onChange: (themes: Themes) => void
-// ) =>
-//   createCollection<Themes>(
-//     "_thm",
-//     fetchThemes,
-//     subscribeUpdates,
-//     conn,
-//     onChange
-//   );
+export const subscribeThemes = (
+  conn: Connection,
+  onChange: (themes: Themes) => void
+) =>
+  createCollection<Themes>(
+    "_thm",
+    fetchThemes,
+    subscribeUpdates,
+    conn,
+    onChange
+  );

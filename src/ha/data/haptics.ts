@@ -28,6 +28,6 @@ declare global {
   }
 }
 
-export const forwardHaptic = (node: HTMLElement | Window, hapticType: HapticType) => {
+export const forwardHaptic = (node: HTMLElement, hapticType: HapticType) => {
   fireEvent(node, "haptic", hapticType);
 };

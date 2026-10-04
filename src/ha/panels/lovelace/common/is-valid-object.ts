@@ -1,5 +1,5 @@
 // Check if given obj is a JS object and optionally contains all required keys
-export default function isValidObject(obj: any, requiredKeys = []) {
+export default function isValidObject(obj, requiredKeys = []) {
   return (
     obj &&
     typeof obj === "object" &&

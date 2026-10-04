@@ -1,5 +1,5 @@
 import type { HomeAssistant } from "../types";
-// import { saveFrontendUserData, subscribeFrontendUserData } from "./frontend";
+import { saveFrontendUserData, subscribeFrontendUserData } from "./frontend";
 
 export enum NumberFormat {
   language = "language",
@@ -78,40 +78,40 @@ export type TranslationCategory =
   | "triggers"
   | "conditions";
 
-// export const subscribeTranslationPreferences = (
-//   hass: HomeAssistant,
-//   callback: (data: { value: FrontendLocaleData | null }) => void
-// ) => subscribeFrontendUserData(hass.connection, "language", callback);
+export const subscribeTranslationPreferences = (
+  hass: HomeAssistant,
+  callback: (data: { value: FrontendLocaleData | null }) => void
+) => subscribeFrontendUserData(hass.connection, "language", callback);
 
-// export const saveTranslationPreferences = (
-//   hass: HomeAssistant,
-//   data: FrontendLocaleData
-// ) => saveFrontendUserData(hass.connection, "language", data);
+export const saveTranslationPreferences = (
+  hass: HomeAssistant,
+  data: FrontendLocaleData
+) => saveFrontendUserData(hass.connection, "language", data);
 
-// export const getHassTranslations = async (
-//   hass: HomeAssistant,
-//   language: string,
-//   category: TranslationCategory,
-//   integration?: string | string[],
-//   config_flow?: boolean
-// ): Promise<Record<string, unknown>> => {
-//   const result = await hass.callWS<{ resources: Record<string, unknown> }>({
-//     type: "frontend/get_translations",
-//     language,
-//     category,
-//     integration,
-//     config_flow,
-//   });
-//   return result.resources;
-// };
+export const getHassTranslations = async (
+  hass: HomeAssistant,
+  language: string,
+  category: TranslationCategory,
+  integration?: string | string[],
+  config_flow?: boolean
+): Promise<Record<string, unknown>> => {
+  const result = await hass.callWS<{ resources: Record<string, unknown> }>({
+    type: "frontend/get_translations",
+    language,
+    category,
+    integration,
+    config_flow,
+  });
+  return result.resources;
+};
 
-// export const getHassTranslationsPre109 = async (
-//   hass: HomeAssistant,
-//   language: string
-// ): Promise<Record<string, unknown>> => {
-//   const result = await hass.callWS<{ resources: Record<string, unknown> }>({
-//     type: "frontend/get_translations",
-//     language,
-//   });
-//   return result.resources;
-// };
+export const getHassTranslationsPre109 = async (
+  hass: HomeAssistant,
+  language: string
+): Promise<Record<string, unknown>> => {
+  const result = await hass.callWS<{ resources: Record<string, unknown> }>({
+    type: "frontend/get_translations",
+    language,
+  });
+  return result.resources;
+};

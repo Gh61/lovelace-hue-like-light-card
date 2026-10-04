@@ -1,25 +1,8 @@
-// import type { DurationInput } from "@formatjs/intl-durationformat/src/types";
+import type { DurationInput } from "@formatjs/intl-durationformat/src/types";
 import memoizeOne from "memoize-one";
-//import type { HaDurationData } from "../../components/ha-duration-input";
+import type { HaDurationData } from "../../components/ha-duration-input";
 import type { FrontendLocaleData } from "../../data/translation";
 import { round } from "../number/round";
-
-declare global{
-  type DurationInput = Partial<Record<
-    | "years" | "months" | "weeks" | "days"
-    | "hours" | "minutes" | "seconds"
-    | "milliseconds" | "microseconds" | "nanoseconds",
-    number
-  >>;
-}
-
-export interface HaDurationData {
-  days?: number;
-  hours?: number;
-  minutes?: number;
-  seconds?: number;
-  milliseconds?: number;
-}
 
 const leftPad = (num: number) => (num < 10 ? `0${num}` : num);
 

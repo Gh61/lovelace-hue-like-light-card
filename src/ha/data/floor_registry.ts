@@ -2,7 +2,7 @@ import type { HomeAssistant } from "../types";
 import type { AreaRegistryEntry } from "./area/area_registry";
 import type { RegistryEntry } from "./registry";
 
-// export { subscribeAreaRegistry } from "./ws-area_registry";
+export { subscribeAreaRegistry } from "./ws-area_registry";
 
 export interface FloorRegistryEntry extends RegistryEntry {
   floor_id: string;

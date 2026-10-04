@@ -7,13 +7,13 @@
  * @param {number} top The coordinate to scroll to, along the y-axis.
  * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
  */
-export default function scrollToTarget(element: any, target: any) {
+export default function scrollToTarget(element, target) {
   // the scroll event will trigger _updateScrollState directly,
   // However, _updateScrollState relies on the previous `scrollTop` to update the states.
   // Calling _updateScrollState will ensure that the states are synced correctly.
   const top = 0;
   const scroller = target;
-  const easingFn = function easeOutQuad(t: number, b: number, c: number, d: number) {
+  const easingFn = function easeOutQuad(t, b, c, d) {
     t /= d;
     return -c * t * (t - 2) + b;
   };

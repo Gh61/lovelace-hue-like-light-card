@@ -1,1 +1,1 @@
-export const preventDefault = (ev: Event) => ev.preventDefault();
+export const preventDefault = (ev) => ev.preventDefault();

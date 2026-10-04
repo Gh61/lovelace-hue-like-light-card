@@ -4,7 +4,7 @@ export const slugify = (value: string, delimiter = "_") => {
     "àáâäæãåāăąабçćčđďдèéêëēėęěеёэфğǵгḧхîïíīįìıİийкłлḿмñńǹňнôöòóœøōõőоṕпŕřрßśšşșсťțтûüùúūǘůűųувẃẍÿýыžźżз·";
   const b = `aaaaaaaaaaabcccdddeeeeeeeeeeefggghhiiiiiiiiijkllmmnnnnnoooooooooopprrrsssssstttuuuuuuuuuuvwxyyyzzzz${delimiter}`;
   const p = new RegExp(a.split("").join("|"), "g");
-  const complex_cyrillic:Record<string, string> = {
+  const complex_cyrillic = {
     ж: "zh",
     х: "kh",
     ц: "ts",

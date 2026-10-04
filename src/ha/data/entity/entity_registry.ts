@@ -1,12 +1,12 @@
-// import type { Connection } from "home-assistant-js-websocket";
-// import { createCollection } from "home-assistant-js-websocket";
-// import type { Store } from "home-assistant-js-websocket/dist/store";
-// import memoizeOne from "memoize-one";
-// import { computeDomain } from "../../common/entity/compute_domain";
-// import { computeStateName } from "../../common/entity/compute_state_name";
-// import { caseInsensitiveStringCompare } from "../../common/string/compare";
-// import { debounce } from "../../common/util/debounce";
-// import type { HomeAssistant } from "../../types";
+import type { Connection } from "home-assistant-js-websocket";
+import { createCollection } from "home-assistant-js-websocket";
+import type { Store } from "home-assistant-js-websocket/dist/store";
+import memoizeOne from "memoize-one";
+import { computeDomain } from "../../common/entity/compute_domain";
+import { computeStateName } from "../../common/entity/compute_state_name";
+import { caseInsensitiveStringCompare } from "../../common/string/compare";
+import { debounce } from "../../common/util/debounce";
+import type { HomeAssistant } from "../../types";
 import type { LightColor } from "../light";
 import type { RegistryEntry } from "../registry";
 
@@ -150,177 +150,177 @@ export interface EntityRegistryEntryUpdateParams {
   categories?: Record<string, string | null>;
 }
 
-// const batteryPriorities = ["sensor", "binary_sensor"];
-// export const findBatteryEntity = <T extends { entity_id: string }>(
-//   hass: HomeAssistant,
-//   entities: T[]
-// ): T | undefined => {
-//   const batteryEntities = entities
-//     .filter(
-//       (entity) =>
-//         hass.states[entity.entity_id] &&
-//         hass.states[entity.entity_id].attributes.device_class === "battery" &&
-//         batteryPriorities.includes(computeDomain(entity.entity_id))
-//     )
-//     .sort(
-//       (a, b) =>
-//         batteryPriorities.indexOf(computeDomain(a.entity_id)) -
-//         batteryPriorities.indexOf(computeDomain(b.entity_id))
-//     );
-//   if (batteryEntities.length > 0) {
-//     return batteryEntities[0];
-//   }
+const batteryPriorities = ["sensor", "binary_sensor"];
+export const findBatteryEntity = <T extends { entity_id: string }>(
+  hass: HomeAssistant,
+  entities: T[]
+): T | undefined => {
+  const batteryEntities = entities
+    .filter(
+      (entity) =>
+        hass.states[entity.entity_id] &&
+        hass.states[entity.entity_id].attributes.device_class === "battery" &&
+        batteryPriorities.includes(computeDomain(entity.entity_id))
+    )
+    .sort(
+      (a, b) =>
+        batteryPriorities.indexOf(computeDomain(a.entity_id)) -
+        batteryPriorities.indexOf(computeDomain(b.entity_id))
+    );
+  if (batteryEntities.length > 0) {
+    return batteryEntities[0];
+  }
 
-//   return undefined;
-// };
+  return undefined;
+};
 
-// export const findBatteryChargingEntity = <T extends { entity_id: string }>(
-//   hass: HomeAssistant,
-//   entities: T[]
-// ): T | undefined =>
-//   entities.find(
-//     (entity) =>
-//       hass.states[entity.entity_id] &&
-//       hass.states[entity.entity_id].attributes.device_class ===
-//         "battery_charging"
-//   );
+export const findBatteryChargingEntity = <T extends { entity_id: string }>(
+  hass: HomeAssistant,
+  entities: T[]
+): T | undefined =>
+  entities.find(
+    (entity) =>
+      hass.states[entity.entity_id] &&
+      hass.states[entity.entity_id].attributes.device_class ===
+        "battery_charging"
+  );
 
-// export const computeEntityRegistryName = (
-//   hass: HomeAssistant,
-//   entry: EntityRegistryEntry
-// ): string | null => {
-//   if (entry.name) {
-//     return entry.name;
-//   }
-//   const state = hass.states[entry.entity_id];
-//   if (state) {
-//     return computeStateName(state);
-//   }
-//   return entry.original_name ? entry.original_name : entry.entity_id;
-// };
+export const computeEntityRegistryName = (
+  hass: HomeAssistant,
+  entry: EntityRegistryEntry
+): string | null => {
+  if (entry.name) {
+    return entry.name;
+  }
+  const state = hass.states[entry.entity_id];
+  if (state) {
+    return computeStateName(state);
+  }
+  return entry.original_name ? entry.original_name : entry.entity_id;
+};
 
-// export const getExtendedEntityRegistryEntry = (
-//   hass: HomeAssistant,
-//   entityId: string
-// ): Promise<ExtEntityRegistryEntry> =>
-//   hass.callWS({
-//     type: "config/entity_registry/get",
-//     entity_id: entityId,
-//   });
+export const getExtendedEntityRegistryEntry = (
+  hass: HomeAssistant,
+  entityId: string
+): Promise<ExtEntityRegistryEntry> =>
+  hass.callWS({
+    type: "config/entity_registry/get",
+    entity_id: entityId,
+  });
 
-// export const getExtendedEntityRegistryEntries = (
-//   hass: HomeAssistant,
-//   entityIds: string[]
-// ): Promise<Record<string, ExtEntityRegistryEntry>> =>
-//   hass.callWS({
-//     type: "config/entity_registry/get_entries",
-//     entity_ids: entityIds,
-//   });
+export const getExtendedEntityRegistryEntries = (
+  hass: HomeAssistant,
+  entityIds: string[]
+): Promise<Record<string, ExtEntityRegistryEntry>> =>
+  hass.callWS({
+    type: "config/entity_registry/get_entries",
+    entity_ids: entityIds,
+  });
 
-// export const updateEntityRegistryEntry = (
-//   hass: HomeAssistant,
-//   entityId: string,
-//   updates: Partial<EntityRegistryEntryUpdateParams>
-// ): Promise<UpdateEntityRegistryEntryResult> =>
-//   hass.callWS({
-//     type: "config/entity_registry/update",
-//     entity_id: entityId,
-//     ...updates,
-//   });
+export const updateEntityRegistryEntry = (
+  hass: HomeAssistant,
+  entityId: string,
+  updates: Partial<EntityRegistryEntryUpdateParams>
+): Promise<UpdateEntityRegistryEntryResult> =>
+  hass.callWS({
+    type: "config/entity_registry/update",
+    entity_id: entityId,
+    ...updates,
+  });
 
-// export const removeEntityRegistryEntry = (
-//   hass: HomeAssistant,
-//   entityId: string
-// ): Promise<void> =>
-//   hass.callWS({
-//     type: "config/entity_registry/remove",
-//     entity_id: entityId,
-//   });
+export const removeEntityRegistryEntry = (
+  hass: HomeAssistant,
+  entityId: string
+): Promise<void> =>
+  hass.callWS({
+    type: "config/entity_registry/remove",
+    entity_id: entityId,
+  });
 
-// export const fetchEntityRegistry = (conn: Connection) =>
-//   conn.sendMessagePromise<EntityRegistryEntry[]>({
-//     type: "config/entity_registry/list",
-//   });
+export const fetchEntityRegistry = (conn: Connection) =>
+  conn.sendMessagePromise<EntityRegistryEntry[]>({
+    type: "config/entity_registry/list",
+  });
 
-// export const fetchEntityRegistryDisplay = (conn: Connection) =>
-//   conn.sendMessagePromise<EntityRegistryDisplayEntryResponse>({
-//     type: "config/entity_registry/list_for_display",
-//   });
+export const fetchEntityRegistryDisplay = (conn: Connection) =>
+  conn.sendMessagePromise<EntityRegistryDisplayEntryResponse>({
+    type: "config/entity_registry/list_for_display",
+  });
 
-// const subscribeEntityRegistryUpdates = (
-//   conn: Connection,
-//   store: Store<EntityRegistryEntry[]>
-// ) =>
-//   conn.subscribeEvents(
-//     debounce(
-//       () =>
-//         fetchEntityRegistry(conn).then((entities) =>
-//           store.setState(entities, true)
-//         ),
-//       500,
-//       true
-//     ),
-//     "entity_registry_updated"
-//   );
+const subscribeEntityRegistryUpdates = (
+  conn: Connection,
+  store: Store<EntityRegistryEntry[]>
+) =>
+  conn.subscribeEvents(
+    debounce(
+      () =>
+        fetchEntityRegistry(conn).then((entities) =>
+          store.setState(entities, true)
+        ),
+      500,
+      true
+    ),
+    "entity_registry_updated"
+  );
 
-// export const subscribeEntityRegistry = (
-//   conn: Connection,
-//   onChange: (entities: EntityRegistryEntry[]) => void
-// ) =>
-//   createCollection<EntityRegistryEntry[]>(
-//     "_entityRegistry",
-//     fetchEntityRegistry,
-//     subscribeEntityRegistryUpdates,
-//     conn,
-//     onChange
-//   );
+export const subscribeEntityRegistry = (
+  conn: Connection,
+  onChange: (entities: EntityRegistryEntry[]) => void
+) =>
+  createCollection<EntityRegistryEntry[]>(
+    "_entityRegistry",
+    fetchEntityRegistry,
+    subscribeEntityRegistryUpdates,
+    conn,
+    onChange
+  );
 
-// export const sortEntityRegistryByName = (
-//   entries: EntityRegistryEntry[],
-//   language: string
-// ) =>
-//   entries.sort((entry1, entry2) =>
-//     caseInsensitiveStringCompare(entry1.name || "", entry2.name || "", language)
-//   );
+export const sortEntityRegistryByName = (
+  entries: EntityRegistryEntry[],
+  language: string
+) =>
+  entries.sort((entry1, entry2) =>
+    caseInsensitiveStringCompare(entry1.name || "", entry2.name || "", language)
+  );
 
-// export const entityRegistryByEntityId = memoizeOne(
-//   (entries: EntityRegistryEntry[]) => {
-//     const entities: Record<string, EntityRegistryEntry> = {};
-//     for (const entity of entries) {
-//       entities[entity.entity_id] = entity;
-//     }
-//     return entities;
-//   }
-// );
+export const entityRegistryByEntityId = memoizeOne(
+  (entries: EntityRegistryEntry[]) => {
+    const entities: Record<string, EntityRegistryEntry> = {};
+    for (const entity of entries) {
+      entities[entity.entity_id] = entity;
+    }
+    return entities;
+  }
+);
 
-// export const entityRegistryById = memoizeOne(
-//   (entries: EntityRegistryEntry[]) => {
-//     const entities: Record<string, EntityRegistryEntry> = {};
-//     for (const entity of entries) {
-//       entities[entity.id] = entity;
-//     }
-//     return entities;
-//   }
-// );
+export const entityRegistryById = memoizeOne(
+  (entries: EntityRegistryEntry[]) => {
+    const entities: Record<string, EntityRegistryEntry> = {};
+    for (const entity of entries) {
+      entities[entity.id] = entity;
+    }
+    return entities;
+  }
+);
 
-// export const getEntityPlatformLookup = (
-//   entities: EntityRegistryEntry[]
-// ): Record<string, string> => {
-//   const entityLookup = {};
-//   for (const confEnt of entities) {
-//     if (!confEnt.platform) {
-//       continue;
-//     }
-//     entityLookup[confEnt.entity_id] = confEnt.platform;
-//   }
-//   return entityLookup;
-// };
+export const getEntityPlatformLookup = (
+  entities: EntityRegistryEntry[]
+): Record<string, string> => {
+  const entityLookup = {};
+  for (const confEnt of entities) {
+    if (!confEnt.platform) {
+      continue;
+    }
+    entityLookup[confEnt.entity_id] = confEnt.platform;
+  }
+  return entityLookup;
+};
 
-// export const getAutomaticEntityIds = (
-//   hass: HomeAssistant,
-//   entity_ids: string[]
-// ) =>
-//   hass.callWS<Record<string, string | null>>({
-//     type: "config/entity_registry/get_automatic_entity_ids",
-//     entity_ids,
-//   });
+export const getAutomaticEntityIds = (
+  hass: HomeAssistant,
+  entity_ids: string[]
+) =>
+  hass.callWS<Record<string, string | null>>({
+    type: "config/entity_registry/get_automatic_entity_ids",
+    entity_ids,
+  });

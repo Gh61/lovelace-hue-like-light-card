@@ -1,4 +1,4 @@
-// import type { DurationFormatConstructor } from "@formatjs/intl-durationformat/src/types";
+import type { DurationFormatConstructor } from "@formatjs/intl-durationformat/src/types";
 import type {
   Auth,
   Connection,
@@ -18,16 +18,16 @@ import type { AreaRegistryEntry } from "./data/area/area_registry";
 import type { DeviceRegistryEntry } from "./data/device/device_registry";
 import type { EntityRegistryDisplayEntry } from "./data/entity/entity_registry";
 import type { FloorRegistryEntry } from "./data/floor_registry";
-// import type {
-//   CoreFrontendSystemData,
-//   CoreFrontendUserData,
-// } from "./data/frontend";
+import type {
+  CoreFrontendSystemData,
+  CoreFrontendUserData,
+} from "./data/frontend";
 import type {
   FrontendLocaleData,
-  // getHassTranslations,
-  TranslationCategory,
+  getHassTranslations,
 } from "./data/translation";
 import type { Themes } from "./data/ws-themes";
+import type { ExternalMessaging } from "./external_app/external_messaging";
 
 declare global {
   /* eslint-disable @typescript-eslint/naming-convention */
@@ -47,11 +47,11 @@ declare global {
     ShadyCSS: {
       nativeCss: boolean;
       nativeShadow: boolean;
-      prepareTemplate(templateElement: HTMLTemplateElement, elementName: string, elementExtension?: string): void;
-      styleElement(element: Element): void;
-      styleSubtree(element: Element, overrideProperties?: Record<string, string>): void;
-      styleDocument(overrideProperties?: Record<string, string>): void;
-      getComputedStyleValue(element: Element, propertyName: string): string;
+      prepareTemplate(templateElement, elementName, elementExtension);
+      styleElement(element);
+      styleSubtree(element, overrideProperties);
+      styleDocument(overrideProperties);
+      getComputedStyleValue(element, propertyName);
     };
   }
 
@@ -69,23 +69,16 @@ declare global {
     };
   }
 
-  // // For loading workers in rspack
-  // interface ImportMeta {
-  //   url: string;
-  // }
+  // For loading workers in rspack
+  interface ImportMeta {
+    url: string;
+  }
 
   // Intl.DurationFormat is not yet part of the TypeScript standard
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Intl {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    // const DurationFormat: DurationFormatConstructor;
-    class DurationFormat {
-      constructor(locales?: string | string[], options?: any);
-      format(duration: DurationInput): string;
-      formatToParts(duration: DurationInput): any[];
-      resolvedOptions(): any;
-      static supportedLocalesOf(locales?: string | string[], options?: any): string[];
-    }
+    const DurationFormat: DurationFormatConstructor;
   }
 }
 
@@ -101,7 +94,7 @@ export interface ClassElement {
   kind: "field" | "method";
   key: PropertyKey;
   placement: "static" | "prototype" | "own";
-  initializer?: (...args:any[]) => unknown;
+  initializer?: (...args) => unknown;
   extras?: ClassElement[];
   finisher?: <T>(cls: Constructor<T>) => undefined | Constructor<T>;
   descriptor?: PropertyDescriptor;
@@ -153,25 +146,25 @@ export interface PanelInfo<T = Record<string, any> | null> {
 
 export type Panels = Record<string, PanelInfo>;
 
-// export interface CalendarViewChanged {
-//   end: Date;
-//   start: Date;
-//   view: string;
-// }
+export interface CalendarViewChanged {
+  end: Date;
+  start: Date;
+  view: string;
+}
 
-// export type FullCalendarView =
-//   | "dayGridMonth"
-//   | "dayGridWeek"
-//   | "dayGridDay"
-//   | "listWeek";
+export type FullCalendarView =
+  | "dayGridMonth"
+  | "dayGridWeek"
+  | "dayGridDay"
+  | "listWeek";
 
-// export type ThemeMode = "auto" | "light" | "dark";
+export type ThemeMode = "auto" | "light" | "dark";
 
-// export interface ToggleButton {
-//   label: string;
-//   iconPath?: string;
-//   value: string;
-// }
+export interface ToggleButton {
+  label: string;
+  iconPath?: string;
+  value: string;
+}
 
 export interface Translation {
   nativeName: string;
@@ -184,26 +177,26 @@ export interface TranslationMetadata {
   translations: Record<string, Translation>;
 }
 
-// // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-// export type TranslationDict = typeof import("./translations/en.json");
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+export type TranslationDict = typeof import("./translations/en.json");
 
-// export interface IconMetaFile {
-//   version: string;
-//   parts: IconMeta[];
-// }
+export interface IconMetaFile {
+  version: string;
+  parts: IconMeta[];
+}
 
-// export interface IconMeta {
-//   start: string;
-//   file: string;
-// }
+export interface IconMeta {
+  start: string;
+  file: string;
+}
 
-// export interface Notification {
-//   notification_id: string;
-//   message: string;
-//   title: string;
-//   status: "read" | "unread";
-//   created_at: string;
-// }
+export interface Notification {
+  notification_id: string;
+  message: string;
+  title: string;
+  status: "read" | "unread";
+  created_at: string;
+}
 
 export type Resources = Record<string, Record<string, string>>;
 
@@ -226,7 +219,7 @@ export interface ServiceCallRequest {
 }
 
 export interface HomeAssistant {
-  auth: Auth;
+  auth: Auth & { external?: ExternalMessaging };
   connection: Connection;
   connected: boolean;
   states: HassEntities;
@@ -261,9 +254,9 @@ export interface HomeAssistant {
   dockedSidebar: "docked" | "always_hidden" | "auto";
   moreInfoEntityId: string | null;
   user?: CurrentUser;
-  // userData?: CoreFrontendUserData;
-  // systemData?: CoreFrontendSystemData;
-  hassUrl(path?: any): string;
+  userData?: CoreFrontendUserData;
+  systemData?: CoreFrontendSystemData;
+  hassUrl(path?): string;
   callService<T = any>(
     domain: ServiceCallRequest["domain"],
     service: ServiceCallRequest["service"],
@@ -289,9 +282,9 @@ export interface HomeAssistant {
   sendWS(msg: MessageBase): void;
   callWS<T>(msg: MessageBase): Promise<T>;
   loadBackendTranslation(
-    category: TranslationCategory,//Parameters<typeof getHassTranslations>[2],
-    integrations?: string | string[],// Parameters<typeof getHassTranslations>[3],
-    configFlow?: boolean// Parameters<typeof getHassTranslations>[4]
+    category: Parameters<typeof getHassTranslations>[2],
+    integrations?: Parameters<typeof getHassTranslations>[3],
+    configFlow?: Parameters<typeof getHassTranslations>[4]
   ): Promise<LocalizeFunc>;
   loadFragmentTranslation(fragment: string): Promise<LocalizeFunc | undefined>;
   formatEntityState(stateObj: HassEntity, state?: string): string;

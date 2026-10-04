@@ -1,4 +1,4 @@
-import type { Connection, Store } from "home-assistant-js-websocket";
+import type { Connection } from "home-assistant-js-websocket";
 import { createCollection } from "home-assistant-js-websocket";
 import type { LocalizeFunc } from "../common/translations/localize";
 import { debounce } from "../common/util/debounce";
@@ -117,7 +117,7 @@ export const fetchIntegrationManifest = (
 export const fetchIntegrationSetups = (hass: HomeAssistant) =>
   hass.callWS<IntegrationSetup[]>({ type: "integration/setup_info" });
 
-export const fetchIntegrationLogInfo = (conn: Connection): Promise<IntegrationLogInfo[]> =>
+export const fetchIntegrationLogInfo = (conn) =>
   conn.sendMessagePromise({
     type: "logger/log_info",
   });
@@ -135,7 +135,7 @@ export const setIntegrationLogLevel = (
     persistence,
   });
 
-const subscribeLogInfoUpdates = (conn: Connection, store: Store<IntegrationLogInfo[]>) =>
+const subscribeLogInfoUpdates = (conn, store) =>
   conn.subscribeEvents(
     debounce(
       () =>

@@ -7,7 +7,7 @@ import type { EntityNameItem } from "../common/entity/compute_entity_name_displa
 import { computeStateDomain } from "../common/entity/compute_state_domain";
 import { supportsFeature } from "../common/entity/supports-feature";
 import { isHelperDomain } from "../panels/config/helpers/const";
-// import type { UiAction } from "../panels/lovelace/components/hui-action-editor";
+import type { UiAction } from "../panels/lovelace/components/hui-action-editor";
 import type { HomeAssistant } from "../types";
 import {
   type DeviceRegistryEntry,
@@ -68,7 +68,7 @@ export type Selector =
   | TriggerSelector
   | TTSSelector
   | TTSVoiceSelector
-  // | UiActionSelector
+  | UiActionSelector
   | UiColorSelector
   | UiStateContentSelector
   | BackupLocationSelector;
@@ -482,12 +482,12 @@ export interface TTSVoiceSelector {
   tts_voice: { engineId?: string; language?: string } | null;
 }
 
-// export interface UiActionSelector {
-//   ui_action: {
-//     actions?: UiAction[];
-//     default_action?: UiAction;
-//   } | null;
-// }
+export interface UiActionSelector {
+  ui_action: {
+    actions?: UiAction[];
+    default_action?: UiAction;
+  } | null;
+}
 
 export interface UiColorSelector {
   ui_color: {

@@ -13,7 +13,7 @@ export function ensureArray(value: null): null;
 export function ensureArray<T>(
   value: T | T[] | readonly T[]
 ): NonNullUndefined<T>[];
-export function ensureArray(value: any) {
+export function ensureArray(value) {
   if (value === undefined || value === null || Array.isArray(value)) {
     return value;
   }
