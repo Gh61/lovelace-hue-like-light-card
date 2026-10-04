@@ -222,7 +222,9 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     // #### UI:
 
-    public static override styles = css`
+    public static override styles = [
+        ViewUtils.SwitchStyles,
+        css`
     ha-card
     {
         min-height:80px;
@@ -299,11 +301,6 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         line-clamp: 2;
         overflow: hidden;
     }
-    ha-switch
-    {
-        /* from HA 2026.5 - compensate for inner label margin */
-        margin-inline-end: -0.5em;
-    }
     .brightness-slider
     {
         width:100%;
@@ -318,7 +315,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         display:flex;
         overflow:auto;
     }
-    `;
+    `];
 
     protected override updated(changedProps: PropertyValues): void {
         super.updated(changedProps);

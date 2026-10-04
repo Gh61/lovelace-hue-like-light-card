@@ -351,6 +351,7 @@ export class HueDialog extends IdLitElement {
     public static override get styles() {
         return [
             HueDialog.haStyleDialog,
+            ViewUtils.SwitchStyles,
             css`
     /* hiding controls when light detail is open */
     .detail-hide {
@@ -394,8 +395,6 @@ export class HueDialog extends IdLitElement {
     }
     .hue-heading ha-switch {
         padding: 12px;
-        /* from HA 2026.5 - compensate for inner label margin */
-        margin-inline-end: -0.5em;
     }
     .hue-heading .brightness-slider {
         width: 100%;

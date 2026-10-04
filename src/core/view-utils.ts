@@ -1,4 +1,4 @@
-import { nothing } from 'lit';
+import { css, nothing } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { HueLikeLightCardConfig } from '../types/config';
@@ -13,6 +13,16 @@ import { SliderType } from '../types/types-config';
 import { HueMushroomSliderContainer } from '../controls/mushroom-slider-container';
 
 export class ViewUtils {
+
+    /**
+     * Styles for the switch created by createSwitch - compose them into the styles of every element that renders it.
+     */
+    public static readonly SwitchStyles = css`
+    ha-switch {
+        /* since HA 2026.5 - compensate for inner label margin */
+        margin-inline-end: -0.5em;
+    }
+    `;
 
     /**
      * Creates switch for given ILightContainer.

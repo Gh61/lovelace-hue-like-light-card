@@ -12,7 +12,6 @@ Legend: **P1** = do next, **P2** = should do.
 | # | Item | Priority | Type |
 |---|---|---|---|
 | 3 | [Deduplicate `tryLoad*Info` in config](#3-deduplicate-tryloadinfo-in-config) | P2 | `refactor` |
-| 4 | [Centralize the HA 2026.5 `ha-switch` margin hack](#4-centralize-the-ha-20265-ha-switch-margin-hack) | P2 | `refactor` |
 
 ### Fixes
 | # | Fix | Priority | Type |
@@ -29,17 +28,6 @@ Legend: **P1** = do next, **P2** = should do.
 Proposed: one generic private method parametrized by the differing parts (loader function, target fields, error message), keeping the public behavior and error messages identical. Covered by `tests/config-parse.test.ts` + browser check of cards configured with `area`, `floor`, `label`.
 
 Suggested commit: `refactor(config): unify area/floor/label loading`
-
-## 4. Centralize the HA 2026.5 `ha-switch` margin hack
-
-`ha-switch { margin-inline-end: -0.5em; }` is copied in 3 places:
-- [src/hue-like-light-card.ts:305](../src/hue-like-light-card.ts#L305)
-- [src/controls/dialog.ts:398](../src/controls/dialog.ts#L398)
-- [src/controls/dialog-light-tile.ts:115](../src/controls/dialog-light-tile.ts#L115)
-
-Proposed: a shared `css` fragment (e.g. in `ViewUtils` or `ThemeHelper`) with one comment explaining the HA version, composed into the three `styles`. Browser check: switch alignment on the card, in the dialog header and on light tiles.
-
-Suggested commit: `refactor: share ha-switch compatibility styles`
 
 ## Fixes
 

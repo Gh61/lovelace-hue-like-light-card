@@ -51,6 +51,7 @@ export class HueDialogLightTile extends HueDialogTile {
     public static override get styles() {
         return [
             HueDialogTile.hueDialogStyle,
+            ViewUtils.SwitchStyles,
             css`
     .hue-tile.light{
         height: ${HueDialogTile.height + HueDialogLightTile.switchHeight}px;
@@ -108,11 +109,6 @@ export class HueDialogLightTile extends HueDialogTile {
         border-top: 1px solid rgba(80, 80, 80, 0.1);
         box-sizing: content-box;
         margin: 0 -${HueDialogTile.padding}px;
-    }
-    .switch ha-switch
-    {
-        /* from HA 2026.5 - compensate for inner label margin */
-        margin-inline-end: -0.5em;
     }
 
     `];
