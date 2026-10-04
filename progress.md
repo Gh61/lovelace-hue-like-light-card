@@ -20,6 +20,30 @@ Inspired by PR #474 (Thomas Mutzl), rewritten from scratch - credit him in the f
   - Rollup: external value set no longer fires `immediate-value-change`; external value is ignored during interaction; wheel submit timeout id is reset after firing (was a bug).
 - Tests: `live-update-throttle.test.ts`, `brightness-rollup.test.ts`, `config-parse.test.ts`. Lint / rollup / test pass; guard agents + browser test passed on the testing dashboard.
 
+## Decisions made with the developer
+
+- Option name `liveUpdateInterval` (generic - covers slider, color picker and rollup, not only the slider).
+- All three controls get live updates in one change, one shared throttle class.
+- Groups / `allowZero`: never send 0 while sliding (chosen over "live updates only for single lights").
+- Hold the shown value ~1.5 s after release (`Consts.LiveUpdateHoldTime`, internal, not configurable).
+- On release the final value is sent **immediately** (commit cancels the pending trailing update, no waiting for the interval).
+- Commits without scope (`feat: ...`, not `feat(#474): ...`).
+- Throttle state is owned by the rendering element (card, dialog, light detail), not global state (the reason PR #474's `WeakMap` in `ViewUtils` was rejected).
+
+## Changed files
+
+`src/core/live-update-throttle.ts` (new), `src/core/view-utils.ts`, `src/hue-like-light-card.ts`, `src/controls/dialog.ts`, `src/controls/light-detail.ts`, `src/controls/brightness-rollup.ts`, `src/types/{config,types-config,consts}.ts`, `tests/{live-update-throttle,brightness-rollup,config-parse}.test.ts`, `README.md`, `docs/{coding-guidelines,development}.md`.
+
+## Testing tips
+
+- Ctrl+Shift+R does not refresh the dev-server script in HA - use `fetch('<devServerUrl>/hue-like-light-card.js', {cache:'reload'})` in the page, then reload. Check that cards have `_config.liveUpdateInterval`.
+- To see what is sent to HA: hook `hass.connection.sendMessagePromise` and log `call_service` messages with timestamps (also measure when each promise resolves - needed for next step 1).
+- The browser tool can't do a slow real drag - slow drags are simulated with pointer/mouse events; the developer has to verify real dragging by hand.
+
+## Open questions
+
+- Is "Pracovna" a single Hue light or a Hue group (room/zone, `grouped_light`)? Groups are limited to ~1 command/s by the bridge.
+
 ## Feedback from real testing (developer's home HA, single light "Pracovna")
 
 1. 300 ms is too fast (or something else goes wrong on top of it).
