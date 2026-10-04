@@ -9,25 +9,15 @@ Legend: **P1** = do next, **P2** = should do.
 
 ## Execution order
 
-| # | Item | Priority | Type |
-|---|---|---|---|
-| 3 | [Deduplicate `tryLoad*Info` in config](#3-deduplicate-tryloadinfo-in-config) | P2 | `refactor` |
-
 ### Fixes
 | # | Fix | Priority | Type |
 |---|---|---|---|
 | F1 | [Browser Back does not close the Hue dialog](#f1-browser-back-does-not-close-the-hue-dialog) | P1 | `fix` |
 | F2 | [Listener leak bugs](#f2-listener-leak-bugs) | P1 | `fix` |
+| F3 | [Floor card with `scenes` loads no lights](#f3-floor-card-with-scenes-loads-no-lights) | P1 | `fix` |
+
 ---
 
-
-## 3. Deduplicate `tryLoad*Info` in config
-
-[src/types/config.ts:428-568](../src/types/config.ts#L428-L568) - `tryLoadFloorInfo`, `tryLoadAreaInfo`, `tryLoadLabelInfo` are near-copies (load entities via `HassWsClient`, guard by a `_xxxLoaded` flag, map errors to a user-friendly `Error`).
-
-Proposed: one generic private method parametrized by the differing parts (loader function, target fields, error message), keeping the public behavior and error messages identical. Covered by `tests/config-parse.test.ts` + browser check of cards configured with `area`, `floor`, `label`.
-
-Suggested commit: `refactor(config): unify area/floor/label loading`
 
 ## Fixes
 
@@ -52,5 +42,15 @@ Suggested commit: `fix: close the Hue dialog on browser back in new HA`
 Verification: unit tests where possible (listener add/remove counts with jsdom spies), browser: open/close the Hue dialog repeatedly, scroll scenes/lights with wheel, switch color/temp modes, tap/hold the card - no duplicated actions, no console errors.
 
 Suggested commit: `fix: remove event listeners on teardown`
+
+### F3. Floor card with `scenes` loads no lights
+
+Repro: `floor: <existing floor>` + `scenes: [<any scene>]` (no `entity` / `entities`) → HA config error card `No entity specified.`, the card does not render.
+
+Cause: [src/types/config.ts:134](../src/types/config.ts#L134) - the constructor decides whether `init()` is needed with `this._scenes == null || this.area || this.label`; `this.floor` is missing (not added when `floor` was introduced). With configured scenes the config is marked initialized, `init()` never runs and the floor entities are never loaded.
+
+Proposed: add `this.floor` to the condition. Test in `tests/config-init.test.ts`: `floor` + `scenes` → `isInitialized` is `false` and after `init()` the floor lights are loaded while the configured scenes are kept. Browser check: temporary card with `floor` + `scenes` on the testing dashboard renders and lists the floor lights.
+
+Suggested commit: `fix(config): load floor lights when scenes are configured`
 
 ---

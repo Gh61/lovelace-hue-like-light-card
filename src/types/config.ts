@@ -10,12 +10,15 @@ import { ClickAction, ClickActionData, HueLikeLightCardEntityConfigInterface, Hu
 import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
 import { LightingData, PresetConfig } from './types-hue-preset';
 import { MaybeArray } from './types-helpers';
+import { Action2, Func2 } from './functions';
 
 declare type EntityRelations = {
     entityId: string;
     area: string | null;
     areaScenes: string[];
 };
+
+declare type LightGroupType = 'floor' | 'area' | 'label';
 
 export class HueLikeLightCardEntityConfig implements HueLikeLightCardEntityConfigInterface {
     protected _title?: string;
@@ -396,15 +399,30 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this._isInitialized = true;
 
         // load entities from floor if needed
-        await this.tryLoadFloorInfo(hass);
+        await this.tryLoadGroupInfo(hass, 'floor', this.floor,
+            (client, floor) => client.getLightEntitiesFromFloor(floor),
+            (info, client) => {
+                this._floorEntities = info.lights;
+                this.trySetGroupScenes(client, info);
+            });
 
         // load entities from area if needed
-        await this.tryLoadAreaInfo(hass);
+        await this.tryLoadGroupInfo(hass, 'area', this.area,
+            (client, area) => client.getLightEntitiesFromArea(area),
+            (info, client) => {
+                this._areaEntities = info.lights;
+                this.trySetGroupScenes(client, info);
+            });
 
         // load entities from label if needed
-        await this.tryLoadLabelInfo(hass);
+        await this.tryLoadGroupInfo(hass, 'label', this.label,
+            (client, label) => client.getLightEntitiesFromLabel(label),
+            info => {
+                this._labelEntities = info.lights;
+                this.trySetLabelIcon(info);
+            });
 
-        // load scenes and presets as needed:
+        // load scenes and presets as needed (scenes depend on already loaded entities):
         if (this.hasSceneProvider(SceneProvider.HaScenes)) {
             // fire&forget, no need to wait for these
             this.tryLoadScenes(hass);
@@ -417,153 +435,81 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         // end loading of scenes and presets
     }
 
-    // #region Floor
+    // #region Auto load entities
 
     private _floorEntities?: string[];
-    private _floorEntitiesLoaded = false;
-    /**
-     * Will try to load area light entities from HA WS.
-     * Will also set title and scenes, if possible.
-     */
-    private async tryLoadFloorInfo(hass: HomeAssistant) {
-        if (this._floorEntitiesLoaded || !this.floor || this._floorEntities != null)
-            return;
-
-        this._floorEntitiesLoaded = true;
-
-        const client = new HassWsClient(hass);
-        let floorLightsInfo: HassSearchLightsResult | null;
-
-        try {
-            floorLightsInfo = await client.getLightEntitiesFromFloor(this.floor);
-        }
-        catch (error) {
-            console.error('Cannot load light entities from HA.');
-            console.error(error);
-
-            // rethrow exception for UI
-            throw new Error(`Cannot load entities from floor '${this.floor}'. See console for more info.`);
-        }
-
-        if (floorLightsInfo == null) {
-            throw new Error(`Floor '${this.floor}' does not exist.`);
-        }
-
-        // check for at least one light entity
-        if (floorLightsInfo.lights.length === 0) {
-            throw new Error(`Floor '${this.floor}' has no light entities.`);
-        }
-
-        this._floorEntities = floorLightsInfo.lights;
-        // if no title is given, use floor name
-        if (this._title == null) {
-            this._title = floorLightsInfo.groupName;
-        }
-        // if no other entities are set, use scenes from area
-        if (this._scenes == null && this.getEntities().length === this._floorEntities.length) {
-            const loadedScenes = client.getScenesFromResult(floorLightsInfo.dataResult);
-            this.setLoadedScenes(loadedScenes);
-        }
-    }
-
-    // #endregion
-
-    // #region Area
-
     private _areaEntities?: string[];
-    private _areaEntitiesLoaded = false;
+    private _labelEntities?: string[];
+
     /**
-     * Will try to load area light entities from HA WS.
-     * Will also set title and scenes, if possible.
+     * Will try to load light entities of a floor, area or label from HA WS.
+     * Will also set title (if not configured) and let `onLoaded` store the entities and set the group specific parts.
+     * Called only from `init`, which runs once per config (guarded by `_isInitialized`).
+     * @param groupType - Type of the group (used in error messages).
+     * @param groupName - Name of the group from config; nothing is loaded when not set.
+     * @param load - Loads the group lights; returns null when the group does not exist.
+     * @param onLoaded - Called with the loaded group, after the validation.
+     * @throws Error with user-friendly message, when the group cannot be loaded, does not exist or has no lights.
      */
-    private async tryLoadAreaInfo(hass: HomeAssistant) {
-        if (this._areaEntitiesLoaded || !this.area || this._areaEntities != null)
+    private async tryLoadGroupInfo(
+        hass: HomeAssistant,
+        groupType: LightGroupType,
+        groupName: string | undefined,
+        load: Func2<HassWsClient, string, Promise<HassSearchLightsResult | null>>,
+        onLoaded: Action2<HassSearchLightsResult, HassWsClient>
+    ) {
+        if (!groupName)
             return;
 
-        this._areaEntitiesLoaded = true;
-
+        const groupTypeTitle = groupType.charAt(0).toUpperCase() + groupType.slice(1);
         const client = new HassWsClient(hass);
-        let areaLightsInfo: HassSearchLightsResult | null;
+        let lightsInfo: HassSearchLightsResult | null;
 
         try {
-            areaLightsInfo = await client.getLightEntitiesFromArea(this.area);
+            lightsInfo = await load(client, groupName);
         }
         catch (error) {
             console.error('Cannot load light entities from HA.');
             console.error(error);
 
             // rethrow exception for UI
-            throw new Error(`Cannot load entities from area '${this.area}'. See console for more info.`);
+            throw new Error(`Cannot load entities from ${groupType} '${groupName}'. See console for more info.`);
         }
 
-        if (areaLightsInfo == null) {
-            throw new Error(`Area '${this.area}' does not exist.`);
+        if (lightsInfo == null) {
+            throw new Error(`${groupTypeTitle} '${groupName}' does not exist.`);
         }
 
         // check for at least one light entity
-        if (areaLightsInfo.lights.length === 0) {
-            throw new Error(`Area '${this.area}' has no light entities.`);
+        if (lightsInfo.lights.length === 0) {
+            throw new Error(`${groupTypeTitle} '${groupName}' has no light entities.`);
         }
 
-        this._areaEntities = areaLightsInfo.lights;
-        // if no title is given, use area name
+        // if no title is given, use group name
         if (this._title == null) {
-            this._title = areaLightsInfo.groupName;
+            this._title = lightsInfo.groupName;
         }
-        // if no other entities are set, use scenes from area
-        if (this._scenes == null && this.getEntities().length === this._areaEntities.length) {
-            const loadedScenes = client.getScenesFromResult(areaLightsInfo.dataResult);
+
+        onLoaded(lightsInfo, client);
+    }
+
+    /**
+     * Will set scenes from the loaded group, if no scenes are configured and all entities of this config belong to the group.
+     * The group entities must already be stored (they are part of `getEntities`).
+     */
+    private trySetGroupScenes(client: HassWsClient, lightsInfo: HassSearchLightsResult) {
+        if (this._scenes == null && this.getEntities().length === lightsInfo.lights.length) {
+            const loadedScenes = client.getScenesFromResult(lightsInfo.dataResult);
             this.setLoadedScenes(loadedScenes);
         }
     }
 
-    // #endregion
-
-    // #region Label
-
-    private _labelEntities?: string[];
-    private _labelEntitiesLoaded = false;
     /**
-     * Will try to load label light entities from HA WS.
-     * Will also set title and scenes, if possible.
+     * Will set icon from the loaded label, if no icon is configured.
      */
-    private async tryLoadLabelInfo(hass: HomeAssistant) {
-        if (this._labelEntitiesLoaded || !this.label || this._labelEntities != null)
-            return;
-
-        this._labelEntitiesLoaded = true;
-
-        const client = new HassWsClient(hass);
-        let labelLightsInfo: HassSearchLightsResult | null;
-
-        try {
-            labelLightsInfo = await client.getLightEntitiesFromLabel(this.label);
-        }
-        catch (error) {
-            console.error('Cannot load light entities from HA.');
-            console.error(error);
-
-            // rethrow exception for UI
-            throw new Error(`Cannot load entities from label '${this.label}'. See console for more info.`);
-        }
-
-        if (labelLightsInfo == null) {
-            throw new Error(`Label '${this.label}' does not exist.`);
-        }
-
-        // check for at least one light entity
-        if (labelLightsInfo.lights.length === 0) {
-            throw new Error(`Label '${this.label}' has no light entities.`);
-        }
-
-        this._labelEntities = labelLightsInfo.lights;
-        // if no title is given, use label name
-        if (this._title == null) {
-            this._title = labelLightsInfo.groupName;
-        }
-        // if no icon is given, use label icon
-        if (this._icon == null && labelLightsInfo.labelInfo?.icon) {
-            this._icon = labelLightsInfo.labelInfo.icon;
+    private trySetLabelIcon(lightsInfo: HassSearchLightsResult) {
+        if (this._icon == null && lightsInfo.labelInfo?.icon) {
+            this._icon = lightsInfo.labelInfo.icon;
         }
     }
 
