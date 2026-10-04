@@ -2,11 +2,17 @@ import typescript from 'rollup-plugin-typescript2';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
 import serve from 'rollup-plugin-serve';
 
 const LCERROR = '\x1b[31m%s\x1b[0m'; //red
 
 var dev = true;
+
+// build-time constants of the Home Assistant frontend (its DefinePlugin), used by the copied HA source in src/ha
+const haDefines = {
+    __STATIC_PATH__: JSON.stringify('/static/')
+};
 
 const serverOptions = {
     contentBase: ['./dist'],
@@ -57,6 +63,7 @@ export default cli => {
             format: "es",
         },
         plugins: [
+            replace({ preventAssignment: true, values: haDefines }),
             json({compact:true}),
             typescript(),
             nodeResolve(),

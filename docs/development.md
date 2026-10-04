@@ -30,11 +30,13 @@ Node.js LTS is expected (CI uses the default of `actions/setup-node`).
 | Script | What it does |
 |---|---|
 | `npm start` | Rollup in watch mode + dev server serving `./dist` on `http://127.0.0.1:5500` (CORS enabled) |
-| `npm run lint` | ESLint over `src/**` and `tests/**` |
+| `npm run lint` | ESLint over the repository (`eslint .`; ignores in `eslint.config.mjs` - `src/ha/`, `scripts/`, configs) |
 | `npm run lintfix` | ESLint with `--fix` |
 | `npm run rollup` | Build into `./dist` (dev) |
 | `npm run build` | `lint` + `rollup` |
 | `npm test` | Jest test suite |
+| `npm run clean` | Removes `node_modules/.cache` (TypeScript build cache, ha-sync upstream cache) |
+| `npm run ha-sync -- <command>` | Syncs `src/ha/` with the Home Assistant frontend source (see [HA source sync](#ha-source-sync)) |
 
 CI (`validation.yml`) runs on every push/PR: `npm ci` → `lint` → `rollup` → `test` → HACS validation.
 **All of `lint`, `rollup` and `test` must pass before any change is considered done.**
@@ -113,7 +115,7 @@ src/
 
 ## HA source sync
 
-`src/ha/` contains source files copied from the [Home Assistant frontend](https://github.com/home-assistant/frontend) (types, `HomeAssistant` interface, `fireEvent`, `forwardHaptic`, `applyThemesOnElement`, the `actionHandler()` directive, `computeStateDisplay`, ...). They replace the outdated `custom-card-helpers` package and keep the card close to HA's own behavior.
+`src/ha/` contains source files copied from the [Home Assistant frontend](https://github.com/home-assistant/frontend) (types, `HomeAssistant` interface, `fireEvent`, `forwardHaptic`, `applyThemesOnElement`, the `actionHandler()` directive, `computeStateDisplay`, ...). Using HA's own code instead of third-party helper packages keeps the card close to HA's behavior and typing.
 
 The copies are managed by `npm run ha-sync` (`scripts/ha-sync.mjs`) and the manifest `src/ha/ha-sync.json` (upstream repository, synced commit, list of copied files - paths relative to the upstream `src/`, the local copy is `src/ha/<path>`).
 
@@ -133,6 +135,7 @@ Rules for `src/ha/`:
 - The vendor branch `ha-upstream` holds only pristine upstream files - never commit anything else to it and never merge the development branch into it. `npm run ha-sync -- check` on that branch must report no differences.
 - Local adaptations in the copies (commented-out imports of HA-only modules, removed unused parts, type fixes) are kept minimal and never reformat the file - every changed line is a potential merge conflict. New HA files are added by appending them to the manifest and running `update`.
 - `src/ha/` is excluded from ESLint (`eslint.config.mjs`) and keeps HA's formatting (2 spaces, double quotes).
+- HA build-time constants used by the copies (`__STATIC_PATH__`, ...) are defined in `rollup.config.mjs` (`haDefines`, via `@rollup/plugin-replace`) and in `jest.config.js` (`globals`); add new ones to both places.
 - The upstream repository is cached in `node_modules/.cache/ha-frontend` (`npm run clean` removes it).
 
 ## Commits
