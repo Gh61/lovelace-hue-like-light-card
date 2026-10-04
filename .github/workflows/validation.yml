@@ -1,6 +1,8 @@
 name: Validation
 on:
   push:
+    branches-ignore:
+      - ha-upstream # vendor branch with pristine HA frontend source, not buildable on its own
   pull_request:
 
 concurrency:

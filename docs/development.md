@@ -133,6 +133,7 @@ Workflow for updating to a newer HA version:
 Rules for `src/ha/`:
 
 - The vendor branch `ha-upstream` holds only pristine upstream files - never commit anything else to it and never merge the development branch into it. `npm run ha-sync -- check` on that branch must report no differences.
+- The rest of the repository on `ha-upstream` is whatever it inherited when the branch was created; the only non-HA change made there is the `branches-ignore` of `ha-upstream` in `.github/workflows/validation.yml` (CI cannot build the pristine copies alone). Keep that file identical on both branches.
 - Local adaptations in the copies (commented-out imports of HA-only modules, removed unused parts, type fixes) are kept minimal and never reformat the file - every changed line is a potential merge conflict. New HA files are added by appending them to the manifest and running `update`.
 - `src/ha/` is excluded from ESLint (`eslint.config.mjs`) and keeps HA's formatting (2 spaces, double quotes).
 - HA build-time constants used by the copies (`__STATIC_PATH__`, ...) are defined in `rollup.config.mjs` (`haDefines`, via `@rollup/plugin-replace`) and in `jest.config.js` (`globals`); add new ones to both places.
