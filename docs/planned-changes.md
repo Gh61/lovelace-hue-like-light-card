@@ -12,7 +12,7 @@ Legend: **P1** = do next, **P2** = should do.
 ### Fixes
 | # | Fix | Priority | Type |
 |---|---|---|---|
-| F2 | [Detached cards re-register their listeners](#f2-detached-cards-re-register-their-listeners) | P1 | `fix` |
+| F4 | [Card keeps listening to the replaced controller](#f4-card-keeps-listening-to-the-replaced-controller) | P1 | `fix` |
 | F3 | [Wheel tick lost at the row edge on fractional DPR](#f3-wheel-tick-lost-at-the-row-edge-on-fractional-dpr) | P2 | `fix` |
 
 ---
@@ -20,15 +20,15 @@ Legend: **P1** = do next, **P2** = should do.
 
 ## Fixes
 
-### F2. Detached cards re-register their listeners
+### F4. Card keeps listening to the replaced controller
 
-Repro (touch emulation): open and close a card's Hue dialog; HA recreates the view's cards, and the old, disconnected `HueLikeLightCard` instances still have `_ctrlListenerRegistered`, the hammer `Manager`, `PreventGhostClick` and touch listeners on `.tap-area`. The controller registration keeps them alive.
+Repro: call `setConfig()` again on a connected card (e.g. the card editor preview while editing YAML); the card stops reacting to light changes.
 
-Cause: [src/hue-like-light-card.ts:320-322](../src/hue-like-light-card.ts#L320-L322) - `updated()` calls `setupListeners()` unconditionally. A disconnected card that still receives `hass` updates re-registers everything after `disconnectedCallback()` has run `destroyListeners()`.
+Cause: [src/hue-like-light-card.ts](../src/hue-like-light-card.ts) - `useInitializedConfig()` replaces `_ctrl` with a new `AreaLightController`, but `_ctrlListenerRegistered` stays `true`. `setupListeners()` never registers on the new controller, and the old controller keeps the card's callback (and the card) alive.
 
-Proposed: register only while connected (`if (this.isConnected)` guard in `setupListeners()`); add a Jest test (setting `hass` on a disconnected card registers nothing). Browser check: after opening/closing the dialog, disconnected cards hold no listeners; tap/hold on the card still work after view changes.
+Proposed: before replacing `_ctrl`, unregister from the old controller and reset `_ctrlListenerRegistered` (then `updated()` registers on the new one); add a Jest test (after a second `setConfig()`, the new controller has the card's callback and the old one doesn't).
 
-Suggested commit: `fix: don't register card listeners while disconnected`
+Suggested commit: `fix: re-register card listener when the controller is replaced`
 
 ### F3. Wheel tick lost at the row edge on fractional DPR
 

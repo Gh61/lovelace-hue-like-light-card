@@ -491,6 +491,10 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     }
 
     private setupListeners() {
+        // a disconnected card can still receive hass updates (and run updated()) - don't re-register after teardown
+        if (!this.isConnected)
+            return;
+
         if (!this._ctrlListenerRegistered && this._ctrl) {
             this._ctrlListenerRegistered = true;
             this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler);
