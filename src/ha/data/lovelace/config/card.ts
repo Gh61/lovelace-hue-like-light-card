@@ -1,4 +1,4 @@
-import type { Condition } from "../../../panels/lovelace/common/validate-condition";
+// import type { Condition } from "../../../panels/lovelace/common/validate-condition";
 import type {
   LovelaceGridOptions,
   LovelaceLayoutOptions,
@@ -13,6 +13,6 @@ export interface LovelaceCardConfig {
   grid_options?: LovelaceGridOptions;
   type: string;
   [key: string]: any;
-  visibility?: Condition[];
+  visibility?: unknown[]; // Condition[] - validate-condition is not copied
   disabled?: boolean;
 }

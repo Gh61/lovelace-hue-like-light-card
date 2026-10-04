@@ -231,7 +231,7 @@ export class ViewUtils {
     /** Shortcut for native computeStateDisplay function */
     public static computeStateDisplay(entity: HassEntity, hass: HomeAssistant){
         if (hass.localize != null) {
-            return computeStateDisplay(hass.localize, entity, hass.locale, [], hass.config, hass.entities);
+            return computeStateDisplay(hass.localize, entity, hass.locale, hass.config, hass.entities);
         }
 
         return entity.state;
