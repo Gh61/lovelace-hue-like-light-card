@@ -11,53 +11,17 @@ Legend: **P1** = do next, **P2** = should do.
 
 | # | Item | Priority | Type |
 |---|---|---|---|
-| 1 | [ESLint tightening + style fix](#1-eslint-tightening--style-fix) | P1 | `style` / `chore` |
-| 2 | [Listener leak bugs (pilot `/task`)](#2-listener-leak-bugs-pilot-task) | P1 | `fix` |
 | 3 | [Deduplicate `tryLoad*Info` in config](#3-deduplicate-tryloadinfo-in-config) | P2 | `refactor` |
 | 4 | [Centralize the HA 2026.5 `ha-switch` margin hack](#4-centralize-the-ha-20265-ha-switch-margin-hack) | P2 | `refactor` |
 | 5 | [Move README images from `doc/` to `doc_img/`](#5-move-readme-images-from-doc-to-doc_img) | P2 | `doc` |
 
+### Fixes
+| # | Fix | Priority | Type |
+|---|---|---|---|
+| F1 | [Browser Back does not close the Hue dialog](#f1-browser-back-does-not-close-the-hue-dialog) | P1 | `fix` |
+| F2 | [Listener leak bugs](#f2-listener-leak-bugs) | P1 | `fix` |
 ---
 
-## 1. ESLint tightening + style fix
-
-**Why:** make rules from [coding-guidelines.md](coding-guidelines.md) machine-checked instead of review-only.
-**When:** after the AI docs (CLAUDE.md, docs/, agents, skills) are reviewed and committed.
-**How:** a single commit containing the `eslint.config.mjs` change **and** the resulting fixes of existing code (`npm run lintfix` + manual fixes).
-
-Proposed rules:
-
-| Rule | Setting | Guideline |
-|---|---|---|
-| `@typescript-eslint/consistent-type-assertions` | `{ assertionStyle: 'as' }` | §2 - `value as Type` (converts ~26 `<Type>value` casts) |
-| `eqeqeq` | `['error', 'smart']` | §2 - `===`, `== null` allowed |
-| `@/quotes` | `['error', 'single', { avoidEscape: true }]` | §2 - single quotes |
-| `@/semi` | `['error', 'always']` | §2 - semicolons |
-| `spaced-comment` | `['error', 'always', { markers: ['#region', '#endregion'] }]` | §2 - `//#region` style (verify it accepts `//#region` and rejects `// #region`, otherwise drop) |
-| `no-console` | `['warn', { allow: ['warn', 'error', 'info'] }]` *(to discuss)* | §5 - no stray `console.log` (Dev-guarded logs would need `console.info` or a disable comment) |
-
-Steps:
-1. Add the rules, run `npm run lint` and review the count of violations per rule.
-2. `npm run lintfix`, fix the rest manually - **no behavior changes**.
-3. `==` → `===` changes must be checked one by one (`==` between different types may be intentional).
-4. Update [coding-guidelines.md](coding-guidelines.md): mark the newly enforced rules with **[lint]**.
-5. `npm run lint && npm run rollup && npm test` + quick browser smoke test on the testing dashboard.
-
-Suggested commit: `style: tighten eslint rules and fix existing code`
-
-## 2. Listener leak bugs (pilot `/task`)
-
-First real run of the `/task` workflow - used to tune the guard agents.
-
-| File | Problem | Fix |
-|---|---|---|
-| [src/types/prevent-ghostclick.ts:41-44](../src/types/prevent-ghostclick.ts#L41-L44) | `destroy()` calls `addEventListener` instead of `removeEventListener` → listeners are added again on every reconnect | use `removeEventListener` with the same arguments (capture `true`) |
-| [src/controls/color-temp-mode-selector.ts:200-203](../src/controls/color-temp-mode-selector.ts#L200-L203) | `unregisterColorPickerEvent` calls `addEventListener` instead of `removeEventListener` | use `removeEventListener`; check that `onColorPickerModeChange` is a stable reference (arrow property / bound) |
-| [src/directives/horizontal-scroll.ts](../src/directives/horizontal-scroll.ts) | plain `Directive` - `_cleanup` is never called, wheel listener and `requestAnimationFrame` survive element removal | convert to `AsyncDirective`, call cleanup in `disconnected()`, re-attach in `reconnected()` |
-
-Verification: unit tests where possible (listener add/remove counts with jsdom spies), browser: open/close the Hue dialog repeatedly, scroll scenes/lights with wheel, switch color/temp modes, tap/hold the card - no duplicated actions, no console errors.
-
-Suggested commit: `fix: remove event listeners on teardown`
 
 ## 3. Deduplicate `tryLoad*Info` in config
 
@@ -93,3 +57,29 @@ Suggested commit: `refactor: share ha-switch compatibility styles`
 No code change - `/task` with "Skip browser test"; verification = README preview on GitHub after push.
 
 Suggested commit: `doc: move README images to doc_img`
+
+## Fixes
+
+### F1. Browser Back does not close the Hue dialog
+
+Found on HA 2026.9.4. Repro: open any card's Hue dialog → browser Back → the dialog stays open, history has already moved back, console: `TypeError: haDialog.close is not a function` (`HueDialog.close` ← `HueHistoryStep._onExit` ← `HueHistoryStateManager.resolvePopstate`).
+
+Cause: [src/controls/dialog.ts:254-268](../src/controls/dialog.ts#L254-L268) - `close()` calls `haDialog.close()`, but the current `ha-dialog` (built on `wa-dialog`) has no `close` method (only `open` / `_open` / `_handleHide`). The X button still works - it goes through ha-dialog's own `closed` event.
+
+Proposed: close via the `open` property (`haDialog.open = false`, as `showInternal()` opens it) and verify that `closed` is still fired so `onDialogClose()` runs exactly once; keep compatibility with older HA versions that still have `close()` (call it only when it exists), with an HA version comment. Browser check: Back closes the dialog (also from the light detail: first Back → list, second Back → closed), X button, reopen, no console errors.
+
+Suggested commit: `fix: close the Hue dialog on browser back in new HA`
+
+### F2. Listener leak bugs
+
+| File | Problem | Fix |
+|---|---|---|
+| [src/types/prevent-ghostclick.ts:41-44](../src/types/prevent-ghostclick.ts#L41-L44) | `destroy()` calls `addEventListener` instead of `removeEventListener` → listeners are added again on every reconnect | use `removeEventListener` with the same arguments (capture `true`) |
+| [src/controls/color-temp-mode-selector.ts:200-203](../src/controls/color-temp-mode-selector.ts#L200-L203) | `unregisterColorPickerEvent` calls `addEventListener` instead of `removeEventListener` | use `removeEventListener`; check that `onColorPickerModeChange` is a stable reference (arrow property / bound) |
+| [src/directives/horizontal-scroll.ts](../src/directives/horizontal-scroll.ts) | plain `Directive` - `_cleanup` is never called, wheel listener and `requestAnimationFrame` survive element removal | convert to `AsyncDirective`, call cleanup in `disconnected()`, re-attach in `reconnected()` |
+
+Verification: unit tests where possible (listener add/remove counts with jsdom spies), browser: open/close the Hue dialog repeatedly, scroll scenes/lights with wheel, switch color/temp modes, tap/hold the card - no duplicated actions, no console errors.
+
+Suggested commit: `fix: remove event listeners on teardown`
+
+---
