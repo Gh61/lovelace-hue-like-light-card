@@ -258,8 +258,14 @@ export class HueDialog extends IdLitElement {
         // try to find dialog
         const haDialog = this.getDialogElement();
         if (haDialog) {
-            // if dialog closed - will call onDialogClose event
-            haDialog.close();
+            // if dialog close exists - will call onDialogClose event
+            if (haDialog.close) {
+                haDialog.close();
+            }
+            else {
+                // since HA 2026.3 ha-dialog (wa-dialog based) has no close() method
+                haDialog.open = false;
+            }
         }
         else {
             // no haDialog found - use legacy way

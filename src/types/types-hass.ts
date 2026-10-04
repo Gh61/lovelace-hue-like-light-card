@@ -194,7 +194,8 @@ export interface HomeAssistantEx extends HomeAssistant {
 
 export interface HaDialog extends LitElement {
     open: boolean;
-    close(): void;
+    /** Only before HA 2026.3 (mwc-based ha-dialog). */
+    close?(): void;
     show(): void;
 }
 
