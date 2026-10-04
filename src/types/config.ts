@@ -117,6 +117,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.onHoldAction = HueLikeLightCardConfig.getClickAction(plainConfig.onHoldAction);
         this.onHoldData = new ClickActionData(plainConfig.onHoldData);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
+        this.liveUpdateInterval = HueLikeLightCardConfig.getLiveUpdateInterval(plainConfig.liveUpdateInterval);
         this.theme = plainConfig.theme || Consts.ThemeDefault;
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
         this.offColor = plainConfig.offColor || Consts.OffColor;
@@ -184,6 +185,19 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         plain = plain.toString().toLowerCase();
         const iconSize = HueLikeLightCardConfig.tryParseEnum<KnownIconSize>(KnownIconSize, plain, 'Icon size');
         return Consts.IconSize[iconSize];
+    }
+
+    /**
+     * @returns Live update interval in ms, default for empty or throws exception.
+     */
+    private static getLiveUpdateInterval(plain: number | undefined): number {
+        if (plain == null)
+            return Consts.LiveUpdateInterval;
+
+        if (typeof plain !== 'number' || !isFinite(plain) || plain < 0)
+            throw new Error(`Live update interval '${plain}' is not valid. Allowed values are: a number of milliseconds >= 0 (0 turns live updates off).`);
+
+        return plain;
     }
 
     /**
@@ -305,6 +319,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     public readonly onHoldAction: ClickAction;
     public readonly onHoldData: ClickActionData;
     public readonly allowZero: boolean;
+    public readonly liveUpdateInterval: number;
     public readonly theme: string;
     public readonly defaultColor: string;
     public readonly offColor: string;

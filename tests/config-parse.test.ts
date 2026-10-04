@@ -88,4 +88,52 @@ describe('Config parse', () => {
             new HueLikeLightCardConfig(cTyped);
         }).toThrow();
     });
+
+    // LiveUpdateInterval
+    it('parse default liveUpdateInterval', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test'
+        });
+
+        expect(config.liveUpdateInterval).toBe(Consts.LiveUpdateInterval);
+    });
+
+    it('parse liveUpdateInterval', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test',
+            liveUpdateInterval: 500
+        });
+
+        expect(config.liveUpdateInterval).toBe(500);
+    });
+
+    it('parse liveUpdateInterval zero', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test',
+            liveUpdateInterval: 0
+        });
+
+        expect(config.liveUpdateInterval).toBe(0);
+    });
+
+    it('parse liveUpdateInterval negative error', () => {
+        expect(() => {
+            new HueLikeLightCardConfig({
+                entity: 'light.test',
+                liveUpdateInterval: -1
+            });
+        }).toThrow();
+    });
+
+    it('parse liveUpdateInterval string error', () => {
+        const c = {
+            entity: 'light.test',
+            liveUpdateInterval: 'fast'
+        };
+        const cTyped = (c as unknown) as HueLikeLightCardConfigInterface;
+
+        expect(() => {
+            new HueLikeLightCardConfig(cTyped);
+        }).toThrow();
+    });
 });

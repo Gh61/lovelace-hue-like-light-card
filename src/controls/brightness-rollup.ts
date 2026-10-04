@@ -58,12 +58,21 @@ export class HueBrightnessRollup extends LitElement {
         return this._value;
     }
     public set value(newValue: number) {
+        // external value would move the base of dragging (live updates change the state during interaction)
+        if (this.isInteracting)
+            return;
+
         this.setValue(newValue, false); // external value set, no event fired
+    }
+
+    /** Whether the user is changing the value right now (dragging or using wheel). */
+    private get isInteracting(): boolean {
+        return (this._isMouseDown && this._hasMouseMoved) || this._wheelSubmitTimeoutId != null;
     }
 
     /**
      * Will set @param newValue as actual value to @property value.
-     * @param dispatchEvent When set, will dispatch 'change' event.
+     * @param dispatchEvent When set, will dispatch 'change' and 'immediate-value-change' events.
      */
     private setValue(newValue: number, dispatchEvent: boolean) {
         newValue = HueBrightnessRollup.cleanValue(newValue);
@@ -83,7 +92,7 @@ export class HueBrightnessRollup extends LitElement {
             }
 
             // change Immediate value
-            this.immediateValue = newValue;
+            this.setImmediateValue(newValue, dispatchEvent);
         }
     }
 
@@ -92,6 +101,14 @@ export class HueBrightnessRollup extends LitElement {
         return this._immediateValue;
     }
     private set immediateValue(newValue: number) {
+        this.setImmediateValue(newValue, true);
+    }
+
+    /**
+     * Will set @param newValue as actual value to @property immediateValue.
+     * @param dispatchEvent When set, will dispatch 'immediate-value-change' event.
+     */
+    private setImmediateValue(newValue: number, dispatchEvent: boolean) {
         newValue = HueBrightnessRollup.cleanValue(newValue);
 
         // if changed - change immediateValue
@@ -102,10 +119,12 @@ export class HueBrightnessRollup extends LitElement {
             this.requestUpdate(nameof(this, 'immediateValue'), oldValue);
 
             // fire event
-            const event = new CustomEvent<IRollupValueChangeEventDetail>('immediate-value-change', {
-                detail: { oldValue, newValue }
-            });
-            this.dispatchEvent(event);
+            if (dispatchEvent) {
+                const event = new CustomEvent<IRollupValueChangeEventDetail>('immediate-value-change', {
+                    detail: { oldValue, newValue }
+                });
+                this.dispatchEvent(event);
+            }
         }
     }
 
@@ -248,6 +267,7 @@ export class HueBrightnessRollup extends LitElement {
 
             // Debounce the submit of wheel change
             this._wheelSubmitTimeoutId = setTimeout(() => {
+                this._wheelSubmitTimeoutId = null;
                 this.applyImmediateValue();
             }, this._wheelDebounceInterval);
 

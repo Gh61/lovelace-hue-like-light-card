@@ -27,6 +27,8 @@ export class Consts {
     public static readonly DialogOffColor = '#363636';
     public static readonly GradientOffset = 7; // percent
     public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
+    public static readonly LiveUpdateInterval = 300; // ms
+    public static readonly LiveUpdateHoldTime = 1500; // ms
 
     // Theme colors
     public static readonly ThemeDefault = 'default';
