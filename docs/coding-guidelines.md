@@ -142,5 +142,5 @@ A new or changed YAML option touches, together:
 - Hard-code custom element tag names
 - Leave listeners / subscriptions without teardown
 - Add a dependency without a strong reason (the card ships as a single bundle)
-- Use non-testing Home Assistant dashboards or change HA configuration while testing
+- Use non-testing Home Assistant dashboards or change HA configuration while testing (the testing dashboard may be edited, but must always be restored to its original state)
 - Skip the browser test when the change can affect the UI (design or behavior) - the browser test exists exactly for such changes; it may be skipped only for changes that cannot touch the UI at all (docs, tests, build config)

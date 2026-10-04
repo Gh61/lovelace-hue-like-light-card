@@ -36,7 +36,7 @@ Allowed exceptions (state the reason when skipping `/task`):
 
 ## Hard rules
 
-- **Browser testing scope:** in Home Assistant, navigate **only** within the developer's testing dashboard and its views. Never open other dashboards, settings, entity/device configuration, or anything else - regardless of the URL given. The testing URL comes from the developer: stored in `.claude/testing-dashboard.local.json` (asked once, then reused and printed in every task plan) - never guess one.
+- **Browser testing scope:** in Home Assistant, navigate **only** within the developer's testing dashboard and its views. Never open other dashboards, settings, entity/device configuration, or anything else - regardless of the URL given. The testing dashboard itself may be edited (e.g. temporary test cards), but must always be restored exactly to its original state. The testing URL comes from the developer: stored in `.claude/testing-dashboard.local.json` (asked once, then reused and printed in every task plan) - never guess one.
 - Never change `Consts.Dev`, `var dev` in `rollup.config.mjs`, or version strings - the release workflow does that. Never add, remove or reorder keys above `version` in `package.json` / `package-lock.json` - the workflow replaces the version by line number.
 - Don't commit or push unless the developer asks. Commit format per [COMMIT.md](COMMIT.md).
 - New UI texts go into `src/localize/languages/en_us.json` only; translations into other languages only on request as the last step.
