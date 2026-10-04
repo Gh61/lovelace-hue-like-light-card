@@ -109,7 +109,7 @@ function ipV6Compare(a: string, b: string) {
   return ipv6a.localeCompare(ipv6b);
 }
 
-function normalizeIPv6(ip) {
+function normalizeIPv6(ip: string) {
   const parts = ip.split("::");
   const head = parts[0].split(":");
   const tail = parts[1] ? parts[1].split(":") : [];

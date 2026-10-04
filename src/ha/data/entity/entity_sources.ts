@@ -14,13 +14,13 @@ const fetchEntitySources = (
 export const fetchEntitySourcesWithCache = (
   hass: Pick<HomeAssistant, "callWS" | "states">
 ): Promise<EntitySources> =>
-  timeCachePromiseFunc(
+  timeCachePromiseFunc<EntitySources, Pick<HomeAssistant, "callWS" | "states">>(
     "_entitySources",
     // cache for 30 seconds
     30000,
     fetchEntitySources,
     // We base the cache on number of states. If number of states
     // changes we force a refresh
-    (hass2: Pick<HomeAssistant, "states">) => Object.keys(hass2.states).length,
+    (hass2) => Object.keys(hass2.states).length,
     hass
   );
