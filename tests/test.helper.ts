@@ -1,9 +1,9 @@
 import { HassLightAttributes, HassLightEntity } from '../src/types/types-hass';
 
 export function createLightEntity(state: 'on' | 'off', attributes:Record<string, unknown>) {
-    return <HassLightEntity>{
+    return {
         entity_id: 'light.test',
         state: state,
-        attributes: <HassLightAttributes>attributes
-    };
+        attributes: attributes as HassLightAttributes
+    } as HassLightEntity;
 }

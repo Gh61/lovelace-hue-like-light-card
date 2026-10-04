@@ -13,7 +13,7 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
     }
 
     protected raisePropertyChanged(...propertyNames: (keyof TThis)[]): void {
-        const onlyHass = propertyNames.length == 1 && propertyNames[0] == 'hass';
+        const onlyHass = propertyNames.length === 1 && propertyNames[0] === 'hass';
         this.log(`${this.constructor.name} changed [${propertyNames.join(', ')}] (onlyHass:${onlyHass})`);
 
         for (const callbackId in this._propertyChangedCallbacks) {
@@ -21,7 +21,7 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
 
             if (handler.includeHass || !onlyHass) {
                 this.log(`${this.constructor.name} changed [${propertyNames.join(', ')}] for ${callbackId}`);
-                handler.invoke(propertyNames, <TThis><unknown>this);
+                handler.invoke(propertyNames, this as unknown as TThis);
             }
         }
     }
@@ -51,7 +51,7 @@ export abstract class NotifyBase<TThis> implements INotifyGeneric<TThis> {
 
     private log(message: string) {
         if (Consts.Dev) {
-            console.log('[HueNotify] ' + message);
+            console.info('[HueNotify] ' + message);
         }
     }
 }

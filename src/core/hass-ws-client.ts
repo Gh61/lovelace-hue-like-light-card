@@ -47,7 +47,7 @@ export class HassWsClient {
             return null;
         }
 
-        const floorName = (<HomeAssistantEx>this._hass).floors[floorId]?.name || floor;
+        const floorName = (this._hass as HomeAssistantEx).floors[floorId]?.name || floor;
 
         if (floorResult.entity && floorResult.entity.length) {
             return {
@@ -84,7 +84,7 @@ export class HassWsClient {
             return null;
         }
 
-        const areaName = (<HomeAssistantEx>this._hass).areas[areaId]?.name || area;
+        const areaName = (this._hass as HomeAssistantEx).areas[areaId]?.name || area;
 
         if (areaResult.entity && areaResult.entity.length) {
             return {
@@ -115,7 +115,7 @@ export class HassWsClient {
         const labelList = await this._hass.connection.sendMessagePromise<HassLabelInfo[]>({
             type: 'config/label_registry/list'
         });
-        const labelInfo = labelList.find(li => li.label_id == labelId);
+        const labelInfo = labelList.find(li => li.label_id === labelId);
         if (!labelInfo) {
             // label not found
             return null;

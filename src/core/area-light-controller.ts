@@ -135,11 +135,11 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
     public set brightnessValue(value: number) {
         const litLights = this._lights.filter(l => l.isOn());
         // when only one light is on, set the value to that light
-        if (litLights.length == 1) {
+        if (litLights.length === 1) {
             litLights[0].brightnessValue = value;
             return;
         }
-        else if (litLights.length == 0) { // when no light is on, set value to all lights
+        else if (litLights.length === 0) { // when no light is on, set value to all lights
             this._lights.forEach(l => l.brightnessValue = value);
             return;
         }
@@ -154,7 +154,7 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
         this._lights.filter(l => l.isOn()).forEach(l => {
             const lightOldValue = l.brightnessValue;
             // of value of this light is the same asi value of controller, set it exactly to value
-            if (lightOldValue == oldValue) {
+            if (lightOldValue === oldValue) {
                 l.brightnessValue = value;
                 return;
             }
@@ -184,7 +184,7 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
                 total += e.brightnessValue;
             }
         });
-        if (count == 0)
+        if (count === 0)
             return 0;
 
         const value = total / count * 1.0;
@@ -192,7 +192,7 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
     }
 
     public getIcon(): string {
-        if (this._lights.length == 1) {
+        if (this._lights.length === 1) {
             return this._lights[0].getIcon() || IconHelper.getIcon(1);
         }
 
@@ -238,13 +238,13 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
             }
             result = '';
         }
-        else if (lit == 0) {
+        else if (lit === 0) {
             result = localize(this.hass, 'card.description.noLightsOn');
         }
-        else if (lit == total) {
+        else if (lit === total) {
             result = localize(this.hass, 'card.description.allLightsOn');
         }
-        else if (lit == 1) {
+        else if (lit === 1) {
             result = localize(this.hass, 'card.description.oneLightOn');
         }
         else {
@@ -256,7 +256,7 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
 
     public getBackground(): Background | null {
         const backgrounds = this._lights.filter(l => l.isOn()).map(l => l.getBackground() || this._defaultColor);
-        if (backgrounds.length == 0)
+        if (backgrounds.length === 0)
             return null;
         return new Background(backgrounds);
     }

@@ -14,7 +14,7 @@ class VariableTemplatePart implements IHassTextTemplate {
         const lastDot = templatePart.lastIndexOf('.');
 
         // if there are 2 different dots, take the string after last dot as attribute selector
-        if (firstDot != lastDot) {
+        if (firstDot !== lastDot) {
             this._textOrEntity = templatePart.substring(0, lastDot);
             this._attribute = templatePart.substring(lastDot + 1);
         }
@@ -35,7 +35,7 @@ class VariableTemplatePart implements IHassTextTemplate {
             }
 
             // from HA 2023.9 we can use new formatting functions
-            const newHass = <HomeAssistantEx>hass;
+            const newHass = hass as HomeAssistantEx;
 
             // try resolve attribute
             if (this._attribute && entity.attributes) {
@@ -102,7 +102,7 @@ export class HassTextTemplate implements IHassTextTemplate {
     public resolveToString(hass: HomeAssistant | null) {
 
         // for most cards will be no variable
-        if (this._templateParts.length == 1) {
+        if (this._templateParts.length === 1) {
             return this._templateParts[0].resolveToString(hass);
         }
 

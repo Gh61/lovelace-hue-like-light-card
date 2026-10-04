@@ -2,23 +2,23 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntities, HassEntity, HassEntityAttributeBase, MessageBase } from 'home-assistant-js-websocket';
 import { HassLightAttributes, HassLightColorMode, HassLightEntity } from '../src/types/types-hass';
 
-export const hassMockup = <HomeAssistant>{
-    states: <HassEntities>{
-        'sensor.my_status': <HassEntity>{
+export const hassMockup = {
+    states: {
+        'sensor.my_status': {
             state: 'OFF'
-        },
-        'sensor.other_sens': <HassEntity>{
+        } as HassEntity,
+        'sensor.other_sens': {
             state: 'On',
-            attributes: <HassEntityAttributeBase>{
+            attributes: {
                 friendly_name: 'My other sensor',
                 'last_state': 'Off',
                 'version': 1.023,
                 'empty': null
-            }
-        },
-        'light.test': <HassLightEntity>{
+            } as HassEntityAttributeBase
+        } as HassEntity,
+        'light.test': {
             state: 'on',
-            attributes: <HassLightAttributes>{
+            attributes: {
                 friendly_name: 'Test Light',
                 min_color_temp_kelvin: 2020,
                 max_color_temp_kelvin: 6451,
@@ -34,13 +34,13 @@ export const hassMockup = <HomeAssistant>{
                 dynamics: 'none',
                 icon: 'mdi:television-ambient-light',
                 supported_features: 40
-            }
-        }
-    },
+            } as HassLightAttributes
+        } as HassLightEntity
+    } as HassEntities,
     connection: {
         sendMessagePromise: (_: MessageBase) => {
             return Promise.resolve(null);
         }
     },
     language: 'cs'
-};
+} as HomeAssistant;

@@ -100,7 +100,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     public setConfig(plainConfig: HueLikeLightCardConfigInterface | LovelaceCardConfig) {
         this.catchErrors(() => {
             const oldConfig = this._config;
-            this._config = new HueLikeLightCardConfig(<HueLikeLightCardConfigInterface>plainConfig);
+            this._config = new HueLikeLightCardConfig(plainConfig as HueLikeLightCardConfigInterface);
 
             if (this._config.isInitialized) {
                 this.useInitializedConfig(oldConfig);
@@ -137,7 +137,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     }
 
     private useInitializedConfig(oldConfig: HueLikeLightCardConfig | undefined) {
-        if (this._config?.isInitialized != true)
+        if (this._config?.isInitialized !== true)
             throw new Error('Config is not initialized.');
 
         this._ctrl = new AreaLightController(this._config.getEntities().getIdList(), this._config.getDefaultColor(), this._config.groupEntity);
@@ -187,7 +187,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         if (!this.editMode)
             return null;
 
-        if (this.parentElement?.tagName.toLowerCase() == 'hui-card-preview') {
+        if (this.parentElement?.tagName.toLowerCase() === 'hui-card-preview') {
             return 'editor';
         }
 
@@ -359,7 +359,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             this._switchColorDetected = true;
         }
 
-        const card = <HTMLElement>this.renderRoot.querySelector('ha-card');
+        const card = this.renderRoot.querySelector('ha-card') as HTMLElement;
 
         // get defaultShadow (when not using hueBorders)
         if (!this._config.hueBorders && (this._haShadow == null || forceRefresh)) {
@@ -371,7 +371,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             this._haShadow = s.boxShadow;
             c.remove();
 
-            if (this._haShadow == 'none') {
+            if (this._haShadow === 'none') {
                 if (card == null) {
                     // wait for card element
                     this._haShadow = null;
@@ -514,7 +514,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         }
 
         // API
-        if (this._config?.apiId && !this._apiUnregister && this.getEditMode() != 'editor') {
+        if (this._config?.apiId && !this._apiUnregister && this.getEditMode() !== 'editor') {
             this._apiUnregister = HueApiProvider.registerCard(this._config.apiId, this);
         }
     }

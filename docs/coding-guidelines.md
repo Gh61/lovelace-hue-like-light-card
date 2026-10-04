@@ -17,13 +17,14 @@ Rules marked **[lint]** are enforced by ESLint/TypeScript; the rest are checked 
 
 - 4 spaces indentation, `SwitchCase: 1` **[lint]**
 - LF line endings **[lint]**; final newline (`.editorconfig` only, not linted)
-- Single quotes for strings
-- Semicolons at statement ends
+- Single quotes for strings (double quotes only to avoid escaping) **[lint]**
+- Semicolons at statement ends **[lint]**
 - No trailing commas **[lint]**
 - Stroustrup brace style - `else` / `catch` on a new line after `}` **[lint]**
 - Single-statement guard `if`s may omit braces (`if (!hass)\n    return;`); multi-line bodies use braces
-- `===` / `!==`; `== null` / `!= null` is allowed for "null or undefined" checks
-- Type assertions: prefer `value as Type` in new code (existing `<Type>value` code is not rewritten just for style)
+- `===` / `!==`; `== null` / `!= null` is allowed for "null or undefined" checks **[lint]**
+- Type assertions: `value as Type`, never `<Type>value` **[lint]**
+- Comments: `// text` (with a space) for regular comments; `//code()` (no space) only for commented-out code
 - Regions: `//#region Name` ... `//#endregion` to group larger classes
 - Run `npm run lintfix` before finishing
 
@@ -68,7 +69,7 @@ A new **static** `_field` must be added to the `no-underscore-dangle` allow-list
 - Invalid input → `throw new Error(...)` with a descriptive message that includes the bad value (and allowed values for enums - see `tryParseEnum` in `types/config.ts`)
 - The card renders errors through `ErrorInfo` / `catchErrors` - don't swallow errors from config parsing
 - Async loaders: `console.error` the original error, rethrow a user-friendly `Error`; non-critical loaders may only log
-- Debug logging only inside `if (Consts.Dev)` with a `[ClassName]` prefix; no stray `console.log`
+- Debug logging only via `console.info` inside `if (Consts.Dev)` with a `[ClassName]` prefix; `console.log` / `console.debug` are not allowed **[lint]**
 
 ## 6. Lit components
 
@@ -77,7 +78,7 @@ A new **static** `_field` must be added to the `no-underscore-dangle` allow-list
 - Subclassed elements extend the parent name (`HueDialogTile.ElementName + '-light'`)
 - Elements that subscribe to controllers extend `IdLitElement` and use `this._elementId` as the subscription id
 - Subscribe in `connectedCallback` / `updated`, **always** unsubscribe in `disconnectedCallback` (controllers are shared globally via `GlobalLights`)
-- Every `addEventListener` needs a matching `removeEventListener` in the teardown path; directives that hold resources must be `AsyncDirective` with `disconnected()` cleanup (the existing `horizontalScroll()` directive doesn't yet - see [planned-changes.md](planned-changes.md) #2)
+- Every `addEventListener` needs a matching `removeEventListener` in the teardown path; directives that hold resources must be `AsyncDirective` with `disconnected()` cleanup (the existing `horizontalScroll()` directive doesn't yet - see [planned-changes.md](planned-changes.md) F2)
 - Styles: `static override styles = css\`...\`` (or a getter composing base styles); values from `Consts` via `unsafeCSS(...)`; inline styles only for runtime values (`styleMap`, `style.setProperty`)
 - CSS custom properties: `--hue-*` prefix and always a fallback: `var(--hue-x, ${unsafeCSS(Consts.Y)})`
 - **Never name a method `updateStyles`** (HA calls it) - use `updateStylesInner`

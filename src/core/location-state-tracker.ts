@@ -27,6 +27,6 @@ export class LocationStateTracker {
         };
 
         if (Consts.Dev)
-            console.log('[LocationStateTracker] History overriden');
+            console.info('[LocationStateTracker] History overriden');
     }
 }

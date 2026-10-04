@@ -23,10 +23,10 @@ For every changed file, read enough surrounding code to judge it in context.
 3. **KISS / YAGNI** - unnecessary abstractions, options, generality, dead code, commented-out code.
 4. **OOP** - responsibilities in the right class/layer (`core/` logic vs `controls/` UI vs `types/` config), encapsulation (`_field` + accessors, `readonly`), interfaces used where they exist, static helpers via `ClassName.member`.
 5. **Naming** - guidelines §3 table (files, classes, `I` interfaces, `I...EventDetail`, `_private`, PascalCase static constants, kebab-case events, `--hue-*` CSS vars, camelCase YAML keys).
-6. **Formatting not covered by lint** - single quotes, `===` (except `== null`), `as Type` for new assertions, `//#region` style, Stroustrup braces.
+6. **Formatting not covered by lint** - comment style (`// text` with a space for regular comments, `//code()` only for commented-out code), `//#region` style, braces on single-statement guard `if`s.
 7. **Lit rules** - `ElementName` + `Consts.ElementPostfix`, `@customElement`, `unsafeStatic` for child tags (no hard-coded tags), static `css` + `unsafeCSS(Consts.X)`, CSS var fallbacks, no `updateStyles` method, `nameof` for property names, events with exported detail interfaces.
 8. **Comments & docs** - English, JSDoc on new public API, comments explain why; HA-version workarounds have the HA version in a comment.
-9. **Error handling** - descriptive `Error` messages with the bad value, debug logs only under `if (Consts.Dev)`, no stray `console.log`.
+9. **Error handling** - descriptive `Error` messages with the bad value, debug logs via `console.info` only under `if (Consts.Dev)` with a `[ClassName]` prefix.
 10. **Scope** - unrelated reformatting/refactoring mixed into the change.
 
 ## Report format

@@ -8,7 +8,7 @@ export class LightFeatures implements ILightFeatures {
         // no modes
         if (lightEntity.attributes == null ||
             lightEntity.attributes.supported_color_modes == null ||
-            lightEntity.attributes.supported_color_modes.length == 0) {
+            lightEntity.attributes.supported_color_modes.length === 0) {
             return;
         }
 

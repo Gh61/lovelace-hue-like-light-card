@@ -44,7 +44,7 @@ export class ClickActionData {
     private readonly _valueStore: Record<string, string>;
 
     public constructor(plainConfig: string | Record<string, string> | ClickActionData | undefined) {
-        if (typeof plainConfig == 'string') {
+        if (typeof plainConfig === 'string') {
             this._onlyValue = plainConfig;
         }
         else if (plainConfig instanceof ClickActionData) {
@@ -90,7 +90,7 @@ export class SceneConfig {
         const service = this.activation || defaultService;
         const splitted = service.split('.');
 
-        if (splitted.length != 2) {
+        if (splitted.length !== 2) {
             throw new Error(`Unrecognized service '${service}'. The service should have 2 parts separated by '.' (dot). E.g.: '${defaultService}'`);
         }
 
@@ -98,7 +98,7 @@ export class SceneConfig {
     }
 
     public getActivationData(): Record<string, unknown> {
-        const result = <Record<string, unknown>>{ entity_id: this.entity };
+        const result = { entity_id: this.entity } as Record<string, unknown>;
 
         if (this.activationData) {
             // insert data from config (it is possible to overwrite entity_id)
@@ -120,7 +120,7 @@ export class SceneData {
     private _pictureColor?: Color;
 
     public constructor(configOrEntityId: SceneConfig | string) {
-        if (typeof configOrEntityId == 'string') {
+        if (typeof configOrEntityId === 'string') {
             this._config = new SceneConfig(configOrEntityId);
         }
         else {
@@ -153,7 +153,7 @@ export class SceneData {
 
         // try to remove prefix of cardTitle from friendly name
         let friendlyName = this._entity.attributes.friendly_name;
-        if (cardTitle && friendlyName?.toLowerCase().indexOf(cardTitle.toLowerCase()) == 0) {
+        if (cardTitle && friendlyName?.toLowerCase().indexOf(cardTitle.toLowerCase()) === 0) {
             // remove the cardTitle prefix from this scene name
             friendlyName = friendlyName.substring(cardTitle.length).trimStart();
         }
@@ -177,7 +177,7 @@ export class SceneData {
         this.ensureHass();
 
         // if config has empty icon defined - return empty
-        if (this._config.icon != undefined)
+        if (this._config.icon != null)
             return this._config.icon;
 
         return this._entity.attributes.icon || defaultIcon;

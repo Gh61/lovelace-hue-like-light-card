@@ -68,7 +68,7 @@ export class HueBrightnessRollup extends LitElement {
     private setValue(newValue: number, dispatchEvent: boolean) {
         newValue = HueBrightnessRollup.cleanValue(newValue);
 
-        if (newValue != this._value) {
+        if (newValue !== this._value) {
             const oldValue = this._value;
             this._value = newValue;
             // notify change
@@ -95,7 +95,7 @@ export class HueBrightnessRollup extends LitElement {
         newValue = HueBrightnessRollup.cleanValue(newValue);
 
         // if changed - change immediateValue
-        if (newValue != this.immediateValue) {
+        if (newValue !== this.immediateValue) {
             const oldValue = this.immediateValue;
             this._immediateValue = newValue;
             // notify changed property
@@ -161,10 +161,10 @@ export class HueBrightnessRollup extends LitElement {
 
     private onBarMouseDown(ev: MouseEvent | TouchEvent, isTouch: boolean) {
         if (isTouch) {
-            this._clickPosition = new TouchPoint((<TouchEvent>ev).changedTouches[0]);
+            this._clickPosition = new TouchPoint((ev as TouchEvent).changedTouches[0]);
         }
         else {
-            this._clickPosition = new MousePoint((<MouseEvent>ev));
+            this._clickPosition = new MousePoint(ev as MouseEvent);
         }
 
         // register wheel document events
@@ -208,13 +208,13 @@ export class HueBrightnessRollup extends LitElement {
         if (this._isMouseDown) {
             let currentPos: Point;
             if (isTouch) {
-                currentPos = new TouchPoint((<TouchEvent>ev).changedTouches[0]);
+                currentPos = new TouchPoint((ev as TouchEvent).changedTouches[0]);
             }
             else {
-                currentPos = new MousePoint(<MouseEvent>ev);
+                currentPos = new MousePoint(ev as MouseEvent);
             }
 
-            let yDiff = currentPos.getYDiff(<Point>this._clickPosition);
+            let yDiff = currentPos.getYDiff(this._clickPosition as Point);
 
             // when moved by minimal of 5 pxs
             if (!this._hasMouseMoved && Math.abs(yDiff) > this._deadZone) {
@@ -225,7 +225,7 @@ export class HueBrightnessRollup extends LitElement {
                 // set new clickPoint after starting to move
                 this._clickPosition = currentPos;
                 // compute new diff
-                yDiff = currentPos.getYDiff(<Point>this._clickPosition);
+                yDiff = currentPos.getYDiff(this._clickPosition as Point);
             }
             if (this._hasMouseMoved && this._isOpened) {
                 // stop potential wheel close or set (and apply its value right now)
@@ -396,7 +396,7 @@ export class HueBrightnessRollup extends LitElement {
         }
 
         if (changedProps.has('iconSize')) {
-            const haIcon = <HaIcon>this.renderRoot?.querySelector('ha-icon');
+            const haIcon = this.renderRoot?.querySelector('ha-icon') as HaIcon;
             ViewUtils.setIconSize(haIcon, this.iconSize);
             this.style.setProperty(
                 '--rollup-icon-size',
@@ -445,9 +445,9 @@ export class HueBrightnessRollup extends LitElement {
     protected override firstUpdated(changedProps: PropertyValues<HueBrightnessRollup>) {
         super.firstUpdated(changedProps);
 
-        this._wrapperElement = <HTMLElement>this.renderRoot.querySelector('#wrapper');
+        this._wrapperElement = this.renderRoot.querySelector('#wrapper') as HTMLElement;
 
-        const barElement = <HTMLElement>this._wrapperElement.querySelector('#bar');
+        const barElement = this._wrapperElement.querySelector('#bar') as HTMLElement;
         this._dragHelper = new PointerDragHelper(
             barElement,
             (ev, t) => this.onBarMouseDown(ev, t),
@@ -456,7 +456,7 @@ export class HueBrightnessRollup extends LitElement {
         );
 
         // get value element
-        this._valueElement = <HTMLElement>barElement.querySelector('#value');
+        this._valueElement = barElement.querySelector('#value') as HTMLElement;
 
         // manually call update with isFirst flag
         this.updated(changedProps, true);

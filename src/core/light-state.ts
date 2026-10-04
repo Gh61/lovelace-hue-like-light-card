@@ -30,11 +30,11 @@ export class LightState {
     //#region Helper methods
 
     public isUnavailable(): boolean {
-        return !this._entity || this._entity.state == 'unavailable';
+        return !this._entity || this._entity.state === 'unavailable';
     }
 
     public isOn(): boolean {
-        return this.state == 'on';
+        return this.state === 'on';
     }
 
     public isColorModeColor() {
@@ -50,7 +50,7 @@ export class LightState {
     }
 
     public isColorModeTemp(): boolean {
-        return this.colorMode == HassLightColorMode.color_temp;
+        return this.colorMode === HassLightColorMode.color_temp;
     }
 
     //#endregion
@@ -75,7 +75,7 @@ export class LightState {
 
         const attr = this._entity.attributes;
         const brightness = attr?.brightness ?? 255;
-        if (brightness == 0)
+        if (brightness === 0)
             return 0;
 
         this._lastOnBrightnessValue = Math.round((brightness / 255.0) * 100); // brightness is 0-255
@@ -107,7 +107,7 @@ export class LightState {
                 // - color_temp is set only for a while, then the mode is switched back to xy (0,0) and temperature is not known
 
                 // So, when we have last saved colortemp, and mode is xy = 00, then return color_temp
-                if (this._lastColorTemp && result == HassLightColorMode.xy && this._entity.attributes.xy_color) {
+                if (this._lastColorTemp && result === HassLightColorMode.xy && this._entity.attributes.xy_color) {
                     const [x, y] = this._entity.attributes.xy_color;
                     if (x === 0 && y === 0) {
                         result = HassLightColorMode.color_temp;
@@ -119,7 +119,7 @@ export class LightState {
         return result;
     }
     public set colorMode(newColorMode: HassLightColorMode) {
-        if (newColorMode == HassLightColorMode.unknown)
+        if (newColorMode === HassLightColorMode.unknown)
             return;
 
         const attr = this._entity.attributes ?? {};
@@ -170,10 +170,10 @@ export class LightState {
             attr.hs_color = undefined;
             attr.rgb_color = undefined;
         }
-        else if (newColor.getOriginalMode() == 'hsv') {
+        else if (newColor.getOriginalMode() === 'hsv') {
             attr.hs_color = [newColor.getHue(), newColor.getSaturation() * 100];
         }
-        else if (newColor.getOriginalMode() == 'rgb') {
+        else if (newColor.getOriginalMode() === 'rgb') {
             attr.rgb_color = [newColor.getRed(), newColor.getGreen(), newColor.getBlue()];
         }
         else {

@@ -22,8 +22,8 @@ export class HueLikeLightCardEntityConfig implements HueLikeLightCardEntityConfi
     protected _icon?: string;
 
     public constructor(plainConfigOrEntityId: HueLikeLightCardEntityConfigInterface | string) {
-        if (typeof plainConfigOrEntityId == "string"){
-            this.entity = plainConfigOrEntityId
+        if (typeof plainConfigOrEntityId === 'string'){
+            this.entity = plainConfigOrEntityId;
         }
         else {
             this.entity = plainConfigOrEntityId.entity!;
@@ -174,7 +174,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         if (!plain)
             return Consts.IconSize[KnownIconSize.Original];
 
-        if (typeof plain == 'number') {
+        if (typeof plain === 'number') {
             return plain;
         }
 
@@ -202,7 +202,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         }
 
         const result: SceneProvider[] = [];
-        if (typeof plain === "string"){
+        if (typeof plain === 'string'){
             plain = [plain];
         }
 
@@ -222,7 +222,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         let helpValues = '';
         for (const value in enumType) {
             const enumValue = (enumType)[value];
-            if (plain == enumValue)
+            if (plain === enumValue)
                 return plain as T;
 
             helpValues += `'${enumValue}', `;
@@ -260,7 +260,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
      * @param index Index of value in array (for error message purposes)
      */
     private static getScene(plain: string | SceneConfig, index: number): SceneConfig {
-        if (typeof plain == 'string') {
+        if (typeof plain === 'string') {
             return new SceneConfig(plain);
         }
 
@@ -450,7 +450,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         }
 
         // check for at least one light entity
-        if (floorLightsInfo.lights.length == 0) {
+        if (floorLightsInfo.lights.length === 0) {
             throw new Error(`Floor '${this.floor}' has no light entities.`);
         }
 
@@ -460,7 +460,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             this._title = floorLightsInfo.groupName;
         }
         // if no other entities are set, use scenes from area
-        if (this._scenes == null && this.getEntities().length == this._floorEntities.length) {
+        if (this._scenes == null && this.getEntities().length === this._floorEntities.length) {
             const loadedScenes = client.getScenesFromResult(floorLightsInfo.dataResult);
             this.setLoadedScenes(loadedScenes);
         }
@@ -501,7 +501,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         }
 
         // check for at least one light entity
-        if (areaLightsInfo.lights.length == 0) {
+        if (areaLightsInfo.lights.length === 0) {
             throw new Error(`Area '${this.area}' has no light entities.`);
         }
 
@@ -511,7 +511,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             this._title = areaLightsInfo.groupName;
         }
         // if no other entities are set, use scenes from area
-        if (this._scenes == null && this.getEntities().length == this._areaEntities.length) {
+        if (this._scenes == null && this.getEntities().length === this._areaEntities.length) {
             const loadedScenes = client.getScenesFromResult(areaLightsInfo.dataResult);
             this.setLoadedScenes(loadedScenes);
         }
@@ -552,7 +552,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         }
 
         // check for at least one light entity
-        if (labelLightsInfo.lights.length == 0) {
+        if (labelLightsInfo.lights.length === 0) {
             throw new Error(`Label '${this.label}' has no light entities.`);
         }
 

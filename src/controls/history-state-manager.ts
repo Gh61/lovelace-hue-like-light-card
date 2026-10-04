@@ -13,7 +13,7 @@ interface HueWindowHistoryState extends WindowHistoryState {
 
 const logMessage = (message: string) => {
     if (Consts.Dev) {
-        console.log('[HueHistory] ' + message);
+        console.info('[HueHistory] ' + message);
     }
 };
 
@@ -112,7 +112,7 @@ class HistoryStack {
             logMessage('[x]');
         }
         for (let i = 0; i < this._stack.length; i++) {
-            const m = (i == this._pointer ? '[x] ' : '[ ] ') + this._stack[i].id;
+            const m = (i === this._pointer ? '[x] ' : '[ ] ') + this._stack[i].id;
             logMessage(m);
         }
     }
@@ -154,7 +154,7 @@ class HistoryStack {
         // check if replace is possible
         if (item.type && this._pointer >= 0) {
             const oldItem = this._stack[this._pointer];
-            if (oldItem.type == item.type) {
+            if (oldItem.type === item.type) {
                 this._stack[this._pointer] = item;
                 this.logState('Replaced ' + oldItem.id + ' with ' + item.id);
                 return {
@@ -178,7 +178,7 @@ class HistoryStack {
         // we will play a little game here with HA
         if (result.found) {
             // dialog was closed - we are going one step back
-            if (state.open == false && this._pointer > 0) {
+            if (state.open === false && this._pointer > 0) {
                 this._pointer--;
 
                 // AND we merge our state with the dialog close state - so we can use BOTH
@@ -203,7 +203,7 @@ class HistoryStack {
         // first try to find in history
         for (let i = this._pointer; i >= 0; i--) {
             const item = this._stack[i];
-            if (item.id == id) {
+            if (item.id === id) {
                 // we found the item - set pointer and break cycle
                 this._pointer = i;
                 found = true;
@@ -230,7 +230,7 @@ class HistoryStack {
         // try to find in future
         for (let i = this._pointer + 1; i < this._stack.length; i++) {
             const item = this._stack[i];
-            if (item.id == id) {
+            if (item.id === id) {
                 // we found the item - set pointer and break cycle
                 this._pointer = i;
                 found = true;
@@ -263,7 +263,7 @@ class HistoryStack {
     public stepsBackBefore(id: string): number | null {
         for (let i = this._pointer; i >= 0; i--) {
             const item = this._stack[i];
-            if (item.id == id) {
+            if (item.id === id) {
                 const result = this._pointer - i + 1; // +1 => we want to go one step before this item;
                 this.logState(result + ' steps back needed to go before ' + id);
                 return result;
@@ -273,7 +273,7 @@ class HistoryStack {
     }
 
     public isEmpty() {
-        return this._stack.length == 0;
+        return this._stack.length === 0;
     }
 }
 
@@ -300,9 +300,9 @@ export class HueHistoryStateManager {
     }
 
     private resolvePopstate(ev: PopStateEvent) {
-        const state = <HueWindowHistoryState>ev.state;
+        const state = ev.state as HueWindowHistoryState;
         let moveResult: HistoryStackMoveResult;
-        if (state?.isHue == true) {
+        if (state?.isHue === true) {
             // ensure that the current history state is the same as in event (another listener might have changed this)
             window.history.replaceState(state, '');
 
@@ -340,7 +340,7 @@ export class HueHistoryStateManager {
 
         // we are on our own, no need to add anything
         const currentState = history.state;
-        if ((currentState as HueWindowHistoryState)?.isHue == true)
+        if ((currentState as HueWindowHistoryState)?.isHue === true)
             return;
 
         /*

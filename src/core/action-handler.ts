@@ -31,7 +31,7 @@ export class ActionHandler {
         const actionData = isOn ? this._config.onClickData : this._config.offClickData;
 
         // resolve the default action
-        if (action == ClickAction.Default) {
+        if (action === ClickAction.Default) {
             action = ClickAction.HueScreen;
         }
 
@@ -45,7 +45,7 @@ export class ActionHandler {
         const actionData = isOn ? this._config.onHoldData : this._config.offHoldData;
 
         // resolve the default action
-        if (action == ClickAction.Default) {
+        if (action === ClickAction.Default) {
             action = ClickAction.MoreInfo;
         }
 

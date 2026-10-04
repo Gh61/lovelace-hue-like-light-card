@@ -181,12 +181,12 @@ export class HueDialogLightTile extends HueDialogTile {
         this.updateStylesInner();
 
         if (changedProps.has('isSelected')) {
-            const selector = <Element>this.renderRoot.querySelector('.selector');
+            const selector = this.renderRoot.querySelector('.selector') as Element;
             selector.classList.toggle('active', !!this.isSelected);
         }
 
         if (changedProps.has('isUnselected')) {
-            const tile = <Element>this.renderRoot.querySelector('.hue-tile');
+            const tile = this.renderRoot.querySelector('.hue-tile') as Element;
             tile.classList.toggle('unselected', !!this.isUnselected);
         }
     }
@@ -230,7 +230,7 @@ export class HueDialogLightTile extends HueDialogTile {
 
         const icon = this.entityConfig?.icon ?? this.lightContainer.getIcon() ?? IconHelper.getIcon(1);
 
-        /*eslint-disable */
+        /* eslint-disable @/indent */
         return html`
         <div class='selector'>
             <div class='hue-tile light' title='${title}'>
@@ -248,7 +248,7 @@ export class HueDialogLightTile extends HueDialogTile {
             </div>
         </div>
         `;
-        /*eslint-enable */
+        /* eslint-enable @/indent */
     }
 
     public override connectedCallback(): void {

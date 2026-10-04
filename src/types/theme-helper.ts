@@ -59,11 +59,11 @@ export class ThemeHelper {
      * @returns If the theme was applied (only when the theme changes).
      */
     public static applyTheme(element: HTMLElement, themes: Themes, theme: string): boolean {
-        if (element.dataset.themeLocal == theme)
+        if (element.dataset.themeLocal === theme)
             return false;
 
         applyThemesOnElement(element, themes, theme);
-        if (theme != Consts.ThemeDefault) {
+        if (theme !== Consts.ThemeDefault) {
             element.dataset.themeLocal = theme;
         }
         else {
@@ -122,7 +122,7 @@ export class ThemeHelper {
                 let index = 0;
                 while (element.style[index]) {
                     const s = element.style[index];
-                    if (s == possibleVar) {
+                    if (s === possibleVar) {
                         exists = true;
                         break;
                     }
