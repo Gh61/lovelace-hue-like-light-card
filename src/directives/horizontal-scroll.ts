@@ -49,11 +49,8 @@ class HorizontalScrollDirective extends AsyncDirective {
         const scroller = new SmoothHorizontalScroller(el);
 
         const onWheel = (e: WheelEvent) => {
-            // Horizontal wheel events (e.g. a trackpad swipe) are left to the browser
-            // to scroll natively. But an easing animation started by an earlier,
-            // vertical wheel event may still be in flight, and it will keep driving
-            // scrollLeft towards a now-stale target - fighting the native scroll and
-            // making the row spring back. Abort it and re-sync before bailing out.
+            // Horizontal events (e.g. trackpad swipe) scroll natively;
+            // stop a running animation, otherwise it fights the native scroll
             if (Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
                 scroller.cancel();
                 return;
