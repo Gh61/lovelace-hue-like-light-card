@@ -13,7 +13,6 @@ Legend: **P1** = do next, **P2** = should do.
 | # | Fix | Priority | Type |
 |---|---|---|---|
 | F1 | [Browser Back does not close the Hue dialog](#f1-browser-back-does-not-close-the-hue-dialog) | P1 | `fix` |
-| F2 | [Listener leak bugs](#f2-listener-leak-bugs) | P1 | `fix` |
 
 ---
 
@@ -29,17 +28,5 @@ Cause: [src/controls/dialog.ts:254-268](../src/controls/dialog.ts#L254-L268) - `
 Proposed: close via the `open` property (`haDialog.open = false`, as `showInternal()` opens it) and verify that `closed` is still fired so `onDialogClose()` runs exactly once; keep compatibility with older HA versions that still have `close()` (call it only when it exists), with an HA version comment. Browser check: Back closes the dialog (also from the light detail: first Back → list, second Back → closed), X button, reopen, no console errors.
 
 Suggested commit: `fix: close the Hue dialog on browser back in new HA`
-
-### F2. Listener leak bugs
-
-| File | Problem | Fix |
-|---|---|---|
-| [src/types/prevent-ghostclick.ts:41-44](../src/types/prevent-ghostclick.ts#L41-L44) | `destroy()` calls `addEventListener` instead of `removeEventListener` → listeners are added again on every reconnect | use `removeEventListener` with the same arguments (capture `true`) |
-| [src/controls/color-temp-mode-selector.ts:200-203](../src/controls/color-temp-mode-selector.ts#L200-L203) | `unregisterColorPickerEvent` calls `addEventListener` instead of `removeEventListener` | use `removeEventListener`; check that `onColorPickerModeChange` is a stable reference (arrow property / bound) |
-| [src/directives/horizontal-scroll.ts](../src/directives/horizontal-scroll.ts) | plain `Directive` - `_cleanup` is never called, wheel listener and `requestAnimationFrame` survive element removal | convert to `AsyncDirective`, call cleanup in `disconnected()`, re-attach in `reconnected()` |
-
-Verification: unit tests where possible (listener add/remove counts with jsdom spies), browser: open/close the Hue dialog repeatedly, scroll scenes/lights with wheel, switch color/temp modes, tap/hold the card - no duplicated actions, no console errors.
-
-Suggested commit: `fix: remove event listeners on teardown`
 
 ---

@@ -78,7 +78,7 @@ A new **static** `_field` must be added to the `no-underscore-dangle` allow-list
 - Subclassed elements extend the parent name (`HueDialogTile.ElementName + '-light'`)
 - Elements that subscribe to controllers extend `IdLitElement` and use `this._elementId` as the subscription id
 - Subscribe in `connectedCallback` / `updated`, **always** unsubscribe in `disconnectedCallback` (controllers are shared globally via `GlobalLights`)
-- Every `addEventListener` needs a matching `removeEventListener` in the teardown path; directives that hold resources must be `AsyncDirective` with `disconnected()` cleanup (the existing `horizontalScroll()` directive doesn't yet - see [planned-changes.md](planned-changes.md) F2)
+- Every `addEventListener` needs a matching `removeEventListener` in the teardown path; directives that hold resources must be `AsyncDirective` with `disconnected()` cleanup (see `horizontalScroll()`)
 - Styles: `static override styles = css\`...\`` (or a getter composing base styles); values from `Consts` via `unsafeCSS(...)`; inline styles only for runtime values (`styleMap`, `style.setProperty`)
 - CSS custom properties: `--hue-*` prefix and always a fallback: `var(--hue-x, ${unsafeCSS(Consts.Y)})`
 - **Never name a method `updateStyles`** (HA calls it) - use `updateStylesInner`

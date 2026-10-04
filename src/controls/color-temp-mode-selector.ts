@@ -199,7 +199,7 @@ export class HueColorTempModeSelector extends LitElement {
 
     private unregisterColorPickerEvent(picker?: HueColorTempPicker | null) {
         if (picker) {
-            picker.addEventListener('mode-change', this.onColorPickerModeChange);
+            picker.removeEventListener('mode-change', this.onColorPickerModeChange);
         }
     }
 

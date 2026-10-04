@@ -39,8 +39,8 @@ export class PreventGhostClick {
      * removes listeners for touch events
      */
     public destroy() {
-        this._el.addEventListener('touchstart', PreventGhostClick.resetCoordinates, true);
-        this._el.addEventListener('touchend', PreventGhostClick.registerCoordinates, true);
+        this._el.removeEventListener('touchstart', PreventGhostClick.resetCoordinates, true);
+        this._el.removeEventListener('touchend', PreventGhostClick.registerCoordinates, true);
     }
 
     /**
