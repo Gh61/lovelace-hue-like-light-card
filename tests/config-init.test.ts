@@ -157,6 +157,21 @@ describe('Config init', () => {
         expect(config.scenes.map(s => s.entity)).toStrictEqual(['scene.mine']);
     });
 
+    it.each([
+        [['scene.mine'], ['scene.mine']],
+        [[], []]
+    ])('should load floor lights when scenes %p are configured', async (scenes, expectedScenes) => {
+        const { hass } = createHass();
+        const config = new HueLikeLightCardConfig({ sceneProvider: [], floor: 'Ground Floor', scenes });
+
+        expect(config.isInitialized).toBe(false);
+
+        await config.init(hass);
+
+        expect(config.getEntities().getIdList()).toStrictEqual(['light.floor_1', 'light.floor_2']);
+        expect(config.scenes.map(s => s.entity)).toStrictEqual(expectedScenes);
+    });
+
     it('should combine floor, area and label in this order with title from floor', async () => {
         const { config } = await initConfig({ label: 'Party', area: 'Living Room', floor: 'Ground Floor' });
 

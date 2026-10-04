@@ -131,7 +131,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.card_mod = plainConfig.card_mod;
 
         // need some init?
-        if (this._scenes == null || this.area || this.label) {
+        if (this._scenes == null || this.floor || this.area || this.label) {
             this._isInitialized = false;
         }
         else {
