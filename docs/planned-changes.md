@@ -13,7 +13,6 @@ Legend: **P1** = do next, **P2** = should do.
 | # | Fix | Priority | Type |
 |---|---|---|---|
 | F4 | [Card keeps listening to the replaced controller](#f4-card-keeps-listening-to-the-replaced-controller) | P1 | `fix` |
-| F3 | [Wheel tick lost at the row edge on fractional DPR](#f3-wheel-tick-lost-at-the-row-edge-on-fractional-dpr) | P2 | `fix` |
 
 ---
 
@@ -29,13 +28,5 @@ Cause: [src/hue-like-light-card.ts](../src/hue-like-light-card.ts) - `useInitial
 Proposed: before replacing `_ctrl`, unregister from the old controller and reset `_ctrlListenerRegistered` (then `updated()` registers on the new one); add a Jest test (after a second `setConfig()`, the new controller has the card's callback and the old one doesn't).
 
 Suggested commit: `fix: re-register card listener when the controller is replaced`
-
-### F3. Wheel tick lost at the row edge on fractional DPR
-
-Repro (DPR 1.5, narrow view): wheel a Hue dialog row to its end - `scrollLeft` settles at e.g. 96.67 with a max of 97, so `atEnd` in [src/directives/horizontal-scroll.ts](../src/directives/horizontal-scroll.ts) (`onWheel`) is false; the event is prevented, nothing scrolls, and one wheel tick is lost before the page scrolls.
-
-Proposed: compare with a 1px tolerance (`scrollLeft <= 1` for the start, `scrollLeft >= maxScrollLeft - 1` for the end); extend `tests/horizontal-scroll.test.ts`.
-
-Suggested commit: `fix: tolerate subpixel scroll position at the row edge`
 
 ---

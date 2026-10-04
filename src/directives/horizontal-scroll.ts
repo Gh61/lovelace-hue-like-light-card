@@ -60,8 +60,10 @@ class HorizontalScrollDirective extends AsyncDirective {
             // Nothing to scroll if content fits
             if (maxScrollLeft <= 0) return;
 
-            const atStart = el.scrollLeft <= 0 && e.deltaY < 0;
-            const atEnd = el.scrollLeft >= maxScrollLeft && e.deltaY > 0;
+            // 1px tolerance - on fractional DPR the browser snaps scrollLeft to device pixels,
+            // so the edge may never be reached exactly (e.g. 96.67 of 97)
+            const atStart = el.scrollLeft <= 1 && e.deltaY < 0;
+            const atEnd = el.scrollLeft >= maxScrollLeft - 1 && e.deltaY > 0;
 
             // Only prevent default when we can actually scroll,
             // so the page scrolls normally when we hit the edges

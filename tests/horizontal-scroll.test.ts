@@ -97,6 +97,46 @@ describe('horizontalScroll', () => {
         expect(requestSpy).toHaveBeenCalledTimes(1);
     });
 
+    describe('edges', () => {
+        const wheel = (el: HTMLElement, scrollLeft: number, deltaY: number) => {
+            Object.defineProperty(el, 'scrollLeft', { value: scrollLeft, configurable: true });
+            const event = new WheelEvent('wheel', { deltaY, cancelable: true });
+            el.dispatchEvent(event);
+            return event;
+        };
+
+        beforeEach(() => {
+            jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);
+        });
+
+        it('should let the page scroll at the end, also with a subpixel scroll position', () => {
+            const { el } = renderScrollable(document.createElement('div'));
+
+            expect(wheel(el, 900, 100).defaultPrevented).toBe(false);
+            // fractional DPR - scrollLeft snapped below the max of 900
+            expect(wheel(el, 899.33, 100).defaultPrevented).toBe(false);
+            expect(wheel(el, 899, 100).defaultPrevented).toBe(false);
+        });
+
+        it('should let the page scroll at the start, also with a subpixel scroll position', () => {
+            const { el } = renderScrollable(document.createElement('div'));
+
+            expect(wheel(el, 0, -100).defaultPrevented).toBe(false);
+            expect(wheel(el, 0.67, -100).defaultPrevented).toBe(false);
+            expect(wheel(el, 1, -100).defaultPrevented).toBe(false);
+        });
+
+        it('should prevent the page scroll when the row can still scroll', () => {
+            const { el } = renderScrollable(document.createElement('div'));
+
+            expect(wheel(el, 898, 100).defaultPrevented).toBe(true);
+            expect(wheel(el, 2, -100).defaultPrevented).toBe(true);
+            // at an edge, scrolling away from it
+            expect(wheel(el, 900, -100).defaultPrevented).toBe(true);
+            expect(wheel(el, 0, 100).defaultPrevented).toBe(true);
+        });
+    });
+
     it('should not attach the wheel listener when rendered while disconnected', () => {
         const container = document.createElement('div');
         const part = renderScroller(container);
