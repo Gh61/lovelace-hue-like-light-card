@@ -1,5 +1,7 @@
 # Live updates while dragging - progress
 
+> **No commits or pushes without the developer's explicit permission** - also on this feature branch (local or remote). Working on a branch is not a permission to commit. Ask first, every time.
+
 Working notes for the `feat/live-updates` branch. Delete this file before merging.
 
 Inspired by PR #474 (Thomas Mutzl), rewritten from scratch - credit him in the final commit:
