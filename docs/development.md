@@ -138,6 +138,24 @@ Rules for `src/ha/`:
 - HA build-time constants used by the copies (`__STATIC_PATH__`, ...) are defined in `rollup.config.mjs` (`haDefines`, via `@rollup/plugin-replace`) and in `jest.config.js` (`globals`); add new ones to both places.
 - The upstream repository is cached in `node_modules/.cache/ha-frontend` (`npm run clean` removes it).
 
+### Baseline between a branch and `ha-upstream`
+
+The 3-way merge works only when the branch has a merge with `ha-upstream` in its history (the *baseline*: the last pristine upstream state Git can compare against). The vendor branch is never rewritten (no rebase, no force-push with content changes), so the baseline can only get lost on the development side:
+
+- a `git rebase` of the development branch drops the baseline merge commit (a plain rebase skips merges; `--rebase-merges` replays the vendor commit under a new sha) - prefer merging `main` into a long-lived branch over rebasing it,
+- a squash merge into `main` drops the whole history including the baseline.
+
+Recreate the baseline on the affected branch - content does not change, only the merge is recorded again:
+
+```shell
+git branch -f ha-upstream HEAD          # vendor branch restarts from the current branch state
+npm run ha-sync -- update <commit from src/ha/ha-sync.json>
+git merge -s ours --no-ff ha-upstream -m "build(ha): record HA frontend <short sha> as the ha-sync baseline"
+git push -f origin ha-upstream          # the vendor branch is generated content, nobody builds on it
+```
+
+A regular merge (merge commit, not squash) of a development branch into `main` keeps the baseline; `ha-upstream` stays as a permanent vendor branch and later HA updates follow the workflow above on `main` or on the next development branch.
+
 ## Commits
 
 Follow [COMMIT.md](../COMMIT.md): `type(scope): summary` - lowercase, present tense, no trailing period.
