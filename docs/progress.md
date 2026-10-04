@@ -11,7 +11,7 @@ Status: ✅ done · 🟡 implemented, not verified in HA · 🔧 prepared, unuse
 | # | Change | Status | Notes / risks |
 |---|---|---|---|
 | 1 | `custom-card-helpers` removed; `HomeAssistant` and other HA types come from `src/ha/types` | ✅ | `HomeAssistantEx`, `HassFloorInfo`, `HassAreaInfo` dropped; casts in `hass-ws-client.ts` gone. Leftover: `HassEntityInfo` in `types-hass.ts` is unused. HA split `HomeAssistant` into `HomeAssistantRegistries` / `HomeAssistantApi` / `HomeAssistantFormatters` / ... - our code only uses the combined `HomeAssistant`. |
-| 2 | HA frontend source copied into `src/ha/` | ✅ | 85 files (pruned to what the card reaches + the two preparations below), 25 of them with minimal local adaptations (commented-out HA-only imports, typing fixes) - `npm run ha-sync -- check` lists them. Unreachable copies (`weather.ts`, `selector.ts`, `cards/types.ts`, `validate-condition.ts`, `notification-manager.ts`, ...) were removed; re-add via the manifest when needed. Bundle: 445 kB (`main`) → 632 kB; the HA theme/font styles (`resources/theme/*`, pulled in by `applyThemesOnElement`) are the main cost. |
+| 2 | HA frontend source copied into `src/ha/` | ✅ | 93 files (pruned to what the card reaches + the preparations below: dialog manager, `hass-action`, card editor types), 27 of them with minimal local adaptations (commented-out HA-only imports, typing fixes) - `npm run ha-sync -- check` lists them. Unreachable copies (`weather.ts`, `selector.ts`, `cards/types.ts`, `validate-condition.ts`, `notification-manager.ts`, ...) were removed; re-add via the manifest when needed. Bundle: 445 kB (`main`) → 632 kB; the HA theme/font styles (`resources/theme/*`, pulled in by `applyThemesOnElement`) are the main cost. |
 | 3 | `ha-sync` tool + vendor branch `ha-upstream` | ✅ | `scripts/ha-sync.mjs`, `src/ha/ha-sync.json`, workflow and baseline rules in [development.md](development.md#ha-source-sync). |
 | 4 | #167 - tap/hold through the HA `actionHandler()` directive (card, light tile, scene tile) instead of hammerjs `Press`/`Tap` + `PreventGhostClick` | 🟡 | Not yet tested in HA. Known issues: (a) the directive relies on HA's global `<action-handler>` element - outside a Lovelace dashboard it is not registered and the render throws (`bind is not a function`; tests stub it in `tests/mockup-ha-elements.ts`); (b) `dialog-tile.ts` registers `this.handleAction` as an unbound method (works via `currentTarget`, fragile) while the card uses `@action=` in the template; (c) `actionHandlerConfig` getter duplicated in card and tile; (d) no unit tests for the tap/hold dispatch; (e) hammerjs stays for swipes. The directive copy is a local adaptation (HA's `ActionHandler` class removed, only the lookup of the global element kept); HA 20260826.7 added `resolve`/`keyboardOnly` options and double-tap target handling to the class - irrelevant as long as we use HA's element. |
 | 5 | Haptics through HA `forwardHaptic` | ✅ | Local adaptation in `data/haptics.ts` (`node: HTMLElement \| Window`) for the color-temp marker. |
@@ -20,15 +20,30 @@ Status: ✅ done · 🟡 implemented, not verified in HA · 🔧 prepared, unuse
 | 8 | #167 preparation - `handle-action.ts` reduced to firing the `hass-action` event | 🔧 | HA handles `hass-action` in `src/state/action-mixin.ts` (`handleAction`), so the direction is valid. Not used yet - `core/action-handler.ts` is still our own implementation. Local adaptation kept as-is during the HA update (upstream version pulls in dialogs, navigate, sanitize-url). |
 | 9 | Native HA dialog - `make-dialog-manager.ts` copied | 🔧 | Kept as the pristine HA version after the update (the earlier `showDialog()` → `show-dialog` event wrapper was superseded by HA's API change: `showDialog(element, dialogTag, params, import?, parentElement?, addHistory?, dialogAnchor?)`, `HassDialogNext`). HA shows an unloaded dialog only with `dialogImport` or after a `register-dialog` event (`src/state/dialog-manager-mixin.ts`). Internal HA API, changes between releases. Nothing uses it yet; `HueDialog` is still our own implementation. |
 | 10 | Build/tooling: `eslint .` + ignore list, babel `env.test`, jest `globals.__STATIC_PATH__`, `clean` script, culori warning filter | ✅ | The `CIRCULAR_DEPENDENCY` filter in `rollup.config.mjs` matches any message containing "culori". |
-| 11 | Dependencies: `culori`, `color-name`, `memoize-one`, `superstruct` | ⚠️ | `superstruct` is not used by any reachable file - remove. |
+| 11 | Dependencies: `culori`, `color-name`, `memoize-one`, `superstruct` | ✅ | `superstruct` is used by the copied HA structs (#12); the others by reachable HA code. |
+| 12 | Visual card editor (new 2.0 feature) - HA types prepared | 🔧 | Copied for the editor: `components/ha-form/types.ts` (`HaFormSchema`), `data/selector.ts` (selector types incl. `EntitySelector`), `panels/lovelace/types.ts` with `LovelaceCardEditor`, `LovelaceGenericElementEditor`, `LovelaceCardConstructor`, `LovelaceConfigForm` re-enabled, `panels/lovelace/editor/structs/{base-card-struct,action-struct}.ts`, `common/structs/{handle-errors,is-icon}.ts`. No editor code yet - see the work item below. |
 
 ## Cleanup backlog (found by the guard agents, not yet done)
 
 - #4: shared constant for the action handler options, arrow-function listener (or `@action=` template binding) in `dialog-tile.ts`, guard for a missing `<action-handler>` element, unit tests for tap/hold on the card and the tiles.
 - Formatting `){` in `dialog-tile.ts`, `hue-like-light-card.ts`, `view-utils.ts`; `const` in a `case` clause in `dialog-tile.ts`.
-- `HassEntityInfo` (types-hass.ts) and `superstruct` (package.json) unused.
+- `HassEntityInfo` (types-hass.ts) unused.
 - `docs/coding-guidelines.md` §7: add a row for the HA helpers in `src/ha/`.
 - Decide on #7 (drop the `computeStateDisplay` fallback) and on the HA version comments for the `formatEntityState` guards.
+
+## Planned 2.0 work without an issue
+
+### Visual card editor (basis: entity selection)
+
+Goal: `HueLikeLightCard.getConfigElement()` returns an editor element (`hue-like-light-card-editor` + `Consts.ElementPostfix`) that renders HA's `<ha-form>` with a schema; `getStubConfig()` provides a sensible default (first light entity). Start with the entity selection (`entities`, `entity`, `area`, `floor`, `label`) and the title/icon, grow the schema later.
+
+What is prepared in `src/ha/` (#12 above): `HaFormSchema` / selector types for the schema (`{ name: "entities", selector: { entity: { domain: ["light", "switch"], multiple: true } } }`), the `LovelaceCardEditor` / `LovelaceCardConstructor` interfaces, `baseLovelaceCardConfig` + `superstruct` for validating the incoming config (`assert(config, struct)`), `handleStructError` for user-friendly validation messages, `fireEvent` for the `config-changed` event.
+
+Still needed in our code:
+- `interface ConfigChangedEvent { config; error?; guiModeAvailable? }` + `HASSDomEvents["config-changed"]` declaration (HA defines it in `hui-element-editor.ts`, a full component - not copied).
+- `<ha-form>` (and the selectors it renders, e.g. `ha-selector-entity`) are HA runtime elements loaded lazily by the dashboard editor. Other cards force-load them before rendering: `const helpers = await window.loadCardHelpers(); helpers.createCardElement({ type: "entities", entities: [] }).constructor.getConfigElement();` - isolate this HA-internals hack with the HA version comment (guidelines §6).
+- The card's config parsing (`HueLikeLightCardConfig`) must stay the single source of truth; the editor only edits the raw YAML object (`HueLikeLightCardConfigInterface`) and the preview re-parses it. Mind the camelCase option names - HA's `computeLabel` needs our own labels (localization keys `editor.*`).
+- Tests: schema/stub config, struct validation; browser test of the editor dialog on the testing dashboard.
 
 ## Open milestone issues not covered yet
 

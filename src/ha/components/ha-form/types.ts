@@ -1,6 +1,7 @@
 import type { LitElement } from "lit";
 import type { Selector } from "../../data/selector";
-import type { HaDurationData } from "../ha-duration-input";
+// import type { HaDurationData } from "../ha-duration-input";
+import type { HaDurationData } from "../../common/datetime/format_duration";
 
 export type HaFormSchema =
   | HaFormConstantSchema

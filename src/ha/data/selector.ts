@@ -6,11 +6,19 @@ import { ensureArray } from "../common/array/ensure-array";
 import type { EntityNameItem } from "../common/entity/compute_entity_name_display";
 import { computeStateDomain } from "../common/entity/compute_state_domain";
 import { supportsFeature } from "../common/entity/supports-feature";
-import { isHelperDomain } from "../panels/config/helpers/const";
-import type {
-  ActionRelatedContext,
-  UiAction,
-} from "../panels/lovelace/components/hui-action-editor";
+// import { isHelperDomain } from "../panels/config/helpers/const";
+const isHelperDomain = (_domain: string) => false; // panels/config/helpers/const is not copied
+// import type {
+//   ActionRelatedContext,
+//   UiAction,
+// } from "../panels/lovelace/components/hui-action-editor";
+import type { ActionConfig } from "./lovelace/config/action";
+// hui-action-editor is not copied - its two exported types are repeated here
+type UiAction = Exclude<ActionConfig["action"], "fire-dom-event">;
+interface ActionRelatedContext {
+  entity_id?: string;
+  area_id?: string;
+}
 import type { HomeAssistant } from "../types";
 import {
   type DeviceRegistryEntry,
