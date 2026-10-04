@@ -4,8 +4,8 @@ export type ApiMethodPostFix =
     '_openHueScreen' |
     '_test';
 export type ApiMethodName = `${string}${ApiMethodPostFix}`;
-export const CreateApiMethodName = (apiId: string, method: ApiMethodPostFix) => {
-    return <ApiMethodName>(apiId + method);
+export const CreateApiMethodName = (apiId: string, method: ApiMethodPostFix): ApiMethodName => {
+    return `${apiId}${method}`;
 };
 
 /**

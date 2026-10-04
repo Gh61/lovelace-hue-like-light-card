@@ -42,10 +42,10 @@ export class HueColorTempModeSelector extends LitElement {
      * Will never select 'brightness mode'.
      */
     public selectPossibleMode() {
-        if (this.mode == 'color' && this.showColor)
+        if (this.mode === 'color' && this.showColor)
             return;
 
-        if (this.mode == 'temp' && this.showTemp)
+        if (this.mode === 'temp' && this.showTemp)
             return;
 
         if (this.showColor) {
@@ -68,13 +68,13 @@ export class HueColorTempModeSelector extends LitElement {
         }
 
         if (changedProps.has('mode') && this.colorPicker) {
-            if (this.mode == 'color' || this.mode == 'temp') {
+            if (this.mode === 'color' || this.mode === 'temp') {
                 this.colorPicker.mode = this.mode;
             }
         }
 
-        if (changedProps.has('mode') && this.mode == 'brightness') {
-            const haIcon = <HaIcon>this.renderRoot.querySelector('.wheel.brightness ha-icon');
+        if (changedProps.has('mode') && this.mode === 'brightness') {
+            const haIcon = this.renderRoot.querySelector('.wheel.brightness ha-icon') as HaIcon;
             ViewUtils.setIconSize(haIcon, HueColorTempModeSelector.wheelHeight);
         }
     }
@@ -138,13 +138,13 @@ export class HueColorTempModeSelector extends LitElement {
     `;
 
     protected override render() {
-        if (!this.showColor && !this.showTemp && this.mode != 'brightness')
+        if (!this.showColor && !this.showTemp && this.mode !== 'brightness')
             return nothing;
 
         return html`
         <div class='controls'>
         ${cache(
-        this.mode == 'brightness'
+        this.mode === 'brightness'
             ? this.createBrightnessWheel()
             : html`
                 ${this.createWheel('color')}
@@ -155,7 +155,7 @@ export class HueColorTempModeSelector extends LitElement {
     }
 
     private createBrightnessWheel() {
-        if (this.mode != 'brightness')
+        if (this.mode !== 'brightness')
             return nothing;
 
         const icon = ViewUtils.hasHueIcons() ? 'hue:scene-bright' : 'mdi:brightness-7';
@@ -169,14 +169,14 @@ export class HueColorTempModeSelector extends LitElement {
     }
 
     private createWheel(mode: HueColorTempPickerMode) {
-        if (mode == 'temp' && !this.showTemp)
+        if (mode === 'temp' && !this.showTemp)
             return nothing;
-        if (mode == 'color' && !this.showColor)
+        if (mode === 'color' && !this.showColor)
             return nothing;
 
         const wrapperClass = {
             'wheel-wrapper': true,
-            'active': this.mode == mode
+            'active': this.mode === mode
         };
 
         return html`
@@ -199,7 +199,7 @@ export class HueColorTempModeSelector extends LitElement {
 
     private unregisterColorPickerEvent(picker?: HueColorTempPicker | null) {
         if (picker) {
-            picker.addEventListener('mode-change', this.onColorPickerModeChange);
+            picker.removeEventListener('mode-change', this.onColorPickerModeChange);
         }
     }
 

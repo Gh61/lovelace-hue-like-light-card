@@ -88,7 +88,7 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
 
         const picture = this.getTilePicture();
 
-        /*eslint-disable */
+        /* eslint-disable @/indent */
         return html`
         <div class='hue-tile scene' title='${title}'>
             <div class='icon-background'>
@@ -108,7 +108,7 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
             </div>
         </div>
         `;
-        /*eslint-enable */
+        /* eslint-enable @/indent */
     }
 
     public static get sceneTileStyles() {

@@ -54,7 +54,7 @@ class HueColorWheelCache {
 
     private static createKey(mode: HueColorTempPickerMode, radius: number, tempMin: number, tempMax: number) {
         let modeString = mode;
-        if (mode == 'temp') {
+        if (mode === 'temp') {
             modeString += `(${tempMin}-${tempMax})`;
         }
 
@@ -82,7 +82,7 @@ export class HueColorTempPicker extends LitElement {
         super();
 
         // if browser (or test engine) not support ResizeObserver
-        if (typeof ResizeObserver == 'undefined') {
+        if (typeof ResizeObserver === 'undefined') {
             this._ro = null;
         }
         else {
@@ -99,16 +99,16 @@ export class HueColorTempPicker extends LitElement {
      */
     public setTempRange(minKelvin: number, maxKelvin: number): void {
         let changed = false;
-        if (minKelvin != this._tempMin) {
+        if (minKelvin !== this._tempMin) {
             this._tempMin = minKelvin;
             changed = true;
         }
-        if (maxKelvin != this._tempMax) {
+        if (maxKelvin !== this._tempMax) {
             this._tempMax = maxKelvin;
             changed = true;
         }
 
-        if (changed && this._isRendered && this.mode == 'temp') {
+        if (changed && this._isRendered && this.mode === 'temp') {
             this.drawWheel();
         }
     }
@@ -148,9 +148,9 @@ export class HueColorTempPicker extends LitElement {
      * Setup everything (get elements + set sizes).
      */
     private setupLayers() {
-        this._canvas = <HTMLDivElement>this.renderRoot.querySelector('#canvas');
-        this._backgroundLayer = <HTMLCanvasElement>this.renderRoot.querySelector('#backgroundLayer');
-        this._interactionLayer = <SVGElement>this.renderRoot.querySelector('#interactionLayer');
+        this._canvas = this.renderRoot.querySelector('#canvas') as HTMLDivElement;
+        this._backgroundLayer = this.renderRoot.querySelector('#backgroundLayer') as HTMLCanvasElement;
+        this._interactionLayer = this.renderRoot.querySelector('#interactionLayer') as SVGElement;
 
         // synchronise width/height coordinates
         this._backgroundLayer.width = HueColorTempPicker.renderWidthHeight;
@@ -202,7 +202,7 @@ export class HueColorTempPicker extends LitElement {
      * @param marker Reference to the marker, that should be activated.
      */
     public activateMarker(marker: HueColorTempPickerMarker, doBoing = true) {
-        if (this._activeMarker == marker)
+        if (this._activeMarker === marker)
             return;
 
         this._activeMarker = marker;
@@ -297,11 +297,11 @@ export class HueColorTempPicker extends LitElement {
         const range = this.getRadius() * 0.1;
 
         // ignore self
-        if (target == marker)
+        if (target === marker)
             return false;
 
         // ignore another mode
-        if (target.mode != marker.mode)
+        if (target.mode !== marker.mode)
             return false;
 
         // ignore all turned-off markers
@@ -368,7 +368,7 @@ export class HueColorTempPicker extends LitElement {
         mm.markers.splice(innerIndex, 1);
 
         // if inner marker is only one (or zero), get it out
-        if (mm.markers.length == 1) {
+        if (mm.markers.length === 1) {
             // replace multi marker with the remaining one
             this._markers[mmIndex] = mm.markers[0];
 
@@ -377,7 +377,7 @@ export class HueColorTempPicker extends LitElement {
                 this.activateMarker(mm.markers[0], false);
             }
         }
-        else if (mm.markers.length == 0) {
+        else if (mm.markers.length === 0) {
             // remove empty multi marker (should not happen, but anyway)
             this._markers.splice(mmIndex, 1);
         }
@@ -519,10 +519,10 @@ export class HueColorTempPicker extends LitElement {
      * @param radius Radius of color wheel
      */
     public getColorAndValue(x: number, y: number, radius: number) {
-        if (this.mode == 'color') {
+        if (this.mode === 'color') {
             return this.getColorAndHSV(x, y, radius);
         }
-        else if (this.mode == 'temp') {
+        else if (this.mode === 'temp') {
             return this.getTempAndKelvin(x, y, radius);
         }
 

@@ -7,7 +7,7 @@ import { LocationStateTracker } from './location-state-tracker';
 
 const logMessage = (message: string) => {
     if (Consts.Dev) {
-        console.log('[HueApiProvider] ' + message);
+        console.info('[HueApiProvider] ' + message);
     }
 };
 
@@ -58,7 +58,7 @@ export class HueApiProvider {
     private static _lastHash = '';
 
     private static onLocationChanged() {
-        if (location.hash == HueApiProvider._lastHash)
+        if (location.hash === HueApiProvider._lastHash)
             return;
 
         // first save the new value, then call the handler
@@ -68,7 +68,7 @@ export class HueApiProvider {
 
     private static onHashChanged(hash: string, retry = 0) {
         // we only react to '#hue_card:' prefixed hash
-        if (hash.indexOf('#' + Consts.ApiProviderName + ':') != 0)
+        if (hash.indexOf('#' + Consts.ApiProviderName + ':') !== 0)
             return;
 
         const methodName = hash.substring(Consts.ApiProviderName.length + 2);
@@ -82,7 +82,7 @@ export class HueApiProvider {
             }, 10);
 
             // API method called, clean the history hash
-            if (location.hash == hash) {
+            if (location.hash === hash) {
                 // if not changed in the meantime
                 //location.hash = '';
                 history.replaceState(history.state, '', location.pathname + location.search);
@@ -103,7 +103,7 @@ export class HueApiProvider {
      * Will publish router to the window object, if needed.
      */
     private static publishWrapper() {
-        const w = <IHassWindow>window;
+        const w = window as IHassWindow;
         const router = w[Consts.ApiProviderName];
         if (!router) {
             w[Consts.ApiProviderName] = HueApiProvider._wrapper;

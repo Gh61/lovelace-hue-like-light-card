@@ -28,7 +28,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
         this._entity_id = entity_id;
         this._domain = entity_id.startsWith('switch.') ? 'switch' : 'light';
-        this._lightState = new LightState(<HassLightEntity>{ state: 'unavailable' });
+        this._lightState = new LightState({ state: 'unavailable' } as HassLightEntity);
     }
 
     public set hass(value: HomeAssistant) {
@@ -37,7 +37,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
             throw new Error('No \'states\' available on passed hass instance.');
         }
 
-        this._entity = <HassLightEntity>this._hass.states[this._entity_id];
+        this._entity = this._hass.states[this._entity_id] as HassLightEntity;
         if (!this._entity) {
             throw new Error(`Entity '${this._entity_id}' not found in states.`);
         }
@@ -275,7 +275,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
         let mode: HassLightColorMode;
         const serviceData: Record<string, unknown> = { entity_id: this._entity_id };
-        if (newColor.getOriginalMode() == 'hsv') {
+        if (newColor.getOriginalMode() === 'hsv') {
             mode = HassLightColorMode.hs;
             serviceData.hs_color = [newColor.getHue(), newColor.getSaturation() * 100];
         }

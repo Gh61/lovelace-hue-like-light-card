@@ -19,7 +19,7 @@
         "colorthief": "npm:@pioug/colorthief@^3.0.1",
         "custom-card-helpers": "^2.0.0",
         "home-assistant-js-websocket": "^9.6.0",
-        "lit": "^3.3.2"
+        "lit": "^3.3.3"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.29.2",

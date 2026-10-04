@@ -6,7 +6,7 @@ export class ColorExtended extends Color {
     private static readonly themeColor = 'theme-color';
 
     public constructor(colorName: string) {
-        if (colorName == ColorExtended.themeColor) {
+        if (colorName === ColorExtended.themeColor) {
             super(0, 0, 0);
             this._isThemeColor = true;
         }

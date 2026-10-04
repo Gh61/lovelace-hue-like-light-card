@@ -1,4 +1,4 @@
-import { nothing } from 'lit';
+import { css, nothing } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { HueLikeLightCardConfig } from '../types/config';
@@ -13,6 +13,16 @@ import { SliderType } from '../types/types-config';
 import { HueMushroomSliderContainer } from '../controls/mushroom-slider-container';
 
 export class ViewUtils {
+
+    /**
+     * Styles for the switch created by createSwitch - compose them into the styles of every element that renders it.
+     */
+    public static readonly SwitchStyles = css`
+    ha-switch {
+        /* since HA 2026.5 - compensate for inner label margin */
+        margin-inline-end: -0.5em;
+    }
+    `;
 
     /**
      * Creates switch for given ILightContainer.
@@ -39,14 +49,14 @@ export class ViewUtils {
     public static createSlider(ctrl: ILightContainer, config: HueLikeLightCardConfig, onChange: Action) {
 
         // If the controller doesn't support brightness change or slider is disabled, the slider will not be created
-        if (!ctrl.features.brightness || config.slider == SliderType.None)
+        if (!ctrl.features.brightness || config.slider === SliderType.None)
             return nothing;
 
         const min = config.allowZero ? 0 : 1;
         const max = 100;
         const step = 1;
 
-        if (config.slider == SliderType.Mushroom) {
+        if (config.slider === SliderType.Mushroom) {
             return html`
                 <${unsafeStatic(HueMushroomSliderContainer.ElementName)}
                     class="brightness-slider"
@@ -156,7 +166,7 @@ export class ViewUtils {
 
         // make the dark little lighter, when Off
         if (ctrl.isOff()) {
-            if (foreground == Consts.DarkColor) {
+            if (foreground === Consts.DarkColor) {
                 foreground = Consts.DarkOffColor;
             }
             else {
@@ -200,7 +210,7 @@ export class ViewUtils {
     public static hasHueIcons(): boolean {
         const haWindow = (window as IHassWindow);
 
-        return !!haWindow.customIcons && typeof haWindow.customIcons.hue == 'object';
+        return !!haWindow.customIcons && typeof haWindow.customIcons.hue === 'object';
     }
 
     /** Will set size of icon inside of HaIcon */
@@ -209,7 +219,7 @@ export class ViewUtils {
         if (haIcon?.updateComplete) {
             // wait for render
             haIcon.updateComplete.then(() => {
-                const innerIcon = <HTMLElement>haIcon.renderRoot.children[0];
+                const innerIcon = haIcon.renderRoot.children[0] as HTMLElement;
                 innerIcon.style.setProperty('--mdc-icon-size', sizePx + 'px');
             });
         }

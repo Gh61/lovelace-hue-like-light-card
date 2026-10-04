@@ -15,7 +15,7 @@ jobs:
     name: Bump Version
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Update Consts.ts version
       run: |
         sed -ri "s/ Version = '(v[0-9]+.[0-9]+.[0-9]+)';/ Version = '${{ github.event.inputs.new_version }}';/g" src/types/consts.ts
@@ -43,7 +43,7 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         ref: main # without this, the latest commit (version change) isn't fetched
     - name: Fetch tags # we need to fetch tags for issues_changelog generator
@@ -56,7 +56,7 @@ jobs:
       run: |
         sed -i "s/var dev = true;/var dev = false;/g" rollup.config.mjs
 
-    - uses: actions/setup-node@v6
+    - uses: actions/setup-node@v7
     - name: Install modules
       run: npm ci
     - name: Run build
@@ -96,7 +96,7 @@ jobs:
         stripGeneratorNotice: true
 
     - name: Release
-      uses: mikepenz/action-gh-release@v1
+      uses: mikepenz/action-gh-release@v3
       with:
         tag_name: ${{ github.event.inputs.new_version }}
         draft: true

@@ -57,7 +57,7 @@ export class Background {
     }
 
     public toString(): string {
-        if (this._colors.length == 1)
+        if (this._colors.length === 1)
             return this._colors[0].toString();
 
         const step = 100.0 / (this._colors.length - 1);
@@ -69,7 +69,7 @@ export class Background {
             currentStep += step;
 
             // last 10% must be the last light
-            if (i + 1 == this._colors.length) {
+            if (i + 1 === this._colors.length) {
                 colors += `, ${this._colors[i]} ${100 - offset}%`;
             }
             colors += `, ${this._colors[i]} ${Math.round(currentStep)}%`;

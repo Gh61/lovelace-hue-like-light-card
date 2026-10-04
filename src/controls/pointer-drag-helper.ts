@@ -37,7 +37,7 @@ export class PointerDragHelper {
             }
 
             const isTouch = PointerDragHelper.isTouchEvent(ev);
-            callback(<MouseEvent | TouchEvent>ev, isTouch);
+            callback(ev as MouseEvent | TouchEvent, isTouch);
 
             this._currentMode = isTouch ? 'touch' : 'mouse';
             if (isTouch) {

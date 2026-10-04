@@ -44,6 +44,11 @@ export default [{
         "linebreak-style": ["error", "unix"],
         "@/indent": ["error", 4, { "SwitchCase": 1 }],
         "@/comma-dangle": ["error", "never"],
+        "@/quotes": ["error", "single", { "avoidEscape": true }],
+        "@/semi": ["error", "always"],
+        "eqeqeq": ["error", "always", { "null": "ignore" }],
+        "no-console": ["error", { allow: ["warn", "error", "info"] }],
+        "@typescript-eslint/consistent-type-assertions": ["error", { assertionStyle: "as" }],
 
         "no-underscore-dangle": ["error", {
             allow: [

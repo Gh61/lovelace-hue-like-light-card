@@ -54,7 +54,7 @@ export class HueColorTempPickerMarker {
                 marker: this,
                 mode: this.mode,
                 newColor: this._color,
-                newTemp: this.mode == 'temp' ? this.temp : null
+                newTemp: this.mode === 'temp' ? this.temp : null
             }
         }));
     }
@@ -86,7 +86,7 @@ export class HueColorTempPickerMarker {
         const centerPos = this.getPositionFromCenter(radius);
 
         // If fixed mode, set parent to the fixed mode before getting the value
-        if (this.fixedMode && this.fixedMode != this._parent.mode) {
+        if (this.fixedMode && this.fixedMode !== this._parent.mode) {
             this._parent.mode = this.fixedMode;
         }
 
@@ -155,7 +155,7 @@ export class HueColorTempPickerMarker {
         return this._isPreview;
     }
     public set isPreview(value: boolean) {
-        if (this._isPreview == value)
+        if (this._isPreview === value)
             return;
 
         if (value) {
@@ -174,7 +174,7 @@ export class HueColorTempPickerMarker {
         this._fixedMode = fMod;
 
         // set mode if needed
-        if (fMod && this.mode != fMod) {
+        if (fMod && this.mode !== fMod) {
             this.mode = fMod;
             this.refresh();
         }
@@ -184,7 +184,7 @@ export class HueColorTempPickerMarker {
         return this._mode;
     }
     public set mode(mod: HueColorTempPickerMode) {
-        if (this.fixedMode && this.fixedMode != mod) {
+        if (this.fixedMode && this.fixedMode !== mod) {
             return;
         }
 
@@ -196,7 +196,7 @@ export class HueColorTempPickerMarker {
      * Will refresh position and then render all values.
      */
     public refresh() {
-        if (this.mode == 'temp') {
+        if (this.mode === 'temp') {
             this.temp = this.temp;
         }
         else {
@@ -229,10 +229,10 @@ export class HueColorTempPickerMarker {
     }
     public set color(col: Color | string) {
         // when fixed mode not color, we cannot set color
-        if (this.fixedMode && this.fixedMode != 'color')
+        if (this.fixedMode && this.fixedMode !== 'color')
             return;
 
-        if (typeof col == 'string') {
+        if (typeof col === 'string') {
             col = new Color(col);
         }
 
@@ -256,12 +256,12 @@ export class HueColorTempPickerMarker {
     }
     public set temp(tmp: number) {
         // when fixed mode not temp, we cannot set temp
-        if (this.fixedMode && this.fixedMode != 'temp')
+        if (this.fixedMode && this.fixedMode !== 'temp')
             return;
 
         this._temp = tmp;
 
-        const wasColorMode = this.mode == 'color';
+        const wasColorMode = this.mode === 'color';
 
         // change mode to temp
         this.mode = 'temp';
@@ -413,10 +413,10 @@ export class HueColorTempPickerMarker {
      * @returns offset of marker tip (point where color is taken).
      */
     private getMarkerOffset() {
-        let rect = <{ width: number, height: number }>this._markerPath.getBBox();
+        let rect = this._markerPath.getBBox() as { width: number, height: number };
 
         // init fallback
-        if (rect.width == 0) {
+        if (rect.width === 0) {
             if (this.isActive || this.isPreview) {
                 rect = HueColorTempPickerMarker.markerActivePathSize;
             }
@@ -448,7 +448,7 @@ export class HueColorTempPickerMarker {
             this._markerG.style.color = this._color.toString();
 
             // for temp view I want only one change of foreground in the middle of the wheel
-            const luminanceOffset = this.mode == 'temp' ? -25 : 0;
+            const luminanceOffset = this.mode === 'temp' ? -25 : 0;
             const foreground = this._color.getForeground(Consts.LightColor, Consts.DarkColor, luminanceOffset);
             this._iconElement.style.fill = foreground.toString();
         }
@@ -466,7 +466,7 @@ export class HueColorTempPickerMarker {
     }
 
     private renderMode() {
-        if (this.mode == this._parent.mode) {
+        if (this.mode === this._parent.mode) {
             this._markerG.classList.remove('off-mode');
         }
         else {
@@ -525,7 +525,7 @@ export class HueColorTempPickerMarker {
 
         // merge target
         const newMergeTarget = this._parent.searchMergeMarkerTarget(this);
-        if (this._mergeTarget && this._mergeTarget != newMergeTarget) {
+        if (this._mergeTarget && this._mergeTarget !== newMergeTarget) {
             this._mergeTarget.isPreview = false;
         }
         if (newMergeTarget) {
@@ -695,7 +695,7 @@ export class HueColorTempPickerMultiMarker extends HueColorTempPickerMarker {
     }
 
     private static applyState(from: HueColorTempPickerMarker, to: HueColorTempPickerMarker) {
-        if (to.mode != from.mode) {
+        if (to.mode !== from.mode) {
             to.mode = from.mode;
         }
         // this also fires dispatch

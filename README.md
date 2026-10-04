@@ -6,9 +6,9 @@
 This [dashboard](https://www.home-assistant.io/getting-started/concepts-terminology/#dashboards) card is providing light control. It is inspired by original Philips Hue app.
 
 <p>
-  <img alt="Screen1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/screen1.png" height="360" />
-  <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="360" />
-  <img alt="Hue-Screen-Detail1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen-detail-1.png" height="360" />
+  <img alt="Screen1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc_img/screen1.png" height="360" />
+  <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc_img/hue-screen2.png" height="360" />
+  <img alt="Hue-Screen-Detail1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc_img/hue-screen-detail-1.png" height="360" />
 </p>
 
 \* *intensity of color, shadow and other UI properties may be subject of change*
@@ -477,11 +477,11 @@ You can set slider to on of following options:
 ### Mushroom slider
 [Mushroom](https://github.com/piitaya/lovelace-mushroom) must be installed for this option to work.
 
-![Mushroom usage](/doc/mushroom-screen1.png)
+![Mushroom usage](/doc_img/mushroom-screen1.png)
 
 You can customize properties of mushroom slider using [Card mod](https://github.com/thomasloven/lovelace-card-mod):
 
-![Mushroom customization](/doc/mushroom-screen2.png)
+![Mushroom customization](/doc_img/mushroom-screen2.png)
 ```yaml
 type: custom:hue-like-light-card
 entity: light.office
@@ -509,7 +509,7 @@ title: TV - {{ light.tv_backlight }}
 entity: light.tv_backlight
 ```
 
-![Template usage](/doc/template-screen1.png)
+![Template usage](/doc_img/template-screen1.png)
 
 #### Attribute ussage
 ```yaml
@@ -521,7 +521,7 @@ entities:
   - light.kitchen_desk1
   - light.kitchen_desk2
 ```
-![Template attribute usage](/doc/template-screen2.png)
+![Template attribute usage](/doc_img/template-screen2.png)
 
 *When attribute is not available (or is empty) on entity, state of the entity will be shown instead.*
 
@@ -538,7 +538,7 @@ entities:
   - light.kitchen_desk1
   - light.kitchen_desk2
 ```
-![Template usage in description](/doc/template-screen3.png)
+![Template usage in description](/doc_img/template-screen3.png)
 
 ## Color
 The color can be defined in following ways:
@@ -674,7 +674,7 @@ apiId: room1
 
 ### Javascript usage
 When any card on the dashboard has `apiId` filled in, global object named `hue_card` will be available on `window` object.<br/>
-![Api-object](/doc/api-object.png)
+![Api-object](/doc_img/api-object.png)
 <br/>
 There will be API functions for every card, that has `apiId` defined. Functions are named `{apiId}_functionName`.
 #### Available functions
@@ -899,14 +899,14 @@ scenes:
 Hue screen will allow you to activate [scenes](#scenes-configuration), set light colors, temp and brightness (same functionality as official Hue App).
 *Function of effects activation will come in the future.*
 
-![Hue-Screen](/doc/hue-screen1.png)
-<img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen2.png" height="540" />
-![Hue-Screen-Detail](/doc/hue-screen-detail-2.png)
-<img alt="Hue-Screen-Detail1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc/hue-screen-detail-1.png" height="540" />
+![Hue-Screen](/doc_img/hue-screen1.png)
+<img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc_img/hue-screen2.png" height="540" />
+![Hue-Screen-Detail](/doc_img/hue-screen-detail-2.png)
+<img alt="Hue-Screen-Detail1" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc_img/hue-screen-detail-1.png" height="540" />
 
 ## Examples of configuration
 #### Area
-![Screen10](/doc/screen10.png)
+![Screen10](/doc_img/screen10.png)
 ```yaml
 type: custom:hue-like-light-card
 area: Living room
@@ -915,7 +915,7 @@ offColor: '#363636'
 ```
 
 #### Multiple lights
-![Screen2](/doc/screen2.png)
+![Screen2](/doc_img/screen2.png)
 ```yaml
 type: custom:hue-like-light-card
 title: TV colors
@@ -927,7 +927,7 @@ entities:
 ```
 
 #### Custom title and icon
-![Screen3](/doc/screen3.png)
+![Screen3](/doc_img/screen3.png)
 ```yaml
 type: custom:hue-like-light-card
 entity: light.livingroom_lamp
@@ -936,7 +936,7 @@ icon: mdi:floor-lamp
 ```
 
 #### No toggle switch
-![Screen7](/doc/screen7.png)
+![Screen7](/doc_img/screen7.png)
 ```yaml
 type: custom:hue-like-light-card
 title: '[ TV - {{ light.tv_backlight }} ] No switch = more space for title'
@@ -949,7 +949,7 @@ offColor: rgb(28,28,28)
 ```
 
 #### Home Assistant-like
-![Screen4](/doc/screen4.png)
+![Screen4](/doc_img/screen4.png)
 ```yaml
 type: custom:hue-like-light-card
 title: TV colors
@@ -965,7 +965,7 @@ hueBorders: false
 ```
 
 #### Turnable with slider
-![Screen5](/doc/screen5.png)
+![Screen5](/doc_img/screen5.png)
 ```yaml
 type: custom:hue-like-light-card
 title: Living room
@@ -974,7 +974,7 @@ allowZero: true
 ```
 
 #### Custom theme
-![Screen8](/doc/screen8.png)
+![Screen8](/doc_img/screen8.png)
 ```yaml
 type: custom:hue-like-light-card
 title: Living room
@@ -991,7 +991,7 @@ theme: synthwave
 ```
 
 #### Non-RGB Light
-![Screen6](/doc/screen6.png)
+![Screen6](/doc_img/screen6.png)
 ```yaml
 type: custom:hue-like-light-card
 title: Bathroom
@@ -1001,7 +1001,7 @@ defaultColor: 'rgb(230,230,255)'
 ```
 
 #### No description
-![Screen9](/doc/screen9.png)
+![Screen9](/doc_img/screen9.png)
 ```yaml
 type: custom:hue-like-light-card
 entity: light.office

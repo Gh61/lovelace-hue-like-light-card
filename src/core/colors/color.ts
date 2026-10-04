@@ -6,17 +6,17 @@ export class Color {
     private _green: number;
     private _blue: number;
     private _hsv: number[] | null;
-    private _xy: number[] | null
+    private _xy: number[] | null;
     private _opacity = 1;
 
     public static readonly LuminanceBreakingPoint = 192; // hue breaking point is pretty high
 
     public constructor(colorOrRedOrHueOrX: string | number, opacityOrGreenOrSaturationOrY?: number, blueOrValueOrBri?: number, opacity = 1, mode: ColorMode = 'rgb') {
-        if (typeof colorOrRedOrHueOrX == 'string') {
+        if (typeof colorOrRedOrHueOrX === 'string') {
             this.parse(colorOrRedOrHueOrX);
             this.setOpacity(opacityOrGreenOrSaturationOrY ?? this._opacity);
         }
-        else if (mode == 'rgb') {
+        else if (mode === 'rgb') {
             this.setRgb(
                 colorOrRedOrHueOrX,
                 opacityOrGreenOrSaturationOrY ?? 0,
@@ -24,14 +24,14 @@ export class Color {
             );
             this.setOpacity(opacity);
         }
-        else if (mode == 'hsv') {
+        else if (mode === 'hsv') {
             this.setHsv(
                 colorOrRedOrHueOrX,
                 opacityOrGreenOrSaturationOrY ?? 0,
                 blueOrValueOrBri ?? 0
             );
         }
-        else if (mode == 'xy') {
+        else if (mode === 'xy') {
             this.setXy(
                 colorOrRedOrHueOrX,
                 opacityOrGreenOrSaturationOrY ?? 0,
@@ -218,10 +218,10 @@ export class Color {
         if (colorId.startsWith('#')) {
             colorId = colorId.substring(1);
 
-            const isHex3 = colorId.length == 3;
-            const isHex4 = colorId.length == 4;
-            const isHex6 = colorId.length == 6;
-            const isHex8 = colorId.length == 8;
+            const isHex3 = colorId.length === 3;
+            const isHex4 = colorId.length === 4;
+            const isHex6 = colorId.length === 6;
+            const isHex8 = colorId.length === 8;
 
             if (!isHex3 && !isHex6 && !isHex4 && !isHex8) {
                 throw new Error('Hex color format should have 3/6 letters or 4/8 letters for transparency.');
@@ -355,7 +355,7 @@ export class Color {
         const percentRoundFn = (num: number) => Math.round(num * 100) / 100;
 
         let h = 0, s;
-        if (diff == 0) {
+        if (diff === 0) {
             h = s = 0;
         }
         else {
@@ -453,7 +453,7 @@ export class Color {
 
         const brightness = Math.round(Math.max(r, g, b) / 255 * 254);
         const sum = X + Y + Z;
-        if (sum == 0) {
+        if (sum === 0) {
             return [0, 0, 0];
         }
 

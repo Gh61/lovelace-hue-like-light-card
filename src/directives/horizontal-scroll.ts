@@ -1,14 +1,18 @@
 import { noChange, nothing } from 'lit';
-import { directive, Directive, PartInfo, ElementPart, PartType } from 'lit/directive.js';
+import { directive, PartInfo, ElementPart, PartType } from 'lit/directive.js';
+import { AsyncDirective } from 'lit/async-directive.js';
+import { Action } from '../types/functions';
 
 /**
  * Directive that converts vertical mouse wheel scrolling into horizontal scrolling.
  * Use on any element with horizontal overflow (overflow-x: auto/scroll).
+ * The wheel listener is removed when the element is disconnected and attached again when it is reconnected.
  *
  * Usage: html`<div ${horizontalScroll()}>...</div>`
  */
-class HorizontalScrollDirective extends Directive {
-    private _cleanup: (() => void) | null = null;
+class HorizontalScrollDirective extends AsyncDirective {
+    private _element: HTMLElement | null = null;
+    private _cleanup: Action | null = null;
 
     public constructor(partInfo: PartInfo) {
         super(partInfo);
@@ -18,10 +22,30 @@ class HorizontalScrollDirective extends Directive {
     }
 
     public override update(part: ElementPart) {
-        // Only attach the listener once
-        if (this._cleanup) return noChange;
+        this._element = part.element as HTMLElement;
+        if (this.isConnected) {
+            this.attach();
+        }
 
-        const el = part.element as HTMLElement;
+        return noChange;
+    }
+
+    protected override disconnected() {
+        this.detach();
+    }
+
+    protected override reconnected() {
+        this.attach();
+    }
+
+    /**
+     * Attaches the wheel listener to the element (only once).
+     */
+    private attach() {
+        if (this._cleanup || !this._element)
+            return;
+
+        const el = this._element;
         const scroller = new SmoothHorizontalScroller(el);
 
         const onWheel = (e: WheelEvent) => {
@@ -57,8 +81,14 @@ class HorizontalScrollDirective extends Directive {
             el.removeEventListener('wheel', onWheel);
             scroller.destroy();
         };
+    }
 
-        return noChange;
+    /**
+     * Removes the wheel listener and stops a running scroll animation.
+     */
+    private detach() {
+        this._cleanup?.();
+        this._cleanup = null;
     }
 
     // Required by base class; not used since update() handles everything

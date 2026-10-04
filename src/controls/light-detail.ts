@@ -87,7 +87,7 @@ export class HueLightDetail extends IdLitElement {
     }
 
     private setLightContainerFromPicker(lights: ISingleLightContainer[]) {
-        if (lights.length == 1) {
+        if (lights.length === 1) {
             this.lightContainer = lights[0];
         }
         else {
@@ -112,7 +112,7 @@ export class HueLightDetail extends IdLitElement {
     private onLightContainerState(light: ILightContainer, activate = false) {
         const lights = light.getLights();
         let singleLight = null;
-        if (lights.length == 1) {
+        if (lights.length === 1) {
             singleLight = lights[0];
         }
 
@@ -121,7 +121,7 @@ export class HueLightDetail extends IdLitElement {
         }
 
         // only apply current state if activating or the light is the selected one
-        if (this.lightContainer == light) {
+        if (this.lightContainer === light) {
 
             // enable or disable brightness rollup
             this._brightnessRollup.enabled = light.isOn();
@@ -146,10 +146,10 @@ export class HueLightDetail extends IdLitElement {
         const light = this._lightMarkerManager.getLight(marker);
 
         this._lightMarkerManager.suspendStateUpdate(() => {
-            if (ev.detail.mode == 'temp') {
+            if (ev.detail.mode === 'temp') {
                 light.colorTemp = ev.detail.newTemp;
             }
-            else if (ev.detail.mode == 'color') {
+            else if (ev.detail.mode === 'color') {
                 light.color = ev.detail.newColor;
             }
         });
@@ -306,7 +306,7 @@ export class HueLightDetail extends IdLitElement {
     private _lastRenderedContainer: ILightContainer | null;
     protected override render() {
         this._lastRenderedContainer = this.lightContainer || this._lastRenderedContainer;
-        const onlySwitch = this._lastRenderedContainer?.features.isEmpty() == true;
+        const onlySwitch = this._lastRenderedContainer?.features.isEmpty() === true;
 
         return html`
         <div>
@@ -316,7 +316,7 @@ export class HueLightDetail extends IdLitElement {
     }
 
     private onSwitch(ctrl: ILightContainer, ev: Event) {
-        const target = <HaControlSwitch>ev.target;
+        const target = ev.target as HaControlSwitch;
         if (!target)
             return;
 
@@ -383,19 +383,19 @@ export class HueLightDetail extends IdLitElement {
 
         this.updateComplete.then(() => {
             if (!this._colorPicker) {
-                this._colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
+                this._colorPicker = this.renderRoot.querySelector('.color-picker') as HueColorTempPicker;
                 this._lightMarkerManager = new LightMarkerManager(this._colorPicker, l => this.setLightContainerFromPicker(l));
                 this.createAreaControllerMarkers();
             }
 
             // get mode-selector and give it colorPicker
             if (!this._modeSelector) {
-                this._modeSelector = <HueColorTempModeSelector>this.renderRoot.querySelector('.mode-selector');
+                this._modeSelector = this.renderRoot.querySelector('.mode-selector') as HueColorTempModeSelector;
                 this._modeSelector.colorPicker = this._colorPicker;
             }
 
             if (!this._brightnessRollup) {
-                this._brightnessRollup = <HueBrightnessRollup>this.renderRoot.querySelector('.brightness-rollup');
+                this._brightnessRollup = this.renderRoot.querySelector('.brightness-rollup') as HueBrightnessRollup;
             }
         });
     }
@@ -409,7 +409,7 @@ export class HueLightDetail extends IdLitElement {
     }
 
     private updateColorPickerSize(): void {
-        const colorPicker = <HueColorTempPicker>this.renderRoot.querySelector('.color-picker');
+        const colorPicker = this.renderRoot.querySelector('.color-picker') as HueColorTempPicker;
         if (!colorPicker)
             return;
 
@@ -434,7 +434,7 @@ export class HueLightDetail extends IdLitElement {
     }
 
     private updateBrightnessRollupSize(setFullSize: boolean): void {
-        const rollup = <HueBrightnessRollup>this.renderRoot.querySelector('.brightness-rollup');
+        const rollup = this.renderRoot.querySelector('.brightness-rollup') as HueBrightnessRollup;
         if (!rollup)
             return;
 
@@ -464,7 +464,7 @@ export class HueLightDetail extends IdLitElement {
     }
 
     private updateBigSwitchSize(): void {
-        const lightSwitch = <HueBrightnessRollup>this.renderRoot.querySelector('.light-switch');
+        const lightSwitch = this.renderRoot.querySelector('.light-switch') as HueBrightnessRollup;
         if (!lightSwitch)
             return;
 
@@ -487,7 +487,7 @@ export class HueLightDetail extends IdLitElement {
 
     private getPickerSize(): number | null {
         const maxSize = Math.min(this.clientHeight, this.clientWidth);
-        if (maxSize == 0) // not rendered
+        if (maxSize === 0) // not rendered
             return null;
         const size = maxSize - (HueLightDetail.colorPickerMarginTop + HueLightDetail.colorPickerMarginBottom);
         return size;
@@ -569,16 +569,16 @@ class LightMarkerManager {
         let changed = false;
 
         if (light.isColorModeColor()) {
-            changed = changed || marker.mode != 'color';
+            changed = changed || marker.mode !== 'color';
             if (light.color) {
-                changed = changed || marker.color.toString() != light.color.toString();
+                changed = changed || marker.color.toString() !== light.color.toString();
                 marker.color = light.color;
             }
         }
         else if (light.isColorModeTemp()) {
-            changed = changed || marker.mode != 'temp';
+            changed = changed || marker.mode !== 'temp';
             if (light.colorTemp) {
-                changed = changed || marker.temp != light.colorTemp;
+                changed = changed || marker.temp !== light.colorTemp;
                 marker.temp = light.colorTemp;
             }
         }

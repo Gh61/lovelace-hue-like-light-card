@@ -54,7 +54,7 @@ export class HueDialog extends IdLitElement {
      * @returns Whether the given light is the only selected light.
      */
     private isOnlySelectedLight(light: ILightContainer) {
-        return this._selectedLights.length == 1 && this._selectedLights[0] == light;
+        return this._selectedLights.length === 1 && this._selectedLights[0] === light;
     }
 
     /**
@@ -115,13 +115,13 @@ export class HueDialog extends IdLitElement {
 
                 // set light into detail
                 if (this._lightDetailElement) {
-                    this._lightDetailElement.lightContainer = <LightController>ev.detail.lightContainer;
+                    this._lightDetailElement.lightContainer = ev.detail.lightContainer as LightController;
                     this._lightDetailElement.show();
                 }
             };
 
             // to be in sync
-            (<HueDialogLightTile>ev.detail.tileElement).isSelected = true;
+            (ev.detail.tileElement as HueDialogLightTile).isSelected = true;
 
             // show with history
             this._lightDetailHistoryStep = new HueHistoryStep(show, hide, HueLightDetail.ElementName);
@@ -178,7 +178,7 @@ export class HueDialog extends IdLitElement {
         if (!el)
             return;
 
-        const tileScroller = <HTMLElement>el.closest('.tile-scroller');
+        const tileScroller = el.closest('.tile-scroller') as HTMLElement;
         if (tileScroller == null)
             throw Error('Parent tile-scroller not found.');
 
@@ -195,7 +195,7 @@ export class HueDialog extends IdLitElement {
         const isAfter = elEnd > tileScrollerEnd;
 
         // if is inside or is outside on both sides (fail) - no scroll
-        if (isBefore == isAfter)
+        if (isBefore === isAfter)
             return;
 
         if (isBefore) {
@@ -351,6 +351,7 @@ export class HueDialog extends IdLitElement {
     public static override get styles() {
         return [
             HueDialog.haStyleDialog,
+            ViewUtils.SwitchStyles,
             css`
     /* hiding controls when light detail is open */
     .detail-hide {
@@ -394,8 +395,6 @@ export class HueDialog extends IdLitElement {
     }
     .hue-heading ha-switch {
         padding: 12px;
-        /* from HA 2026.5 - compensate for inner label margin */
-        margin-inline-end: -0.5em;
     }
     .hue-heading .brightness-slider {
         width: 100%;
@@ -518,7 +517,7 @@ export class HueDialog extends IdLitElement {
 
             // Trying to find surface element (it's not available during first load)
             const dialogShadowRoot = this.shadowRoot?.querySelector('ha-dialog')?.shadowRoot;
-            const surface = dialogShadowRoot && <HTMLElement>dialogShadowRoot.querySelector('wa-dialog');
+            const surface = dialogShadowRoot && dialogShadowRoot.querySelector('wa-dialog') as HTMLElement;
 
             // finally got surface element, let's create backdrop and other stuff
             if (surface) {
@@ -615,7 +614,7 @@ export class HueDialog extends IdLitElement {
         }
 
         // ## Heading styles
-        const heading = <Element>this.renderRoot.querySelector('.hue-heading');
+        const heading = this.renderRoot.querySelector('.hue-heading') as Element;
         if (!heading)
             throw new Error('Hue heading not found!');
 
@@ -687,10 +686,10 @@ export class HueDialog extends IdLitElement {
         const mdiClose = 'mdi:close';
         const sceneTiles: ({ kind: 'scene', config: SceneConfig } | { kind: 'preset', config: PresetConfig })[] = [];
         this._config.sceneProvider.forEach(provider => {
-            if (provider == SceneProvider.HaScenes) {
+            if (provider === SceneProvider.HaScenes) {
                 sceneTiles.push(...this._config.scenes.map(sceneConfig => ({ kind: 'scene' as const, config: sceneConfig })));
             }
-            else if (provider == SceneProvider.ScenePresets) {
+            else if (provider === SceneProvider.ScenePresets) {
                 sceneTiles.push(...this._config.presets.map(presetConfig => ({ kind: 'preset' as const, config: presetConfig })));
             }
         });
@@ -718,7 +717,7 @@ export class HueDialog extends IdLitElement {
             return nothing;
         };
 
-        /*eslint-disable */
+        /* eslint-disable @/indent */
         return html`
         <ha-dialog
           open
@@ -755,19 +754,19 @@ export class HueDialog extends IdLitElement {
             'detail-active': !!this._selectedLights.length
         })}" tabindex="-1" dialogInitialFocus>
             <div class='header detail-hide'>
-                <div class='title'>${sceneTiles.length ? localize(this._ctrl.hass, "dialog.scenes") : nothing}</div>
+                <div class='title'>${sceneTiles.length ? localize(this._ctrl.hass, 'dialog.scenes') : nothing}</div>
             </div>
             <div class='tile-scroller scene-tiles detail-hide' ${horizontalScroll()}>
                 <div class='tiles'>
-                    ${(sceneTiles.map((tile, i) => i % 2 == 1 ? nothing : renderSceneTile(tile)))}
+                    ${(sceneTiles.map((tile, i) => i % 2 === 1 ? nothing : renderSceneTile(tile)))}
                 </div>
                 <div class='tiles'>
-                    ${(sceneTiles.map((tile, i) => i % 2 == 0 ? nothing : renderSceneTile(tile)))}
+                    ${(sceneTiles.map((tile, i) => i % 2 === 0 ? nothing : renderSceneTile(tile)))}
                 </div>
             </div>
 
             <div class='header detail-hide'>
-                <div class='title'>${localize(this._ctrl.hass, "dialog.lights")}</div>
+                <div class='title'>${localize(this._ctrl.hass, 'dialog.lights')}</div>
             </div>
             <div class='tile-scroller light-tiles' ${horizontalScroll()}>
                 <div class='tiles'>
@@ -777,7 +776,7 @@ export class HueDialog extends IdLitElement {
                             .lightContainer=${l}
                             .entityConfig=${this._entitiesConfig.getConfig(l.getEntityId())}
                             .isSelected=${this._selectedLights.indexOf(l) >= 0}
-                            .isUnselected=${this._selectedLights.length && this._selectedLights.indexOf(l) == -1}
+                            .isUnselected=${this._selectedLights.length && this._selectedLights.indexOf(l) === -1}
                             @selected-change=${(e: CustomEvent) => this.onLightSelected(e)}
                             .defaultColor=${this._config.getDefaultColor()}
                             .hass=${this._ctrl.hass}
@@ -788,7 +787,7 @@ export class HueDialog extends IdLitElement {
           </div>
         </ha-dialog>
         `;
-        /*eslint-enable */
+        /* eslint-enable @/indent */
     }
 
     //#region updateStyles hooks
