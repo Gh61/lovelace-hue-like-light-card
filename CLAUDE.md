@@ -5,6 +5,7 @@ Hue-Like Light Card - a Home Assistant Lovelace custom card (TypeScript + Lit, b
 - Development guide (setup, scripts, architecture, release): [docs/development.md](docs/development.md)
 - Coding rules (mandatory): [docs/coding-guidelines.md](docs/coding-guidelines.md)
 - Commit messages: [COMMIT.md](COMMIT.md)
+- Milestone 2.0 progress (state of the changes vs. `main`, open milestone issues): [docs/progress.md](docs/progress.md)
 
 ## Language & written rules
 
