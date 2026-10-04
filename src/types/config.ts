@@ -98,6 +98,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.label = plainConfig.label;
         this.groupEntity = plainConfig.groupEntity;
         this.description = plainConfig.description;
+        this.powerEntity = plainConfig.powerEntity;
         this.iconSize = HueLikeLightCardConfig.getIconSize(plainConfig.iconSize);
         this.showSwitch = HueLikeLightCardConfig.getBoolean(plainConfig.showSwitch, true);
         this.switchOnScene = plainConfig.switchOnScene;
@@ -310,6 +311,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     public readonly hueBorders: boolean;
     public readonly apiId?: string;
     public readonly isVisible: boolean;
+    public readonly powerEntity?: string;
 
     /** Support for card-mod styling */
     public readonly style?: unknown;

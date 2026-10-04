@@ -11,6 +11,7 @@ import { Color } from './colors/color';
 import { HaIcon, IHassWindow } from '../types/types-hass';
 import { SliderType } from '../types/types-config';
 import { HueMushroomSliderContainer } from '../controls/mushroom-slider-container';
+import { HomeAssistant } from 'custom-card-helpers';
 
 export class ViewUtils {
 
@@ -72,6 +73,25 @@ export class ViewUtils {
             .value=${ctrl.brightnessValue}
             @change=${(ev: Event) => ViewUtils.changed(ev, true, ctrl, onChange)}
         ></ha-slider>`;
+    }
+
+    public static createPowerDisplay(hass: HomeAssistant, powerEntityId: string | undefined) {
+        if (!powerEntityId) return nothing;
+        const state = hass?.states?.[powerEntityId];
+        if (!state || state.state === 'unavailable' || state.state === 'unknown')
+            return nothing;
+
+        const unit = state.attributes?.unit_of_measurement ?? 'W';
+        const value = parseFloat(state.state);
+        if (isNaN(value)) return nothing;
+
+        const display = value >= 1000
+            ? `${(value / 1000).toFixed(1)} k${unit}`
+            : value >= 10
+                ? `${Math.round(value)} ${unit}`
+                : `${value.toFixed(1)} ${unit}`;
+
+        return html`<span class="power-value">${display}</span>`;
     }
 
     private static changed(ev: Event, isSlider: boolean, ctrl: ILightContainer, onChange: Action, switchOnScene?: string) {

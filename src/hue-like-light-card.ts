@@ -318,6 +318,15 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         display:flex;
         overflow:auto;
     }
+    .power-value {
+        align-self: center;
+        margin-inline-end: 14px;
+        margin-top: -3px;
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        color: var(--hue-text-color);
+    }
     `;
 
     protected override updated(changedProps: PropertyValues): void {
@@ -474,6 +483,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
                         <div class="desc">${description}</div>
                     </div>
                 </div>
+                ${this._config.powerEntity ? ViewUtils.createPowerDisplay(this._hass, this._config.powerEntity) : nothing}
                 ${showSwitch ? ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene) : nothing}
             </div>
             ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}

@@ -397,6 +397,15 @@ export class HueDialog extends IdLitElement {
         /* from HA 2026.5 - compensate for inner label margin */
         margin-inline-end: -0.5em;
     }
+    .hue-heading .power-value {
+        align-self: center;
+        margin-inline-end: 2px;
+        margin-top: -4px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--hue-heading-text-color);
+        white-space: nowrap;
+    }       
     .hue-heading .brightness-slider {
         width: 100%;
     }
@@ -746,6 +755,7 @@ export class HueDialog extends IdLitElement {
               ${cardTitle}
             </div>
             <div slot="actionItems">
+              ${this._config.powerEntity ? ViewUtils.createPowerDisplay(this._ctrl.hass, this._config.powerEntity) : nothing}
               ${ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene)}
             </div>
             ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}

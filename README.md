@@ -314,6 +314,14 @@ Some of these options may not be in the latest version. Please always check the 
     <td>Support for the <a href="https://github.com/thomasloven/lovelace-card-mod">card-mod</a>.</td>
   </tr>
   <tr>
+    <td><code>powerEntity</code></td>
+    <td>string</td>
+    <td>no</td>
+    <td>1.12.0</td>
+    <td>-</td>
+    <td>Optional power sensor entity (e.g. <code>sensor.livingroom_power</code>) to show the current power consumption</td>
+  </tr>  
+  <tr>
     <td colspan="6">
       <i>* At least one of these options must be filled in. <b>Only entities of <code>light</code> domain and/or floors, areas and labels with <code>light</code> domain entities are supported.</b></i>
     </td>
