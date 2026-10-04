@@ -45,22 +45,56 @@ describe('horizontalScroll', () => {
         expect(wheelCalls(addSpy)).toHaveLength(2);
     });
 
-    it('should cancel a running scroll animation on disconnect', () => {
-        const requestSpy = jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);
-        const cancelSpy = jest.spyOn(window, 'cancelAnimationFrame').mockImplementation(noop);
-
-        const container = document.createElement('div');
+    const renderScrollable = (container: HTMLElement) => {
         const part = renderScroller(container);
         const el = container.querySelector('div')!;
         // jsdom has no layout - make the element scrollable
         Object.defineProperty(el, 'scrollWidth', { value: 1000 });
         Object.defineProperty(el, 'clientWidth', { value: 100 });
+        return { part, el };
+    };
+
+    it('should cancel a running scroll animation on disconnect', () => {
+        const requestSpy = jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);
+        const cancelSpy = jest.spyOn(window, 'cancelAnimationFrame').mockImplementation(noop);
+
+        const { part, el } = renderScrollable(document.createElement('div'));
 
         el.dispatchEvent(new WheelEvent('wheel', { deltaY: 100 }));
         expect(requestSpy).toHaveBeenCalledTimes(1);
 
         part.setConnected(false);
         expect(cancelSpy).toHaveBeenCalledWith(42);
+    });
+
+    it('should cancel a running scroll animation and scroll natively on horizontal wheel', () => {
+        const requestSpy = jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);
+        const cancelSpy = jest.spyOn(window, 'cancelAnimationFrame').mockImplementation(noop);
+
+        const { el } = renderScrollable(document.createElement('div'));
+
+        el.dispatchEvent(new WheelEvent('wheel', { deltaY: 100 }));
+        expect(requestSpy).toHaveBeenCalledTimes(1);
+
+        // trackpad swipe - horizontally dominant
+        const horizontal = new WheelEvent('wheel', { deltaX: 50, deltaY: 10, cancelable: true });
+        el.dispatchEvent(horizontal);
+
+        expect(cancelSpy).toHaveBeenCalledWith(42);
+        expect(horizontal.defaultPrevented).toBe(false);
+        expect(requestSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should smooth-scroll a vertically dominant diagonal wheel', () => {
+        const requestSpy = jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);
+
+        const { el } = renderScrollable(document.createElement('div'));
+
+        const diagonal = new WheelEvent('wheel', { deltaX: 10, deltaY: 50, cancelable: true });
+        el.dispatchEvent(diagonal);
+
+        expect(diagonal.defaultPrevented).toBe(true);
+        expect(requestSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should not attach the wheel listener when rendered while disconnected', () => {
