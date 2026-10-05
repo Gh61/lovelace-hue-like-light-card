@@ -68,9 +68,28 @@ The same workflow replaces the version in `package.json` (line 3) and `package-l
 
 > **Safety rule:** browser testing (manual or AI driven) happens **only on the dedicated testing dashboard and its views**. Never use production dashboards, never change HA settings, entities or other dashboards.
 
-The AI workflow (`/task`) asks for the testing dashboard URL once and stores it together with the dev server URL in `.claude/testing-dashboard.local.json` (gitignored, per developer). Later tasks reuse it without asking and print it in the task plan - tell the AI if you want to test elsewhere.
+The AI workflow (`/task`) asks for the testing dashboard URL once and stores it together with the dev server URL in `.claude/testing-dashboard.local.json` (gitignored, per developer). Later tasks reuse it without asking and print it in the task plan - tell the AI if you want to test elsewhere. In a cloud session (no file, no local HA) the browser test uses the Docker instance described below.
 
 `control-test.html` is a standalone sandbox for the color/temperature picker, mode selector and brightness rollup (open it through the dev server).
+
+### Testing in a cloud session (Docker Home Assistant)
+
+A Claude Code cloud session has no access to the developer's Home Assistant, so it runs its own throwaway instance in Docker (`test-ha/`), driven by Playwright with the pre-installed Chromium. The same setup works on a developer machine with Docker.
+
+| Command | What it does |
+|---|---|
+| `npm run ha-test -- start` | Starts the Docker daemon when none runs (cloud container), pulls `ghcr.io/home-assistant/home-assistant:<homeAssistantVersion from src/ha/ha-sync.json>` when missing, starts the container with `test-ha/config` as `/config` and `./dist` as `/config/www`, waits for the dashboard and seeds the registry (floor, areas, label for the demo lights). |
+| `npm run ha-test -- smoke` | Playwright smoke test (`test-ha/browser/smoke.mjs`): all cards of the testing dashboard render, tap opens the Hue dialog, browser back closes it, no console errors. Screenshots in `test-ha/browser/out/`. |
+| `npm run ha-test -- stop` / `status` / `logs` | Container lifecycle and the HA log. |
+
+Facts about the instance:
+
+- URL `http://127.0.0.1:8123`, testing dashboard `http://127.0.0.1:8123/lovelace-testing` (views `basic`, `hue-screen`, `styles` in `test-ha/config/dashboards/testing.yaml` - add a card there when a change needs a new configuration).
+- Entities come from the `demo` integration (`light.bed_light`, `light.ceiling_lights`, `light.kitchen_lights` with color temperature + hs, `light.office_rgbw_lights`, `light.living_room_rgbww_lights`, `light.entrance_color_white_lights`, `switch.decorative_lights`) plus two YAML scenes (`scene.evening`, `scene.bright`); `ha-test start` assigns them to the areas `living_room` / `kitchen` on the floor `ground_floor` and the label `accent`.
+- Login is automatic: the only auth provider is `trusted_networks` with `allow_bypass_login` and the single user `Tester` pre-seeded in `test-ha/config/.storage/auth` (no password, reachable from the container host only). Onboarding is pre-completed (`.storage/onboarding`). Everything else HA writes into `test-ha/config` is ignored by git.
+- `src/ha/ha-sync.json` → `homeAssistantVersion` is the HA release whose frontend is copied into `src/ha/`; update it together with the manifest commit when syncing.
+- `test-ha/browser/helpers.mjs` has the Playwright helpers (open a view, find elements through shadow roots, tap / hold, dialog checks, console errors) for the browser-tester agent and ad-hoc scripts.
+- In a cloud session the SessionStart hook (`.claude/hooks/session-start.sh`) installs npm dependencies, starts the Docker daemon and pulls the image in the background; the environment's network access must allow `ghcr.io` and `pkg-containers.githubusercontent.com`.
 
 ## Unit tests
 

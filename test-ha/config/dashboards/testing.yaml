@@ -1,0 +1,69 @@
+# Testing dashboard for the dev build (custom:hue-like-light-card-test). Views cover the card variants
+# the browser test exercises; add a card here when a change needs a new configuration.
+title: Testing
+views:
+  - title: Basic
+    path: basic
+    cards:
+      - type: custom:hue-like-light-card-test
+        title: Single light
+        entity: light.bed_light
+      - type: custom:hue-like-light-card-test
+        title: Three lights
+        entities:
+          - light.bed_light
+          - light.ceiling_lights
+          - light.kitchen_lights
+      - type: custom:hue-like-light-card-test
+        title: RGBW + RGBWW
+        entities:
+          - light.office_rgbw_lights
+          - light.living_room_rgbww_lights
+      - type: custom:hue-like-light-card-test
+        title: Switch
+        entity: switch.decorative_lights
+        showSwitch: false
+  - title: Hue screen
+    path: hue-screen
+    cards:
+      - type: custom:hue-like-light-card-test
+        title: With scenes
+        entities:
+          - light.bed_light
+          - light.ceiling_lights
+          - light.kitchen_lights
+        scenes:
+          - scene.evening
+          - scene.bright
+      - type: custom:hue-like-light-card-test
+        title: Hue screen on tap
+        entity: light.entrance_color_white_lights
+        offClickAction: hue-screen
+        onClickAction: hue-screen
+      - type: custom:hue-like-light-card-test
+        title: More info on tap
+        entity: light.bed_light
+        offClickAction: more-info
+        onClickAction: more-info
+  - title: Styles
+    path: styles
+    cards:
+      - type: custom:hue-like-light-card-test
+        title: Mushroom slider
+        entity: light.bed_light
+        slider: mushroom
+      - type: custom:hue-like-light-card-test
+        title: Templates
+        entities:
+          - light.bed_light
+          - light.kitchen_lights
+        description: "{{light.bed_light}} / {{light.kitchen_lights.brightness}}"
+      - type: custom:hue-like-light-card-test
+        title: Area
+        area: living_room
+      - type: custom:hue-like-light-card-test
+        title: Floor
+        floor: ground_floor
+      - type: custom:hue-like-light-card-test
+        title: Label
+        label: accent

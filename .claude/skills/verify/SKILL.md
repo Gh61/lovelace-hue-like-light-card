@@ -20,10 +20,10 @@ The browser test is a **regular part** of `/verify`, not an optional extra. It i
 
 - `--browser <dashboard-url> <scenarios>` - run `browser-tester` with this URL and these scenarios.
 - `--no-browser <reason>` - skip the browser test; the reason is printed in the report.
-- Neither given and the change can affect the UI: take `dashboardUrl` from `.claude/testing-dashboard.local.json` (the developer's stored testing dashboard) and derive the scenarios from the diff; print the URL you are going to use. If the file does not exist, **stop and ask** for the URL - never invent one.
+- Neither given and the change can affect the UI: take `dashboardUrl` from `.claude/testing-dashboard.local.json` (the developer's stored testing dashboard) and derive the scenarios from the diff; print the URL you are going to use. If the file does not exist and this is a cloud session (`CLAUDE_CODE_REMOTE=true` or Docker available), use the testing Home Assistant instance: `npm run rollup && npm run ha-test -- start`, dashboard `http://127.0.0.1:8123/lovelace-testing` (Playwright mode of `browser-tester`, see `docs/development.md` "Testing in a cloud session"). Otherwise **stop and ask** for the URL - never invent one.
 - Neither given and the change cannot affect the UI: treat it as `--no-browser` and state the reason yourself.
 
-Before launching `browser-tester`, make sure the dev server runs: read `devServerUrl` from `.claude/testing-dashboard.local.json` (fallback `http://127.0.0.1:5500`) and request `<devServerUrl>/hue-like-light-card.js`. If it does not respond, start `npm start` in the background and wait for the first build to finish.
+Before launching `browser-tester` against the developer's HA, make sure the dev server runs: read `devServerUrl` from `.claude/testing-dashboard.local.json` (fallback `http://127.0.0.1:5500`) and request `<devServerUrl>/hue-like-light-card.js`. If it does not respond, start `npm start` in the background and wait for the first build to finish. For the Docker instance the dev server is not needed - `ha-test start` serves `./dist` directly; rebuild (`npm run rollup`) before testing.
 
 ## 3. Run the guard agents in parallel
 

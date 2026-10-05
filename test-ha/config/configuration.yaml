@@ -1,0 +1,54 @@
+# Home Assistant configuration for the throwaway testing instance (see docs/development.md, "Testing in a cloud session").
+# Everything is local-only: the only auth provider is trusted_networks with automatic login from the container host.
+homeassistant:
+  name: Hue Card Test
+  unit_system: metric
+  time_zone: Europe/Prague
+  auth_providers:
+    - type: trusted_networks
+      trusted_networks:
+        - 127.0.0.1
+        - 172.16.0.0/12
+      allow_bypass_login: true
+
+frontend:
+
+# demo lights: color_temp+hs (bed, ceiling, kitchen), rgbw (office), rgbww (living room), hs+white (entrance), switches
+demo:
+
+scene:
+  - name: Evening
+    entities:
+      light.bed_light:
+        state: on
+        brightness: 80
+        color_temp_kelvin: 2700
+      light.ceiling_lights:
+        state: off
+      light.kitchen_lights:
+        state: on
+        brightness: 120
+        hs_color: [30, 60]
+  - name: Bright
+    entities:
+      light.bed_light:
+        state: on
+        brightness: 255
+      light.ceiling_lights:
+        state: on
+        brightness: 255
+      light.kitchen_lights:
+        state: on
+        brightness: 255
+
+lovelace:
+  mode: yaml
+  resources:
+    - url: /local/hue-like-light-card.js
+      type: module
+  dashboards:
+    lovelace-testing:
+      mode: yaml
+      title: Testing
+      icon: mdi:lightbulb-group
+      filename: dashboards/testing.yaml

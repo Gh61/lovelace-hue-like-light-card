@@ -1,6 +1,7 @@
 {
     "repository": "https://github.com/home-assistant/frontend.git",
     "commit": "380e9b5a81ada29a1d187b4123c54fb3d6fbcc89",
+    "homeAssistantVersion": "2026.9.4",
     "files": [
         "common/array/ensure-array.ts",
         "common/array/literal-includes.ts",

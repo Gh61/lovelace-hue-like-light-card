@@ -2,3 +2,17 @@
 /dist
 /release
 /.claude/*.local.*
+# runtime files of the testing Home Assistant instance (test-ha/config is mounted as /config)
+/test-ha/config/.storage/*
+!/test-ha/config/.storage/auth
+!/test-ha/config/.storage/onboarding
+/test-ha/config/*.db*
+/test-ha/config/*.log*
+/test-ha/config/.HA_VERSION
+/test-ha/config/.cloud
+/test-ha/config/blueprints
+/test-ha/config/deps
+/test-ha/config/tts
+/test-ha/config/www
+/test-ha/config/known_devices.yaml
+/test-ha/browser/out

@@ -40,6 +40,7 @@
         "eslint-plugin-import": "^2.32.0",
         "jest": "^30.3.0",
         "jest-environment-jsdom": "^30.4.1",
+        "playwright": "^1.63.0",
         "rimraf": "^6.1.2",
         "rollup-plugin-serve": "^3.0.0",
         "rollup-plugin-typescript2": "^0.37.0",
@@ -56,6 +57,7 @@
         "lintfix": "eslint . --fix",
         "rollup": "rollup -c",
         "clean": "rimraf node_modules/.cache",
-        "ha-sync": "node scripts/ha-sync.mjs"
+        "ha-sync": "node scripts/ha-sync.mjs",
+        "ha-test": "node scripts/ha-test.mjs"
     }
 }

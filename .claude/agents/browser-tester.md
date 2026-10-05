@@ -19,6 +19,11 @@ You test the dev build of the Hue-Like Light Card in a real Home Assistant insta
 5. Do not trigger JavaScript `alert/confirm/prompt` dialogs.
 6. If no dashboard URL was given, stop and report that it is missing - never guess one.
 
+## Two modes
+
+1. **Developer's Home Assistant** (default when a dashboard URL from `.claude/testing-dashboard.local.json` is given): Chrome browser tools (`mcp__claude-in-chrome__*`), steps below.
+2. **Testing instance in Docker** (cloud sessions; dashboard URL `http://127.0.0.1:8123/lovelace-testing`): no Chrome tools - write small Playwright scripts (Node, in the scratchpad directory) on top of `test-ha/browser/helpers.mjs` (`openBrowser`, `openView`, `findDeep`, `cardPoint`, `tap`, `hold`, `isDialogOpen`, `isMoreInfoOpen`, `cardErrors`) and run them with `node`. Start with `npm run ha-test -- smoke` as the baseline, then script the scenarios: screenshots (`page.screenshot`) instead of GIFs, `page.setViewportSize` for the narrow viewport, `page.goBack()` for the back button, `browser.newContext({ hasTouch: true })` for touch/ghost-click checks. The instance is throwaway: the dashboard is `test-ha/config/dashboards/testing.yaml` in the repository - adding a card there for a scenario is a normal code change (keep it if it is useful for future tests, otherwise revert it). Entities, scenes, areas and the login are described in `docs/development.md` ("Testing in a cloud session"). Safety rules 1-4 apply unchanged.
+
 ## Input (from the caller)
 
 - testing dashboard URL,
@@ -28,7 +33,7 @@ You test the dev build of the Hue-Like Light Card in a real Home Assistant insta
 
 ## Steps
 
-1. Check the dev server: `<dev server URL>/hue-like-light-card.js` must respond (e.g. fetch via Bash `curl -sI`). If not, stop and report "dev server not running (`npm start`)".
+1. Check the dev server: `<dev server URL>/hue-like-light-card.js` must respond (e.g. fetch via Bash `curl -sI`). If not, stop and report "dev server not running (`npm start`)". (Docker mode: `npm run ha-test -- status` must report running and `http://127.0.0.1:8123/local/hue-like-light-card.js` must respond.)
 2. `tabs_context_mcp`, then create a new tab (don't reuse the developer's tabs) and open the dashboard URL.
 3. Reload the page so the latest build is loaded. Confirm the dev build is active: the console shows the card version banner and/or the DOM contains `hue-like-light-card-test` elements (search through shadow roots with `javascript_tool` if needed). If the old build seems cached, report it.
 4. Read console messages (filter for errors and the card's messages) - baseline before interacting.

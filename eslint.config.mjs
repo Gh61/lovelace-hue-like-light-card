@@ -21,7 +21,8 @@ export default [{
         "dist", // release
         "*.config.js", // config file
         "*.config.mjs", // config file
-        "scripts/**" // node tooling, not part of the card
+        "scripts/**", // node tooling, not part of the card
+        "test-ha/**" // testing Home Assistant instance (config + Playwright scripts)
     ],
 }, ...compat.extends("plugin:@typescript-eslint/recommended"), {
     plugins: {
