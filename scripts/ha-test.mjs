@@ -3,7 +3,8 @@
  * ha-test - runs a throwaway Home Assistant instance in Docker for browser testing of the dev build.
  *
  * The instance uses the configuration in `test-ha/config/` (demo lights, scenes, the testing dashboard,
- * automatic login from the container host) and serves the dev build from `./dist` as `/local/hue-like-light-card.js`.
+ * automatic login from the container host) and serves the dev build from `./dist` as `/local/dist/hue-like-light-card.js`
+ * (next to card-mod in `test-ha/www`, the host side of `/config/www`).
  * The HA version comes from `homeAssistantVersion` in `src/ha/ha-sync.json`, so the tests run against the
  * HA release whose frontend source is copied into `src/ha/`.
  *
@@ -14,13 +15,14 @@
  *   node scripts/ha-test.mjs status    Prints whether the instance answers.
  *   node scripts/ha-test.mjs smoke     Runs `test-ha/browser/smoke.mjs` (Playwright) against the running instance.
  *   node scripts/ha-test.mjs dialog    Runs `test-ha/browser/dialog.mjs` (Hue dialog lifecycle, history, stacked more-info).
+ *   node scripts/ha-test.mjs cardmod   Runs `test-ha/browser/card-mod.mjs` (card-mod theme styling of the Hue dialog).
  *   node scripts/ha-test.mjs logs      Prints the Home Assistant log of the container.
  *
  * Needs `npm run rollup` (or `npm start`) for the dev build in `./dist`.
  */
 
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, openSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -28,6 +30,11 @@ const RepoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ConfigDir = join(RepoRoot, 'test-ha', 'config');
 const DistDir = join(RepoRoot, 'dist');
 const ContainerName = 'hue-card-test-ha';
+// host side of /config/www (not committed): card-mod.js plus the dev build mounted as /config/www/dist
+const WwwDir = join(RepoRoot, 'test-ha', 'www');
+// card-mod is installed in the testing instance to check theme styling of dialogs (its source file is the release artifact)
+const CardModVersion = 'v4.2.1';
+const CardModUrl = `https://raw.githubusercontent.com/thomasloven/lovelace-card-mod/${CardModVersion}/card-mod.js`;
 const Port = 8123;
 export const BaseUrl = `http://127.0.0.1:${Port}`;
 export const DashboardUrl = `${BaseUrl}/lovelace-testing`;
@@ -188,12 +195,27 @@ async function seedRegistry() {
     }
 }
 
+/** Downloads the card-mod bundle once (test-ha/www is not committed). */
+async function ensureCardMod() {
+    const file = join(WwwDir, 'card-mod.js');
+    if (existsSync(file))
+        return file;
+    console.log(`Downloading card-mod ${CardModVersion} ...`);
+    const response = await fetch(CardModUrl);
+    if (!response.ok)
+        throw new Error(`card-mod download failed: HTTP ${response.status}`);
+    mkdirSync(WwwDir, { recursive: true });
+    writeFileSync(file, Buffer.from(await response.arrayBuffer()));
+    return file;
+}
+
 async function start() {
     if (!existsSync(join(DistDir, 'hue-like-light-card.js')))
         throw new Error('dist/hue-like-light-card.js is missing - run `npm run rollup` or `npm start` first');
     await ensureDockerDaemon();
     const tag = imageTag();
     ensureImage(tag);
+    await ensureCardMod();
 
     if (dockerOk(['container', 'inspect', ContainerName])) {
         if (await httpStatus(DashboardUrl) === 200) {
@@ -208,7 +230,8 @@ async function start() {
     docker(['run', '-d', '--name', ContainerName,
         '-p', `127.0.0.1:${Port}:8123`,
         '-v', `${ConfigDir}:/config`,
-        '-v', `${DistDir}:/config/www:ro`,
+        '-v', `${WwwDir}:/config/www`,
+        '-v', `${DistDir}:/config/www/dist:ro`,
         tag]);
 
     const deadline = Date.now() + StartTimeoutMs;
@@ -258,8 +281,9 @@ try {
         case 'logs': logs(); break;
         case 'smoke': await browserTest('smoke'); break;
         case 'dialog': await browserTest('dialog'); break;
+        case 'cardmod': await browserTest('card-mod'); break;
         default:
-            console.log('Usage: ha-test start | stop | status | logs | smoke | dialog');
+            console.log('Usage: ha-test start | stop | status | logs | smoke | dialog | cardmod');
             process.exitCode = 2;
     }
 }

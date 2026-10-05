@@ -16,4 +16,5 @@
 /test-ha/config/www
 /test-ha/config/known_devices.yaml
 /test-ha/browser/out
+/test-ha/www
 /test-ha/config/.ha_run.lock

@@ -106,7 +106,10 @@ export async function isMoreInfoOpen(page) {
     return dialogs.evaluate(list => list.some(d => [...(d.shadowRoot?.children ?? [])].some(c => c.hasAttribute('open'))));
 }
 
-/** Filters out noise that is not related to the card. */
+/**
+ * Filters out noise that is not related to the card: HA resources, source-map fetches through the proxy,
+ * and the `component_name` TypeError that card-mod 4.2.1 triggers in HA 2026.9 (`partial-panel-resolver._updateRoutes`).
+ */
 export function cardErrors(errors) {
-    return errors.filter(e => !/favicon|service-worker|manifest\.json/.test(e));
+    return errors.filter(e => !/favicon|service-worker|manifest\.json|ERR_CERT_AUTHORITY_INVALID|reading 'component_name'|^pageerror: Object$/.test(e));
 }

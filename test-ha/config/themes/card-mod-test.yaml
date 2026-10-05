@@ -1,0 +1,14 @@
+# Theme for checking card-mod styling (activated by test-ha/browser/card-mod.mjs, otherwise the default theme is used).
+# card-mod applies `card-mod-dialog` to every dialog opened through the HA dialog manager; the ha-dialog element
+# gets the class `type-<dialog tag without ha->`, e.g. `type-hue-dialog-test`.
+# Note: the `-yaml` variants (`card-mod-dialog-yaml`, ...) do not work with card-mod 4.2.1 on HA 2026.9 - card-mod loads
+# HA's YAML editor through `partial-panel-resolver` with a fake `hass`, which throws "Cannot read properties of
+# undefined (reading 'component_name')" (the console error filtered in test-ha/browser/helpers.mjs).
+card-mod-test:
+  card-mod-theme: card-mod-test
+  card-mod-card: "ha-card { outline: 3px solid rgb(10, 100, 10); }"
+  card-mod-dialog: |
+    ha-dialog.type-hue-dialog-test {
+      --ha-dialog-surface-background: rgb(10, 100, 10);
+      --ha-dialog-border-radius: 4px;
+    }

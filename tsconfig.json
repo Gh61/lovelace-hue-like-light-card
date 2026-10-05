@@ -17,5 +17,6 @@
         "strictPropertyInitialization": false,
         "noImplicitOverride": true,
         "allowJs": true
-    }
+    },
+    "exclude": ["node_modules", "dist", "release", "scripts", "test-ha"]
 }
