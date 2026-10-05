@@ -1,6 +1,6 @@
 import { css, nothing, PropertyValues, unsafeCSS } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
-import { customElement } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { Background } from '../core/colors/background';
 import { Color } from '../core/colors/color';
@@ -33,7 +33,13 @@ export interface HueDialogParams {
     actionHandler: ActionHandler;
 }
 
-/** History state the dialog pushes for its inner levels (HA calls `closeDialog(historyState)` when the user navigates back to it). */
+/**
+ * History state of the dialog levels. HA pattern (HA 2026.9: `src/panels/config/automation/add-automation-element-dialog.ts`,
+ * handled by `src/state/url-sync-mixin.ts`): the dialog manager pushes `{ dialog: <tag> }`, the dialog pushes
+ * `{ dialogData: {} }` as its root level and `{ dialogData: { lightDetail: true } }` for the light detail.
+ * On the browser back HA calls `closeDialog(historyState)` with the entry the user navigated to (and `closeDialog()`
+ * without state when that entry also marks a dialog that was stacked on top of this one).
+ */
 interface HueDialogHistoryState {
     dialogData?: {
         lightDetail?: boolean;
@@ -58,6 +64,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
     */
 
     private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
+    @state()
     private _open = false;
     private _config: HueLikeLightCardConfig;
     private _entitiesConfig: HueLikeLightCardEntityConfigCollection;
@@ -131,7 +138,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
 
             // the detail is an inner level of the dialog - one history entry, so the browser back closes only the detail
             if (!wasOpen) {
-                // HA re-pushes its own dialog state after a stacked dialog (e.g. more-info) closes - make it our root level again
+                // HA re-pushes its own `{ dialog }` state after a stacked dialog (e.g. more-info) closes - make it our root level again
                 if (!(window.history.state as HueDialogHistoryState | null)?.dialogData) {
                     const rootState: HueDialogHistoryState = { dialogData: {} };
                     window.history.replaceState(rootState, '');
@@ -228,10 +235,6 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
      * Called by the HA dialog manager (the `show-dialog` event). The element stays in the DOM and is re-shown with new params.
      */
     public showDialog(params: HueDialogParams): void {
-        if (this._open) {
-            this.hideLightDetailInternal(true);
-        }
-
         this._config = params.config;
         this._entitiesConfig = params.config.getEntities();
         this._ctrl = params.lightController;
@@ -249,6 +252,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this.requestUpdate();
         this.updateComplete.then(() => {
             this.tryCreateBackdropAndLightDetail(true);
+            this._lightDetailElement!.areaController = this._ctrl; // the detail element is shared by all cards
             this.updateStylesInner(true);
         });
     }
@@ -268,14 +272,20 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                 return false;
             }
 
-            // navigated back to the root level (from the detail, or from a dialog stacked on top of this one)
-            const toRoot = !level.dialogData.lightDetail && (historyState !== undefined || this.isLightDetailOpen);
-            if (toRoot) {
+            const atRoot = !level.dialogData.lightDetail;
+
+            // navigated back from the detail to the root level (HA passes no state when the root entry also marks a stacked dialog)
+            if (atRoot && this.isLightDetailOpen) {
                 this.hideLightDetailInternal();
                 return false;
             }
 
-            // closed from the dialog itself - hide now, let the history unwind
+            // navigated back from a dialog stacked on top of this one - nothing to leave
+            if (atRoot && historyState) {
+                return false;
+            }
+
+            // closed from the dialog itself while inner history entries exist - hide now, let the history unwind
             this._open = false;
             window.history.back();
             return false;
@@ -293,6 +303,12 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         if (this._open) {
             this.closeDialog();
         }
+    }
+
+    public override disconnectedCallback(): void {
+        this._ctrl?.unregisterOnPropertyChanged(this._elementId);
+        this._lt.reset();
+        super.disconnectedCallback();
     }
 
     //#endregion

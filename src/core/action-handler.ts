@@ -28,7 +28,7 @@ export class ActionHandler {
             actionHandler: this
         };
         fireEvent(this._owner, 'show-dialog', {
-            dialogTag: HueDialog.ElementName as keyof HTMLElementTagNameMap,
+            dialogTag: HueDialog.ElementName as keyof HTMLElementTagNameMap, // HA types the tag against the global tag map
             dialogImport: () => Promise.resolve(), // the element is part of this bundle
             dialogParams: params
         });

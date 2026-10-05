@@ -62,7 +62,6 @@ export default [{
             allow: [
                 "_containers",
                 "_args",
-                "_instance",
                 "_isMouseDown",
                 "_wrapper",
                 "_lastHash",

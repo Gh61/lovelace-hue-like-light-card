@@ -27,7 +27,7 @@ describe('ActionHandler', () => {
         const handler = new ActionHandler(card['_config']!, card['_ctrl']!, card);
 
         const events: CustomEvent[] = [];
-        document.body.addEventListener('show-dialog', (ev) => events.push(ev as CustomEvent));
+        document.body.addEventListener('show-dialog', (ev) => events.push(ev as CustomEvent), { once: true });
 
         handler.openHueScreen();
 
@@ -48,7 +48,7 @@ describe('ActionHandler', () => {
         const handler = new ActionHandler(card['_config']!, card['_ctrl']!, card);
 
         const events: CustomEvent[] = [];
-        document.body.addEventListener('hass-more-info', (ev) => events.push(ev as CustomEvent));
+        document.body.addEventListener('hass-more-info', (ev) => events.push(ev as CustomEvent), { once: true });
 
         handler.showMoreInfo('light.test');
 
