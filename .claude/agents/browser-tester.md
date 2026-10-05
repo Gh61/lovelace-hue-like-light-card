@@ -40,7 +40,7 @@ You test the dev build of the Hue-Like Light Card in a real Home Assistant insta
 5. Execute each scenario. Record a GIF (`gif_creator`) of multi-step interactions with a meaningful name; take screenshots of the relevant states. Check:
    - expected behavior / visuals,
    - no new console errors or warnings related to the card,
-   - closing dialogs works and the browser back button behaves (Hue dialog uses history steps),
+   - closing dialogs works and the browser back button behaves (the Hue dialog is an HA-managed dialog: back closes the light detail first, then the dialog; closing from the dialog must leave no `dialogData` / `dialog` history state),
    - narrow viewport (~400px wide) when the change affects layout.
 6. If you edited the testing dashboard, restore it per safety rule 4 and verify the restore.
 7. Close the tab you created when done.

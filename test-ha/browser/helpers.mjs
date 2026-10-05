@@ -94,16 +94,16 @@ export async function hold(page, point, ms = 700) {
     await page.mouse.up();
 }
 
-/** True when the Hue dialog element exists (open). */
+/** True when the Hue dialog is open (the element stays in the DOM after closing - the HA dialog manager re-uses it). */
 export async function isDialogOpen(page) {
     const dialogs = await findDeep(page, DialogTag);
-    return dialogs.evaluate(list => list.length > 0);
+    return dialogs.evaluate(list => list.some(d => d.shadowRoot?.querySelector('ha-dialog')?.hasAttribute('open')));
 }
 
 /** True when the HA more-info dialog is open. */
 export async function isMoreInfoOpen(page) {
     const dialogs = await findDeep(page, 'ha-more-info-dialog');
-    return dialogs.evaluate(list => list.some(d => d.open || d.shadowRoot?.querySelector('ha-dialog[open]')));
+    return dialogs.evaluate(list => list.some(d => [...(d.shadowRoot?.children ?? [])].some(c => c.hasAttribute('open'))));
 }
 
 /** Filters out noise that is not related to the card. */

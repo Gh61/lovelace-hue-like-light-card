@@ -41,7 +41,7 @@ Rules marked **[lint]** are enforced by ESLint/TypeScript; the rest are checked 
 | Methods / functions | camelCase, verb first | `getTitle`, `isOn`, `tryLoadAreaInfo`, `ensureHass` |
 | Private / protected instance fields | `_camelCase` | `_hass`, `_elementId` |
 | Static constants (`static readonly` values, public or private) | PascalCase, no underscore | `Consts.HueBorderRadius`, `IconHelper.DefaultOneIcon` |
-| Static state (mutable static fields, mutated static collections, singletons) | `_camelCase` | `HueHistoryStateManager._instance`, `GlobalLights._containers` |
+| Static state (mutable static fields, mutated static collections, singletons) | `_camelCase` | `HueApiProvider._lastHash`, `GlobalLights._containers` |
 | Enums | PascalCase name & members, kebab-case string values | `ClickAction.TurnOn = 'turn-on'` |
 | Unused parameters | `_` prefix **[lint]** | `(_ev) => ...` |
 | YAML config keys | camelCase | `offClickAction`, `sceneProvider` |
@@ -83,7 +83,7 @@ A new **static** `_field` must be added to the `no-underscore-dangle` allow-list
 - CSS custom properties: `--hue-*` prefix and always a fallback: `var(--hue-x, ${unsafeCSS(Consts.Y)})`
 - **Never name a method `updateStyles`** (HA calls it) - use `updateStylesInner`
 - Custom events: `this.dispatchEvent(new CustomEvent<IXEventDetail>('kebab-name', { detail }))`; export the detail interface
-- Gestures: tap/hold via the HA `actionHandler()` directive (`src/ha/.../action-handler-directive.ts`, fires the `action` event); swipes via hammerjs `Manager`; drag via `PointerDragHelper`; horizontal wheel scroll via the `horizontalScroll()` directive; back-button support via `HueHistoryStateManager`
+- Gestures: tap/hold via the HA `actionHandler()` directive (`src/ha/.../action-handler-directive.ts`, fires the `action` event); swipes via hammerjs `Manager`; drag via `PointerDragHelper`; horizontal wheel scroll via the `horizontalScroll()` directive; dialogs through the HA dialog manager (`show-dialog` event, `HassDialog.showDialog` / `closeDialog`, `dialog-closed` event; inner levels push `dialogData` history states and `closeDialog(historyState)` unwinds them - HA owns the browser back)
 - Hacks reaching into HA internals (shadow roots, private APIs) must be isolated, commented with the HA version and fail gracefully
 
 ## 7. Reuse before you write

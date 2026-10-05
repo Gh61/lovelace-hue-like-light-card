@@ -160,12 +160,6 @@ export interface HassSearchDeviceResult {
     scene?: string[];
 }
 
-export interface HaDialog extends LitElement {
-    open: boolean;
-    /** Only before HA 2026.3 (mwc-based ha-dialog). */
-    close?(): void;
-    show(): void;
-}
 
 export interface HaIcon extends LitElement {
     icon: string;

@@ -80,6 +80,7 @@ A Claude Code cloud session has no access to the developer's Home Assistant, so 
 |---|---|
 | `npm run ha-test -- start` | Starts the Docker daemon when none runs (cloud container), pulls `ghcr.io/home-assistant/home-assistant:<homeAssistantVersion from src/ha/ha-sync.json>` when missing, starts the container with `test-ha/config` as `/config` and `./dist` as `/config/www`, waits for the dashboard and seeds the registry (floor, areas, label for the demo lights). |
 | `npm run ha-test -- smoke` | Playwright smoke test (`test-ha/browser/smoke.mjs`): all cards of the testing dashboard render, tap opens the Hue dialog, browser back closes it, no console errors. Screenshots in `test-ha/browser/out/`. |
+| `npm run ha-test -- dialog` | Playwright test of the Hue dialog lifecycle (`test-ha/browser/dialog.mjs`): open / re-open, browser back closes the light detail first and the dialog second, X / Escape leave no dialog history state, more-info stacks on the dialog. |
 | `npm run ha-test -- stop` / `status` / `logs` | Container lifecycle and the HA log. |
 
 Facts about the instance:
@@ -96,7 +97,7 @@ Facts about the instance:
 - Location: `tests/<subject>.test.ts` (flat folder), one `describe` per file, `it('should ...')`.
 - Helpers: `tests/test.helper.ts` (`createLightEntity`), `tests/mockup-hass-states.ts` (`hassMockup`), `tests/mockup-general.ts`.
 - Lit elements are only constructed and their pure methods called - no DOM rendering in tests.
-- Covered: config parsing, colors, color-temp picker math, text templates, light features, localization, card smoke test.
+- Covered: config parsing, colors, color-temp picker math, text templates, light features, localization, card smoke test, action dispatch (`show-dialog` / `hass-more-info`).
 - Not covered (verify in the browser): rendering of controls, dialog, gestures, scenes, API provider, WebSocket client.
 
 ## Architecture overview
@@ -130,7 +131,7 @@ src/
 2. HA sets `hass` → card → `AreaLightController.hass` → each `LightController.hass` → `raisePropertyChanged('hass')`.
 3. UI elements subscribe via `registerOnPropertyChanged(this._elementId, cb)` (`NotifyBase`) and re-render; they unsubscribe in `disconnectedCallback`.
 4. User interaction → controller setter → optimistic local state update → `hass.callService(...)`.
-5. Click/hold → `ActionHandler` → opens `HueDialog` (the "Hue screen") or HA more-info.
+5. Click/hold → `ActionHandler` → fires `show-dialog` for `HueDialog` (the "Hue screen", an HA-managed dialog: one element per tag, `showDialog(params)` / `closeDialog(historyState)`, HA owns the browser history) or `hass-more-info`.
 
 ## HA source sync
 

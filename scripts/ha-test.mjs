@@ -13,6 +13,7 @@
  *   node scripts/ha-test.mjs stop      Removes the container.
  *   node scripts/ha-test.mjs status    Prints whether the instance answers.
  *   node scripts/ha-test.mjs smoke     Runs `test-ha/browser/smoke.mjs` (Playwright) against the running instance.
+ *   node scripts/ha-test.mjs dialog    Runs `test-ha/browser/dialog.mjs` (Hue dialog lifecycle, history, stacked more-info).
  *   node scripts/ha-test.mjs logs      Prints the Home Assistant log of the container.
  *
  * Needs `npm run rollup` (or `npm start`) for the dev build in `./dist`.
@@ -242,10 +243,10 @@ function logs() {
     execFileSync('docker', ['logs', ContainerName], { stdio: 'inherit' });
 }
 
-async function smoke() {
+async function browserTest(script) {
     if (await httpStatus(DashboardUrl) !== 200)
         throw new Error('Home Assistant is not running - `npm run ha-test -- start` first');
-    execFileSync(process.execPath, [join(RepoRoot, 'test-ha', 'browser', 'smoke.mjs')], { stdio: 'inherit' });
+    execFileSync(process.execPath, [join(RepoRoot, 'test-ha', 'browser', `${script}.mjs`)], { stdio: 'inherit' });
 }
 
 const command = process.argv[2];
@@ -255,9 +256,10 @@ try {
         case 'stop': stop(); break;
         case 'status': await status(); break;
         case 'logs': logs(); break;
-        case 'smoke': await smoke(); break;
+        case 'smoke': await browserTest('smoke'); break;
+        case 'dialog': await browserTest('dialog'); break;
         default:
-            console.log('Usage: ha-test start | stop | status | logs | smoke');
+            console.log('Usage: ha-test start | stop | status | logs | smoke | dialog');
             process.exitCode = 2;
     }
 }

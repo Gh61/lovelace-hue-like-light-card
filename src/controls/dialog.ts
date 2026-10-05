@@ -8,7 +8,8 @@ import { AreaLightController } from '../core/area-light-controller';
 import { ViewUtils } from '../core/view-utils';
 import { HueLikeLightCardConfig, HueLikeLightCardEntityConfigCollection } from '../types/config';
 import { Consts } from '../types/consts';
-import { HaDialog } from '../types/types-hass';
+import { fireEvent } from '../ha/common/dom/fire_event';
+import { HassDialog } from '../ha/dialogs/make-dialog-manager';
 import { ThemeHelper } from '../types/theme-helper';
 import { SceneConfig, SceneProvider } from '../types/types-config';
 import { PresetConfig } from '../types/types-hue-preset';
@@ -19,15 +20,32 @@ import { ILightContainer } from '../types/types-interface';
 import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
 import { LightController } from '../core/light-controller';
-import { HueHistoryStateManager, HueHistoryStep } from './history-state-manager';
 import { localize } from '../localize/localize';
 import { ActionHandler } from '../core/action-handler';
 import { LimitedTimeout } from '../core/limited-timeout';
 import { HueDialogSceneHATile } from './dialog-scene-ha-tile';
 import { horizontalScroll } from '../directives/horizontal-scroll';
 
+/** Parameters of the Hue screen - passed through the HA `show-dialog` event. */
+export interface HueDialogParams {
+    config: HueLikeLightCardConfig;
+    lightController: AreaLightController;
+    actionHandler: ActionHandler;
+}
+
+/** History state the dialog pushes for its inner levels (HA calls `closeDialog(historyState)` when the user navigates back to it). */
+interface HueDialogHistoryState {
+    dialogData?: {
+        lightDetail?: boolean;
+    };
+}
+
+/**
+ * The Hue screen. Managed by the HA dialog manager: opened by the `show-dialog` event (`ActionHandler.openHueScreen`),
+ * one instance per element name, re-shown with new params; HA owns the history (back closes the dialog).
+ */
 @customElement(HueDialog.ElementName)
-export class HueDialog extends IdLitElement {
+export class HueDialog extends IdLitElement implements HassDialog<HueDialogParams> {
 
     /**
      * Name of this Element
@@ -40,7 +58,7 @@ export class HueDialog extends IdLitElement {
     */
 
     private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
-    private _isRendered = false;
+    private _open = false;
     private _config: HueLikeLightCardConfig;
     private _entitiesConfig: HueLikeLightCardEntityConfigCollection;
     private _ctrl: AreaLightController;
@@ -83,64 +101,60 @@ export class HueDialog extends IdLitElement {
 
     // #endregion
 
-    public constructor(config: HueLikeLightCardConfig, lightController: AreaLightController, actionHandler: ActionHandler) {
+    public constructor() {
         super('HueDialog');
-
-        this._config = config;
-        this._entitiesConfig = config.getEntities();
-        this._ctrl = lightController;
-        this._actionHandler = actionHandler;
     }
 
     //#region Tile interactions
 
-    // lightDetail as history step
-    private _lightDetailHistoryStep: HueHistoryStep | undefined;
+    private get isLightDetailOpen() {
+        return this._selectedLights.length > 0;
+    }
 
     private onLightSelected(ev: CustomEvent<ILightSelectedEventDetail>) {
-        const hide = () => {
-            this.clearSelectedLights();
-
-            // hide detail of selected light
-            this._lightDetailElement?.hide();
-        };
-
         // only hide selector if unselected the only one last selected light
         if (ev.detail.isSelected || !this.isOnlySelectedLight(ev.detail.lightContainer!)) {
-            const show = () => {
-                this.setSelectedLights(ev.detail.lightContainer!);
-
-                // scroll to selected light
-                HueDialog.tileScrollTo(ev.detail.tileElement);
-
-                // set light into detail
-                if (this._lightDetailElement) {
-                    this._lightDetailElement.lightContainer = ev.detail.lightContainer as LightController;
-                    this._lightDetailElement.show();
-                }
-            };
+            const wasOpen = this.isLightDetailOpen;
+            this.setSelectedLights(ev.detail.lightContainer!);
 
             // to be in sync
             (ev.detail.tileElement as HueDialogLightTile).isSelected = true;
 
-            // show with history
-            this._lightDetailHistoryStep = new HueHistoryStep(show, hide, HueLightDetail.ElementName);
-            HueHistoryStateManager.instance.addStep(this._lightDetailHistoryStep);
+            // scroll to selected light
+            HueDialog.tileScrollTo(ev.detail.tileElement);
 
+            // set light into detail
+            if (this._lightDetailElement) {
+                this._lightDetailElement.lightContainer = ev.detail.lightContainer as LightController;
+                this._lightDetailElement.show();
+            }
+
+            // the detail is an inner level of the dialog - one history entry, so the browser back closes only the detail
+            if (!wasOpen) {
+                // HA re-pushes its own dialog state after a stacked dialog (e.g. more-info) closes - make it our root level again
+                if (!(window.history.state as HueDialogHistoryState | null)?.dialogData) {
+                    const rootState: HueDialogHistoryState = { dialogData: {} };
+                    window.history.replaceState(rootState, '');
+                }
+                const state: HueDialogHistoryState = { dialogData: { lightDetail: true } };
+                window.history.pushState(state, '');
+            }
         }
         else {
-            hide();
+            this.hideLightDetail();
         }
     }
 
+    /** Leaves the light detail level through the history, HA calls `closeDialog` with the root state. */
     private hideLightDetail() {
-        // clear all selected lights
-        this.clearSelectedLights();
-
-        // hide with history
-        if (this._lightDetailHistoryStep) {
-            HueHistoryStateManager.instance.goBefore(this._lightDetailHistoryStep);
+        if (this.isLightDetailOpen) {
+            window.history.back();
         }
+    }
+
+    private hideLightDetailInternal(instant = false) {
+        this.clearSelectedLights();
+        this._lightDetailElement?.hide(instant);
     }
 
     private toggleUnderDetailControls(show: boolean) {
@@ -208,92 +222,76 @@ export class HueDialog extends IdLitElement {
 
     //#endregion
 
-    //#region show/hide
-
-    private _historyStep: HueHistoryStep | undefined;
+    //#region show/hide (HA dialog manager)
 
     /**
-     * Insert and renders this dialog into <home-assistant>.
+     * Called by the HA dialog manager (the `show-dialog` event). The element stays in the DOM and is re-shown with new params.
      */
-    public show(): void {
-        if (this._isRendered)
-            throw new Error('Already rendered!');
-
-        // open with history
-        this._historyStep = new HueHistoryStep(
-            () => this.showInternal(),
-            () => this.close(),
-            HueDialog.ElementName
-        );
-        HueHistoryStateManager.instance.addStep(this._historyStep);
-    }
-
-    private showInternal() {
-        this._isRendered = true;
-
-        // try to render ha-dialog as open
-        const haDialog = this.getDialogElement();
-        if (haDialog) {
-            haDialog.open = true;
+    public showDialog(params: HueDialogParams): void {
+        if (this._open) {
+            this.hideLightDetailInternal(true);
         }
 
-        // append to DOM
-        const haDom = document.getElementsByTagName('home-assistant');
-        const haRoot = haDom.length ? haDom[0].shadowRoot : null;
-        if (haRoot) {
-            haRoot.appendChild(this);
-        }
-        else {
-            document.body.appendChild(this);
-        }
+        this._config = params.config;
+        this._entitiesConfig = params.config.getEntities();
+        this._ctrl = params.lightController;
+        this._actionHandler = params.actionHandler;
+        this._open = true;
+
+        // root level of the dialog - the inner levels push their own `dialogData` states on top of it
+        const state: HueDialogHistoryState = { dialogData: {} };
+        window.history.pushState(state, '');
 
         // register update delegate (include hass - we need to update the dialog)
         this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler, /* includeHass: */ true);
+
+        this.resetConfigStyles();
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            this.tryCreateBackdropAndLightDetail(true);
+            this.updateStylesInner(true);
+        });
     }
 
-    public close(): void {
-        if (!this._isRendered)
-            return;
-
-        // try to find dialog
-        const haDialog = this.getDialogElement();
-        if (haDialog) {
-            // if dialog close exists - will call onDialogClose event
-            if (haDialog.close) {
-                haDialog.close();
+    /**
+     * Called by the HA dialog manager - directly (closing all dialogs) or from the browser back with the history state
+     * the user navigated to. Unwinds the dialog levels the way HA dialogs do: returns `false` while an inner level
+     * is left or the history is cleaned up, `true` when the dialog is closed for good.
+     */
+    public closeDialog(historyState?: HueDialogHistoryState): boolean {
+        // the level the user navigated to, or the current one when HA asks to close
+        const level = historyState ?? (window.history.state as HueDialogHistoryState | null);
+        if (level?.dialogData) {
+            // closing in progress - keep unwinding the inner history entries down to the dialog state of HA
+            if (!this._open) {
+                window.history.back();
+                return false;
             }
-            else {
-                // since HA 2026.3 ha-dialog (wa-dialog based) has no close() method
-                haDialog.open = false;
+
+            // navigated back to the root level (from the detail, or from a dialog stacked on top of this one)
+            const toRoot = !level.dialogData.lightDetail && (historyState !== undefined || this.isLightDetailOpen);
+            if (toRoot) {
+                this.hideLightDetailInternal();
+                return false;
             }
+
+            // closed from the dialog itself - hide now, let the history unwind
+            this._open = false;
+            window.history.back();
+            return false;
         }
-        else {
-            // no haDialog found - use legacy way
-            this.onDialogClose();
-        }
+
+        this._open = false;
+        this.hideLightDetailInternal(true);
+        this._ctrl?.unregisterOnPropertyChanged(this._elementId);
+        fireEvent(this, 'dialog-closed', { dialog: this.localName });
+        return true;
     }
 
-    private getDialogElement(): HaDialog | null {
-        if (!this._isRendered || !this.renderRoot)
-            return null;
-
-        return this.renderRoot.querySelector('ha-dialog');
-    }
-
-    /** When the dialog is closed. Removes itself from the DOM. */
-    private onDialogClose() {
-        if (this._isRendered) {
-            this.remove();
-
-            // unregister update delegate
-            this._ctrl.unregisterOnPropertyChanged(this._elementId);
-
-            this._isRendered = false;
-        }
-
-        // go back in history
-        if (this._historyStep) {
-            HueHistoryStateManager.instance.goBefore(this._historyStep);
+    /** ha-dialog was closed by the user (scrim, Esc, close button) - close through the HA dialog manager flow. */
+    private onDialogClosed() {
+        if (this._open) {
+            this.closeDialog();
         }
     }
 
@@ -684,7 +682,9 @@ export class HueDialog extends IdLitElement {
     }
 
     protected override render() {
-        this._isRendered = true;
+        if (!this._config) {
+            return nothing;
+        }
 
         // inspiration: https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/ha-more-info-dialog.ts
 
@@ -726,8 +726,8 @@ export class HueDialog extends IdLitElement {
         /* eslint-disable @/indent */
         return html`
         <ha-dialog
-          open
-          @closed=${() => this.onDialogClose()}
+          .open=${this._open}
+          @closed=${() => this.onDialogClosed()}
           .heading=${cardTitle}
           hideActions
         >
@@ -801,16 +801,15 @@ export class HueDialog extends IdLitElement {
     protected override updated(changedProps: PropertyValues): void {
         super.updated(changedProps);
 
-        this.updateStylesInner(false);
+        if (this._open) {
+            this.updateStylesInner(false);
+        }
     }
 
-    public override connectedCallback(): void {
-        super.connectedCallback();
-
-        this.updateComplete.then(() => {
-            this.tryCreateBackdropAndLightDetail(true);
-            this.updateStylesInner(true);
-        });
+    /** Removes the style properties derived from the previous params, so a re-show with another config starts clean. */
+    private resetConfigStyles() {
+        ['--hue-screen-background', '--primary-text-color', '--hue-screen-back-button-color', '--ha-dialog-border-radius']
+            .forEach(property => this.style.removeProperty(property));
     }
 
     //#endregion

@@ -6,7 +6,6 @@ import { Consts } from '../types/consts';
 import { nameof } from '../types/extensions';
 import { ActionHandlerEvent, ActionHandlerOptions } from '../ha/data/lovelace/action_handler';
 import { ActionHandler } from '../core/action-handler';
-import { HueHistoryStateManager } from './history-state-manager';
 
 export interface ITileEventDetail {
     tileElement: HueDialogTile;
@@ -107,7 +106,6 @@ export abstract class HueDialogTile extends IdLitElement {
                         throw new Error('Cannot open more-info - ActionHandler not set in ' + this._elementId);
 
                     this.actionHandler.showMoreInfo(entityId);
-                    HueHistoryStateManager.instance.tryAddExternalStep();
                 }
                 break;
 

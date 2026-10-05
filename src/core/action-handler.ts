@@ -1,5 +1,5 @@
 import { fireEvent } from '../ha/common/dom/fire_event';
-import { HueDialog } from '../controls/dialog';
+import { HueDialog, HueDialogParams } from '../controls/dialog';
 import { HueLikeLightCardConfig } from '../types/config';
 import { ClickAction, ClickActionData, SceneData } from '../types/types-config';
 import { AreaLightController } from './area-light-controller';
@@ -20,9 +20,18 @@ export class ActionHandler {
         fireEvent(this._owner, 'hass-more-info', { entityId: entityId });
     }
 
+    /** Opens the Hue screen through the HA dialog manager (history, stacking and card-mod work like for HA dialogs). */
     public openHueScreen(): void {
-        const dialog = new HueDialog(this._config, this._ctrl, this);
-        dialog.show();
+        const params: HueDialogParams = {
+            config: this._config,
+            lightController: this._ctrl,
+            actionHandler: this
+        };
+        fireEvent(this._owner, 'show-dialog', {
+            dialogTag: HueDialog.ElementName as keyof HTMLElementTagNameMap,
+            dialogImport: () => Promise.resolve(), // the element is part of this bundle
+            dialogParams: params
+        });
     }
 
     public handleCardClick(): void {
