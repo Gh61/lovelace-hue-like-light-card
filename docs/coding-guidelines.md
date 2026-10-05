@@ -44,7 +44,7 @@ Rules marked **[lint]** are enforced by ESLint/TypeScript; the rest are checked 
 | Static state (mutable static fields, mutated static collections, singletons) | `_camelCase` | `HueApiProvider._lastHash`, `GlobalLights._containers` |
 | Enums | PascalCase name & members, kebab-case string values | `ClickAction.TurnOn = 'turn-on'` |
 | Unused parameters | `_` prefix **[lint]** | `(_ev) => ...` |
-| YAML config keys | camelCase | `offClickAction`, `sceneProvider` |
+| YAML config keys | camelCase; HA standard options keep HA's snake_case | `sceneProvider`, `hueScreenBgColor`; `tap_action` |
 | HA-derived names | keep HA snake_case | `entity_id` |
 | Custom events | kebab-case / DOM-like | `selected-change`, `immediate-value-change` |
 | CSS custom properties | `--hue-` prefix | `--hue-tile-accent-color` |

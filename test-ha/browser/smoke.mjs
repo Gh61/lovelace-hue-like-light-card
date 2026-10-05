@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { cardErrors, cardPoint, countCards, errorCards, isDialogOpen, openBrowser, openView, tap } from './helpers.mjs';
 
 const OutDir = join(dirname(fileURLToPath(import.meta.url)), 'out');
-const Views = { basic: 4, 'hue-screen': 3, styles: 5 };
+const Views = { basic: 4, 'hue-screen': 3, styles: 5, actions: 5 };
 
 mkdirSync(OutDir, { recursive: true });
 const { browser, page, errors } = await openBrowser();

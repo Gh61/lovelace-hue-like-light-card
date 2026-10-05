@@ -81,9 +81,29 @@ export async function cardPoint(page, cardIndex, selector) {
     }, [cardIndex, selector]);
 }
 
+/**
+ * Center of the element matched by `selector` inside the shadow root of the dev card with the given title
+ * (the DOM order of the cards is the masonry column order, not the dashboard order).
+ */
+export async function cardPointByTitle(page, title, selector) {
+    const cards = await findDeep(page, CardTag);
+    return cards.evaluate((list, [cardTitle, sel]) => {
+        const card = list.find(c => c.shadowRoot?.querySelector('h2')?.textContent?.trim() === cardTitle);
+        if (!card)
+            throw new Error(`card "${cardTitle}" not found`);
+        const r = card.shadowRoot.querySelector(sel).getBoundingClientRect();
+        return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+    }, [title, selector]);
+}
+
 /** Tap (short click) at a point. */
 export async function tap(page, point) {
     await page.mouse.click(point.x, point.y);
+}
+
+/** Double tap at a point. */
+export async function doubleTap(page, point) {
+    await page.mouse.dblclick(point.x, point.y);
 }
 
 /** Hold (press longer than the HA hold threshold of 500 ms) at a point. */

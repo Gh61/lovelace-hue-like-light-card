@@ -5,6 +5,7 @@ import { ColorResolver } from '../core/colors/color-resolvers';
 import { ensureEntityDomain } from './extensions';
 import ColorThief from 'colorthief';
 import { MaybeArray } from './types-helpers';
+import { ActionConfig } from '../ha/data/lovelace/config/action';
 
 export enum KnownIconSize {
     Big = 'big',
@@ -18,6 +19,7 @@ export enum SliderType {
     Mushroom = 'mushroom'
 }
 
+/** @deprecated Values of the deprecated `onClickAction` option family; use `tap_action` & co. */
 export enum ClickAction {
     Default = 'default',
     NoAction = 'none',
@@ -39,6 +41,29 @@ export enum SceneProvider {
     ScenePresets = 'scene-presets'
 }
 
+/** Actions of the card itself - on top of the HA actions (`more-info`, `navigate`, `perform-action`, ...). */
+export interface TurnOnActionConfig {
+    action: 'turn-on';
+}
+
+export interface TurnOffActionConfig {
+    action: 'turn-off';
+}
+
+export interface HueScreenActionConfig {
+    action: 'hue-screen';
+}
+
+export interface SceneActionConfig {
+    action: 'scene';
+    /** Entity id of the scene to activate. */
+    scene: string;
+}
+
+/** `tap_action` & co. - HA action syntax extended by the actions of the card. */
+export type CardActionConfig = ActionConfig | TurnOnActionConfig | TurnOffActionConfig | HueScreenActionConfig | SceneActionConfig;
+
+/** @deprecated Data of the deprecated `onClickAction` option family. */
 export class ClickActionData {
     private readonly _onlyValue: string;
     private readonly _valueStore: Record<string, string>;
@@ -251,13 +276,30 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     readonly scenes?: (string | SceneConfig)[];
     readonly sceneOrder?: SceneOrder;
     readonly sceneProvider?: MaybeArray<string | SceneProvider>;
+    readonly tap_action?: CardActionConfig;
+    readonly hold_action?: CardActionConfig;
+    readonly double_tap_action?: CardActionConfig;
+    readonly on_tap_action?: CardActionConfig;
+    readonly off_tap_action?: CardActionConfig;
+    readonly on_hold_action?: CardActionConfig;
+    readonly off_hold_action?: CardActionConfig;
+    readonly on_double_tap_action?: CardActionConfig;
+    readonly off_double_tap_action?: CardActionConfig;
+    /** @deprecated use `off_tap_action` */
     readonly offClickAction?: ClickAction;
+    /** @deprecated use `off_tap_action` */
     readonly offClickData?: string | Record<string, string> | ClickActionData;
+    /** @deprecated use `on_tap_action` */
     readonly onClickAction?: ClickAction;
+    /** @deprecated use `on_tap_action` */
     readonly onClickData?: string | Record<string, string> | ClickActionData;
+    /** @deprecated use `off_hold_action` */
     readonly offHoldAction?: ClickAction;
+    /** @deprecated use `off_hold_action` */
     readonly offHoldData?: string | Record<string, string> | ClickActionData;
+    /** @deprecated use `on_hold_action` */
     readonly onHoldAction?: ClickAction;
+    /** @deprecated use `on_hold_action` */
     readonly onHoldData?: string | Record<string, string> | ClickActionData;
     readonly allowZero?: boolean;
     readonly theme?: string;

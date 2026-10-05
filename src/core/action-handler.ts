@@ -1,7 +1,9 @@
 import { fireEvent } from '../ha/common/dom/fire_event';
 import { HueDialog, HueDialogParams } from '../controls/dialog';
 import { HueLikeLightCardConfig } from '../types/config';
-import { ClickAction, ClickActionData, SceneData } from '../types/types-config';
+import { SceneData } from '../types/types-config';
+import { CardGesture } from '../types/card-actions';
+import { handleAction } from '../ha/panels/lovelace/common/handle-action';
 import { AreaLightController } from './area-light-controller';
 import { HueLikeLightCard } from '../hue-like-light-card';
 
@@ -34,73 +36,47 @@ export class ActionHandler {
         });
     }
 
-    public handleCardClick(): void {
+    /**
+     * Executes the configured action of the card for the gesture (tap / hold / double tap).
+     * Actions of the card run here, the HA actions are handed to Home Assistant (`hass-action` event -
+     * confirmation, haptics, navigation, service calls, ...).
+     */
+    public handleCardAction(gesture: CardGesture): void {
         const isOn = this._ctrl.isOn();
-        let action = isOn ? this._config.onClickAction : this._config.offClickAction;
-        const actionData = isOn ? this._config.onClickData : this._config.offClickData;
+        const action = this._config.actions.getAction(gesture, isOn);
 
-        // resolve the default action
-        if (action === ClickAction.Default) {
-            action = ClickAction.HueScreen;
-        }
-
-        // execute resolved or config action
-        this.executeClickAction(action, actionData);
-    }
-
-    public handleCardHold(): void {
-        const isOn = this._ctrl.isOn();
-        let action = isOn ? this._config.onHoldAction : this._config.offHoldAction;
-        const actionData = isOn ? this._config.onHoldData : this._config.offHoldData;
-
-        // resolve the default action
-        if (action === ClickAction.Default) {
-            action = ClickAction.MoreInfo;
-        }
-
-        // execute resolved or config action
-        this.executeClickAction(action, actionData);
-    }
-
-    private executeClickAction(action: ClickAction, actionData: ClickActionData) {
-        switch (action) {
-            case ClickAction.NoAction:
-                break;
-            case ClickAction.TurnOn:
+        switch (action.action) {
+            case 'turn-on':
                 this._ctrl.turnOn();
                 break;
-            case ClickAction.TurnOff:
+            case 'turn-off':
                 this._ctrl.turnOff();
                 break;
-            case ClickAction.MoreInfo:
-                let entityId: string = actionData.getData('entity');
-
-                // no entity defined in data - use entity from controller
-                if (!entityId) {
-                    entityId = this._ctrl.getMoreInfoEntityId();
+            case 'toggle':
+                // toggle of the whole card, not of a single entity as HA would do
+                if (isOn) {
+                    this._ctrl.turnOff();
                 }
-
-                this.showMoreInfo(entityId);
+                else {
+                    this._ctrl.turnOn();
+                }
                 break;
-            case ClickAction.Scene:
-                const sceneId = actionData.getData('scene');
-                if (!sceneId)
-                    throw new Error('No scene for click defined.');
-
-                // create scene object and activate
-                const scene = new SceneData(sceneId);
+            case 'scene': {
+                const scene = new SceneData(action.scene);
                 scene.hass = this._ctrl.hass;
                 scene.activate();
-
                 break;
-            case ClickAction.HueScreen:
+            }
+            case 'hue-screen':
                 this.openHueScreen();
                 break;
-
-            case ClickAction.Default:
-                throw new Error('Cannot execute Default action');
+            case 'none':
+                break;
             default:
-                throw new Error(`Cannot executed unwknow action ${action}.`);
+                handleAction(this._owner, this._ctrl.hass, {
+                    entity: this._ctrl.getMoreInfoEntityId(),
+                    [`${gesture}_action`]: action
+                }, gesture);
         }
     }
 }

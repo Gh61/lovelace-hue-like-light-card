@@ -81,11 +81,12 @@ A Claude Code cloud session has no access to the developer's Home Assistant, so 
 | `npm run ha-test -- start` | Starts the Docker daemon when none runs (cloud container), pulls `ghcr.io/home-assistant/home-assistant:<homeAssistantVersion from src/ha/ha-sync.json>` when missing, starts the container with `test-ha/config` as `/config` and `./dist` as `/config/www`, waits for the dashboard and seeds the registry (floor, areas, label for the demo lights). |
 | `npm run ha-test -- smoke` | Playwright smoke test (`test-ha/browser/smoke.mjs`): all cards of the testing dashboard render, tap opens the Hue dialog, browser back closes it, no console errors. Screenshots in `test-ha/browser/out/`. |
 | `npm run ha-test -- dialog` | Playwright test of the Hue dialog lifecycle (`test-ha/browser/dialog.mjs`): open / re-open, browser back closes the light detail first and the dialog second, X / Escape leave no dialog history state, more-info stacks on the dialog. |
+| `npm run ha-test -- actions` | Playwright test of the card actions (`test-ha/browser/actions.mjs`, view `actions`): toggle / navigate / scene by state / double tap / deprecated options. |
 | `npm run ha-test -- stop` / `status` / `logs` | Container lifecycle and the HA log. |
 
 Facts about the instance:
 
-- URL `http://127.0.0.1:8123`, testing dashboard `http://127.0.0.1:8123/lovelace-testing` (views `basic`, `hue-screen`, `styles` in `test-ha/config/dashboards/testing.yaml` - add a card there when a change needs a new configuration).
+- URL `http://127.0.0.1:8123`, testing dashboard `http://127.0.0.1:8123/lovelace-testing` (views `basic`, `hue-screen`, `styles`, `actions` in `test-ha/config/dashboards/testing.yaml` - add a card there when a change needs a new configuration).
 - Entities come from the `demo` integration (`light.bed_light`, `light.ceiling_lights`, `light.kitchen_lights` with color temperature + hs, `light.office_rgbw_lights`, `light.living_room_rgbww_lights`, `light.entrance_color_white_lights`, `switch.decorative_lights`) plus two YAML scenes (`scene.evening`, `scene.bright`); `ha-test start` assigns them to the areas `living_room` / `kitchen` on the floor `ground_floor` and the label `accent`.
 - Login is automatic: the only auth provider is `trusted_networks` with `allow_bypass_login` and the single user `Tester` pre-seeded in `test-ha/config/.storage/auth` (no password, reachable from the container host only). Onboarding is pre-completed (`.storage/onboarding`). Everything else HA writes into `test-ha/config` is ignored by git.
 - `src/ha/ha-sync.json` → `homeAssistantVersion` is the HA release whose frontend is copied into `src/ha/`; update it together with the manifest commit when syncing.
