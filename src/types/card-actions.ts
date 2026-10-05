@@ -8,9 +8,9 @@ export type CardGesture = ActionHandlerDetail['action'];
 
 type CardActionKey = `${'' | 'on_' | 'off_'}${CardGesture}_action`;
 
-/** Actions of the card (`turn-on`, ...) and the HA actions (`navigate`, `perform-action`, ...). */
-const CardActionNames = ['turn-on', 'turn-off', 'scene', 'hue-screen'] as const;
-const HaActionNames = ['none', 'toggle', 'more-info', 'navigate', 'url', 'call-service', 'perform-action', 'assist', 'fire-dom-event'] as const;
+/** Actions of the card (`turn-on`, ...) and the HA actions (`navigate`, `perform-action`, ...) - checked against the `CardActionConfig` union. */
+const CardActionNames: CardActionConfig['action'][] = ['turn-on', 'turn-off', 'scene', 'hue-screen'];
+const HaActionNames: CardActionConfig['action'][] = ['none', 'toggle', 'more-info', 'navigate', 'url', 'call-service', 'perform-action', 'assist', 'fire-dom-event'];
 
 /**
  * Tap / hold / double-tap actions of the card.
@@ -103,7 +103,7 @@ export class CardActions {
     }
 
     private static validate(action: CardActionConfig, optionName: string): CardActionConfig {
-        const allowed = [...CardActionNames, ...HaActionNames] as readonly string[];
+        const allowed: string[] = [...CardActionNames, ...HaActionNames];
         if (!allowed.includes(action.action)) {
             throw new Error(`${optionName}: action '${action.action}' was not recognized. Allowed values are: ${allowed.map(n => `'${n}'`).join(', ')}`);
         }
