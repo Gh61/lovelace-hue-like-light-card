@@ -2,6 +2,8 @@ import { HueLikeLightCardConfig } from '../src/types/config';
 import { ClickAction, HueLikeLightCardConfigInterface } from '../src/types/types-config';
 
 describe('CardActions', () => {
+    beforeEach(() => jest.spyOn(console, 'warn').mockImplementation(() => undefined));
+    afterEach(() => jest.restoreAllMocks());
     const parse = (plain: Partial<HueLikeLightCardConfigInterface>) => new HueLikeLightCardConfig({ entity: 'light.test', ...plain }).actions;
 
     it('should use the defaults when nothing is configured', () => {
@@ -31,6 +33,17 @@ describe('CardActions', () => {
         expect(parse({ double_tap_action: { action: 'more-info' } }).hasDoubleTap).toBe(true);
         expect(parse({ on_double_tap_action: { action: 'turn-off' } }).hasDoubleTap).toBe(true);
         expect(parse({ double_tap_action: { action: 'none' } }).hasDoubleTap).toBe(false);
+    });
+
+    it('should warn about deprecated options in the console', () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+        parse({ onClickAction: ClickAction.TurnOn, offHoldAction: ClickAction.Default, offClickAction: '' as ClickAction });
+
+        expect(warn).toHaveBeenCalledTimes(2);
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining("'onClickAction' is deprecated, use 'on_tap_action'"));
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining("'offHoldAction' is deprecated, use 'off_hold_action'"));
+        warn.mockRestore();
     });
 
     it('should map the deprecated options to actions', () => {

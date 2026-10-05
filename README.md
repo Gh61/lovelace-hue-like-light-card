@@ -645,7 +645,9 @@ on_tap_action:
     <td><code>entity</code> (optional)</td>
     <td>
       Shows the more-info dialog (default for hold).<br/>
-      Without <code>entity</code>: uses the group entity, if set; the first lit light if any; the first light as backup.
+      Uses group entity, if set.<br/>
+      Uses first lit light if any.<br/>
+      Uses first light as backup.
     </td>
   </tr>
   <tr>
@@ -676,10 +678,7 @@ on_tap_action:
   <tr>
     <td><code>navigate</code>, <code>url</code>, <code>perform-action</code> (or the legacy <code>call-service</code>), <code>assist</code>, <code>fire-dom-event</code></td>
     <td>as in Home Assistant</td>
-    <td>
-      Executed by Home Assistant exactly like for the built-in cards, including <code>confirmation</code>.<br/>
-      See <a href="https://www.home-assistant.io/dashboards/actions/">Home Assistant actions</a>.
-    </td>
+    <td>See <a href="https://www.home-assistant.io/dashboards/actions/">Home Assistant actions</a>.</td>
   </tr>
 </table>
 
@@ -688,105 +687,113 @@ on_tap_action:
 ## Click (hold) action
 *Deprecated in 2.0.0 - use [actions](#actions). The options below keep working for now; a current option wins over a deprecated one for the same gesture.*
 
-When the card is clicked or pressed, something can happen. This can be configured through configuration.
-```yaml
-type: custom:hue-like-light-card
-...
-offClickAction: turn-on
-onClickAction: turn-off
-offHoldAction: hue-screen
-onHoldAction: hue-screen
-```
-*Simple example to toggle lights on click.*
+<details>
+<summary>Deprecated options (click to expand)</summary>
 
-### Possible actions (deprecated options)
-<table>
-  <tr>
-    <th width="120">Key</th>
-    <th><a href="#action-data">Possible data*</a></th>
-    <th>Data required</th>
-    <th>Since</th>
-    <th>What is happening</th>
-  </tr>
-  <tr>
-    <td><code>default</code></td>
-    <td>yes</td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td>
-      <b>Click</b>: <code>hue-screen</code><br/>
-      <b>Hold</b>: <code>more-info</code>
-    </td>
-  </tr>
-  <tr>
-    <td><code>none</code></td>
-    <td>no</td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td>nothing</td>
-  </tr>
-  <tr>
-    <td><code>turn-on</code></td>
-    <td>no</td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td>turn on all lights</td>
-  </tr>
-  <tr>
-    <td><code>turn-off</code></td>
-    <td>no</td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td>turn off all lights</td>
-  </tr>
-  <tr>
-    <td><code>more-info</code></td>
-    <td>yes (<code>entity</code>)</td>
-    <td>no</td>
-    <td>1.1.0<br/>(group entity 1.8.0)</td>
-    <td>
-      Shows system more-info dialog of one light.<br/>
-      Uses group entity, if set.<br/>
-      Uses first lit light if any.<br/>
-      Uses first light as backup.<br/>
-      When action data are used, any entity can be used.
-    </td>
-  </tr>
-  <tr>
-    <td><code>scene</code></td>
-    <td>yes (<code>scene</code>)</td>
-    <td>yes</td>
-    <td>1.1.0</td>
-    <td>activate selected scene</td>
-  </tr>
-  <tr>
-    <td><code>hue-screen</code></td>
-    <td>no<br/>(is using general <a href="#scenes-configuration"><code>scenes</code></a> config)</td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td>show <a href="#hue-screen">Hue Screen</a></td>
-  </tr>
-</table>
+> [!WARNING]
+> These options are deprecated and will be removed in a future version.
+>
+> When the card is clicked or pressed, something can happen. This can be configured through configuration.
+> ```yaml
+> type: custom:hue-like-light-card
+> ...
+> offClickAction: turn-on
+> onClickAction: turn-off
+> offHoldAction: hue-screen
+> onHoldAction: hue-screen
+> ```
+> *Simple example to toggle lights on click.*
+>
+> ### Possible actions (deprecated options)
+> <table>
+>   <tr>
+>     <th width="120">Key</th>
+>     <th><a href="#action-data">Possible data*</a></th>
+>     <th>Data required</th>
+>     <th>Since</th>
+>     <th>What is happening</th>
+>   </tr>
+>   <tr>
+>     <td><code>default</code></td>
+>     <td>yes</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>
+>       <b>Click</b>: <code>hue-screen</code><br/>
+>       <b>Hold</b>: <code>more-info</code>
+>     </td>
+>   </tr>
+>   <tr>
+>     <td><code>none</code></td>
+>     <td>no</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>nothing</td>
+>   </tr>
+>   <tr>
+>     <td><code>turn-on</code></td>
+>     <td>no</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>turn on all lights</td>
+>   </tr>
+>   <tr>
+>     <td><code>turn-off</code></td>
+>     <td>no</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>turn off all lights</td>
+>   </tr>
+>   <tr>
+>     <td><code>more-info</code></td>
+>     <td>yes (<code>entity</code>)</td>
+>     <td>no</td>
+>     <td>1.1.0<br/>(group entity 1.8.0)</td>
+>     <td>
+>       Shows system more-info dialog of one light.<br/>
+>       Uses group entity, if set.<br/>
+>       Uses first lit light if any.<br/>
+>       Uses first light as backup.<br/>
+>       When action data are used, any entity can be used.
+>     </td>
+>   </tr>
+>   <tr>
+>     <td><code>scene</code></td>
+>     <td>yes (<code>scene</code>)</td>
+>     <td>yes</td>
+>     <td>1.1.0</td>
+>     <td>activate selected scene</td>
+>   </tr>
+>   <tr>
+>     <td><code>hue-screen</code></td>
+>     <td>no<br/>(is using general <a href="#scenes-configuration"><code>scenes</code></a> config)</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>show <a href="#hue-screen">Hue Screen</a></td>
+>   </tr>
+> </table>
+>
+> ### Action data
+> Some actions can be configured using action data. Action data parameter can have name (as defined in table above) but it is not mandatory. Both styles are possible.
+>
+> *Action data without name:*
+> ```yaml
+> type: custom:hue-like-light-card
+> ...
+> onClickAction: more-info
+> onClickData: media_player.television
+> ```
+>
+> *Action data with name:*
+> ```yaml
+> type: custom:hue-like-light-card
+> ...
+> offClickAction: scene
+> offClickData:
+>   scene: scene.tv_citron
+> ```
 
-### Action data
-Some actions can be configured using action data. Action data parameter can have name (as defined in table above) but it is not mandatory. Both styles are possible.
-
-*Action data without name:*
-```yaml
-type: custom:hue-like-light-card
-...
-onClickAction: more-info
-onClickData: media_player.television
-```
-
-*Action data with name:*
-```yaml
-type: custom:hue-like-light-card
-...
-offClickAction: scene
-offClickData:
-  scene: scene.tv_citron
-```
+</details>
 
 ## API interface
 *Since version 1.7.0*

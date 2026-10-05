@@ -63,7 +63,11 @@ export class CardActions {
 
     private setDeprecated(key: CardActionKey, plainAction: ClickAction | string | undefined, plainData: string | Record<string, string> | ClickActionData | undefined, optionName: string) {
         // an empty value of the deprecated option means "not set", as before
-        if (this._actions[key] != null || !plainAction) {
+        if (!plainAction) {
+            return;
+        }
+        console.warn(`[HueLikeLightCard] Option '${optionName}' is deprecated, use '${key}' instead (see README - Actions).`);
+        if (this._actions[key] != null) {
             return;
         }
         const action = CardActions.parseDeprecatedAction(plainAction, new ClickActionData(plainData), optionName);
