@@ -25,6 +25,8 @@ npm ci
 
 Node.js `^22.18.0` or `>=24.11.0` is required (Babel 8); CI uses Node 24.
 
+`@emnapi/core` and `@emnapi/runtime` are listed in `devDependencies` on purpose. They are optional peers of `@napi-rs/wasm-runtime` (jest → `unrs-resolver` wasm fallback). npm on Windows does not write them to the lockfile root, but `npm ci` on Linux (CI) requires them there - keep them so a lockfile generated on Windows passes CI.
+
 ## npm scripts
 
 | Script | What it does |
