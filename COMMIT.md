@@ -32,4 +32,14 @@ Only use the following Git Commit Messages. A simple and small footprint is crit
                     website|chore|style|type|revert
 ```
 
+## Scope
+
+The scope is the GitHub issue the change belongs to, written as `#<number>` - GitHub then links the commit to the issue:
+
+- `fix(#398): skip entities without a state when loading an area`
+- `feat(#167): standard HA actions for the card`
+- `doc(#167): README.md formatting`
+
+A change without an issue uses a short area name as the scope (e.g. `doc(progress)`, `build(ha)`) or no scope at all.
+
 Source: https://github.com/jaywcjlove/changelog-generator#getting-started
