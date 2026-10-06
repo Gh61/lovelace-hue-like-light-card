@@ -228,14 +228,9 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         min-height:80px;
         background:var(--hue-background);
         position:relative;
-        box-shadow:var(--hue-box-shadow), var(--ha-default-shadow);
+        box-shadow:var(--hue-card-box-shadow);
         background-origin: border-box;
         --hue-card-margin: 14px;
-    }
-    ha-card.new-borders
-    {
-        /* since HA 2022.11 */
-        box-shadow:var(--hue-box-shadow);
     }
     ha-card.hue-borders
     {
@@ -339,7 +334,6 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         }
     }
 
-    private _haShadow: string | null;
     private _switchColorDetected = false;
 
     // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
@@ -357,34 +351,6 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         }
 
         const card = this.renderRoot.querySelector('ha-card') as HTMLElement;
-
-        // get defaultShadow (when not using hueBorders)
-        if (!this._config.hueBorders && (this._haShadow == null || forceRefresh)) {
-
-            // get default haShadow
-            const c = document.createElement('ha-card');
-            document.body.appendChild(c);
-            const s = getComputedStyle(c);
-            this._haShadow = s.boxShadow;
-            c.remove();
-
-            if (this._haShadow === 'none') {
-                if (card == null) {
-                    // wait for card element
-                    this._haShadow = null;
-                }
-                else {
-                    // since HA 2022.11 default ha-card has no shadow
-                    card.classList.add('new-borders');
-                }
-            }
-
-            // set default shadow property
-            this.style.setProperty(
-                '--ha-default-shadow',
-                this._haShadow
-            );
-        }
 
         // Set icon size
         this.style.setProperty(
@@ -413,12 +379,16 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             bfg.foreground?.toString() ?? Consts.ThemeSecondaryTextColorVar
         );
         this.style.setProperty(
-            '--ha-card-box-shadow',
-            shadow
-        );
-        this.style.setProperty(
             '--hue-box-shadow',
             shadow
+        );
+
+        // the theme's card shadow under our own - read from the card itself ('none' is the HA default since 2022.11
+        // and can't be part of a shadow list)
+        const themeShadow = card ? getComputedStyle(card).getPropertyValue('--ha-card-box-shadow').trim() : '';
+        this.style.setProperty(
+            '--hue-card-box-shadow',
+            shadow && themeShadow && themeShadow !== 'none' ? `${shadow}, ${themeShadow}` : shadow
         );
 
         // sometimes the element is not yet displayed, so we need to try calculate shadow later

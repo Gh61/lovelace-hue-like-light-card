@@ -124,6 +124,30 @@ describe('Card', () => {
         configOnly.remove();
     });
 
+    it('should not append a probe ha-card to the document body (#424)', async () => {
+        const hass = { ...hassMockup, themes: { default_theme: 'default', themes: {} } } as unknown as HomeAssistant;
+        const appendSpy = jest.spyOn(document.body, 'appendChild');
+        const card = new HueLikeLightCard();
+        card.setConfig({
+            type: 'custom:' + Consts.CardElementName,
+            entity: 'light.test',
+            hueBorders: false,
+            scenes: [] // no async config init
+        });
+        card.hass = hass;
+
+        document.body.appendChild(card);
+        await card.updateComplete;
+        // changed themes force a style refresh
+        card.hass = { ...hass, themes: { ...hass.themes } };
+        await card.updateComplete;
+
+        expect(appendSpy.mock.calls.map(c => (c[0] as Element).localName)).not.toContain('ha-card');
+
+        appendSpy.mockRestore();
+        card.remove();
+    });
+
     it('should move listener to the new controller when config is set again', async () => {
         const hass = {
             ...hassMockup,

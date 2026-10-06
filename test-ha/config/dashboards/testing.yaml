@@ -67,6 +67,15 @@ views:
       - type: custom:hue-like-light-card-test
         title: Label
         label: accent
+      - type: custom:hue-like-light-card-test
+        title: Plain borders
+        entity: light.ceiling_lights
+        hueBorders: false
+      - type: custom:hue-like-light-card-test
+        title: Theme shadow
+        entity: light.ceiling_lights
+        hueBorders: false
+        theme: card-shadow-test
   - title: Actions
     path: actions
     cards:

@@ -1,0 +1,4 @@
+# Theme with a card shadow (used by the "Theme shadow" card of the testing dashboard and test-ha/browser/card-shadow.mjs):
+# the card must show the theme's `ha-card-box-shadow` on top of its own inset shadow (without `hueBorders`).
+card-shadow-test:
+  ha-card-box-shadow: "0 0 0 4px rgb(200, 10, 10)"

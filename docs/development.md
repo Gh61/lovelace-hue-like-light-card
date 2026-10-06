@@ -83,6 +83,7 @@ A Claude Code cloud session has no access to the developer's Home Assistant, so 
 | `npm run ha-test -- dialog` | Playwright test of the Hue dialog lifecycle (`test-ha/browser/dialog.mjs`): open / re-open, browser back closes the light detail first and the dialog second, X / Escape leave no dialog history state, more-info stacks on the dialog. |
 | `npm run ha-test -- actions` | Playwright test of the card actions (`test-ha/browser/actions.mjs`, view `actions`): toggle / navigate / scene by state / double tap / deprecated options. |
 | `npm run ha-test -- area-disabled` | Playwright test of an area with a disabled light (`test-ha/browser/area-disabled.mjs`, view `styles`, #398): disables `light.bed_light` for the test, the Area card renders the remaining lights and warns in the console, the entity is enabled again at the end. |
+| `npm run ha-test -- card-shadow` | Playwright test of the card shadow (`test-ha/browser/card-shadow.mjs`, view `styles`, #424): the "Plain borders" card (default theme, `hueBorders: false`) shows only the card's inset shadow, the "Theme shadow" card (theme `card-shadow-test` from `test-ha/config/themes/`) adds the theme's `ha-card-box-shadow`, and no `ha-card` is appended to `document.body`. |
 | `npm run ha-test -- stop` / `status` / `logs` | Container lifecycle and the HA log. |
 
 Facts about the instance:
