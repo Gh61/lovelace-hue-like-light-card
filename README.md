@@ -212,6 +212,14 @@ Some of these options may not be in the latest version. Please always check the 
     <td>If turned on, the slider can be moved to and from value 0.<br/>(turning off/on the the lights)</td>
   </tr>
   <tr>
+    <td><code>liveUpdate</code></td>
+    <td>boolean</td>
+    <td>no</td>
+    <td>1.12.0</td>
+    <td><code>true</code></td>
+    <td>If turned on, the lights are updated continuously while dragging the slider, color picker marker or brightness bar. If turned off, the lights are updated only when dragging ends. See <a href="#live-updates">Live updates</a>.</td>
+  </tr>
+  <tr>
     <td><code>defaultColor</code></td>
     <td><a href="#color">Color</a></td>
     <td>no</td>
@@ -493,6 +501,25 @@ card_mod:
       --mush-control-height: 42px;
       --slider-color: white;
     }
+```
+
+## Live updates
+*Since version 1.12.0*
+
+While you are dragging the slider (on the card and in the [Hue screen](#hue-screen)), a marker in the color picker or the brightness bar of a light, the lights are updated continuously.
+
+The speed adapts to your installation: the next value is sent only after Home Assistant confirmed the previous one (but at most 5 times per second). Values in between are skipped - the lights always get the newest one, so they never lag behind with old values.
+
+> **Note:** Lights with a weaker connection to their bridge (e.g. farther away from the Hue bridge) respond more slowly, so live updates can be less smooth for them.
+
+While sliding, the brightness is never set to 0 (even with `allowZero`) - the lights are turned off only when you release the slider at 0.
+
+To update the lights only when dragging ends, turn live updates off:
+
+```yaml
+type: custom:hue-like-light-card
+entity: light.office
+liveUpdate: false
 ```
 
 ## Text template
@@ -1008,5 +1035,4 @@ entity: light.office
 description: false
 ```
 ## Coming soon features
-- reactions on sliding event instead of on change (value will be changed in the moment of sliding, not after)
 - ui editor?

@@ -88,4 +88,22 @@ describe('Config parse', () => {
             new HueLikeLightCardConfig(cTyped);
         }).toThrow();
     });
+
+    // LiveUpdate
+    it('parse default liveUpdate', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test'
+        });
+
+        expect(config.liveUpdate).toBe(true);
+    });
+
+    it('parse liveUpdate false', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test',
+            liveUpdate: false
+        });
+
+        expect(config.liveUpdate).toBe(false);
+    });
 });

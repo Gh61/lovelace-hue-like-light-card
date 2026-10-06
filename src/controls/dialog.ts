@@ -18,6 +18,7 @@ import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-ti
 import { ILightContainer } from '../types/types-interface';
 import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
+import { LiveUpdateThrottle } from '../core/live-update-throttle';
 import { LightController } from '../core/light-controller';
 import { HueHistoryStateManager, HueHistoryStep } from './history-state-manager';
 import { localize } from '../localize/localize';
@@ -45,6 +46,7 @@ export class HueDialog extends IdLitElement {
     private _entitiesConfig: HueLikeLightCardEntityConfigCollection;
     private _ctrl: AreaLightController;
     private _actionHandler: ActionHandler;
+    private readonly _sliderThrottle: LiveUpdateThrottle<number>;
 
     // #region selectedLights
 
@@ -90,6 +92,7 @@ export class HueDialog extends IdLitElement {
         this._entitiesConfig = config.getEntities();
         this._ctrl = lightController;
         this._actionHandler = actionHandler;
+        this._sliderThrottle = new LiveUpdateThrottle<number>(config.liveUpdate, this.onChangeHandler);
     }
 
     //#region Tile interactions
@@ -287,6 +290,7 @@ export class HueDialog extends IdLitElement {
 
             // unregister update delegate
             this._ctrl.unregisterOnPropertyChanged(this._elementId);
+            this._sliderThrottle.stop();
 
             this._isRendered = false;
         }
@@ -559,6 +563,7 @@ export class HueDialog extends IdLitElement {
                     detailElement.style.zIndex = '2'; // over header
 
                     detailElement.areaController = this._ctrl;
+                    detailElement.liveUpdate = this._config.liveUpdate;
 
                     // action for show and hide
                     detailElement.addEventListener('show', () => {
@@ -753,7 +758,7 @@ export class HueDialog extends IdLitElement {
             <div slot="actionItems">
               ${ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene)}
             </div>
-            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}
+            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler, this._sliderThrottle)}
           </ha-dialog-header>
           <div class="${classMap({
             'content': true,

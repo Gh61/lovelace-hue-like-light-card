@@ -133,14 +133,16 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
         return this.valueGetFactory();
     }
     public set brightnessValue(value: number) {
+        this.setBrightnessValue(value);
+    }
+    public async setBrightnessValue(value: number): Promise<void> {
         const litLights = this._lights.filter(l => l.isOn());
         // when only one light is on, set the value to that light
         if (litLights.length === 1) {
-            litLights[0].brightnessValue = value;
-            return;
+            return litLights[0].setBrightnessValue(value);
         }
         else if (litLights.length === 0) { // when no light is on, set value to all lights
-            this._lights.forEach(l => l.brightnessValue = value);
+            await Promise.all(this._lights.map(l => l.setBrightnessValue(value)));
             return;
         }
 
@@ -151,12 +153,11 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
         const percentualChange = valueChange / remainingValue; // percentual of remaining
 
         // calculate the value for each light
-        this._lights.filter(l => l.isOn()).forEach(l => {
+        await Promise.all(litLights.map(l => {
             const lightOldValue = l.brightnessValue;
-            // of value of this light is the same asi value of controller, set it exactly to value
+            // if value of this light is the same as value of controller, set it exactly to value
             if (lightOldValue === oldValue) {
-                l.brightnessValue = value;
-                return;
+                return l.setBrightnessValue(value);
             }
 
             // get remaining part of this one light
@@ -170,8 +171,8 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
             if (newValue < 1 && value > 0) {
                 newValue = 1;
             }
-            l.brightnessValue = newValue;
-        });
+            return l.setBrightnessValue(newValue);
+        }));
     }
 
     private valueGetFactory() {

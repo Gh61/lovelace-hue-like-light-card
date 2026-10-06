@@ -117,6 +117,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.onHoldAction = HueLikeLightCardConfig.getClickAction(plainConfig.onHoldAction);
         this.onHoldData = new ClickActionData(plainConfig.onHoldData);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
+        this.liveUpdate = HueLikeLightCardConfig.getBoolean(plainConfig.liveUpdate, true);
         this.theme = plainConfig.theme || Consts.ThemeDefault;
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
         this.offColor = plainConfig.offColor || Consts.OffColor;
@@ -305,6 +306,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     public readonly onHoldAction: ClickAction;
     public readonly onHoldData: ClickActionData;
     public readonly allowZero: boolean;
+    public readonly liveUpdate: boolean;
     public readonly theme: string;
     public readonly defaultColor: string;
     public readonly offColor: string;
