@@ -631,7 +631,7 @@ on_tap_action:
 ### Possible actions
 <table>
   <tr>
-    <th width="140">Action</th>
+    <th>Action*</th>
     <th>Data</th>
     <th>What is happening</th>
   </tr>
@@ -676,13 +676,14 @@ on_tap_action:
     <td>nothing (default for double tap)</td>
   </tr>
   <tr>
-    <td><code>navigate</code>, <code>url</code>, <code>perform-action</code> (or the legacy <code>call-service</code>), <code>assist</code>, <code>fire-dom-event</code></td>
+    <td><code>navigate</code>, <code>url</code>,<br/><code>perform-action</code> (or the legacy <code>call-service</code>),<br/><code>assist</code>, <code>fire-dom-event</code></td>
     <td>as in Home Assistant</td>
     <td>See <a href="https://www.home-assistant.io/dashboards/actions/">Home Assistant actions</a>.</td>
   </tr>
+  <tr>
+    <td colspan="3"><i>*The `confirmation` option is only supported for native Home Assistant actions.</i></td>
+  </tr>
 </table>
-
-*`confirmation` is supported only for the actions executed by Home Assistant (not for `hue-screen`, `turn-on`, `turn-off`, `toggle`, `scene`).*
 
 ## Click (hold) action
 *Deprecated in 2.0.0 - use [actions](#actions). The options below keep working for now; a current option wins over a deprecated one for the same gesture.*
