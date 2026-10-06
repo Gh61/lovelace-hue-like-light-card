@@ -23,7 +23,7 @@ For code rules see [coding-guidelines.md](coding-guidelines.md).
 npm ci
 ```
 
-Node.js LTS is expected (CI uses the default of `actions/setup-node`).
+Node.js `^22.18.0` or `>=24.11.0` is required (Babel 8); CI uses Node 24.
 
 ## npm scripts
 
