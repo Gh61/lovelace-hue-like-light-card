@@ -1,4 +1,5 @@
 import { Action } from '../types/functions';
+import { TimeoutId } from '../types/types-helpers';
 
 class QueueItem {
     public constructor(action:Action, waitBeforeMs:number) {
@@ -19,7 +20,7 @@ class QueueItem {
 
 export class HueEffectQueue {
     private readonly _queue = new Array<QueueItem>();
-    private _currentEffectId: NodeJS.Timeout | null = null;
+    private _currentEffectId: TimeoutId | null = null;
 
     public get currentEffectId() {
         return this._currentEffectId;

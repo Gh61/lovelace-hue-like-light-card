@@ -7,6 +7,7 @@ import { MousePoint, Point, TouchPoint } from '../types/point';
 import { PointerDragHelper } from './pointer-drag-helper';
 import { Action, noop } from '../types/functions';
 import { HaIcon } from '../types/types-hass';
+import { TimeoutId } from '../types/types-helpers';
 
 export interface IRollupValueChangeEventDetail {
     oldValue: number;
@@ -292,8 +293,8 @@ export class HueBrightnessRollup extends LitElement {
             this._wheelCloseTimeoutId = null;
         }
     }
-    private _wheelSubmitTimeoutId: NodeJS.Timeout | null;
-    private _wheelCloseTimeoutId: NodeJS.Timeout | null;
+    private _wheelSubmitTimeoutId: TimeoutId | null;
+    private _wheelCloseTimeoutId: TimeoutId | null;
 
     // #endregion
 

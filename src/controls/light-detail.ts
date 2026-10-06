@@ -17,6 +17,7 @@ import { ILightContainer, ISingleLightContainer } from '../types/types-interface
 import { Action, Action1 } from '../types/functions';
 import { Color } from '../core/colors/color';
 import { LiveUpdateSession } from '../core/live-update-session';
+import { TimeoutId } from '../types/types-helpers';
 
 @customElement(HueLightDetail.ElementName)
 export class HueLightDetail extends IdLitElement {
@@ -206,7 +207,7 @@ export class HueLightDetail extends IdLitElement {
         this.dispatchEvent(new CustomEvent('show'));
     }
 
-    private _hideTimeout: NodeJS.Timeout | null;
+    private _hideTimeout: TimeoutId | null;
 
     /** Will hide this element (with animation). */
     public hide(instant = false) {
