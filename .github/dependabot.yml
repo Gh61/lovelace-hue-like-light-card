@@ -23,6 +23,10 @@ updates:
       prefix-development: 'chore'
       include: 'scope'
     open-pull-requests-limit: 10
+    ignore:
+      # TypeScript 7.0 has no JS compiler API - typescript-eslint, ts-jest and rollup-plugin-typescript2 can't use it (expected in 7.1)
+      - dependency-name: 'typescript'
+        versions: ['>=7.0.0 <7.1.0']
     groups:
       eslint-group:
         patterns:
