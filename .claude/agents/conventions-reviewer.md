@@ -19,7 +19,7 @@ For every changed file, read enough surrounding code to judge it in context.
 ## What to check
 
 1. **Correctness first** - obvious bugs, wrong `addEventListener`/`removeEventListener` pairing, missing `unregisterOnPropertyChanged` in `disconnectedCallback`, directives holding resources without `AsyncDirective` cleanup, null handling, async errors swallowed.
-2. **DRY** - does new code duplicate an existing helper? Check guidelines §7 table and Grep the codebase for similar logic (colors, view-utils, theme-helper, extensions, functions, PointerDragHelper, LimitedTimeout, ...). Name the helper to reuse.
+2. **DRY** - does new code duplicate an existing helper? Check guidelines §7 table and Grep the codebase for similar logic (colors, view-utils, theme-helper, extensions, functions, PointerDragHelper, DisplayObserver, ...). Name the helper to reuse.
 3. **KISS / YAGNI** - unnecessary abstractions, options, generality, dead code, commented-out code.
 4. **OOP** - responsibilities in the right class/layer (`core/` logic vs `controls/` UI vs `types/` config), encapsulation (`_field` + accessors, `readonly`), interfaces used where they exist, static helpers via `ClassName.member`.
 5. **Naming** - guidelines §3 table (files, classes, `I` interfaces, `I...EventDetail`, `_private`, PascalCase static constants, kebab-case events, `--hue-*` CSS vars, camelCase YAML keys).

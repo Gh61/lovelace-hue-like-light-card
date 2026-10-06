@@ -10,7 +10,7 @@ import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 import { noop } from '../types/functions';
 import { IconHelper } from '../core/icon-helper';
 import { HueLikeLightCardEntityConfig } from '../types/config';
-import { LimitedTimeout } from '../core/limited-timeout';
+import { DisplayObserver } from '../core/display-observer';
 
 export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
@@ -114,7 +114,7 @@ export class HueDialogLightTile extends HueDialogTile {
     `];
     }
 
-    private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
+    private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner());
 
     // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
     private updateStylesInner(): void {
@@ -152,12 +152,12 @@ export class HueDialogLightTile extends HueDialogTile {
                 shadow
             );
 
-            // sometimes the element is not yet displayed, so we need to try calculate shadow later
+            // sometimes the element is not yet displayed, so we need to calculate shadow later
             if (!shadow) {
-                this._lt.setTimeout(() => this.updateStylesInner(), 100);
+                this._displayObserver.waitForDisplay(this);
             }
             else {
-                this._lt.reset();
+                this._displayObserver.stop();
             }
         }
     }
@@ -261,5 +261,7 @@ export class HueDialogLightTile extends HueDialogTile {
         if (this.lightContainer) {
             this.lightContainer.unregisterOnPropertyChanged(this._elementId);
         }
+
+        this._displayObserver.stop();
     }
 }

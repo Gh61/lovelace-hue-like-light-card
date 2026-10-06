@@ -23,7 +23,7 @@ import { LightController } from '../core/light-controller';
 import { HueHistoryStateManager, HueHistoryStep } from './history-state-manager';
 import { localize } from '../localize/localize';
 import { ActionHandler } from '../core/action-handler';
-import { LimitedTimeout } from '../core/limited-timeout';
+import { DisplayObserver } from '../core/display-observer';
 import { HueDialogSceneHATile } from './dialog-scene-ha-tile';
 import { horizontalScroll } from '../directives/horizontal-scroll';
 
@@ -40,7 +40,7 @@ export class HueDialog extends IdLitElement {
     https://material-components.github.io/material-components-web-catalog/#/component/dialog
     */
 
-    private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
+    private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner(false));
     private _isRendered = false;
     private _config: HueLikeLightCardConfig;
     private _entitiesConfig: HueLikeLightCardEntityConfigCollection;
@@ -291,6 +291,7 @@ export class HueDialog extends IdLitElement {
             // unregister update delegate
             this._ctrl.unregisterOnPropertyChanged(this._elementId);
             this._sliderThrottle.stop();
+            this._displayObserver.stop();
 
             this._isRendered = false;
         }
@@ -673,12 +674,12 @@ export class HueDialog extends IdLitElement {
             this.style.removeProperty('--hue-text-color');
         }
 
-        // sometimes the element is not yet displayed, so we need to try calculate shadow later
+        // sometimes the element is not yet displayed, so we need to calculate shadow later
         if (!shadow) {
-            this._lt.setTimeout(() => this.updateStylesInner(false), 100);
+            this._displayObserver.waitForDisplay(heading);
         }
         else {
-            this._lt.reset();
+            this._displayObserver.stop();
         }
     }
 
