@@ -5,21 +5,23 @@ import { Action, Func, Func1, noop } from '../types/functions';
 export type LiveUpdateApply<T> = Func1<T, Promise<unknown> | void>;
 
 /**
- * Throttles live updates of a value while the user is dragging a control (slider, color marker, ...)
- * and pins the shown value, so the control doesn't jump back to the lagging state from Home Assistant.
+ * Live updates of a value while the user is dragging a control (slider, color marker, ...) - one instance per control.
+ * Sends the values to Home Assistant one at a time and pins the shown value, so the control doesn't jump back to the lagging state from Home Assistant.
  *
  * - At most one apply is in flight - the next value is applied only after Home Assistant confirmed the previous one
  *   (or it failed, or `Consts.LiveUpdateConfirmTimeout` passed) and at least `Consts.LiveUpdateMinInterval` after it was sent.
  *   Values in between are skipped - the latest value wins.
  * - `update` (during drag): pins the value and queues it.
  * - `commit` (drag finished): queues the final value the same way (never overtaken by an older value) and keeps it pinned.
- * - The pin is released after `Consts.LiveUpdateHoldTime` from the last pinned value or the last confirmation, whichever is later.
+ * - The pin is released after `Consts.LiveUpdateHoldTime` from the last pinned value or the last confirmation, whichever is later,
+ *   or by `stop` - `onRelease` is called in both cases.
  * - When disabled, `update` does nothing and `commit` only applies the value.
  */
-export class LiveUpdateThrottle<T> {
+export class LiveUpdateSession<T> {
     private readonly _enabled: boolean;
     private readonly _onRelease: Action;
     private _pinnedValue: T | null = null;
+    private _lastSentValue: T | null = null;
     private _pending: { value: T, apply: LiveUpdateApply<T> } | null = null;
     private _inFlight = false;
     private _lastApplyTime = 0;
@@ -52,6 +54,14 @@ export class LiveUpdateThrottle<T> {
     }
 
     /**
+     * Value of the last live apply that sent something (returned a promise - sent, not necessarily confirmed) while the value is pinned - null after release, `stop` or when disabled.
+     * The final apply can compare with it to skip a value that was already sent.
+     */
+    public get lastSentValue(): T | null {
+        return this._lastSentValue;
+    }
+
+    /**
      * Intermediate value during drag - pins it and applies it as soon as possible.
      * @param apply Applies the value (e.g. calls the HA service).
      */
@@ -80,15 +90,22 @@ export class LiveUpdateThrottle<T> {
         this.tryApplyPending();
     }
 
-    /** Cancels the pending update and releases the pinned value without notification. */
+    /** Cancels the pending update and releases the pinned value (notifies `onRelease` only when a value was pinned). */
     public stop(): void {
+        const wasPinned = this.isPinned;
+
         this.clearApplyTimeout();
         this.clearReleaseTimeout();
         this._session++; // confirmation of the apply in flight is ignored
         this._pending = null;
         this._pinnedValue = null;
+        this._lastSentValue = null;
         this._inFlight = false;
         this._lastApplyTime = 0;
+
+        if (wasPinned) {
+            this._onRelease();
+        }
     }
 
     private tryApplyPending() {
@@ -110,7 +127,14 @@ export class LiveUpdateThrottle<T> {
         this._inFlight = true;
 
         const session = this._session;
-        this.waitForConfirmation(() => pending.apply(pending.value)).then(() => {
+        this.waitForConfirmation(() => {
+            const result = pending.apply(pending.value);
+            // apply without promise sent nothing (e.g. 0 is not sent while sliding)
+            if (result) {
+                this._lastSentValue = pending.value;
+            }
+            return result;
+        }).then(() => {
             if (session !== this._session)
                 return;
 
@@ -136,7 +160,7 @@ export class LiveUpdateThrottle<T> {
                 Promise.resolve(apply()).then(done, done);
             }
             catch (e) {
-                console.error('[LiveUpdateThrottle] Apply failed', e);
+                console.error('[LiveUpdateSession] Apply failed', e);
                 done();
             }
         });
@@ -158,6 +182,7 @@ export class LiveUpdateThrottle<T> {
                 return;
 
             this._pinnedValue = null;
+            this._lastSentValue = null;
             this._onRelease();
         }, Consts.LiveUpdateHoldTime);
     }

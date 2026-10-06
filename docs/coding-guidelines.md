@@ -100,7 +100,7 @@ A new **static** `_field` must be added to the `no-underscore-dangle` allow-list
 | Light capabilities | `core/light-features.ts` |
 | HA WebSocket queries | `core/hass-ws-client.ts` |
 | Wait until an element is displayed (has size) | `core/display-observer.ts` (`DisplayObserver`) |
-| Live updates while dragging (one call in flight, newest value wins, value pinning) | `core/live-update-throttle.ts` (`LiveUpdateThrottle`) |
+| Live updates while dragging (one call in flight, newest value wins, value pinning) | `core/live-update-session.ts` (`LiveUpdateSession`) |
 | Sequenced animations | `core/effect-queue.ts` (`HueEffectQueue`) |
 | Unique element id | `core/id-lit-element.ts` |
 | Property change notifications | `core/notify-base.ts` |

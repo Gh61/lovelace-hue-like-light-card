@@ -21,7 +21,7 @@ import { IdLitElement } from './core/id-lit-element';
 import { HueApiProvider } from './core/api-provider';
 import { ICardApi } from './types/types-api';
 import { DisplayObserver } from './core/display-observer';
-import { LiveUpdateThrottle } from './core/live-update-throttle';
+import { LiveUpdateSession } from './core/live-update-session';
 
 // Show version info in console
 VersionNotifier.toConsole();
@@ -40,7 +40,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
     private _ctrl?: AreaLightController;
-    private _sliderThrottle?: LiveUpdateThrottle<number>;
+    private _sliderSession?: LiveUpdateSession<number>;
     private _ctrlListenerRegistered = false;
     private _actionHandler?: ActionHandler;
     private _error?: ErrorInfo;
@@ -145,9 +145,13 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         // stop listening to the replaced controller - updated() registers on the new one
         this.unregisterCtrlListener();
 
-        this._ctrl = new AreaLightController(this._config.getEntities().getIdList(), this._config.getDefaultColor(), this._config.groupEntity);
-        this._sliderThrottle?.stop();
-        this._sliderThrottle = new LiveUpdateThrottle<number>(this._config.liveUpdate, this.onChangeHandler);
+        const ctrl = new AreaLightController(this._config.getEntities().getIdList(), this._config.getDefaultColor(), this._config.groupEntity);
+        this._ctrl = ctrl;
+        this._sliderSession?.stop();
+        this._sliderSession = new LiveUpdateSession<number>(this._config.liveUpdate, () => {
+            ctrl.releaseBrightnessPreview();
+            this.onChangeHandler();
+        });
         this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
 
         // For theme color set background to null
@@ -454,7 +458,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         }
 
         // no config, ctrl or hass
-        if (!this._config || !this._ctrl || !this._sliderThrottle || !this._hass || !this._config.isVisible)
+        if (!this._config || !this._ctrl || !this._sliderSession || !this._hass || !this._config.isVisible)
             return nothing;
 
         const titleTemplate = this._config.getTitle(this._ctrl);
@@ -483,7 +487,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
                 </div>
                 ${showSwitch ? ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene) : nothing}
             </div>
-            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler, this._sliderThrottle)}
+            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler, this._sliderSession)}
         </ha-card>`;
     }
 
@@ -533,7 +537,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     private destroyListeners() {
         this.unregisterCtrlListener();
-        this._sliderThrottle?.stop();
+        this._sliderSession?.stop();
         if (this._mc) {
             this._mc.destroy();
             this._mc = undefined;

@@ -508,7 +508,7 @@ card_mod:
 
 While you are dragging the slider (on the card and in the [Hue screen](#hue-screen)), a marker in the color picker or the brightness bar of a light, the lights are updated continuously.
 
-The speed adapts to your installation: the next value is sent only after Home Assistant confirmed the previous one (but at most 5 times per second). Values in between are skipped - the lights always get the newest one, so they never lag behind with old values.
+The speed adapts to your installation: the next value is sent only after Home Assistant confirmed the previous one (but at most 5 times per second).
 
 > **Note:** Lights with a weaker connection to their bridge (e.g. farther away from the Hue bridge) respond more slowly, so live updates can be less smooth for them.
 

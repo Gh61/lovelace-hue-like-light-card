@@ -95,7 +95,7 @@ src/
 │  ├─ api-provider.ts             window.hue_card JS + URL API
 │  ├─ hass-ws-client.ts           WebSocket queries (areas, floors, labels, scenes)
 │  ├─ colors/                     Color, ColorExtended, Background, resolvers
-│  └─ ...                         view-utils, icon-helper, display-observer, live-update-throttle, effect-queue, ...
+│  └─ ...                         view-utils, icon-helper, display-observer, live-update-session, effect-queue, ...
 ├─ controls/                Lit UI elements (dialog, tiles, light detail, pickers, switches, sliders)
 ├─ directives/              Lit directives (horizontal-scroll)
 ├─ localize/                localize() + languages/*.json
