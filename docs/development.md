@@ -13,7 +13,7 @@ For code rules see [coding-guidelines.md](coding-guidelines.md).
 | Gestures | `@egjs/hammerjs` |
 | Bundler | Rollup (`rollup.config.mjs`) |
 | Tests | Jest + ts-jest + jsdom |
-| Lint | ESLint 9 flat config (`eslint.config.mjs`) |
+| Lint | ESLint 10 flat config (`eslint.config.mjs`) |
 | CI | GitHub Actions (`.github/workflows/`) |
 | Distribution | HACS (`hacs.json`) - single file `hue-like-light-card.js` |
 
@@ -30,7 +30,7 @@ Node.js `^22.18.0` or `>=24.11.0` is required (Babel 8); CI uses Node 24.
 | Script | What it does |
 |---|---|
 | `npm start` | Rollup in watch mode + dev server serving `./dist` on `http://127.0.0.1:5500` (CORS enabled) |
-| `npm run lint` | ESLint over `src/**` and `tests/**` |
+| `npm run lint` | ESLint over `src/` and `tests/` |
 | `npm run lintfix` | ESLint with `--fix` |
 | `npm run rollup` | Build into `./dist` (dev) |
 | `npm run build` | `lint` + `rollup` |

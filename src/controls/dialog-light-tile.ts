@@ -226,7 +226,6 @@ export class HueDialogLightTile extends HueDialogTile {
 
         const icon = this.entityConfig?.icon ?? this.lightContainer.getIcon() ?? IconHelper.getIcon(1);
 
-        /* eslint-disable @/indent */
         return html`
         <div class='selector'>
             <div class='hue-tile light' title='${title}'>
@@ -244,7 +243,6 @@ export class HueDialogLightTile extends HueDialogTile {
             </div>
         </div>
         `;
-        /* eslint-enable @/indent */
     }
 
     public override connectedCallback(): void {
