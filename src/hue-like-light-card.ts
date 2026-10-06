@@ -20,7 +20,7 @@ import { PreventGhostClick } from './types/prevent-ghostclick';
 import { IdLitElement } from './core/id-lit-element';
 import { HueApiProvider } from './core/api-provider';
 import { ICardApi } from './types/types-api';
-import { LimitedTimeout } from './core/limited-timeout';
+import { DisplayObserver } from './core/display-observer';
 import { LiveUpdateThrottle } from './core/live-update-throttle';
 
 // Show version info in console
@@ -36,7 +36,7 @@ VersionNotifier.toConsole();
 
 @customElement(Consts.CardElementName)
 export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
-    private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
+    private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner(false));
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
     private _ctrl?: AreaLightController;
@@ -428,12 +428,15 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             shadow
         );
 
-        // sometimes the element is not yet displayed, so we need to try calculate shadow later
+        // sometimes the element is not yet displayed, so we need to calculate shadow later
+        // (when the card is not rendered yet, updated() will call this again)
         if (!shadow) {
-            this._lt.setTimeout(() => this.updateStylesInner(false), 100);
+            if (card) {
+                this._displayObserver.waitForDisplay(card);
+            }
         }
         else {
-            this._lt.reset();
+            this._displayObserver.stop();
         }
     }
 
@@ -495,6 +498,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     public override disconnectedCallback(): void {
         super.disconnectedCallback();
         this.destroyListeners();
+        this._displayObserver.stop();
     }
 
     private setupListeners() {
