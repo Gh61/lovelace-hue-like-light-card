@@ -1,7 +1,7 @@
 import { CallServiceActionConfig } from '../ha/data/lovelace/config/action';
 import { tryParseEnum } from './extensions';
 import { ActionHandlerDetail } from '../ha/data/lovelace/action_handler';
-import { CardActionConfig, ClickAction, ClickActionData, HueLikeLightCardConfigInterface } from './types-config';
+import { CardActionConfig, CardActionName, ClickAction, ClickActionData, HueLikeLightCardConfigInterface } from './types-config';
 
 /** Gesture of the card, as reported by the HA action handler directive. */
 export type CardGesture = ActionHandlerDetail['action'];
@@ -9,8 +9,8 @@ export type CardGesture = ActionHandlerDetail['action'];
 type CardActionKey = `${'' | 'on_' | 'off_'}${CardGesture}_action`;
 
 /** Actions of the card (`turn-on`, ...) and the HA actions (`navigate`, `perform-action`, ...) - checked against the `CardActionConfig` union. */
-const CardActionNames: CardActionConfig['action'][] = ['turn-on', 'turn-off', 'scene', 'hue-screen'];
-const HaActionNames: CardActionConfig['action'][] = ['none', 'toggle', 'more-info', 'navigate', 'url', 'call-service', 'perform-action', 'assist', 'fire-dom-event'];
+const HueCardActionNames: CardActionName[] = ['turn-on', 'turn-off', 'scene', 'hue-screen'];
+const HaCardActionNames: CardActionName[] = ['none', 'toggle', 'more-info', 'navigate', 'url', 'call-service', 'perform-action', 'assist', 'fire-dom-event'];
 
 /**
  * Tap / hold / double-tap actions of the card.
@@ -107,7 +107,7 @@ export class CardActions {
     }
 
     private static validate(action: CardActionConfig, optionName: string): CardActionConfig {
-        const allowed: string[] = [...CardActionNames, ...HaActionNames];
+        const allowed: string[] = [...HueCardActionNames, ...HaCardActionNames];
         if (!allowed.includes(action.action)) {
             throw new Error(`${optionName}: action '${action.action}' was not recognized. Allowed values are: ${allowed.map(n => `'${n}'`).join(', ')}`);
         }

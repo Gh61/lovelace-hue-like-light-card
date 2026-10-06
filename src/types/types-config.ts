@@ -41,6 +41,8 @@ export enum SceneProvider {
     ScenePresets = 'scene-presets'
 }
 
+//#region CardActions
+
 /** Actions of the card itself - on top of the HA actions (`more-info`, `navigate`, `perform-action`, ...). */
 export interface TurnOnActionConfig {
     action: 'turn-on';
@@ -62,6 +64,11 @@ export interface SceneActionConfig {
 
 /** `tap_action` & co. - HA action syntax extended by the actions of the card. */
 export type CardActionConfig = ActionConfig | TurnOnActionConfig | TurnOffActionConfig | HueScreenActionConfig | SceneActionConfig;
+
+/** Name of an action (`action` key) - the HA actions and the actions of the card. */
+export type CardActionName = CardActionConfig['action'];
+
+//#endregion
 
 /** @deprecated Data of the deprecated `onClickAction` option family. */
 export class ClickActionData {
