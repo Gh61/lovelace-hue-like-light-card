@@ -33,6 +33,14 @@ const relatedResults: Record<string, Record<string, HassSearchDeviceResult>> = {
         },
         broken: {
             config_entry: []
+        },
+        partly_disabled: {
+            config_entry: [],
+            entity: ['light.living_1', 'light.disabled_1', 'light.disabled_2']
+        },
+        all_disabled: {
+            config_entry: [],
+            entity: ['light.disabled_1']
         }
     },
     label: {
@@ -75,10 +83,16 @@ const createHass = () => {
         throw new Error(`Unexpected message ${msg.type}`);
     });
 
+    // every light of the fixtures has a state, except the disabled ones
+    const states = Object.fromEntries(
+        ['light.floor_1', 'light.floor_2', 'light.living_1', 'light.living_2', 'light.party_1', 'light.no_icon']
+            .map(id => [id, { entity_id: id, state: 'on' }])
+    );
     const hass = {
         connection: { sendMessagePromise },
+        states,
         floors: { ground_floor: { name: 'Ground Floor' } },
-        areas: { living_room: { name: 'Living Room' } }
+        areas: { living_room: { name: 'Living Room' }, partly_disabled: { name: 'Partly Disabled' } }
     } as unknown as HomeAssistant;
 
     return { hass, sendMessagePromise };
@@ -101,12 +115,43 @@ describe('Config init', () => {
         expect(config.scenes.map(s => s.entity)).toStrictEqual(['scene.floor_b', 'scene.floor_a']);
     });
 
-    it('should load area lights, title and scenes', async () => {
-        const { config } = await initConfig({ area: 'Living Room' });
+    it('should skip area entities without a state and warn (#398)', async () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        try {
+            const { config } = await initConfig({ area: 'Partly Disabled' });
 
-        expect(config.getEntities().getIdList()).toStrictEqual(['light.living_1', 'light.living_2']);
-        expect(config.title).toBe('Living Room');
-        expect(config.scenes.map(s => s.entity)).toStrictEqual(['scene.living_relax', 'scene.living_bright']);
+            expect(config.getEntities().getIdList()).toStrictEqual(['light.living_1']);
+            expect(warnSpy).toHaveBeenCalledTimes(1);
+            expect(warnSpy.mock.calls[0][0]).toContain('light.disabled_1, light.disabled_2');
+        }
+        finally {
+            warnSpy.mockRestore();
+        }
+    });
+
+    it('should fail when all area lights are without a state', async () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        try {
+            await expect(initConfig({ area: 'All Disabled' })).rejects.toThrow("Area 'All Disabled' has no light entities.");
+        }
+        finally {
+            warnSpy.mockRestore();
+        }
+    });
+
+    it('should load area lights, title and scenes', async () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        try {
+            const { config } = await initConfig({ area: 'Living Room' });
+
+            expect(config.getEntities().getIdList()).toStrictEqual(['light.living_1', 'light.living_2']);
+            expect(config.title).toBe('Living Room');
+            expect(config.scenes.map(s => s.entity)).toStrictEqual(['scene.living_relax', 'scene.living_bright']);
+            expect(warnSpy).not.toHaveBeenCalled();
+        }
+        finally {
+            warnSpy.mockRestore();
+        }
     });
 
     it('should load label lights, title and icon, but no scenes', async () => {

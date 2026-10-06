@@ -17,6 +17,7 @@
  *   node scripts/ha-test.mjs dialog    Runs `test-ha/browser/dialog.mjs` (Hue dialog lifecycle, history, stacked more-info).
  *   node scripts/ha-test.mjs cardmod   Runs `test-ha/browser/card-mod.mjs` (card-mod theme styling of the Hue dialog).
  *   node scripts/ha-test.mjs actions   Runs `test-ha/browser/actions.mjs` (tap / hold / double-tap actions of the card).
+ *   node scripts/ha-test.mjs area-disabled  Runs `test-ha/browser/area-disabled.mjs` (area with a disabled light, #398).
  *   node scripts/ha-test.mjs logs      Prints the Home Assistant log of the container.
  *
  * Needs `npm run rollup` (or `npm start`) for the dev build in `./dist`.
@@ -284,8 +285,9 @@ try {
         case 'dialog': await browserTest('dialog'); break;
         case 'cardmod': await browserTest('card-mod'); break;
         case 'actions': await browserTest('actions'); break;
+        case 'area-disabled': await browserTest('area-disabled'); break;
         default:
-            console.log('Usage: ha-test start | stop | status | logs | smoke | dialog | cardmod | actions');
+            console.log('Usage: ha-test start | stop | status | logs | smoke | dialog | cardmod | actions | area-disabled');
             process.exitCode = 2;
     }
 }

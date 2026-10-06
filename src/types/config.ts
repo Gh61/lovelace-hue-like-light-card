@@ -444,6 +444,13 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             throw new Error(`${groupTypeTitle} '${groupName}' does not exist.`);
         }
 
+        // skip entities without a state - disabled entities are registered, but have no state (#398)
+        const missing = lightsInfo.lights.filter(id => !hass.states[id]);
+        if (missing.length) {
+            console.warn(`[HueLikeLightCard] ${groupTypeTitle} '${groupName}': skipping entities without a state (disabled?): ${missing.join(', ')}`);
+            lightsInfo.lights = lightsInfo.lights.filter(id => !missing.includes(id));
+        }
+
         // check for at least one light entity
         if (lightsInfo.lights.length === 0) {
             throw new Error(`${groupTypeTitle} '${groupName}' has no light entities.`);
