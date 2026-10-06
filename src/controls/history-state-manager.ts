@@ -1,4 +1,4 @@
-import { Consts } from '../types/consts';
+import { ConsoleLogger, LogLevel } from '../core/console-logger';
 import { Action, noop } from '../types/functions';
 
 interface WindowHistoryState {
@@ -11,11 +11,7 @@ interface HueWindowHistoryState extends WindowHistoryState {
     hueId: string, // identificator
 }
 
-const logMessage = (message: string) => {
-    if (Consts.Dev) {
-        console.info('[HueHistory] ' + message);
-    }
-};
+const log = new ConsoleLogger('HueHistory');
 
 export class HueHistoryStep {
     private static lastGeneratedId = 0;
@@ -57,7 +53,7 @@ export class HueHistoryStep {
 
     public enter() {
         if (!this._isEntered) {
-            logMessage('Entering ' + this._id);
+            log.debug('Entering ' + this._id);
             this._onEnter();
             this._isEntered = true;
         }
@@ -65,7 +61,7 @@ export class HueHistoryStep {
 
     public exit() {
         if (this._isEntered) {
-            logMessage('Exiting ' + this._id);
+            log.debug('Exiting ' + this._id);
             this._onExit();
             this._isEntered = false;
         }
@@ -106,14 +102,17 @@ class HistoryStack {
     }
 
     private logState(message: string) {
-        logMessage(message);
-        logMessage('Stack: ' + this._stack.length);
+        if (!log.isEnabled(LogLevel.Debug))
+            return;
+
+        log.debug(message);
+        log.debug('Stack: ' + this._stack.length);
         if (this._pointer < 0) {
-            logMessage('[x]');
+            log.debug('[x]');
         }
         for (let i = 0; i < this._stack.length; i++) {
             const m = (i === this._pointer ? '[x] ' : '[ ] ') + this._stack[i].id;
-            logMessage(m);
+            log.debug(m);
         }
     }
 
@@ -164,7 +163,7 @@ class HistoryStack {
             }
         }
 
-        logMessage('Replace not possible for ' + item.id);
+        log.debug('Replace not possible for ' + item.id);
         return {
             replaced: false,
             oldItem: undefined
@@ -244,7 +243,7 @@ class HistoryStack {
         if (!found) {
             // clear items
             toEnter.length = 0;
-            logMessage('NOT moved to ' + id);
+            log.debug('NOT moved to ' + id);
         }
         else {
             this.logState('Moved to ' + id);

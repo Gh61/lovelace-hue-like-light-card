@@ -11,6 +11,9 @@ import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
 import { LightingData, PresetConfig } from './types-hue-preset';
 import { MaybeArray } from './types-helpers';
 import { Action2, Func2 } from './functions';
+import { ConsoleLogger } from '../core/console-logger';
+
+const log = new ConsoleLogger('HueConfig');
 
 declare type EntityRelations = {
     entityId: string;
@@ -471,8 +474,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             lightsInfo = await load(client, groupName);
         }
         catch (error) {
-            console.error('Cannot load light entities from HA.');
-            console.error(error);
+            log.error('Cannot load light entities from HA.', error);
 
             // rethrow exception for UI
             throw new Error(`Cannot load entities from ${groupType} '${groupName}'. See console for more info.`);
@@ -562,8 +564,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             this.setLoadedScenes(loadedScenes);
         }
         catch (error) {
-            console.error('Cannot load scenes from HA.');
-            console.error(error);
+            log.error('Cannot load scenes from HA.', error);
         }
     }
 
@@ -610,7 +611,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             // Fetch the JSON data
             const response = await fetch(jsonUrl);
             if (!response.ok) {
-                console.error('Hue Presets JSON not found. The hass-scene_presets addon may not be installed.');
+                log.warn('Hue Presets JSON not found. The hass-scene_presets addon may not be installed.');
                 return;
             }
 
@@ -630,8 +631,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
 
         }
         catch (error) {
-            console.error('Could not load Hue Presets from hass-scene_presets addon.');
-            console.error(error);
+            log.error('Could not load Hue Presets from hass-scene_presets addon.', error);
         }
     }
 

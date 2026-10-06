@@ -1,5 +1,8 @@
 import { Consts } from '../types/consts';
 import { Action, Func, Func1, noop } from '../types/functions';
+import { ConsoleLogger } from './console-logger';
+
+const log = new ConsoleLogger('LiveUpdateSession');
 
 /** Applies the value (e.g. calls the HA service) - a returned promise is awaited before the next value is applied. */
 export type LiveUpdateApply<T> = Func1<T, Promise<unknown> | void>;
@@ -160,7 +163,7 @@ export class LiveUpdateSession<T> {
                 Promise.resolve(apply()).then(done, done);
             }
             catch (e) {
-                console.error('[LiveUpdateSession] Apply failed', e);
+                log.error('Apply failed', e);
                 done();
             }
         });

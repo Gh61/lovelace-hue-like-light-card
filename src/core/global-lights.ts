@@ -1,4 +1,7 @@
+import { ConsoleLogger } from './console-logger';
 import { LightController } from './light-controller';
+
+const log = new ConsoleLogger('GlobalLights');
 
 /**
  * Static class making LightContainer instances global.
@@ -9,12 +12,12 @@ export class GlobalLights {
     public static getLightContainer(entity_id: string): LightController {
         let instance = GlobalLights._containers[entity_id];
         if (!instance) {
-            //console.log(`[GlobalLights] Creating instance for '${entity_id}'`);
+            log.trace(() => `Creating instance for '${entity_id}'`);
             instance = new LightController(entity_id);
             GlobalLights._containers[entity_id] = instance;
         }
         else {
-            //console.log(`[GlobalLights] Reusing instance for '${entity_id}'`);
+            log.trace(() => `Reusing instance for '${entity_id}'`);
         }
         return instance;
     }

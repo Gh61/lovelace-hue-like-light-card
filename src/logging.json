@@ -1,0 +1,13 @@
+{
+    "dev": {
+        "default": "debug",
+        "categories": {
+            "HueNotify.Hass": "off",
+            "GlobalLights": "off"
+        }
+    },
+    "prod": {
+        "default": "warn",
+        "categories": {}
+    }
+}

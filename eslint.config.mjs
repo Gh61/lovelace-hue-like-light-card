@@ -47,7 +47,7 @@ export default [{
         "@/quotes": ["error", "single", { "avoidEscape": true }],
         "@/semi": ["error", "always"],
         "eqeqeq": ["error", "always", { "null": "ignore" }],
-        "no-console": ["error", { allow: ["warn", "error", "info"] }],
+        "no-console": "error",
         "@typescript-eslint/consistent-type-assertions": ["error", { assertionStyle: "as" }],
 
         "no-underscore-dangle": ["error", {

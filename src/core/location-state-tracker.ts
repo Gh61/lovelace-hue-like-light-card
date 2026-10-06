@@ -1,4 +1,6 @@
-import { Consts } from '../types/consts';
+import { ConsoleLogger } from './console-logger';
+
+const log = new ConsoleLogger('LocationStateTracker');
 
 /*
  * This class will monitor changes in window.history.state by overriding pushState and replaceState methods.
@@ -26,7 +28,6 @@ export class LocationStateTracker {
             window.dispatchEvent(new Event('replacestate'));
         };
 
-        if (Consts.Dev)
-            console.info('[LocationStateTracker] History overriden');
+        log.debug('History overriden');
     }
 }

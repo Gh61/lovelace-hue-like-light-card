@@ -48,7 +48,7 @@ In dev mode:
 - every custom element gets the `-test` postfix (`Consts.ElementPostfix`) - the card is `custom:hue-like-light-card-test`,
 - the JS API is published as `window.hue_card_test` (instead of `window.hue_card`),
 - the card name/description get a ` [TEST]` suffix,
-- extra debug logging (guarded by `if (Consts.Dev)`) is enabled,
+- logging uses the `dev` levels from `src/logging.json` (debug logging enabled; the release build uses the `prod` levels - warnings and errors only),
 - output goes to `./dist` unminified.
 
 This lets the dev build run **side by side** with the released card in the same Home Assistant instance.
@@ -86,11 +86,13 @@ Repository folders: `src/` (card source), `tests/` (Jest), `docs/` (developer do
 src/
 ├─ hue-like-light-card.ts   Card entry point (custom element, config + hass lifecycle)
 ├─ version-notifier.ts      Console banner
+├─ logging.json             Log levels per category (dev / prod)
 ├─ core/                    Logic: controllers, actions, API, helpers
 │  ├─ light-controller.ts         One light/switch entity (state, optimistic updates, service calls)
 │  ├─ area-light-controller.ts    Group of LightControllers (what the card controls)
 │  ├─ global-lights.ts            Shared LightController cache (one per entity across all cards)
 │  ├─ notify-base.ts              Property-changed notification base
+│  ├─ console-logger.ts           Logging with hierarchical categories (levels in src/logging.json)
 │  ├─ action-handler.ts           Click / hold actions
 │  ├─ api-provider.ts             window.hue_card JS + URL API
 │  ├─ hass-ws-client.ts           WebSocket queries (areas, floors, labels, scenes)
