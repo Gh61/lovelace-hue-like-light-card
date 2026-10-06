@@ -84,6 +84,46 @@ describe('Card', () => {
         card.remove();
     });
 
+    it('should do nothing on update without config or hass', async () => {
+        const card = new HueLikeLightCard();
+        const setupSpy = jest.spyOn(card as unknown as { setupListeners: () => void }, 'setupListeners');
+        const stylesSpy = jest.spyOn(card as unknown as { updateStylesInner: () => void }, 'updateStylesInner');
+
+        document.body.appendChild(card);
+        await card.updateComplete;
+        setupSpy.mockClear();
+        stylesSpy.mockClear();
+
+        // hass only
+        card.hass = hassMockup;
+        await card.updateComplete;
+
+        expect(setupSpy).not.toHaveBeenCalled();
+        expect(stylesSpy).not.toHaveBeenCalled();
+
+        // config only
+        const configOnly = new HueLikeLightCard();
+        const configOnlySetupSpy = jest.spyOn(configOnly as unknown as { setupListeners: () => void }, 'setupListeners');
+        const configOnlyStylesSpy = jest.spyOn(configOnly as unknown as { updateStylesInner: () => void }, 'updateStylesInner');
+        document.body.appendChild(configOnly);
+        await configOnly.updateComplete;
+        configOnlySetupSpy.mockClear();
+        configOnlyStylesSpy.mockClear();
+
+        configOnly.setConfig({
+            type: 'custom:' + Consts.CardElementName,
+            entity: 'light.test',
+            scenes: []
+        });
+        await configOnly.updateComplete;
+
+        expect(configOnlySetupSpy).not.toHaveBeenCalled();
+        expect(configOnlyStylesSpy).not.toHaveBeenCalled();
+
+        card.remove();
+        configOnly.remove();
+    });
+
     it('should move listener to the new controller when config is set again', async () => {
         const hass = {
             ...hassMockup,

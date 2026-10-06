@@ -317,12 +317,14 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     protected override updated(changedProps: PropertyValues): void {
         super.updated(changedProps);
-        this.setupListeners();
-        this.updateStylesInner();
 
+        // nothing to do until the card has its config and hass (#424)
         if (!this._config || !this.hass) {
             return;
         }
+
+        this.setupListeners();
+        this.updateStylesInner();
 
         const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
         const oldConfig = changedProps.get('_config') as HueLikeLightCardConfig | undefined;
