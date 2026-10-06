@@ -42,6 +42,7 @@ For every added/changed/removed option in `src/types/types-config.ts` or `src/ty
 
 ### 5. Documentation
 - User-visible behavior change or new option without README update → finding.
+- README describing internal technical solutions instead of what the user sees and configures → finding (guidelines §1 "README is for users").
 - Developer workflow change (scripts, build, structure) without `docs/development.md` / `CLAUDE.md` update → finding.
 
 ## Report format

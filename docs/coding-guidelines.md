@@ -11,6 +11,7 @@ Rules marked **[lint]** are enforced by ESLint/TypeScript; the rest are checked 
 - **OOP** - logic lives in classes with clear responsibility and encapsulated state. Program against interfaces (`types/types-interface.ts`) where they exist.
 - **Small, focused changes** - one concern per change. Don't reformat or refactor unrelated code.
 - **Backward compatibility** - existing YAML configurations must keep working. A removed option stays documented (strikethrough) in README.
+- **README is for users** - it describes what the user sees and configures (options, behavior, examples), never internal technical solutions (how values are queued, cached, synchronized, ...). Internals belong to code comments and `docs/`. A behavior change that the user doesn't notice needs no README update.
 - **Home Assistant compatibility** - HA frontend changes often; workarounds for a specific HA version must have a comment with the HA version (e.g. `// since HA 2026.5`).
 
 ## 2. Formatting
