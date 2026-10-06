@@ -92,7 +92,7 @@ export class HueDialog extends IdLitElement {
         this._entitiesConfig = config.getEntities();
         this._ctrl = lightController;
         this._actionHandler = actionHandler;
-        this._sliderThrottle = new LiveUpdateThrottle<number>(config.liveUpdateInterval, this.onChangeHandler);
+        this._sliderThrottle = new LiveUpdateThrottle<number>(config.liveUpdate, this.onChangeHandler);
     }
 
     //#region Tile interactions
@@ -563,7 +563,7 @@ export class HueDialog extends IdLitElement {
                     detailElement.style.zIndex = '2'; // over header
 
                     detailElement.areaController = this._ctrl;
-                    detailElement.liveUpdateInterval = this._config.liveUpdateInterval;
+                    detailElement.liveUpdate = this._config.liveUpdate;
 
                     // action for show and hide
                     detailElement.addEventListener('show', () => {

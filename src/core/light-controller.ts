@@ -188,9 +188,12 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this._lightState.brightnessValue;
     }
     public set brightnessValue(value: number) {
+        this.setBrightnessValue(value);
+    }
+    public setBrightnessValue(value: number): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support brightness
-            return;
+            return Promise.resolve();
         }
         // just to be sure
         if (value < 0) {
@@ -202,7 +205,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
         this.notifyBrightnessValueChanged(value);
         const brightness = Math.round((value / 100.0) * 255); // value is 0-100
-        this._hass.callService('light', 'turn_on', {
+        return this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
             ['brightness']: brightness
         });
@@ -232,12 +235,15 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this._lightState.colorTemp;
     }
     public set colorTemp(newTemp: number | null) {
+        this.setColorTemp(newTemp);
+    }
+    public setColorTemp(newTemp: number | null): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support color temp
-            return;
+            return Promise.resolve();
         }
         if (!newTemp)
-            return;
+            return Promise.resolve();
 
         const minTemp = this._entity?.attributes?.min_color_temp_kelvin ?? 2000;
         const maxTemp = this._entity?.attributes?.max_color_temp_kelvin ?? 6500;
@@ -251,7 +257,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
         }
 
         this.notifyColorTempChanged(newTemp);
-        this._hass.callService('light', 'turn_on', {
+        return this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
             ['color_temp_kelvin']: newTemp
             //['kelvin']: newTemp, // Deprecated since 2025.1, removed in 2026.1
@@ -266,12 +272,15 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this._lightState.color;
     }
     public set color(newColor: Color | null) {
+        this.setColor(newColor);
+    }
+    public setColor(newColor: Color | null): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support color
-            return;
+            return Promise.resolve();
         }
         if (!newColor)
-            return;
+            return Promise.resolve();
 
         let mode: HassLightColorMode;
         const serviceData: Record<string, unknown> = { entity_id: this._entity_id };
@@ -285,7 +294,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
         }
 
         this.notifyColorChanged(newColor, mode);
-        this._hass.callService('light', 'turn_on', serviceData);
+        return this._hass.callService('light', 'turn_on', serviceData);
     }
 
     //#endregion

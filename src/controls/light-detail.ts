@@ -42,12 +42,12 @@ export class HueLightDetail extends IdLitElement {
     @property()
     public lightContainer: ILightContainer | null = null;
 
-    /** Interval of live updates while dragging (in ms, 0 = off) - must be set before the element is connected. */
-    public liveUpdateInterval = Consts.LiveUpdateInterval;
+    /** Whether the lights are updated live while dragging - must be set before the element is connected. */
+    public liveUpdate = true;
 
     private _brightnessThrottle: LiveUpdateThrottle<number> | null = null;
     private get brightnessThrottle() {
-        this._brightnessThrottle ??= new LiveUpdateThrottle<number>(this.liveUpdateInterval, () => this.requestUpdate());
+        this._brightnessThrottle ??= new LiveUpdateThrottle<number>(this.liveUpdate, () => this.requestUpdate());
         return this._brightnessThrottle;
     }
 
@@ -225,7 +225,7 @@ export class HueLightDetail extends IdLitElement {
     private brightnessValueChanging(ev: CustomEvent<IRollupValueChangeEventDetail>) {
         const light = this.lightContainer;
         if (light) {
-            this.brightnessThrottle.update(ev.detail.newValue, v => light.brightnessValue = v);
+            this.brightnessThrottle.update(ev.detail.newValue, v => light.setBrightnessValue(v));
         }
     }
 
@@ -235,8 +235,9 @@ export class HueLightDetail extends IdLitElement {
             this.brightnessThrottle.commit(ev.detail.newValue, v => {
                 // already applied by live update (e.g. end of wheel change)
                 if (v !== light.brightnessValue) {
-                    light.brightnessValue = v;
+                    return light.setBrightnessValue(v);
                 }
+                return undefined;
             });
         }
     }
@@ -409,7 +410,7 @@ export class HueLightDetail extends IdLitElement {
         this.updateComplete.then(() => {
             if (!this._colorPicker) {
                 this._colorPicker = this.renderRoot.querySelector('.color-picker') as HueColorTempPicker;
-                this._lightMarkerManager = new LightMarkerManager(this._colorPicker, this.liveUpdateInterval, l => this.setLightContainerFromPicker(l));
+                this._lightMarkerManager = new LightMarkerManager(this._colorPicker, this.liveUpdate, l => this.setLightContainerFromPicker(l));
                 this.createAreaControllerMarkers();
             }
 
@@ -530,13 +531,13 @@ class LightMarkerManager {
     private _lightToMarker: Record<string, HueColorTempPickerMarker>;
     private _lightToThrottle: Record<string, LiveUpdateThrottle<IHueColorTempPickerEventDetail>> = {};
     private _picker: HueColorTempPicker;
-    private readonly _liveUpdateInterval: number;
+    private readonly _liveUpdate: boolean;
     private _onMarkerActivation: Action1<ISingleLightContainer[]>;
     private _stateUpdateSuspended = false;
 
-    public constructor(picker: HueColorTempPicker, liveUpdateInterval: number, onMarkerActivation: Action1<ISingleLightContainer[]>) {
+    public constructor(picker: HueColorTempPicker, liveUpdate: boolean, onMarkerActivation: Action1<ISingleLightContainer[]>) {
         this._picker = picker;
-        this._liveUpdateInterval = liveUpdateInterval;
+        this._liveUpdate = liveUpdate;
         this._onMarkerActivation = onMarkerActivation;
 
         this._picker.addEventListener('activemarkers-change', _ => {
@@ -602,19 +603,21 @@ class LightMarkerManager {
     private getThrottle(light: ISingleLightContainer) {
         const entityId = light.getEntityId();
         // when released, the marker should show the real state again
-        this._lightToThrottle[entityId] ??= new LiveUpdateThrottle<IHueColorTempPickerEventDetail>(this._liveUpdateInterval, () => this.applyState(light));
+        this._lightToThrottle[entityId] ??= new LiveUpdateThrottle<IHueColorTempPickerEventDetail>(this._liveUpdate, () => this.applyState(light));
         return this._lightToThrottle[entityId];
     }
 
-    private applyColor(light: ISingleLightContainer, detail: IHueColorTempPickerEventDetail) {
+    private applyColor(light: ISingleLightContainer, detail: IHueColorTempPickerEventDetail): Promise<void> {
+        let result = Promise.resolve();
         this.suspendStateUpdate(() => {
             if (detail.mode === 'temp') {
-                light.colorTemp = detail.newTemp;
+                result = light.setColorTemp(detail.newTemp);
             }
             else if (detail.mode === 'color') {
-                light.color = detail.newColor;
+                result = light.setColor(detail.newColor);
             }
         });
+        return result;
     }
 
     public suspendStateUpdate(action: Action) {

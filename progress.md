@@ -9,36 +9,40 @@ Inspired by PR #474 (Thomas Mutzl), rewritten from scratch - credit him in the f
 
 ## Current state (implemented, verified)
 
-- Config option `liveUpdateInterval` (ms, default `Consts.LiveUpdateInterval` = 300, `0` = only the final value on release; negative / non-number throws). README row + "Live updates" section (Since 1.12.0).
-- `src/core/live-update-throttle.ts` - `LiveUpdateThrottle<T>`:
-  - `update(value, apply)` during drag: pins the value, applies at most once per interval (leading + trailing, latest value wins).
-  - `commit(value, apply)` on release: cancels pending update, applies immediately, keeps the value pinned for `Consts.LiveUpdateHoldTime` (1500 ms; also a watchdog when the drag never finishes).
-  - `stop()` on teardown. Interval 0 = old behavior (no pin, only commit).
+- Config option `liveUpdate` (boolean, default `true`, `getBoolean`; `false` = only the final value on release). README row + "Live updates" section (Since 1.12.0).
+- `src/core/live-update-throttle.ts` - `LiveUpdateThrottle<T>` with **backpressure**:
+  - At most one apply in flight; the next value is sent after the previous `callService` promise settles (resolve, reject, or `Consts.LiveUpdateConfirmTimeout` = 5 s) and at least `Consts.LiveUpdateMinInterval` (200 ms) after the previous send. Values in between are skipped, newest wins.
+  - `update(value, apply)` during drag: pins and queues the value.
+  - `commit(value, apply)` on release: queues the final value the same way (waits for the call in flight, never overtaken by older values).
+  - Pin released `Consts.LiveUpdateHoldTime` (1500 ms) after the later of the last pinned value and the last confirmation (also a watchdog when the drag never finishes).
+  - `stop()` on teardown (confirmation of the call in flight is ignored). Disabled = old behavior (no pin, only commit).
+- Controllers: `setBrightnessValue` / `setColorTemp` / `setColor` return the service-call promise (setters delegate to them); `AreaLightController.setBrightnessValue` waits for all lights (`Promise.all`).
 - Wiring:
   - Card + dialog header slider: `ViewUtils.createSlider(..., throttle)`; ha-slider `input`, mushroom `current-change`. Card and dialog own their throttle and stop it on teardown.
   - Light detail: brightness rollup (drag + wheel) and color picker markers (one throttle per light in `LightMarkerManager`, marker state from HA ignored while pinned; only `immediate-value-change` of a dragged marker counts).
   - Brightness 0 is never sent during sliding (groups + `allowZero` would turn on lights that were off) - only on release.
   - Commit skips the service call when the controller already has the value (single click fired `input` + `change`).
   - Rollup: external value set no longer fires `immediate-value-change`; external value is ignored during interaction; wheel submit timeout id is reset after firing (was a bug).
-- Tests: `live-update-throttle.test.ts`, `brightness-rollup.test.ts`, `config-parse.test.ts`. Lint / rollup / test pass; guard agents + browser test passed on the testing dashboard.
+- Tests: `live-update-throttle.test.ts`, `light-controller.test.ts`, `brightness-rollup.test.ts`, `config-parse.test.ts`.
 
 ## Decisions made with the developer
 
-- Option name `liveUpdateInterval` (generic - covers slider, color picker and rollup, not only the slider).
+- Option `liveUpdate` (boolean, generic - covers slider, color picker and rollup); the rate is not configurable - backpressure adapts it, `Consts.LiveUpdateMinInterval` is only the lower bound.
+- Failed apply and confirm timeout (5 s) both mean "done, continue".
 - All three controls get live updates in one change, one shared throttle class.
 - Groups / `allowZero`: never send 0 while sliding (chosen over "live updates only for single lights").
 - Hold the shown value ~1.5 s after release (`Consts.LiveUpdateHoldTime`, internal, not configurable).
-- On release the final value is sent **immediately** (commit cancels the pending trailing update, no waiting for the interval).
+- On release the final value joins the same chain (sent after the call in flight).
 - Commits without scope (`feat: ...`, not `feat(#474): ...`).
 - Throttle state is owned by the rendering element (card, dialog, light detail), not global state (the reason PR #474's `WeakMap` in `ViewUtils` was rejected).
 
 ## Changed files
 
-`src/core/live-update-throttle.ts` (new), `src/core/view-utils.ts`, `src/hue-like-light-card.ts`, `src/controls/dialog.ts`, `src/controls/light-detail.ts`, `src/controls/brightness-rollup.ts`, `src/types/{config,types-config,consts}.ts`, `tests/{live-update-throttle,brightness-rollup,config-parse}.test.ts`, `README.md`, `docs/{coding-guidelines,development}.md`.
+`src/core/live-update-throttle.ts` (new), `src/core/view-utils.ts`, `src/hue-like-light-card.ts`, `src/controls/dialog.ts`, `src/controls/light-detail.ts`, `src/controls/brightness-rollup.ts`, `src/core/{light-controller,area-light-controller}.ts`, `src/types/{config,types-config,types-interface,consts}.ts`, `tests/{live-update-throttle,light-controller,brightness-rollup,config-parse}.test.ts`, `README.md`, `docs/{coding-guidelines,development}.md`.
 
 ## Testing tips
 
-- Ctrl+Shift+R does not refresh the dev-server script in HA - use `fetch('<devServerUrl>/hue-like-light-card.js', {cache:'reload'})` in the page, then reload. Check that cards have `_config.liveUpdateInterval`.
+- Ctrl+Shift+R does not refresh the dev-server script in HA - use `fetch('<devServerUrl>/hue-like-light-card.js', {cache:'reload'})` in the page, then reload. Check that cards have `_config.liveUpdate`.
 - To see what is sent to HA: hook `hass.connection.sendMessagePromise` and log `call_service` messages with timestamps (also measure when each promise resolves - needed for next step 1).
 - The browser tool can't do a slow real drag - slow drags are simulated with pointer/mouse events; the developer has to verify real dragging by hand.
 
@@ -65,9 +69,7 @@ Inspired by PR #474 (Thomas Mutzl), rewritten from scratch - credit him in the f
 
 ## Next steps
 
-1. **Backpressure instead of a fixed rate** (main fix): per entity at most **one service call in flight**; the next one is sent only after the previous `callService` promise resolves (WS `call_service` is blocking in HA, so it resolves after the integration finished the call). Values in between are **skipped, newest wins**; `liveUpdateInterval` stays as a minimum gap. The final value on release joins the same chain (sent after the in-flight call, never overtaken by older steps).
-   - Needs the controllers to expose the service-call promise (`LightController` setters are fire-and-forget now; `AreaLightController` fans out to several lights - wait for all).
-   - Check whether the entity is a Hue group (`grouped_light`, `is_hue_group` attribute) - may need a bigger minimum gap.
+1. ~~Backpressure instead of a fixed rate~~ - implemented (see Current state). Open: check on a Hue group (`grouped_light`) whether the backpressure alone is enough.
 2. Re-test on the developer's HA with DevTools closed and open; measure call -> response times (the browser-tester hook on `hass.connection.sendMessagePromise` works well for this).
 3. Reduce console noise: the `LimitedTimeout` warning flood from `updateStylesInner` on hidden cards (existing issue, made much worse by live updates).
 4. **Instant UI propagation** (after 1-3 work): every value change during drag should update all other sliders/cards on the page immediately (optimistic local state via the shared controller in `GlobalLights` + property-changed notification), while only the real service call is throttled. Needs a controller API that sets the optimistic state without calling HA.

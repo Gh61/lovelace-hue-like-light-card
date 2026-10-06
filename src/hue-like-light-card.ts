@@ -147,7 +147,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
         this._ctrl = new AreaLightController(this._config.getEntities().getIdList(), this._config.getDefaultColor(), this._config.groupEntity);
         this._sliderThrottle?.stop();
-        this._sliderThrottle = new LiveUpdateThrottle<number>(this._config.liveUpdateInterval, this.onChangeHandler);
+        this._sliderThrottle = new LiveUpdateThrottle<number>(this._config.liveUpdate, this.onChangeHandler);
         this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
 
         // For theme color set background to null

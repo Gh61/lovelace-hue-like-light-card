@@ -110,8 +110,9 @@ export class ViewUtils {
         throttle.update(value, v => {
             // 0 would turn the lights off during sliding - and sliding back up would then turn on all lights (also the ones that were off before)
             if (v > 0) {
-                ctrl.brightnessValue = v;
+                return ctrl.setBrightnessValue(v);
             }
+            return undefined;
         });
     }
 
@@ -121,8 +122,9 @@ export class ViewUtils {
             throttle.commit(value, v => {
                 // already applied by live update (e.g. single click fires both input and change)
                 if (v !== ctrl.brightnessValue) {
-                    ctrl.brightnessValue = v;
+                    return ctrl.setBrightnessValue(v);
                 }
+                return undefined;
             });
         }
 
