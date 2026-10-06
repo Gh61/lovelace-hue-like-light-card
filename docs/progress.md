@@ -25,6 +25,7 @@ Status: ✅ done · 🟡 implemented, not verified in HA · 🔧 prepared, unuse
 | 13 | #424 - `HueLikeLightCard.updated()` does nothing until the card has both `config` and `hass` | ✅ | Listener setup and style calculation moved behind the guard; `connectedCallback` still runs them (both are idempotent). |
 | 14 | #398 - floor / area / label entities without a state are skipped (console warning) instead of failing the card | ✅ | Filter on `hass.states` in `tryLoadGroupInfo` - covers disabled entities and entities not loaded (yet). HA 2026.9 already leaves disabled entities out of `search/related`, so in the testing instance the filter is a safety net (`npm run ha-test -- area-disabled` verifies the cards with a disabled light; the filter itself is unit-tested). Decision: hide, not gray out.
 | 15 | #424 - `--ha-dialog-border-radius` is set only on the Hue dialog element | ✅ | Verified in the testing instance: with `hueBorders` the variable exists only on `hue-dialog` (not on `html`, `body` or `home-assistant`), a stacked more-info dialog does not inherit it, and a re-show with `hueBorders: false` removes it (`resetConfigStyles`). The global leak was a consequence of the former manual dialog attachment, fixed by #9. No code change. |
+| 16 | #424 - no temporary `ha-card` on `document.body` to probe the default card shadow | ✅ | The theme's `--ha-card-box-shadow` is read from the card's own `ha-card` (`getComputedStyle`) and appended to the card's shadow unless it is `none` (the HA default since 2022.11, which can't be part of a shadow list) → `--hue-card-box-shadow`; `new-borders`, `--ha-default-shadow`, `_haShadow` and the `--ha-card-box-shadow` host property are gone. Drops the HA < 2022.11 shadow handling (see the minimum HA version item below). Verified with `npm run ha-test -- card-shadow` (theme `card-shadow-test`). |
 
 ## Remaining work
 
@@ -32,7 +33,6 @@ One row per work item - an issue can be split into several items that are implem
 
 | # | Work item | Issue | Notes |
 |---|---|---|---|
-| 2 | Drop the temporary `ha-card` created only to read its styles | [#424](https://github.com/Gh61/lovelace-hue-like-light-card/issues/424) | Second point of the issue. Read the theme values another way (CSS variables of the `ha-card` theme). |
 | 4 | Brightness slider changes only the lights that are currently on (Hue app behavior) | [#261](https://github.com/Gh61/lovelace-hue-like-light-card/issues/261) | `AreaLightController` brightness handling; decide what happens when no light is on (turn all on). |
 | 5 | Expand group members under `Lights` instead of the group entity itself | [#361](https://github.com/Gh61/lovelace-hue-like-light-card/issues/361) | Entity resolution in `config.ts` from the group's `entity_id` attribute. |
 | 6 | Card background follows the light color with the Frosted Glass theme | [#389](https://github.com/Gh61/lovelace-hue-like-light-card/issues/389) | Theme CSS variables vs. `ThemeHelper` / `ViewUtils` background. |
