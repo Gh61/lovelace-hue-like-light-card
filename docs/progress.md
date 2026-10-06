@@ -22,6 +22,8 @@ Status: ✅ done · 🟡 implemented, not verified in HA · 🔧 prepared, unuse
 | 10 | Build/tooling: `eslint .` + ignore list, babel `env.test`, jest `globals.__STATIC_PATH__`, `clean` script, culori warning filter | ✅ | The `CIRCULAR_DEPENDENCY` filter in `rollup.config.mjs` matches any message containing "culori". |
 | 11 | Dependencies: `culori`, `color-name`, `memoize-one`, `superstruct` | ✅ | `superstruct` is used by the copied HA structs (#12); the others by reachable HA code. |
 | 12 | Visual card editor (new 2.0 feature) - HA types prepared | 🔧 | Copied for the editor: `components/ha-form/types.ts` (`HaFormSchema`), `data/selector.ts` (selector types incl. `EntitySelector`), `panels/lovelace/types.ts` with `LovelaceCardEditor`, `LovelaceGenericElementEditor`, `LovelaceCardConstructor`, `LovelaceConfigForm` re-enabled, `panels/lovelace/editor/structs/{base-card-struct,action-struct}.ts`, `common/structs/{handle-errors,is-icon}.ts`. No editor code yet - see the work item below. |
+| 13 | #424 - `HueLikeLightCard.updated()` does nothing until the card has both `config` and `hass` | ✅ | Listener setup and style calculation moved behind the guard; `connectedCallback` still runs them (both are idempotent). |
+| 14 | #398 - floor / area / label entities without a state are skipped (console warning) instead of failing the card | ✅ | Filter on `hass.states` in `tryLoadGroupInfo` - covers disabled entities and entities not loaded (yet). HA 2026.9 already leaves disabled entities out of `search/related`, so in the testing instance the filter is a safety net (`npm run ha-test -- area-disabled` verifies the cards with a disabled light; the filter itself is unit-tested). Decision: hide, not gray out.
 
 ## Remaining work
 
@@ -29,20 +31,18 @@ One row per work item - an issue can be split into several items that are implem
 
 | # | Work item | Issue | Notes |
 |---|---|---|---|
-| 1 | No work in `update` while the card has no `config` / `hass` | [#424](https://github.com/Gh61/lovelace-hue-like-light-card/issues/424) | Second point of the issue. |
 | 2 | Drop the temporary `ha-card` created only to read its styles | [#424](https://github.com/Gh61/lovelace-hue-like-light-card/issues/424) | Second point of the issue. Read the theme values another way (CSS variables of the `ha-card` theme). |
 | 3 | `--ha-dialog-border-radius` only on the dialog element, never globally | [#424](https://github.com/Gh61/lovelace-hue-like-light-card/issues/424) | Third point. Verify whether it still applies after the native dialog (#9 above). |
 | 4 | Brightness slider changes only the lights that are currently on (Hue app behavior) | [#261](https://github.com/Gh61/lovelace-hue-like-light-card/issues/261) | `AreaLightController` brightness handling; decide what happens when no light is on (turn all on). |
 | 5 | Expand group members under `Lights` instead of the group entity itself | [#361](https://github.com/Gh61/lovelace-hue-like-light-card/issues/361) | Entity resolution in `config.ts` from the group's `entity_id` attribute. |
 | 6 | Card background follows the light color with the Frosted Glass theme | [#389](https://github.com/Gh61/lovelace-hue-like-light-card/issues/389) | Theme CSS variables vs. `ThemeHelper` / `ViewUtils` background. |
-| 7 | Ignore (or gray out) disabled entities when loading an area | [#398](https://github.com/Gh61/lovelace-hue-like-light-card/issues/398) | `hass.entities[*].disabled_by` is available via the HA types; decide hide vs. gray out. |
 | 8 | Use the entity's real HA icon (incl. domain / device-class defaults) instead of the generic bulb | [#460](https://github.com/Gh61/lovelace-hue-like-light-card/issues/460) | `IconHelper`; add HA `entity_icon` / `stateIcon` helpers to the ha-sync manifest. |
 | 9 | Optional wrapping of the light tiles into several rows instead of the horizontal scroll | [#358](https://github.com/Gh61/lovelace-hue-like-light-card/issues/358) | `HueDialog` layout, new config option. |
 | 10 | Visual card editor - basis (entity selection, title, icon) | - | HA types prepared (#12 above); see the section below. |
 | 11 | Visual card editor - grow the schema with further options | - | After the basis. |
 | 12 | Cleanup: shared constant for the action handler options, `@action=` binding in `dialog-tile.ts`, guard for a missing `<action-handler>` element | - | Found by the guard agents (#4 above). |
 | 13 | Cleanup: formatting `){` in `dialog-tile.ts`, `hue-like-light-card.ts`, `view-utils.ts`; `const` in a `case` clause in `dialog-tile.ts`; unused `HassEntityInfo` (types-hass.ts); row for the HA helpers in `docs/coding-guidelines.md` §7 | - | Found by the guard agents. |
-| 14 | Decide on dropping the `computeStateDisplay` fallback for HA < 2023.9 (#7 above) and on the HA version comments for the `formatEntityState` guards | - | Saves ~460 lines of HA constants in the bundle. |
+| 14 | Minimum HA version for 2.0: review every workaround for old HA versions (`// since HA ...` / `/* since HA ... */` comments, `formatEntityState` guards, the `computeStateDisplay` fallback for HA < 2023.9 (#7 above), `--paper-card-background-color` fallbacks, ...), drop the old-version code and state the minimum HA version as the installation requirement of 2.0 in the README | - | 2.0 is the opportunity to drop legacy code: pick a recent HA release as the minimum and remove everything older. Saves e.g. ~460 lines of HA constants (`computeStateDisplay`). |
 
 ## Planned 2.0 work without an issue
 
