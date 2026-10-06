@@ -510,6 +510,8 @@ While you are dragging the slider (on the card and in the [Hue screen](#hue-scre
 
 The speed adapts to your installation: the next value is sent only after Home Assistant confirmed the previous one (but at most 5 times per second). Values in between are skipped - the lights always get the newest one, so they never lag behind with old values.
 
+> **Note:** Lights with a weaker connection to their bridge (e.g. farther away from the Hue bridge) respond more slowly, so live updates can be less smooth for them.
+
 While sliding, the brightness is never set to 0 (even with `allowZero`) - the lights are turned off only when you release the slider at 0.
 
 To update the lights only when dragging ends, turn live updates off:
