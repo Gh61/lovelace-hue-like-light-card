@@ -363,68 +363,108 @@ Some of these options may not be in the latest version. Please always check the 
     <th>Description</th>
   </tr>
   <tr>
-    <td><code>offClickAction</code></td>
-    <td><a href="#click-hold-action">Action</a></td>
+    <td><code>tap_action</code></td>
+    <td><a href="#actions">Action</a></td>
     <td>no</td>
-    <td>1.1.0</td>
+    <td>2.0.0</td>
     <td><code>hue-screen</code></td>
-    <td>Action when tile is clicked and all <b>lights are off</b></td>
+    <td>Action when the card is tapped</td>
   </tr>
   <tr>
-    <td><code>offClickData</code></td>
-    <td><a href="#action-data">Action Data</a></td>
+    <td><code>hold_action</code></td>
+    <td><a href="#actions">Action</a></td>
     <td>no</td>
-    <td>1.1.0</td>
-    <td>-</td>
-    <td><a href="#action-data">Data</a> for <code>offClickAction</code></td>
+    <td>2.0.0</td>
+    <td><code>more-info</code></td>
+    <td>Action when the card is pressed (held)</td>
   </tr>
   <tr>
-    <td><code>onClickAction</code></td>
+    <td><code>double_tap_action</code></td>
+    <td><a href="#actions">Action</a></td>
+    <td>no</td>
+    <td>2.0.0</td>
+    <td><code>none</code></td>
+    <td>Action when the card is double-tapped (a configured double tap delays the tap by 250 ms)</td>
+  </tr>
+  <tr>
+    <td><code>on_tap_action</code>, <code>on_hold_action</code>, <code>on_double_tap_action</code></td>
+    <td><a href="#actions">Action</a></td>
+    <td>no</td>
+    <td>2.0.0</td>
+    <td>-</td>
+    <td>Overrides the general action when any of <b>lights is on</b></td>
+  </tr>
+  <tr>
+    <td><code>off_tap_action</code>, <code>off_hold_action</code>, <code>off_double_tap_action</code></td>
+    <td><a href="#actions">Action</a></td>
+    <td>no</td>
+    <td>2.0.0</td>
+    <td>-</td>
+    <td>Overrides the general action when all <b>lights are off</b></td>
+  </tr>
+  <tr>
+    <td><s><code>offClickAction</code></s></td>
     <td><a href="#click-hold-action">Action</a></td>
     <td>no</td>
-    <td>1.1.0</td>
+    <td>1.1.0<br/>(deprecated in 2.0.0)</td>
     <td><code>hue-screen</code></td>
-    <td>Action when tile is clicked and any of <b>lights is on</b></td>
+    <td>Action when tile is clicked and all <b>lights are off</b><br/>Deprecated, use <code>off_tap_action</code>.</td>
   </tr>
   <tr>
-    <td><code>onClickData</code></td>
+    <td><s><code>offClickData</code></s></td>
     <td><a href="#action-data">Action Data</a></td>
     <td>no</td>
-    <td>1.1.0</td>
+    <td>1.1.0<br/>(deprecated in 2.0.0)</td>
     <td>-</td>
-    <td><a href="#action-data">Data</a> for <code>onClickAction</code></td>
+    <td><a href="#action-data">Data</a> for <code>offClickAction</code><br/>Deprecated, the data are part of the <a href="#actions">action object</a>.</td>
   </tr>
   <tr>
-    <td><code>offHoldAction</code></td>
+    <td><s><code>onClickAction</code></s></td>
     <td><a href="#click-hold-action">Action</a></td>
     <td>no</td>
-    <td>1.6.0</td>
-    <td><code>more-info</code></td>
-    <td>Action when tile is pressed and all <b>lights are off</b></td>
+    <td>1.1.0<br/>(deprecated in 2.0.0)</td>
+    <td><code>hue-screen</code></td>
+    <td>Action when tile is clicked and any of <b>lights is on</b><br/>Deprecated, use <code>on_tap_action</code>.</td>
   </tr>
   <tr>
-    <td><code>offHoldData</code></td>
+    <td><s><code>onClickData</code></s></td>
     <td><a href="#action-data">Action Data</a></td>
     <td>no</td>
-    <td>1.6.0</td>
+    <td>1.1.0<br/>(deprecated in 2.0.0)</td>
     <td>-</td>
-    <td><a href="#action-data">Data</a> for <code>offHoldAction</code></td>
+    <td><a href="#action-data">Data</a> for <code>onClickAction</code><br/>Deprecated, the data are part of the <a href="#actions">action object</a>.</td>
   </tr>
   <tr>
-    <td><code>onHoldAction</code></td>
+    <td><s><code>offHoldAction</code></s></td>
     <td><a href="#click-hold-action">Action</a></td>
     <td>no</td>
-    <td>1.6.0</td>
+    <td>1.6.0<br/>(deprecated in 2.0.0)</td>
     <td><code>more-info</code></td>
-    <td>Action when tile is pressed and any of <b>lights is on</b></td>
+    <td>Action when tile is pressed and all <b>lights are off</b><br/>Deprecated, use <code>off_hold_action</code>.</td>
   </tr>
   <tr>
-    <td><code>onHoldData</code></td>
+    <td><s><code>offHoldData</code></s></td>
     <td><a href="#action-data">Action Data</a></td>
     <td>no</td>
-    <td>1.6.0</td>
+    <td>1.6.0<br/>(deprecated in 2.0.0)</td>
     <td>-</td>
-    <td><a href="#action-data">Data</a> for <code>onHoldAction</code></td>
+    <td><a href="#action-data">Data</a> for <code>offHoldAction</code><br/>Deprecated, the data are part of the <a href="#actions">action object</a>.</td>
+  </tr>
+  <tr>
+    <td><s><code>onHoldAction</code></s></td>
+    <td><a href="#click-hold-action">Action</a></td>
+    <td>no</td>
+    <td>1.6.0<br/>(deprecated in 2.0.0)</td>
+    <td><code>more-info</code></td>
+    <td>Action when tile is pressed and any of <b>lights is on</b><br/>Deprecated, use <code>on_hold_action</code>.</td>
+  </tr>
+  <tr>
+    <td><s><code>onHoldData</code></s></td>
+    <td><a href="#action-data">Action Data</a></td>
+    <td>no</td>
+    <td>1.6.0<br/>(deprecated in 2.0.0)</td>
+    <td>-</td>
+    <td><a href="#action-data">Data</a> for <code>onHoldAction</code><br/>Deprecated, the data are part of the <a href="#actions">action object</a>.</td>
   </tr>
 </table>
 
@@ -560,106 +600,201 @@ Same as [Color](#color) and can also be defined as
 </ul>
 This will pick the color from currently used Home Assistant theme.
 
-## Click (hold) action
-When the card is clicked or pressed, something can happen. This can be configured through configuration.
+## Actions
+*Since version 2.0.0*
+
+The card uses the [standard Home Assistant actions](https://www.home-assistant.io/dashboards/actions/) (`tap_action`, `hold_action`, `double_tap_action`) extended by its own actions. Every option is an object with the `action` key and the data of the action.
 ```yaml
 type: custom:hue-like-light-card
 ...
-offClickAction: turn-on
-onClickAction: turn-off
-offHoldAction: hue-screen
-onHoldAction: hue-screen
+tap_action:
+  action: toggle
+hold_action:
+  action: hue-screen
+double_tap_action:
+  action: navigate
+  navigation_path: /lovelace/lights
 ```
-*Simple example to toggle lights on click.*
+*Toggle the lights on tap, open the Hue Screen on hold, navigate on double tap.*
+
+The action can depend on the state of the lights: `on_tap_action` / `off_tap_action` (and the same for `hold` and `double_tap`) override the general action when any light is on / all lights are off.
+```yaml
+type: custom:hue-like-light-card
+...
+off_tap_action:
+  action: scene
+  scene: scene.evening
+on_tap_action:
+  action: turn-off
+```
 
 ### Possible actions
 <table>
   <tr>
-    <th width="120">Key</th>
-    <th><a href="#action-data">Possible data*</a></th>
-    <th>Data required</th>
-    <th>Since</th>
+    <th>Action*</th>
+    <th>Data</th>
     <th>What is happening</th>
   </tr>
   <tr>
-    <td><code>default</code></td>
-    <td>yes</td>
-    <td>no</td>
-    <td>1.1.0</td>
+    <td><code>hue-screen</code></td>
+    <td>-</td>
+    <td>show <a href="#hue-screen">Hue Screen</a> (default for tap)</td>
+  </tr>
+  <tr>
+    <td><code>more-info</code></td>
+    <td><code>entity</code> (optional)</td>
     <td>
-      <b>Click</b>: <code>hue-screen</code><br/>
-      <b>Hold</b>: <code>more-info</code>
+      Shows the more-info dialog (default for hold).<br/>
+      Uses group entity, if set.<br/>
+      Uses first lit light if any.<br/>
+      Uses first light as backup.
     </td>
   </tr>
   <tr>
-    <td><code>none</code></td>
-    <td>no</td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td>nothing</td>
+    <td><code>toggle</code></td>
+    <td>-</td>
+    <td>turn off all lights when any is on, otherwise turn on all lights</td>
   </tr>
   <tr>
     <td><code>turn-on</code></td>
-    <td>no</td>
-    <td>no</td>
-    <td>1.1.0</td>
+    <td>-</td>
     <td>turn on all lights</td>
   </tr>
   <tr>
     <td><code>turn-off</code></td>
-    <td>no</td>
-    <td>no</td>
-    <td>1.1.0</td>
+    <td>-</td>
     <td>turn off all lights</td>
   </tr>
   <tr>
-    <td><code>more-info</code></td>
-    <td>yes (<code>entity</code>)</td>
-    <td>no</td>
-    <td>1.1.0<br/>(group entity 1.8.0)</td>
-    <td>
-      Shows system more-info dialog of one light.<br/>
-      Uses group entity, if set.<br/>
-      Uses first lit light if any.<br/>
-      Uses first light as backup.<br/>
-      When action data are used, any entity can be used.
-    </td>
-  </tr>
-  <tr>
     <td><code>scene</code></td>
-    <td>yes (<code>scene</code>)</td>
-    <td>yes</td>
-    <td>1.1.0</td>
-    <td>activate selected scene</td>
+    <td><code>scene</code> (required)</td>
+    <td>activate the scene</td>
   </tr>
   <tr>
-    <td><code>hue-screen</code></td>
-    <td>no<br/>(is using general <a href="#scenes-configuration"><code>scenes</code></a> config)</td>
-    <td>no</td>
-    <td>1.1.0</td>
-    <td>show <a href="#hue-screen">Hue Screen</a></td>
+    <td><code>none</code></td>
+    <td>-</td>
+    <td>nothing (default for double tap)</td>
+  </tr>
+  <tr>
+    <td><code>navigate</code>, <code>url</code>,<br/><code>perform-action</code> (or the legacy <code>call-service</code>),<br/><code>assist</code>, <code>fire-dom-event</code></td>
+    <td>as in Home Assistant</td>
+    <td>See <a href="https://www.home-assistant.io/dashboards/actions/">Home Assistant actions</a>.</td>
+  </tr>
+  <tr>
+    <td colspan="3"><i>*The `confirmation` option is only supported for native Home Assistant actions.</i></td>
   </tr>
 </table>
 
-### Action data
-Some actions can be configured using action data. Action data parameter can have name (as defined in table above) but it is not mandatory. Both styles are possible.
+## Click (hold) action
+*Deprecated in 2.0.0 - use [actions](#actions). The options below keep working for now; a current option wins over a deprecated one for the same gesture.*
 
-*Action data without name:*
-```yaml
-type: custom:hue-like-light-card
-...
-onClickAction: more-info
-onClickData: media_player.television
-```
+<details>
+<summary>Deprecated options (click to expand)</summary>
 
-*Action data with name:*
-```yaml
-type: custom:hue-like-light-card
-...
-offClickAction: scene
-offClickData:
-  scene: scene.tv_citron
-```
+> [!WARNING]
+> These options are deprecated and will be removed in a future version.
+>
+> When the card is clicked or pressed, something can happen. This can be configured through configuration.
+> ```yaml
+> type: custom:hue-like-light-card
+> ...
+> offClickAction: turn-on
+> onClickAction: turn-off
+> offHoldAction: hue-screen
+> onHoldAction: hue-screen
+> ```
+> *Simple example to toggle lights on click.*
+>
+> ### Possible actions (deprecated options)
+> <table>
+>   <tr>
+>     <th width="120">Key</th>
+>     <th><a href="#action-data">Possible data*</a></th>
+>     <th>Data required</th>
+>     <th>Since</th>
+>     <th>What is happening</th>
+>   </tr>
+>   <tr>
+>     <td><code>default</code></td>
+>     <td>yes</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>
+>       <b>Click</b>: <code>hue-screen</code><br/>
+>       <b>Hold</b>: <code>more-info</code>
+>     </td>
+>   </tr>
+>   <tr>
+>     <td><code>none</code></td>
+>     <td>no</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>nothing</td>
+>   </tr>
+>   <tr>
+>     <td><code>turn-on</code></td>
+>     <td>no</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>turn on all lights</td>
+>   </tr>
+>   <tr>
+>     <td><code>turn-off</code></td>
+>     <td>no</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>turn off all lights</td>
+>   </tr>
+>   <tr>
+>     <td><code>more-info</code></td>
+>     <td>yes (<code>entity</code>)</td>
+>     <td>no</td>
+>     <td>1.1.0<br/>(group entity 1.8.0)</td>
+>     <td>
+>       Shows system more-info dialog of one light.<br/>
+>       Uses group entity, if set.<br/>
+>       Uses first lit light if any.<br/>
+>       Uses first light as backup.<br/>
+>       When action data are used, any entity can be used.
+>     </td>
+>   </tr>
+>   <tr>
+>     <td><code>scene</code></td>
+>     <td>yes (<code>scene</code>)</td>
+>     <td>yes</td>
+>     <td>1.1.0</td>
+>     <td>activate selected scene</td>
+>   </tr>
+>   <tr>
+>     <td><code>hue-screen</code></td>
+>     <td>no<br/>(is using general <a href="#scenes-configuration"><code>scenes</code></a> config)</td>
+>     <td>no</td>
+>     <td>1.1.0</td>
+>     <td>show <a href="#hue-screen">Hue Screen</a></td>
+>   </tr>
+> </table>
+>
+> ### Action data
+> Some actions can be configured using action data. Action data parameter can have name (as defined in table above) but it is not mandatory. Both styles are possible.
+>
+> *Action data without name:*
+> ```yaml
+> type: custom:hue-like-light-card
+> ...
+> onClickAction: more-info
+> onClickData: media_player.television
+> ```
+>
+> *Action data with name:*
+> ```yaml
+> type: custom:hue-like-light-card
+> ...
+> offClickAction: scene
+> offClickData:
+>   scene: scene.tv_citron
+> ```
+
+</details>
 
 ## API interface
 *Since version 1.7.0*

@@ -67,3 +67,44 @@ views:
       - type: custom:hue-like-light-card-test
         title: Label
         label: accent
+  - title: Actions
+    path: actions
+    cards:
+      - type: custom:hue-like-light-card-test
+        title: Toggle on tap
+        entity: light.bed_light
+        tap_action:
+          action: toggle
+        hold_action:
+          action: hue-screen
+      - type: custom:hue-like-light-card-test
+        title: Navigate on tap
+        entity: light.ceiling_lights
+        tap_action:
+          action: navigate
+          navigation_path: /lovelace-testing/basic
+      - type: custom:hue-like-light-card-test
+        title: Double tap more-info
+        entity: light.kitchen_lights
+        tap_action:
+          action: none
+        double_tap_action:
+          action: more-info
+      - type: custom:hue-like-light-card-test
+        title: Scene by state
+        entities:
+          - light.bed_light
+          - light.ceiling_lights
+          - light.kitchen_lights
+        off_tap_action:
+          action: scene
+          scene: scene.bright
+        on_tap_action:
+          action: turn-off
+      - type: custom:hue-like-light-card-test
+        title: Deprecated options
+        entity: light.office_rgbw_lights
+        offClickAction: turn-on
+        onClickAction: turn-off
+        onHoldAction: more-info
+        onHoldData: light.bed_light

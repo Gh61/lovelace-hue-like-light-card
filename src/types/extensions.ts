@@ -42,3 +42,20 @@ export function removeFrom<T>(array: Array<T>, ...items: Array<T>): void {
 export function removeDiacritics(str: string): string {
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
+
+/**
+ * @returns the enum value matching the plain config value.
+ * @throws Error naming the option, the bad value and the allowed values.
+ */
+export function tryParseEnum<T>(enumType: Record<string, T>, plain: string, name: string): T {
+    let helpValues = '';
+    for (const value in enumType) {
+        const enumValue = (enumType)[value];
+        if (plain === enumValue)
+            return plain as T;
+
+        helpValues += `'${enumValue}', `;
+    }
+
+    throw new Error(`${name} '${plain}' was not recognized. Allowed values are: ${helpValues}`);
+}

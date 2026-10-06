@@ -3,10 +3,11 @@ import { Consts } from './consts';
 import { Color } from '../core/colors/color';
 import { ColorResolver } from '../core/colors/color-resolvers';
 import { HomeAssistant } from '../ha/types';
-import { removeDuplicates } from './extensions';
+import { removeDuplicates, tryParseEnum } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
-import { ClickAction, ClickActionData, HueLikeLightCardEntityConfigInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SceneProvider, SliderType } from './types-config';
+import { HueLikeLightCardEntityConfigInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SceneProvider, SliderType } from './types-config';
+import { CardActions } from './card-actions';
 import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
 import { LightingData, PresetConfig } from './types-hue-preset';
 import { MaybeArray } from './types-helpers';
@@ -108,14 +109,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this._scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
         this.sceneOrder = HueLikeLightCardConfig.getSceneOrder(plainConfig.sceneOrder);
         this.sceneProvider = HueLikeLightCardConfig.getSceneProviders(plainConfig.sceneProvider);
-        this.offClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.offClickAction);
-        this.offClickData = new ClickActionData(plainConfig.offClickData);
-        this.onClickAction = HueLikeLightCardConfig.getClickAction(plainConfig.onClickAction);
-        this.onClickData = new ClickActionData(plainConfig.onClickData);
-        this.offHoldAction = HueLikeLightCardConfig.getClickAction(plainConfig.offHoldAction);
-        this.offHoldData = new ClickActionData(plainConfig.offHoldData);
-        this.onHoldAction = HueLikeLightCardConfig.getClickAction(plainConfig.onHoldAction);
-        this.onHoldData = new ClickActionData(plainConfig.onHoldData);
+        this.actions = new CardActions(plainConfig);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
         this.theme = plainConfig.theme || Consts.ThemeDefault;
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
@@ -157,17 +151,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         if (!plain)
             return SliderType.Default;
 
-        return HueLikeLightCardConfig.tryParseEnum<SliderType>(SliderType, plain, 'Slider type');
-    }
-
-    /**
-     * @returns ClickAction valid enum, default for empty or throws exception.
-     */
-    private static getClickAction(plain: ClickAction | string | undefined): ClickAction {
-        if (!plain)
-            return ClickAction.Default;
-
-        return HueLikeLightCardConfig.tryParseEnum<ClickAction>(ClickAction, plain, 'Click action');
+        return tryParseEnum<SliderType>(SliderType, plain, 'Slider type');
     }
 
     /**
@@ -182,7 +166,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         }
 
         plain = plain.toString().toLowerCase();
-        const iconSize = HueLikeLightCardConfig.tryParseEnum<KnownIconSize>(KnownIconSize, plain, 'Icon size');
+        const iconSize = tryParseEnum<KnownIconSize>(KnownIconSize, plain, 'Icon size');
         return Consts.IconSize[iconSize];
     }
 
@@ -193,7 +177,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         if (!plain)
             return SceneOrder.Default;
 
-        return HueLikeLightCardConfig.tryParseEnum<SceneOrder>(SceneOrder, plain, 'Scene order');
+        return tryParseEnum<SceneOrder>(SceneOrder, plain, 'Scene order');
     }
 
     /**
@@ -211,7 +195,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
 
         if (plain.length > 0){
             plain.forEach(provider => {
-                const parsed = HueLikeLightCardConfig.tryParseEnum<SceneProvider>(SceneProvider, provider, 'Scene provider');
+                const parsed = tryParseEnum<SceneProvider>(SceneProvider, provider, 'Scene provider');
                 if (!result.includes(parsed)) {
                     result.push(parsed);
                 }
@@ -219,19 +203,6 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         }
 
         return result;
-    }
-
-    private static tryParseEnum<T>(enumType: Record<string, T>, plain: string, name: string) {
-        let helpValues = '';
-        for (const value in enumType) {
-            const enumValue = (enumType)[value];
-            if (plain === enumValue)
-                return plain as T;
-
-            helpValues += `'${enumValue}', `;
-        }
-
-        throw new Error(`${name} '${plain}' was not recognized. Allowed values are: ${helpValues}`);
     }
 
     /**
@@ -296,14 +267,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     }
     public readonly sceneOrder: SceneOrder;
     public readonly sceneProvider: SceneProvider[];
-    public readonly offClickAction: ClickAction;
-    public readonly offClickData: ClickActionData;
-    public readonly onClickAction: ClickAction;
-    public readonly onClickData: ClickActionData;
-    public readonly offHoldAction: ClickAction;
-    public readonly offHoldData: ClickActionData;
-    public readonly onHoldAction: ClickAction;
-    public readonly onHoldData: ClickActionData;
+    public readonly actions: CardActions;
     public readonly allowZero: boolean;
     public readonly theme: string;
     public readonly defaultColor: string;
