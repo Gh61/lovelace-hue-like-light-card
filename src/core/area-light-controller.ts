@@ -11,6 +11,12 @@ import { localize } from '../localize/localize';
 import { SceneData } from '../types/types-config';
 import { Action2 } from '../types/functions';
 
+/** Brightness of the controller and of its lit lights at some moment. */
+interface BrightnessBaseline {
+    value: number;
+    litLights: [LightController, number][];
+}
+
 /**
  * Serves as a controller for lights in single area.
  * This can contain multiple lights even some interactions can be different.
@@ -108,6 +114,9 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
         return this._lights.every(l => l.isUnavailable());
     }
     public turnOn(scene?: string): void {
+        // turning on/off ends the preview (also of lights not switched directly - e.g. through the group entity)
+        this.releaseBrightnessPreview();
+
         if (this._lightGroup) {
             return this._lightGroup.turnOn(scene);
         }
@@ -123,6 +132,8 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
         this._lights.filter(l => l.isOff()).forEach(l => l.turnOn(sceneData));
     }
     public turnOff(): void {
+        this.releaseBrightnessPreview();
+
         if (this._lightGroup) {
             return this._lightGroup.turnOff();
         }
@@ -133,44 +144,69 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
         return this.valueGetFactory();
     }
     public set brightnessValue(value: number) {
-        const litLights = this._lights.filter(l => l.isOn());
+        this.setBrightnessValue(value);
+    }
+    public async setBrightnessValue(value: number): Promise<void> {
+        const lightValues = this.getLightBrightnessValues(value, this._previewBaseline ?? this.createBrightnessBaseline());
+        await Promise.all(lightValues.map(([l, v]) => l.setBrightnessValue(v)));
+    }
+
+    /** Brightness of lights at the start of the preview - all preview steps are computed from it (rounding of small steps would accumulate otherwise). */
+    private _previewBaseline: BrightnessBaseline | null = null;
+    public previewBrightnessValue(value: number): void {
+        this._previewBaseline ??= this.createBrightnessBaseline();
+        this.getLightBrightnessValues(value, this._previewBaseline).forEach(([l, v]) => l.previewBrightnessValue(v));
+    }
+    public releaseBrightnessPreview(): void {
+        this._previewBaseline = null;
+        this._lights.forEach(l => l.releaseBrightnessPreview());
+    }
+
+    private createBrightnessBaseline(): BrightnessBaseline {
+        return {
+            value: this.brightnessValue,
+            litLights: this._lights.filter(l => l.isOn()).map(l => [l, l.brightnessValue])
+        };
+    }
+
+    /**
+     * @returns brightness for each light to get the given brightness of this controller - the change is spread proportionally to the remaining range of each lit light.
+     */
+    private getLightBrightnessValues(value: number, baseline: BrightnessBaseline): [LightController, number][] {
+        const litLights = baseline.litLights;
         // when only one light is on, set the value to that light
         if (litLights.length === 1) {
-            litLights[0].brightnessValue = value;
-            return;
+            return [[litLights[0][0], value]];
         }
         else if (litLights.length === 0) { // when no light is on, set value to all lights
-            this._lights.forEach(l => l.brightnessValue = value);
-            return;
+            return this._lights.map(l => [l, value]);
         }
 
         // get percentage change of remaining value
-        const oldValue = this.brightnessValue;
+        const oldValue = baseline.value;
         const valueChange = value - oldValue;
-        const remainingValue = valueChange > 0 ? (100 - this.brightnessValue) : this.brightnessValue;
+        const remainingValue = valueChange > 0 ? (100 - oldValue) : oldValue;
         const percentualChange = valueChange / remainingValue; // percentual of remaining
 
         // calculate the value for each light
-        this._lights.filter(l => l.isOn()).forEach(l => {
-            const lightOldValue = l.brightnessValue;
-            // of value of this light is the same asi value of controller, set it exactly to value
+        return litLights.map(([l, lightOldValue]) => {
+            // if value of this light is the same as value of controller, set it exactly to value
             if (lightOldValue === oldValue) {
-                l.brightnessValue = value;
-                return;
+                return [l, value];
             }
 
             // get remaining part of this one light
-            const remainingLightValue = valueChange > 0 ? (100 - l.brightnessValue) : l.brightnessValue;
+            const remainingLightValue = valueChange > 0 ? (100 - lightOldValue) : lightOldValue;
             // compute value increment
             const lightValueChange = Math.round(remainingLightValue * percentualChange);
             // get new value
-            let newValue = l.brightnessValue + lightValueChange;
+            let newValue = lightOldValue + lightValueChange;
 
             // don't let the value drop to zero, if the target value isn't exactly zero
             if (newValue < 1 && value > 0) {
                 newValue = 1;
             }
-            l.brightnessValue = newValue;
+            return [l, newValue];
         });
     }
 

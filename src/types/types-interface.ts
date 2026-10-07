@@ -107,6 +107,26 @@ export interface ILightContainer extends ILightConfig {
      * Gets or sets current brightness percentage (0 - 100) of lights in this container.
      */
     brightnessValue: number;
+
+    /**
+     * If supported.
+     * Sets brightness percentage (0 - 100) of lights in this container.
+     * @returns Promise resolved when Home Assistant confirmed the change.
+     */
+    setBrightnessValue(value: number): Promise<void>;
+
+    /**
+     * If supported.
+     * Shows brightness percentage (0 - 100) on all controls of these lights without calling Home Assistant (live preview while dragging).
+     * The previewed value is kept (state from Home Assistant is ignored) until `releaseBrightnessPreview` is called or the light is turned on/off.
+     * Only brightness of the lights is previewed - on/off state of a group entity (`groupEntity`) still comes from Home Assistant.
+     */
+    previewBrightnessValue(value: number): void;
+
+    /**
+     * Releases the previewed brightness - controls show the state from Home Assistant again.
+     */
+    releaseBrightnessPreview(): void;
 }
 
 export interface ISingleLightContainer extends ILightContainer, INotify {
@@ -138,6 +158,20 @@ export interface ISingleLightContainer extends ILightContainer, INotify {
      * When set, causes mode to switch.
      */
     color: Color | null;
+
+    /**
+     * If supported.
+     * Sets light temperature in kelvin, causes mode to switch.
+     * @returns Promise resolved when Home Assistant confirmed the change.
+     */
+    setColorTemp(newTemp: number | null): Promise<void>;
+
+    /**
+     * If supported.
+     * Sets light color, causes mode to switch.
+     * @returns Promise resolved when Home Assistant confirmed the change.
+     */
+    setColor(newColor: Color | null): Promise<void>;
 }
 
 export interface ILightFeatures {

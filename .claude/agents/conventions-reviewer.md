@@ -19,14 +19,14 @@ For every changed file, read enough surrounding code to judge it in context.
 ## What to check
 
 1. **Correctness first** - obvious bugs, wrong `addEventListener`/`removeEventListener` pairing, missing `unregisterOnPropertyChanged` in `disconnectedCallback`, directives holding resources without `AsyncDirective` cleanup, null handling, async errors swallowed.
-2. **DRY** - does new code duplicate an existing helper? Check guidelines §7 table and Grep the codebase for similar logic (colors, view-utils, theme-helper, extensions, functions, PointerDragHelper, LimitedTimeout, ...). Name the helper to reuse.
+2. **DRY** - does new code duplicate an existing helper? Check guidelines §7 table and Grep the codebase for similar logic (colors, view-utils, theme-helper, extensions, functions, PointerDragHelper, DisplayObserver, ...). Name the helper to reuse.
 3. **KISS / YAGNI** - unnecessary abstractions, options, generality, dead code, commented-out code.
 4. **OOP** - responsibilities in the right class/layer (`core/` logic vs `controls/` UI vs `types/` config), encapsulation (`_field` + accessors, `readonly`), interfaces used where they exist, static helpers via `ClassName.member`.
 5. **Naming** - guidelines §3 table (files, classes, `I` interfaces, `I...EventDetail`, `_private`, PascalCase static constants, kebab-case events, `--hue-*` CSS vars, camelCase YAML keys).
 6. **Formatting not covered by lint** - comment style (`// text` with a space for regular comments, `//code()` only for commented-out code), `//#region` style, braces on single-statement guard `if`s.
 7. **Lit rules** - `ElementName` + `Consts.ElementPostfix`, `@customElement`, `unsafeStatic` for child tags (no hard-coded tags), static `css` + `unsafeCSS(Consts.X)`, CSS var fallbacks, no `updateStyles` method, `nameof` for property names, events with exported detail interfaces.
 8. **Comments & docs** - English, JSDoc on new public API, comments explain why; HA-version workarounds have the HA version in a comment.
-9. **Error handling** - descriptive `Error` messages with the bad value, debug logs via `console.info` only under `if (Consts.Dev)` with a `[ClassName]` prefix.
+9. **Error handling** - descriptive `Error` messages with the bad value, logging only via a module-level `ConsoleLogger` (categories and levels in `src/logging.json`), no direct `console.*`, lazy messages for expensive or frequent strings.
 10. **Scope** - unrelated reformatting/refactoring mixed into the change.
 
 ## Report format

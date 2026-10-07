@@ -33,7 +33,6 @@ describe('Card', () => {
             style: '*{color:white}'
         });
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         expect(card['_config']?.style).toBe(s);
     });
 
@@ -46,7 +45,6 @@ describe('Card', () => {
             card_mod: s
         });
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         expect(card['_config']?.card_mod).toBe(s);
     });
 
@@ -63,7 +61,6 @@ describe('Card', () => {
         document.body.appendChild(card);
         await card.updateComplete;
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         const ctrl = card['_ctrl']!;
         const registerSpy = jest.spyOn(ctrl, 'registerOnPropertyChanged');
 
@@ -72,7 +69,6 @@ describe('Card', () => {
         await card.updateComplete;
 
         expect(registerSpy).not.toHaveBeenCalled();
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         expect(card['_ctrlListenerRegistered']).toBe(false);
 
         // reconnected card registers again
@@ -165,10 +161,8 @@ describe('Card', () => {
         document.body.appendChild(card);
         await card.updateComplete;
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         const elementId = card['_elementId'];
         const hasCardCallback = (entityId: string) =>
-            // eslint-disable-next-line @typescript-eslint/dot-notation
             elementId in GlobalLights.getLightContainer(entityId)['_propertyChangedCallbacks'];
 
         expect(hasCardCallback('light.test')).toBe(true);

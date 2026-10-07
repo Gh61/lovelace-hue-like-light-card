@@ -309,6 +309,7 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     /** @deprecated use `on_hold_action` */
     readonly onHoldData?: string | Record<string, string> | ClickActionData;
     readonly allowZero?: boolean;
+    readonly liveUpdate?: boolean;
     readonly theme?: string;
     readonly defaultColor?: string;
     readonly offColor?: string;

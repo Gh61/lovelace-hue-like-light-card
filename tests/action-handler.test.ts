@@ -25,7 +25,7 @@ describe('ActionHandler', () => {
 
     it('should open the Hue screen through the HA show-dialog event', async () => {
         const card = await createCard();
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+         
         const handler = new ActionHandler(card['_config']!, card['_ctrl']!, card);
 
         const events: CustomEvent[] = [];
@@ -46,7 +46,7 @@ describe('ActionHandler', () => {
 
     it('should open the Hue screen on tap and more-info on hold by default', async () => {
         const card = await createCard();
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+         
         const handler = new ActionHandler(card['_config']!, card['_ctrl']!, card);
         const events: string[] = [];
         document.body.addEventListener('show-dialog', () => events.push('show-dialog'), { once: true });
@@ -62,7 +62,7 @@ describe('ActionHandler', () => {
 
     it('should hand HA actions to Home Assistant with the more-info entity', async () => {
         const card = await createCard({ tap_action: { action: 'navigate', navigation_path: '/lovelace/1' } });
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+         
         const handler = new ActionHandler(card['_config']!, card['_ctrl']!, card);
         const events: CustomEvent[] = [];
         document.body.addEventListener('hass-action', (ev) => events.push(ev as CustomEvent), { once: true });
@@ -79,9 +79,9 @@ describe('ActionHandler', () => {
 
     it('should run the card actions through the controller', async () => {
         const card = await createCard({ tap_action: { action: 'toggle' }, hold_action: { action: 'turn-off' }, double_tap_action: { action: 'turn-on' } });
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+         
         const ctrl = card['_ctrl']!;
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+         
         const handler = new ActionHandler(card['_config']!, ctrl, card);
         const turnOn = jest.spyOn(ctrl, 'turnOn').mockImplementation(() => undefined);
         const turnOff = jest.spyOn(ctrl, 'turnOff').mockImplementation(() => undefined);
@@ -105,7 +105,7 @@ describe('ActionHandler', () => {
 
     it('should fire hass-more-info for more-info', async () => {
         const card = await createCard();
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+         
         const handler = new ActionHandler(card['_config']!, card['_ctrl']!, card);
 
         const events: CustomEvent[] = [];

@@ -5,6 +5,7 @@
         "moduleResolution": "bundler",
         "esModuleInterop": true,
         "lib": ["es2017", "dom", "dom.iterable", "esnext"],
+        "types": ["jest"],
         "noEmit": true,
         "noUnusedParameters": true,
         "noImplicitReturns": true,

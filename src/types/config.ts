@@ -12,6 +12,9 @@ import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
 import { LightingData, PresetConfig } from './types-hue-preset';
 import { MaybeArray } from './types-helpers';
 import { Action2, Func2 } from './functions';
+import { ConsoleLogger } from '../core/console-logger';
+
+const log = new ConsoleLogger('HueConfig');
 
 declare type EntityRelations = {
     entityId: string;
@@ -111,6 +114,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.sceneProvider = HueLikeLightCardConfig.getSceneProviders(plainConfig.sceneProvider);
         this.actions = new CardActions(plainConfig);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
+        this.liveUpdate = HueLikeLightCardConfig.getBoolean(plainConfig.liveUpdate, true);
         this.theme = plainConfig.theme || Consts.ThemeDefault;
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
         this.offColor = plainConfig.offColor || Consts.OffColor;
@@ -269,6 +273,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     public readonly sceneProvider: SceneProvider[];
     public readonly actions: CardActions;
     public readonly allowZero: boolean;
+    public readonly liveUpdate: boolean;
     public readonly theme: string;
     public readonly defaultColor: string;
     public readonly offColor: string;
@@ -433,8 +438,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             lightsInfo = await load(client, groupName);
         }
         catch (error) {
-            console.error('Cannot load light entities from HA.');
-            console.error(error);
+            log.error('Cannot load light entities from HA.', error);
 
             // rethrow exception for UI
             throw new Error(`Cannot load entities from ${groupType} '${groupName}'. See console for more info.`);
@@ -447,7 +451,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         // skip entities without a state - disabled entities are registered, but have no state (#398)
         const missing = lightsInfo.lights.filter(id => !hass.states[id]);
         if (missing.length) {
-            console.warn(`[HueLikeLightCard] ${groupTypeTitle} '${groupName}': skipping entities without a state (disabled?): ${missing.join(', ')}`);
+            log.warn(`${groupTypeTitle} '${groupName}': skipping entities without a state (disabled?): ${missing.join(', ')}`);
             lightsInfo.lights = lightsInfo.lights.filter(id => !missing.includes(id));
         }
 
@@ -531,8 +535,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             this.setLoadedScenes(loadedScenes);
         }
         catch (error) {
-            console.error('Cannot load scenes from HA.');
-            console.error(error);
+            log.error('Cannot load scenes from HA.', error);
         }
     }
 
@@ -579,7 +582,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             // Fetch the JSON data
             const response = await fetch(jsonUrl);
             if (!response.ok) {
-                console.error('Hue Presets JSON not found. The hass-scene_presets addon may not be installed.');
+                log.warn('Hue Presets JSON not found. The hass-scene_presets addon may not be installed.');
                 return;
             }
 
@@ -599,8 +602,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
 
         }
         catch (error) {
-            console.error('Could not load Hue Presets from hass-scene_presets addon.');
-            console.error(error);
+            log.error('Could not load Hue Presets from hass-scene_presets addon.', error);
         }
     }
 

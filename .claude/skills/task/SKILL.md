@@ -34,7 +34,7 @@ Then present a short plan (files to change, approach, tests, docs, browser scena
 
 - Follow the coding guidelines; match surrounding code.
 - Keep the change focused (no unrelated refactoring/reformatting).
-- Add/extend Jest tests for logic; update README for user-visible changes / options; new UI texts only into `en_us.json`.
+- Add/extend Jest tests for logic; update README for user-visible changes / options (user view only, no internals - guidelines §1); new UI texts only into `en_us.json`.
 - If a new decision appears mid-way, **stop and ask** with AskUserQuestion - don't guess.
 - Run `npm run lintfix` at the end of implementation.
 

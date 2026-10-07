@@ -74,6 +74,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     //#region StateCache
 
     private notifyTurnOn(sceneData?: SceneData): void {
+        this._previewBrightnessValue = null;
         this._lightState.state = 'on';
 
         // try read brightness from scene
@@ -86,6 +87,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     }
 
     private notifyTurnOff(): void {
+        this._previewBrightnessValue = null;
         this._lightState.state = 'off';
         this._lightState.brightnessValue = 0;
 
@@ -122,6 +124,9 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this._lightState.isUnavailable();
     }
     public isOn(): boolean {
+        if (this._previewBrightnessValue != null)
+            return this._previewBrightnessValue > 0;
+
         return this._lightState.isOn();
     }
     public isOff(): boolean {
@@ -185,27 +190,51 @@ export class LightController extends NotifyBase<LightController> implements ISin
     //#region Brightness Value
 
     public get brightnessValue() {
-        return this._lightState.brightnessValue;
+        return this._previewBrightnessValue ?? this._lightState.brightnessValue;
     }
     public set brightnessValue(value: number) {
+        this.setBrightnessValue(value);
+    }
+    public async setBrightnessValue(value: number): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support brightness
             return;
         }
-        // just to be sure
-        if (value < 0) {
-            value = 0;
-        }
-        else if (value > 100) {
-            value = 100;
-        }
 
+        value = LightController.clampBrightnessValue(value);
         this.notifyBrightnessValueChanged(value);
         const brightness = Math.round((value / 100.0) * 255); // value is 0-100
-        this._hass.callService('light', 'turn_on', {
+        // HA types return the service response - the callers only await the call
+        await this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
             ['brightness']: brightness
         });
+    }
+
+    private _previewBrightnessValue: number | null = null;
+    public previewBrightnessValue(value: number): void {
+        if (this._domain === 'switch' || this.isUnavailable())
+            return;
+
+        // kept in the controller (not in the state) - state from HA is replaced on every hass update
+        this._previewBrightnessValue = LightController.clampBrightnessValue(value);
+        this.raisePropertyChanged('isOn', 'isOff', 'brightnessValue');
+    }
+    public releaseBrightnessPreview(): void {
+        if (this._previewBrightnessValue == null)
+            return;
+
+        this._previewBrightnessValue = null;
+        this.raisePropertyChanged('isOn', 'isOff', 'brightnessValue');
+    }
+
+    private static clampBrightnessValue(value: number): number {
+        // just to be sure
+        if (value < 0)
+            return 0;
+        if (value > 100)
+            return 100;
+        return value;
     }
 
     //#endregion
@@ -232,6 +261,9 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this._lightState.colorTemp;
     }
     public set colorTemp(newTemp: number | null) {
+        this.setColorTemp(newTemp);
+    }
+    public async setColorTemp(newTemp: number | null): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support color temp
             return;
@@ -251,7 +283,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
         }
 
         this.notifyColorTempChanged(newTemp);
-        this._hass.callService('light', 'turn_on', {
+        await this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
             ['color_temp_kelvin']: newTemp
             //['kelvin']: newTemp, // Deprecated since 2025.1, removed in 2026.1
@@ -266,6 +298,9 @@ export class LightController extends NotifyBase<LightController> implements ISin
         return this._lightState.color;
     }
     public set color(newColor: Color | null) {
+        this.setColor(newColor);
+    }
+    public async setColor(newColor: Color | null): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support color
             return;
@@ -285,7 +320,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
         }
 
         this.notifyColorChanged(newColor, mode);
-        this._hass.callService('light', 'turn_on', serviceData);
+        await this._hass.callService('light', 'turn_on', serviceData);
     }
 
     //#endregion

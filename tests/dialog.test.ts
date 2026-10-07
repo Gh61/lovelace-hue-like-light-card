@@ -10,12 +10,12 @@ describe('HueDialog.closeDialog', () => {
     const createDialog = (open: boolean, detailOpen: boolean) => {
         const dialog = new HueDialog();
         const unregister = jest.fn();
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+         
         dialog['_open'] = open;
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+         
         dialog['_ctrl'] = { unregisterOnPropertyChanged: unregister } as never;
         if (detailOpen) {
-            // eslint-disable-next-line @typescript-eslint/dot-notation
+             
             dialog['_selectedLights'].push({} as ILightContainer);
         }
         return { dialog, unregister };

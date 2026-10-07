@@ -5,6 +5,9 @@ import { Color } from '../core/colors/color';
 import { MousePoint, Point, TouchPoint } from '../types/point';
 import { HueColorTempPickerMarker, HueColorTempPickerMultiMarker } from './color-temp-picker.marker';
 import { removeFrom } from '../types/extensions';
+import { ConsoleLogger } from '../core/console-logger';
+
+const log = new ConsoleLogger('HueColorWheelCache');
 
 export interface IHueColorTempPickerEventDetail {
     marker: HueColorTempPickerMarker;
@@ -27,7 +30,7 @@ class HueColorWheelCache {
             localStorage.setItem(key, dataUrl);
         }
         catch (e) {
-            console.error(e);
+            log.error('Cannot save wheel', e);
         }
     }
 
@@ -43,7 +46,7 @@ class HueColorWheelCache {
             }
         }
         catch (e) {
-            console.error(e);
+            log.error('Cannot load wheel', e);
         }
 
         return {

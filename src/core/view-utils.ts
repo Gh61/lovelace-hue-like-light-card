@@ -14,6 +14,7 @@ import { HueMushroomSliderContainer } from '../controls/mushroom-slider-containe
 import { HomeAssistant } from '../ha/types';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { computeStateDisplay } from '../ha/common/entity/compute_state_display';
+import { LiveUpdateSession } from './live-update-session';
 
 export class ViewUtils {
 
@@ -41,15 +42,16 @@ export class ViewUtils {
             .disabled=${ctrl.isUnavailable()}
             .haptic=true
             style=${styleMap(styles)}
-            @change=${(ev: Event) => ViewUtils.changed(ev, false, ctrl, onChange, switchOnScene)}
+            @change=${(ev: Event) => ViewUtils.switchChanged(ev, ctrl, onChange, switchOnScene)}
         ></ha-switch>`;
     }
 
     /**
      * Creates slider for given ILightContainer and config.
      * @param onChange Be careful - this function is called on different scope, better pack your function to arrow call.
+     * @param session Live updates of brightness while sliding - owned by the rendering element (it must stop it on teardown).
      */
-    public static createSlider(ctrl: ILightContainer, config: HueLikeLightCardConfig, onChange: Action) {
+    public static createSlider(ctrl: ILightContainer, config: HueLikeLightCardConfig, onChange: Action, session: LiveUpdateSession<number>) {
 
         // If the controller doesn't support brightness change or slider is disabled, the slider will not be created
         if (!ctrl.features.brightness || config.slider === SliderType.None)
@@ -58,6 +60,7 @@ export class ViewUtils {
         const min = config.allowZero ? 0 : 1;
         const max = 100;
         const step = 1;
+        const value = session.pinnedValue ?? ctrl.brightnessValue;
 
         if (config.slider === SliderType.Mushroom) {
             return html`
@@ -67,12 +70,11 @@ export class ViewUtils {
                     .max=${max}
                     .step=${step}
                     .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()}
-                    .value=${ctrl.brightnessValue}
+                    .value=${value}
                     .showActive=${true}
-                    @change=${(ev: Event) => ViewUtils.changed(ev, true, ctrl, onChange)}
+                    @current-change=${(ev: Event) => ViewUtils.sliderSliding(ev, ctrl, session)}
+                    @change=${(ev: Event) => ViewUtils.sliderChanged(ev, ctrl, onChange, session)}
                 />`;
-
-            // @current-change=${this.onCurrentChange}
         }
 
         return html`
@@ -82,38 +84,81 @@ export class ViewUtils {
             .max=${max}
             .step=${step}
             .disabled=${config.allowZero ? ctrl.isUnavailable() : ctrl.isOff()}
-            .value=${ctrl.brightnessValue}
-            @change=${(ev: Event) => ViewUtils.changed(ev, true, ctrl, onChange)}
+            .value=${value}
+            @input=${(ev: Event) => ViewUtils.sliderSliding(ev, ctrl, session)}
+            @change=${(ev: Event) => ViewUtils.sliderChanged(ev, ctrl, onChange, session)}
         ></ha-slider>`;
     }
 
-    private static changed(ev: Event, isSlider: boolean, ctrl: ILightContainer, onChange: Action, switchOnScene?: string) {
+    /**
+     * @returns Slider value from its event - mushroom slider sends it in detail, ha-slider has it on target.
+     * Mushroom slider sends current-change with undefined value when sliding ends - null is returned then.
+     */
+    private static getSliderValue(ev: Event): number | null {
+        const rawValue = ev instanceof CustomEvent
+            ? (ev as CustomEvent<{ value?: number } | undefined>).detail?.value
+            : (ev.target as HTMLInputElement | null)?.value;
+        if (rawValue == null)
+            return null;
 
-        // TODO: try to update on sliding (use throttle) not only on change. (https://www.webcomponents.org/element/@polymer/paper-slider/elements/paper-slider#events)
+        const value = parseInt(rawValue.toString());
+        return isNaN(value) ? null : value;
+    }
 
-        const target = ev.target;
-        if (!target)
+    private static sliderSliding(ev: Event, ctrl: ILightContainer, session: LiveUpdateSession<number>) {
+        const value = ViewUtils.getSliderValue(ev);
+        if (value == null)
             return;
 
-        if (isSlider) {
-            const value = (target as HTMLInputElement).value;
-            if (value != null) {
-                ctrl.brightnessValue = parseInt(value);
-            }
+        // 0 would turn the lights off during sliding - and sliding back up would then turn on all lights (also the ones that were off before)
+        if (value > 0 && session.isEnabled) {
+            // every value is shown on all controls right away, the session sends only the newest value it can
+            ctrl.previewBrightnessValue(value);
         }
-        else { // isToggle
-            const checked = (target as HTMLInputElement).checked;
-            if (checked) {
-                ctrl.turnOn(switchOnScene);
+
+        session.update(value, v => {
+            if (v > 0) {
+                return ctrl.setBrightnessValue(v);
             }
-            else {
-                ctrl.turnOff();
+            return undefined;
+        });
+    }
+
+    private static sliderChanged(ev: Event, ctrl: ILightContainer, onChange: Action, session: LiveUpdateSession<number>) {
+        const value = ViewUtils.getSliderValue(ev);
+        if (value != null) {
+            if (session.isEnabled) {
+                ctrl.previewBrightnessValue(value);
             }
+
+            session.commit(value, v => {
+                // already sent by live update (e.g. single click fires both input and change)
+                if (v !== session.lastSentValue) {
+                    return ctrl.setBrightnessValue(v);
+                }
+                return undefined;
+            });
         }
 
         // update styles
         onChange();
-        //this.updateStyles();
+    }
+
+    private static switchChanged(ev: Event, ctrl: ILightContainer, onChange: Action, switchOnScene?: string) {
+        const target = ev.target;
+        if (!target)
+            return;
+
+        const checked = (target as HTMLInputElement).checked;
+        if (checked) {
+            ctrl.turnOn(switchOnScene);
+        }
+        else {
+            ctrl.turnOff();
+        }
+
+        // update styles
+        onChange();
     }
 
     /**

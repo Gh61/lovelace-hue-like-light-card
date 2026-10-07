@@ -16,6 +16,8 @@ import { AreaLightController } from '../core/area-light-controller';
 import { ILightContainer, ISingleLightContainer } from '../types/types-interface';
 import { Action, Action1 } from '../types/functions';
 import { Color } from '../core/colors/color';
+import { LiveUpdateSession } from '../core/live-update-session';
+import { TimeoutId } from '../types/types-helpers';
 
 @customElement(HueLightDetail.ElementName)
 export class HueLightDetail extends IdLitElement {
@@ -41,10 +43,36 @@ export class HueLightDetail extends IdLitElement {
     @property()
     public lightContainer: ILightContainer | null = null;
 
+    /** Whether the lights are updated live while dragging - must be set before the element is connected. */
+    public liveUpdate = true;
+
+    private _brightnessSession: LiveUpdateSession<number> | null = null;
+    private get brightnessSession() {
+        this._brightnessSession ??= new LiveUpdateSession<number>(this.liveUpdate, () => {
+            this._brightnessPreviewContainer?.releaseBrightnessPreview();
+            this._brightnessPreviewContainer = null;
+            this.requestUpdate();
+        });
+        return this._brightnessSession;
+    }
+
+    /** Container with previewed brightness - the light container can change before the preview is released. */
+    private _brightnessPreviewContainer: ILightContainer | null = null;
+    private previewBrightness(light: ILightContainer, value: number) {
+        if (!this.brightnessSession.isEnabled)
+            return;
+
+        this._brightnessPreviewContainer = light;
+        light.previewBrightnessValue(value);
+    }
+
     /**
      * Called after new lightContainer is set.
      */
     private onLightContainerChanged() {
+        // pinned brightness belongs to the previous container
+        this._brightnessSession?.stop();
+
         if (!this.lightContainer)
             return;
 
@@ -141,18 +169,15 @@ export class HueLightDetail extends IdLitElement {
         }
     }
 
-    private onColorChanged(ev: CustomEvent<IHueColorTempPickerEventDetail>) {
-        const marker = ev.detail.marker;
-        const light = this._lightMarkerManager.getLight(marker);
+    private onColorChanging(ev: CustomEvent<IHueColorTempPickerEventDetail>) {
+        // immediate change is fired also when the marker is moved by the code (state from HA) - only dragging is a user change
+        if (ev.detail.marker.isDrag) {
+            this._lightMarkerManager.updateColor(ev.detail);
+        }
+    }
 
-        this._lightMarkerManager.suspendStateUpdate(() => {
-            if (ev.detail.mode === 'temp') {
-                light.colorTemp = ev.detail.newTemp;
-            }
-            else if (ev.detail.mode === 'color') {
-                light.color = ev.detail.newColor;
-            }
-        });
+    private onColorChanged(ev: CustomEvent<IHueColorTempPickerEventDetail>) {
+        this._lightMarkerManager.commitColor(ev.detail);
     }
 
     public activate(light: ISingleLightContainer) {
@@ -182,7 +207,7 @@ export class HueLightDetail extends IdLitElement {
         this.dispatchEvent(new CustomEvent('show'));
     }
 
-    private _hideTimeout: NodeJS.Timeout | null;
+    private _hideTimeout: TimeoutId | null;
 
     /** Will hide this element (with animation). */
     public hide(instant = false) {
@@ -212,9 +237,25 @@ export class HueLightDetail extends IdLitElement {
         }
     }
 
+    private brightnessValueChanging(ev: CustomEvent<IRollupValueChangeEventDetail>) {
+        const light = this.lightContainer;
+        if (light) {
+            this.previewBrightness(light, ev.detail.newValue);
+            this.brightnessSession.update(ev.detail.newValue, v => light.setBrightnessValue(v));
+        }
+    }
+
     private brightnessValueChanged(ev: CustomEvent<IRollupValueChangeEventDetail>) {
-        if (this.lightContainer) {
-            this.lightContainer.brightnessValue = ev.detail.newValue;
+        const light = this.lightContainer;
+        if (light) {
+            this.previewBrightness(light, ev.detail.newValue);
+            this.brightnessSession.commit(ev.detail.newValue, v => {
+                // already sent by live update (e.g. end of wheel change)
+                if (v !== this.brightnessSession.lastSentValue) {
+                    return light.setBrightnessValue(v);
+                }
+                return undefined;
+            });
         }
     }
 
@@ -353,10 +394,11 @@ export class HueLightDetail extends IdLitElement {
     }
 
     private createFullDetail() {
-        const value = this._lastRenderedContainer?.brightnessValue ?? 100;
+        const value = this._brightnessSession?.pinnedValue ?? this._lastRenderedContainer?.brightnessValue ?? 100;
 
         return html`
             <${unsafeStatic(HueColorTempPicker.ElementName)} class='color-picker'
+                @immediate-value-change=${(ev: CustomEvent) => this.onColorChanging(ev)}
                 @change=${(ev: CustomEvent) => this.onColorChanged(ev)}
             >
             </${unsafeStatic(HueColorTempPicker.ElementName)}>
@@ -368,6 +410,7 @@ export class HueLightDetail extends IdLitElement {
                 heightOpened='${HueLightDetail.rollupHeightOpen}'
                 iconSize='${HueLightDetail.rollupIconSize}'
                 .value=${value}
+                @immediate-value-change=${(ev: CustomEvent) => this.brightnessValueChanging(ev)}
                 @change=${(ev: CustomEvent) => this.brightnessValueChanged(ev)}
             >
             </${unsafeStatic(HueBrightnessRollup.ElementName)}>
@@ -384,7 +427,7 @@ export class HueLightDetail extends IdLitElement {
         this.updateComplete.then(() => {
             if (!this._colorPicker) {
                 this._colorPicker = this.renderRoot.querySelector('.color-picker') as HueColorTempPicker;
-                this._lightMarkerManager = new LightMarkerManager(this._colorPicker, l => this.setLightContainerFromPicker(l));
+                this._lightMarkerManager = new LightMarkerManager(this._colorPicker, this.liveUpdate, l => this.setLightContainerFromPicker(l));
                 this.createAreaControllerMarkers();
             }
 
@@ -406,6 +449,9 @@ export class HueLightDetail extends IdLitElement {
         if (this.areaController) {
             this.unregisterLightsPropertyChanged(this.areaController);
         }
+
+        this._brightnessSession?.stop();
+        this._lightMarkerManager?.stopLiveUpdates();
     }
 
     private updateColorPickerSize(): void {
@@ -500,12 +546,15 @@ class LightMarkerManager {
 
     private _markerToLight: Record<string, ISingleLightContainer>;
     private _lightToMarker: Record<string, HueColorTempPickerMarker>;
+    private _lightToSession: Record<string, LiveUpdateSession<IHueColorTempPickerEventDetail>> = {};
     private _picker: HueColorTempPicker;
+    private readonly _liveUpdate: boolean;
     private _onMarkerActivation: Action1<ISingleLightContainer[]>;
     private _stateUpdateSuspended = false;
 
-    public constructor(picker: HueColorTempPicker, onMarkerActivation: Action1<ISingleLightContainer[]>) {
+    public constructor(picker: HueColorTempPicker, liveUpdate: boolean, onMarkerActivation: Action1<ISingleLightContainer[]>) {
         this._picker = picker;
+        this._liveUpdate = liveUpdate;
         this._onMarkerActivation = onMarkerActivation;
 
         this._picker.addEventListener('activemarkers-change', _ => {
@@ -547,6 +596,47 @@ class LightMarkerManager {
         this._picker.tryMergeMarkers();
     }
 
+    /** Applies color from the dragged marker to its light - through its live update session. */
+    public updateColor(detail: IHueColorTempPickerEventDetail) {
+        const light = this.getLight(detail.marker);
+        if (light) {
+            this.getSession(light).update(detail, d => this.applyColor(light, d));
+        }
+    }
+
+    /** Applies the final color from the marker to its light (drag finished). */
+    public commitColor(detail: IHueColorTempPickerEventDetail) {
+        const light = this.getLight(detail.marker);
+        if (light) {
+            this.getSession(light).commit(detail, d => this.applyColor(light, d));
+        }
+    }
+
+    /** Stops all pending live updates and releases all pinned markers. */
+    public stopLiveUpdates() {
+        Object.values(this._lightToSession).forEach(t => t.stop());
+    }
+
+    private getSession(light: ISingleLightContainer) {
+        const entityId = light.getEntityId();
+        // when released, the marker should show the real state again
+        this._lightToSession[entityId] ??= new LiveUpdateSession<IHueColorTempPickerEventDetail>(this._liveUpdate, () => this.applyState(light));
+        return this._lightToSession[entityId];
+    }
+
+    private applyColor(light: ISingleLightContainer, detail: IHueColorTempPickerEventDetail): Promise<void> {
+        let result = Promise.resolve();
+        this.suspendStateUpdate(() => {
+            if (detail.mode === 'temp') {
+                result = light.setColorTemp(detail.newTemp);
+            }
+            else if (detail.mode === 'color') {
+                result = light.setColor(detail.newColor);
+            }
+        });
+        return result;
+    }
+
     public suspendStateUpdate(action: Action) {
         this._stateUpdateSuspended = true;
         try {
@@ -560,6 +650,10 @@ class LightMarkerManager {
     /** Will apply current light state to corresponding marker. */
     public applyState(light: ISingleLightContainer, mergingPossible = false) {
         if (this._stateUpdateSuspended)
+            return;
+
+        // marker is showing the value set by user, until the state from HA catches up
+        if (this._lightToSession[light.getEntityId()]?.isPinned)
             return;
 
         const marker = this.getMarker(light);
@@ -606,8 +700,10 @@ class LightMarkerManager {
 
     /** Will delete all items from this map. */
     public clear() {
+        this.stopLiveUpdates();
         this._markerToLight = {};
         this._lightToMarker = {};
+        this._lightToSession = {};
         this._picker.clearMarkers();
     }
 }

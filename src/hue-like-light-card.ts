@@ -22,7 +22,8 @@ import { actionHandler } from './ha/panels/lovelace/common/directives/action-han
 import { IdLitElement } from './core/id-lit-element';
 import { HueApiProvider } from './core/api-provider';
 import { ICardApi } from './types/types-api';
-import { LimitedTimeout } from './core/limited-timeout';
+import { DisplayObserver } from './core/display-observer';
+import { LiveUpdateSession } from './core/live-update-session';
 
 // Show version info in console
 VersionNotifier.toConsole();
@@ -37,10 +38,11 @@ VersionNotifier.toConsole();
 
 @customElement(Consts.CardElementName)
 export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
-    private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
+    private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner(false));
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
     private _ctrl?: AreaLightController;
+    private _sliderSession?: LiveUpdateSession<number>;
     private _ctrlListenerRegistered = false;
     private _actionHandler?: ActionHandler;
     private _error?: ErrorInfo;
@@ -143,7 +145,13 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         // stop listening to the replaced controller - updated() registers on the new one
         this.unregisterCtrlListener();
 
-        this._ctrl = new AreaLightController(this._config.getEntities().getIdList(), this._config.getDefaultColor(), this._config.groupEntity);
+        const ctrl = new AreaLightController(this._config.getEntities().getIdList(), this._config.getDefaultColor(), this._config.groupEntity);
+        this._ctrl = ctrl;
+        this._sliderSession?.stop();
+        this._sliderSession = new LiveUpdateSession<number>(this._config.liveUpdate, () => {
+            ctrl.releaseBrightnessPreview();
+            this.onChangeHandler();
+        });
         this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
 
         // For theme color set background to null
@@ -391,12 +399,15 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             shadow && themeShadow && themeShadow !== 'none' ? `${shadow}, ${themeShadow}` : shadow
         );
 
-        // sometimes the element is not yet displayed, so we need to try calculate shadow later
+        // sometimes the element is not yet displayed, so we need to calculate shadow later
+        // (when the card is not rendered yet, updated() will call this again)
         if (!shadow) {
-            this._lt.setTimeout(() => this.updateStylesInner(false), 100);
+            if (card) {
+                this._displayObserver.waitForDisplay(card);
+            }
         }
         else {
-            this._lt.reset();
+            this._displayObserver.stop();
         }
     }
 
@@ -414,7 +425,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         }
 
         // no config, ctrl or hass
-        if (!this._config || !this._ctrl || !this._hass || !this._config.isVisible)
+        if (!this._config || !this._ctrl || !this._sliderSession || !this._hass || !this._config.isVisible)
             return nothing;
 
         const titleTemplate = this._config.getTitle(this._ctrl);
@@ -443,7 +454,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
                 </div>
                 ${showSwitch ? ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene) : nothing}
             </div>
-            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}
+            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler, this._sliderSession)}
         </ha-card>`;
     }
 
@@ -457,6 +468,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     public override disconnectedCallback(): void {
         this.destroyListeners();
+        this._displayObserver.stop();
         super.disconnectedCallback();
     }
 
@@ -478,6 +490,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     private destroyListeners() {
         this.unregisterCtrlListener();
+        this._sliderSession?.stop();
         // API
         if (this._apiUnregister) {
             this._apiUnregister();

@@ -11,6 +11,7 @@ Rules marked **[lint]** are enforced by ESLint/TypeScript; the rest are checked 
 - **OOP** - logic lives in classes with clear responsibility and encapsulated state. Program against interfaces (`types/types-interface.ts`) where they exist.
 - **Small, focused changes** - one concern per change. Don't reformat or refactor unrelated code.
 - **Backward compatibility** - existing YAML configurations must keep working. A removed option stays documented (strikethrough) in README.
+- **README is for users** - it describes what the user sees and configures (options, behavior, examples), never internal technical solutions (how values are queued, cached, synchronized, ...). Internals belong to code comments and `docs/`. A behavior change that the user doesn't notice needs no README update.
 - **Home Assistant compatibility** - HA frontend changes often; workarounds for a specific HA version must have a comment with the HA version (e.g. `// since HA 2026.5`).
 
 ## 2. Formatting
@@ -68,8 +69,11 @@ A new **static** `_field` must be added to the `no-underscore-dangle` allow-list
 
 - Invalid input → `throw new Error(...)` with a descriptive message that includes the bad value (and allowed values for enums - see `tryParseEnum` in `types/config.ts`)
 - The card renders errors through `ErrorInfo` / `catchErrors` - don't swallow errors from config parsing
-- Async loaders: `console.error` the original error, rethrow a user-friendly `Error`; non-critical loaders may only log
-- Debug logging only via `console.info` inside `if (Consts.Dev)` with a `[ClassName]` prefix; `console.log` / `console.debug` are not allowed **[lint]**
+- Async loaders: log the original error (`log.error(message, error)`), rethrow a user-friendly `Error`; non-critical loaders may only log
+- All logging goes through `ConsoleLogger` (`core/console-logger.ts`) - one module-level `const log = new ConsoleLogger('Category');` per file (plus sub-category loggers derived from it for noisy detail, e.g. `const hassLog = log.subCategory('Hass');`); direct `console.*` calls are not allowed **[lint]** (exceptions: the logger itself and the version banner)
+- Categories are hierarchical, separated by `.` (`HueNotify.Hass`) - a category without its own level inherits the level of its nearest parent, then `default`
+- Levels per category are configured in `src/logging.json` (`dev` / `prod` variant picked by `Consts.Dev`); noisy detail goes into a sub-category that can be switched off on its own
+- Messages that are expensive to build (frequent calls, string interpolation) are passed lazily: `log.debug(() => \`...\`)`
 
 ## 6. Lit components
 
@@ -98,10 +102,12 @@ A new **static** `_field` must be added to the `no-underscore-dangle` allow-list
 | Text templates `{{entity.attr}}` | `core/hass-text-template.ts` |
 | Light capabilities | `core/light-features.ts` |
 | HA WebSocket queries | `core/hass-ws-client.ts` |
-| Retry with limit | `core/limited-timeout.ts` |
+| Wait until an element is displayed (has size) | `core/display-observer.ts` (`DisplayObserver`) |
+| Live updates while dragging (one call in flight, newest value wins, value pinning) | `core/live-update-session.ts` (`LiveUpdateSession`) |
 | Sequenced animations | `core/effect-queue.ts` (`HueEffectQueue`) |
 | Unique element id | `core/id-lit-element.ts` |
 | Property change notifications | `core/notify-base.ts` |
+| Console logging with categories and levels | `core/console-logger.ts` (`ConsoleLogger`), config `src/logging.json` |
 | Array/entity helpers, `nameof` | `types/extensions.ts` |
 | Function types, `noop` | `types/functions.ts` |
 | Constants, colors, element names | `types/consts.ts` (`Consts`) |

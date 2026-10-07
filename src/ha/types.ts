@@ -74,19 +74,12 @@ declare global {
     url: string;
   }
 
-  // Intl.DurationFormat is not yet part of the TypeScript standard
+  // Intl.DurationFormat comes with the TypeScript 6 lib (es2025.intl) - the HA declaration is not needed here
   // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Intl {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    // const DurationFormat: typeof FormatJSDurationFormat;
-    class DurationFormat {
-      constructor(locales?: string | string[], options?: any);
-      format(duration: object): string;
-      formatToParts(duration: object): any[];
-      resolvedOptions(): any;
-      static supportedLocalesOf(locales?: string | string[], options?: any): string[];
-    }
-  }
+  // namespace Intl {
+  //   // eslint-disable-next-line @typescript-eslint/naming-convention
+  //   const DurationFormat: typeof FormatJSDurationFormat;
+  // }
 }
 
 export interface ValueChangedEvent<T> extends CustomEvent {

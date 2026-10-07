@@ -10,8 +10,8 @@ import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 import { noop } from '../types/functions';
 import { IconHelper } from '../core/icon-helper';
 import { HueLikeLightCardEntityConfig } from '../types/config';
-import { LimitedTimeout } from '../core/limited-timeout';
 import { actionHandler } from '../ha/panels/lovelace/common/directives/action-handler-directive';
+import { DisplayObserver } from '../core/display-observer';
 
 export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
@@ -115,7 +115,7 @@ export class HueDialogLightTile extends HueDialogTile {
     `];
     }
 
-    private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
+    private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner());
 
     // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
     private updateStylesInner(): void {
@@ -153,12 +153,12 @@ export class HueDialogLightTile extends HueDialogTile {
                 shadow
             );
 
-            // sometimes the element is not yet displayed, so we need to try calculate shadow later
+            // sometimes the element is not yet displayed, so we need to calculate shadow later
             if (!shadow) {
-                this._lt.setTimeout(() => this.updateStylesInner(), 100);
+                this._displayObserver.waitForDisplay(this);
             }
             else {
-                this._lt.reset();
+                this._displayObserver.stop();
             }
         }
     }
@@ -224,7 +224,6 @@ export class HueDialogLightTile extends HueDialogTile {
 
         const icon = this.entityConfig?.icon ?? this.lightContainer.getIcon() ?? IconHelper.getIcon(1);
 
-        /* eslint-disable @/indent */
         return html`
         <div class='selector'>
             <div class='hue-tile light' title='${title}'>
@@ -242,7 +241,6 @@ export class HueDialogLightTile extends HueDialogTile {
             </div>
         </div>
         `;
-        /* eslint-enable @/indent */
     }
 
     public override connectedCallback(): void {
@@ -259,5 +257,7 @@ export class HueDialogLightTile extends HueDialogTile {
         if (this.lightContainer) {
             this.lightContainer.unregisterOnPropertyChanged(this._elementId);
         }
+
+        this._displayObserver.stop();
     }
 }

@@ -19,10 +19,11 @@ import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-ti
 import { ILightContainer } from '../types/types-interface';
 import { ITileEventDetail } from './dialog-tile';
 import { HueLightDetail } from './light-detail';
+import { LiveUpdateSession } from '../core/live-update-session';
 import { LightController } from '../core/light-controller';
 import { localize } from '../localize/localize';
 import { ActionHandler } from '../core/action-handler';
-import { LimitedTimeout } from '../core/limited-timeout';
+import { DisplayObserver } from '../core/display-observer';
 import { HueDialogSceneHATile } from './dialog-scene-ha-tile';
 import { horizontalScroll } from '../directives/horizontal-scroll';
 
@@ -63,13 +64,14 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
     https://material-components.github.io/material-components-web-catalog/#/component/dialog
     */
 
-    private readonly _lt: LimitedTimeout = new LimitedTimeout(20);
+    private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner(false));
     @state()
     private _open = false;
     private _config: HueLikeLightCardConfig;
     private _entitiesConfig: HueLikeLightCardEntityConfigCollection;
     private _ctrl: AreaLightController;
     private _actionHandler: ActionHandler;
+    private _sliderSession?: LiveUpdateSession<number>;
 
     // #region selectedLights
 
@@ -239,6 +241,11 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this._entitiesConfig = params.config.getEntities();
         this._ctrl = params.lightController;
         this._actionHandler = params.actionHandler;
+        this._sliderSession?.stop();
+        this._sliderSession = new LiveUpdateSession<number>(this._config.liveUpdate, () => {
+            this._ctrl.releaseBrightnessPreview();
+            this.onChangeHandler();
+        });
         this._open = true;
 
         // root level of the dialog - the inner levels push their own `dialogData` states on top of it
@@ -253,6 +260,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this.updateComplete.then(() => {
             this.tryCreateBackdropAndLightDetail(true);
             this._lightDetailElement!.areaController = this._ctrl; // the detail element is shared by all cards
+            this._lightDetailElement!.liveUpdate = this._config.liveUpdate;
             this.updateStylesInner(true);
         });
     }
@@ -294,6 +302,8 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this._open = false;
         this.hideLightDetailInternal(true);
         this._ctrl?.unregisterOnPropertyChanged(this._elementId);
+        this._sliderSession?.stop();
+        this._displayObserver.stop();
         fireEvent(this, 'dialog-closed', { dialog: this.localName });
         return true;
     }
@@ -307,7 +317,8 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
 
     public override disconnectedCallback(): void {
         this._ctrl?.unregisterOnPropertyChanged(this._elementId);
-        this._lt.reset();
+        this._sliderSession?.stop();
+        this._displayObserver.stop();
         super.disconnectedCallback();
     }
 
@@ -573,6 +584,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                     detailElement.style.zIndex = '2'; // over header
 
                     detailElement.areaController = this._ctrl;
+                    detailElement.liveUpdate = this._config.liveUpdate;
 
                     // action for show and hide
                     detailElement.addEventListener('show', () => {
@@ -682,12 +694,12 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
             this.style.removeProperty('--hue-text-color');
         }
 
-        // sometimes the element is not yet displayed, so we need to try calculate shadow later
+        // sometimes the element is not yet displayed, so we need to calculate shadow later
         if (!shadow) {
-            this._lt.setTimeout(() => this.updateStylesInner(false), 100);
+            this._displayObserver.waitForDisplay(heading);
         }
         else {
-            this._lt.reset();
+            this._displayObserver.stop();
         }
     }
 
@@ -769,7 +781,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
             <div slot="actionItems">
               ${ViewUtils.createSwitch(this._ctrl, this.onChangeHandler, this._config.switchOnScene)}
             </div>
-            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler)}
+            ${ViewUtils.createSlider(this._ctrl, this._config, this.onChangeHandler, this._sliderSession!)}
           </ha-dialog-header>
           <div class="${classMap({
             'content': true,

@@ -2,6 +2,9 @@ import { CallServiceActionConfig } from '../ha/data/lovelace/config/action';
 import { tryParseEnum } from './extensions';
 import { ActionHandlerDetail } from '../ha/data/lovelace/action_handler';
 import { CardActionConfig, CardActionName, ClickAction, ClickActionData, HueLikeLightCardConfigInterface } from './types-config';
+import { ConsoleLogger } from '../core/console-logger';
+
+const log = new ConsoleLogger('CardActions');
 
 /** Gesture of the card, as reported by the HA action handler directive. */
 export type CardGesture = ActionHandlerDetail['action'];
@@ -66,7 +69,7 @@ export class CardActions {
         if (!plainAction) {
             return;
         }
-        console.warn(`[HueLikeLightCard] Option '${optionName}' is deprecated, use '${key}' instead (see README - Actions).`);
+        log.warn(`Option '${optionName}' is deprecated, use '${key}' instead (see README - Actions).`);
         if (this._actions[key] != null) {
             return;
         }

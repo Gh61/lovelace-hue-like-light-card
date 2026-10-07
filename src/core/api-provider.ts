@@ -3,13 +3,10 @@ import { Consts } from '../types/consts';
 import { Action } from '../types/functions';
 import { CreateApiMethodName, IApiWrapper } from '../types/types-api';
 import { IHassWindow } from '../types/types-hass';
+import { ConsoleLogger } from './console-logger';
 import { LocationStateTracker } from './location-state-tracker';
 
-const logMessage = (message: string) => {
-    if (Consts.Dev) {
-        console.info('[HueApiProvider] ' + message);
-    }
-};
+const log = new ConsoleLogger('HueApiProvider');
 
 /**
  * Class providing public API for lovelace environment.
@@ -37,7 +34,7 @@ export class HueApiProvider {
         HueApiProvider._registeredCards[apiId] = card;
         HueApiProvider.registerRouterMethods(apiId);
 
-        logMessage(`Registered '${apiId}'`);
+        log.debug(`Registered '${apiId}'`);
         HueApiProvider.publishWrapper();
 
         return () => HueApiProvider.unregisterCard(apiId);
@@ -51,7 +48,7 @@ export class HueApiProvider {
         delete HueApiProvider._registeredCards[apiId];
         HueApiProvider.unregisterRouterMethods(apiId);
 
-        logMessage(`Unregistered '${apiId}'`);
+        log.debug(`Unregistered '${apiId}'`);
     }
 
     /* Monitoring hash */
@@ -74,7 +71,7 @@ export class HueApiProvider {
         const methodName = hash.substring(Consts.ApiProviderName.length + 2);
         const method = HueApiProvider._wrapper[methodName];
         if (typeof method === 'function') {
-            logMessage('Hash - Calling API function ' + methodName);
+            log.debug('Hash - Calling API function ' + methodName);
 
             // call the method 'async', because some other events can be running, rendering must not be completely alright
             setTimeout(() => {
@@ -94,7 +91,7 @@ export class HueApiProvider {
                 setTimeout(() => HueApiProvider.onHashChanged(hash, retry + 1), 50);
             }
             else {
-                console.error(`[HueApiProvider] API function named ${methodName} was NOT found on API object window.${Consts.ApiProviderName}`);
+                log.error(`API function named ${methodName} was NOT found on API object window.${Consts.ApiProviderName}`);
             }
         }
     }
@@ -107,7 +104,7 @@ export class HueApiProvider {
         const router = w[Consts.ApiProviderName];
         if (!router) {
             w[Consts.ApiProviderName] = HueApiProvider._wrapper;
-            logMessage('Wrapper published to window.' + Consts.ApiProviderName);
+            log.debug('Wrapper published to window.' + Consts.ApiProviderName);
 
             // Source for another solutions, if needed:
             // https://stackoverflow.com/questions/3522090/event-when-window-location-href-changes
@@ -118,7 +115,7 @@ export class HueApiProvider {
             window.addEventListener('popstate', HueApiProvider.onLocationChanged);
             window.addEventListener('pushstate', HueApiProvider.onLocationChanged);
             window.addEventListener('replacestate', HueApiProvider.onLocationChanged);
-            logMessage('Registered for hash changes');
+            log.debug('Registered for hash changes');
 
             HueApiProvider.onLocationChanged(); // initial read
         }
