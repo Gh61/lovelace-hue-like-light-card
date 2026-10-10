@@ -563,7 +563,10 @@ export class HueDialog extends IdLitElement {
                     const detailElement = new HueLightDetail();
                     detailElement.style.position = 'absolute';
                     detailElement.style.width = '100%';
-                    detailElement.style.height = 'calc(100% - 200px)';
+                    // the dialog surface has safe-area padding in the companion app (notch, home indicator),
+                    // absolute positioning ignores that padding, so we need to respect it manually
+                    detailElement.style.top = 'var(--safe-area-inset-top, 0px)';
+                    detailElement.style.height = 'calc(100% - 200px - var(--safe-area-inset-top, 0px) - var(--safe-area-inset-bottom, 0px))';
                     detailElement.style.zIndex = '2'; // over header
 
                     detailElement.areaController = this._ctrl;
