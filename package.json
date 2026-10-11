@@ -22,7 +22,7 @@
         "lit": "^3.3.3"
     },
     "devDependencies": {
-        "@babel/core": "^8.0.6",
+        "@babel/core": "^8.0.7",
         "@babel/preset-env": "^8.0.6",
         "@emnapi/core": "^1.11.3",
         "@emnapi/runtime": "^1.11.3",
