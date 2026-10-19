@@ -81,6 +81,11 @@ export interface HassLabelInfo {
     description?: string;
 }
 
+/** Bit flags of `supported_features` of a light entity (HA `LightEntityFeature`). */
+export enum HassLightEntityFeature {
+    Transition = 32
+}
+
 export enum HassLightColorMode {
     unknown = 'unknown',
 

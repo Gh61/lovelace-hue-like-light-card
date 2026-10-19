@@ -1,5 +1,5 @@
 import { HomeAssistant } from 'custom-card-helpers';
-import { HassLightColorMode, HassLightEntity } from '../types/types-hass';
+import { HassLightColorMode, HassLightEntity, HassLightEntityFeature } from '../types/types-hass';
 import { ISingleLightContainer, ILightFeatures } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
@@ -205,7 +205,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     public set brightnessValue(value: number) {
         this.setBrightnessValue(value);
     }
-    public setBrightnessValue(value: number): Promise<void> {
+    public setBrightnessValue(value: number, liveUpdateInterval?: number): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support brightness
             return Promise.resolve();
@@ -216,7 +216,8 @@ export class LightController extends NotifyBase<LightController> implements ISin
         const brightness = Math.round((value / 100.0) * 255); // value is 0-100
         return this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
-            ['brightness']: brightness
+            ['brightness']: brightness,
+            ...this.getLiveUpdateTransition(liveUpdateInterval)
         });
     }
 
@@ -272,7 +273,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     public set colorTemp(newTemp: number | null) {
         this.setColorTemp(newTemp);
     }
-    public setColorTemp(newTemp: number | null): Promise<void> {
+    public setColorTemp(newTemp: number | null, liveUpdateInterval?: number): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support color temp
             return Promise.resolve();
@@ -294,8 +295,9 @@ export class LightController extends NotifyBase<LightController> implements ISin
         this.notifyColorTempChanged(newTemp);
         return this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
-            ['color_temp_kelvin']: newTemp
+            ['color_temp_kelvin']: newTemp,
             //['kelvin']: newTemp, // Deprecated since 2025.1, removed in 2026.1
+            ...this.getLiveUpdateTransition(liveUpdateInterval)
         });
     }
 
@@ -309,7 +311,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     public set color(newColor: Color | null) {
         this.setColor(newColor);
     }
-    public setColor(newColor: Color | null): Promise<void> {
+    public setColor(newColor: Color | null, liveUpdateInterval?: number): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support color
             return Promise.resolve();
@@ -318,7 +320,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
             return Promise.resolve();
 
         let mode: HassLightColorMode;
-        const serviceData: Record<string, unknown> = { entity_id: this._entity_id };
+        const serviceData: Record<string, unknown> = { entity_id: this._entity_id, ...this.getLiveUpdateTransition(liveUpdateInterval) };
         if (newColor.getOriginalMode() === 'hsv') {
             mode = HassLightColorMode.hs;
             serviceData.hs_color = [newColor.getHue(), newColor.getSaturation() * 100];
@@ -330,6 +332,25 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
         this.notifyColorChanged(newColor, mode);
         return this._hass.callService('light', 'turn_on', serviceData);
+    }
+
+    //#endregion
+
+    //#region Live update
+
+    /**
+     * @param liveUpdateInterval Interval (ms) of the live updates the sent value is part of.
+     * @returns Service data with the interval as transition when it is longer than the default transition - the light changes smoothly until the next value comes.
+     */
+    private getLiveUpdateTransition(liveUpdateInterval?: number): Record<string, unknown> {
+        if (liveUpdateInterval == null || liveUpdateInterval <= Consts.LiveUpdateDefaultTransition)
+            return {};
+
+        const features = this._entity?.attributes?.supported_features ?? 0;
+        if ((features & HassLightEntityFeature.Transition) === 0)
+            return {};
+
+        return { transition: liveUpdateInterval / 1000 }; // in seconds
     }
 
     //#endregion

@@ -115,7 +115,7 @@ export class ViewUtils {
 
         session.update(value, v => {
             if (v > 0) {
-                return ctrl.setBrightnessValue(v);
+                return ctrl.setBrightnessValue(v, ctrl.liveUpdateMinInterval);
             }
             return undefined;
         });

@@ -242,7 +242,7 @@ export class HueLightDetail extends IdLitElement {
         const light = this.lightContainer;
         if (light) {
             this.previewBrightness(light, ev.detail.newValue);
-            this.brightnessSession.update(ev.detail.newValue, v => light.setBrightnessValue(v));
+            this.brightnessSession.update(ev.detail.newValue, v => light.setBrightnessValue(v, light.liveUpdateMinInterval));
         }
     }
 
@@ -601,7 +601,7 @@ class LightMarkerManager {
     public updateColor(detail: IHueColorTempPickerEventDetail) {
         const light = this.getLight(detail.marker);
         if (light) {
-            this.getSession(light).update(detail, d => this.applyColor(light, d));
+            this.getSession(light).update(detail, d => this.applyColor(light, d, light.liveUpdateMinInterval));
         }
     }
 
@@ -625,14 +625,15 @@ class LightMarkerManager {
         return this._lightToSession[entityId];
     }
 
-    private applyColor(light: ISingleLightContainer, detail: IHueColorTempPickerEventDetail): Promise<void> {
+    /** @param liveUpdateInterval Interval (ms) of the live updates, only while dragging. */
+    private applyColor(light: ISingleLightContainer, detail: IHueColorTempPickerEventDetail, liveUpdateInterval?: number): Promise<void> {
         let result = Promise.resolve();
         this.suspendStateUpdate(() => {
             if (detail.mode === 'temp') {
-                result = light.setColorTemp(detail.newTemp);
+                result = light.setColorTemp(detail.newTemp, liveUpdateInterval);
             }
             else if (detail.mode === 'color') {
-                result = light.setColor(detail.newColor);
+                result = light.setColor(detail.newColor, liveUpdateInterval);
             }
         });
         return result;

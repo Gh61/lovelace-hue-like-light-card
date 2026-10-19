@@ -29,6 +29,7 @@ export class Consts {
     public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
     public static readonly LiveUpdateMinInterval = 200; // ms
     public static readonly LiveUpdateHueGroupMinInterval = 1000; // ms - Hue room/zone, see LightController.liveUpdateMinInterval
+    public static readonly LiveUpdateDefaultTransition = 400; // ms - default transition of a Hue light (used when no transition is sent)
     public static readonly LiveUpdateConfirmTimeout = 5000; // ms
     public static readonly LiveUpdateHoldTime = 1500; // ms
 
