@@ -38,14 +38,19 @@ export class LightController extends NotifyBase<LightController> implements ISin
             throw new Error('No \'states\' available on passed hass instance.');
         }
 
-        this._entity = this._hass.states[this._entity_id] as HassLightEntity;
-        if (!this._entity) {
-            throw new Error(`Entity '${this._entity_id}' not found in states.`);
-        }
+        // An entity can be missing from the states for a while - e.g. its integration is still loading while HA starts,
+        // and the dashboard is rebuilt with the partial states. Throwing here makes HA swap the card for an error card
+        // that never recovers, so the light is treated as unavailable until a later hass update brings its state.
+        this._entity = (this._hass.states[this._entity_id] as HassLightEntity | undefined)
+            ?? LightController.unavailableEntity(this._entity_id);
 
         this._lightState.refresh(this._entity);
         this._entityFeatures = new LightFeatures(this._entity);
         this.raisePropertyChanged('hass');
+    }
+
+    private static unavailableEntity(entityId: string): HassLightEntity {
+        return { entity_id: entityId, state: 'unavailable', attributes: {} } as HassLightEntity;
     }
 
     //#region Info
