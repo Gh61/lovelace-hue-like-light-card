@@ -28,6 +28,7 @@ export class Consts {
     public static readonly GradientOffset = 7; // percent
     public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
     public static readonly LiveUpdateMinInterval = 200; // ms
+    public static readonly LiveUpdateHueGroupMinInterval = 1000; // ms - Hue room/zone, see LightController.liveUpdateMinInterval
     public static readonly LiveUpdateConfirmTimeout = 5000; // ms
     public static readonly LiveUpdateHoldTime = 1500; // ms
 

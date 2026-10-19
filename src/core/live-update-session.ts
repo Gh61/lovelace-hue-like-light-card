@@ -12,7 +12,7 @@ export type LiveUpdateApply<T> = Func1<T, Promise<unknown> | void>;
  * Sends the values to Home Assistant one at a time and pins the shown value, so the control doesn't jump back to the lagging state from Home Assistant.
  *
  * - At most one apply is in flight - the next value is applied only after Home Assistant confirmed the previous one
- *   (or it failed, or `Consts.LiveUpdateConfirmTimeout` passed) and at least `Consts.LiveUpdateMinInterval` after it was sent.
+ *   (or it failed, or `Consts.LiveUpdateConfirmTimeout` passed) and at least the minimal interval (`Consts.LiveUpdateMinInterval` by default) after it was sent.
  *   Values in between are skipped - the latest value wins.
  * - `update` (during drag): pins the value and queues it.
  * - `commit` (drag finished): queues the final value the same way (never overtaken by an older value) and keeps it pinned.
@@ -23,6 +23,7 @@ export type LiveUpdateApply<T> = Func1<T, Promise<unknown> | void>;
 export class LiveUpdateSession<T> {
     private readonly _enabled: boolean;
     private readonly _onRelease: Action;
+    private readonly _minInterval: Func<number>;
     private _pinnedValue: T | null = null;
     private _lastSentValue: T | null = null;
     private _pending: { value: T, apply: LiveUpdateApply<T> } | null = null;
@@ -35,10 +36,12 @@ export class LiveUpdateSession<T> {
     /**
      * @param enabled Whether live updates are enabled.
      * @param onRelease Called when the pinned value is released (the control should show the real state again).
+     * @param minInterval Returns the minimal interval (ms) between two applies - read before every apply, so it follows the current lights.
      */
-    public constructor(enabled: boolean, onRelease: Action = noop) {
+    public constructor(enabled: boolean, onRelease: Action = noop, minInterval: Func<number> = () => Consts.LiveUpdateMinInterval) {
         this._enabled = enabled;
         this._onRelease = onRelease;
+        this._minInterval = minInterval;
     }
 
     /** Whether live updates are enabled. */
@@ -115,7 +118,7 @@ export class LiveUpdateSession<T> {
         if (!this._pending || this._inFlight || this._applyTimeout)
             return;
 
-        const wait = this._lastApplyTime + Consts.LiveUpdateMinInterval - Date.now();
+        const wait = this._lastApplyTime + this._minInterval() - Date.now();
         if (wait > 0) {
             this._applyTimeout = setTimeout(() => {
                 this._applyTimeout = null;

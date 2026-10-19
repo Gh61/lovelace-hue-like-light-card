@@ -2,16 +2,17 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { AreaLightController } from '../src/core/area-light-controller';
 import { Color } from '../src/core/colors/color';
 import { LightController } from '../src/core/light-controller';
+import { Consts } from '../src/types/consts';
 
 /** Creates hass with given light states, callService returns a promise resolved by the test (one per call). */
-function createHass(states: Record<string, { state: 'on' | 'off', brightness?: number }>) {
+function createHass(states: Record<string, { state: 'on' | 'off', brightness?: number, hueGroup?: boolean }>) {
     const calls: { data: Record<string, unknown>, resolve: () => void }[] = [];
     const hassStates: Record<string, unknown> = {};
     Object.entries(states).forEach(([entityId, s]) => {
         hassStates[entityId] = {
             entity_id: entityId,
             state: s.state,
-            attributes: { brightness: s.brightness, supported_color_modes: ['hs', 'color_temp'] }
+            attributes: { brightness: s.brightness, supported_color_modes: ['hs', 'color_temp'], is_hue_group: s.hueGroup }
         };
     });
 
@@ -127,6 +128,52 @@ describe('AreaLightController', () => {
 
         calls[1].resolve();
         expect(await isSettled(promise)).toBe(true);
+    });
+});
+
+describe('Live update min interval', () => {
+    it('should use the default interval for a regular light', () => {
+        const { hass } = createHass({ 'light.interval_regular': { state: 'on', brightness: 255 } });
+        const light = new LightController('light.interval_regular');
+        light.hass = hass;
+
+        expect(light.liveUpdateMinInterval).toBe(Consts.LiveUpdateMinInterval);
+    });
+
+    it('should use the Hue group interval for a Hue room or zone', () => {
+        const { hass } = createHass({ 'light.interval_hue_group': { state: 'on', brightness: 255, hueGroup: true } });
+        const light = new LightController('light.interval_hue_group');
+        light.hass = hass;
+
+        expect(light.liveUpdateMinInterval).toBe(Consts.LiveUpdateHueGroupMinInterval);
+    });
+
+    it('should use the default interval when is_hue_group is false', () => {
+        const { hass } = createHass({ 'light.interval_not_group': { state: 'on', brightness: 255, hueGroup: false } });
+        const light = new LightController('light.interval_not_group');
+        light.hass = hass;
+
+        expect(light.liveUpdateMinInterval).toBe(Consts.LiveUpdateMinInterval);
+    });
+
+    it('should use the default interval before hass is set', () => {
+        const light = new LightController('light.interval_no_hass');
+
+        expect(light.liveUpdateMinInterval).toBe(Consts.LiveUpdateMinInterval);
+    });
+
+    it('should use the slowest interval of all lights in an area', () => {
+        const { hass } = createHass({
+            'light.interval_area_regular': { state: 'on', brightness: 255 },
+            'light.interval_area_group': { state: 'on', brightness: 255, hueGroup: true }
+        });
+        const mixed = new AreaLightController(['light.interval_area_regular', 'light.interval_area_group'], new Color(255, 255, 255));
+        mixed.hass = hass;
+        const regular = new AreaLightController(['light.interval_area_regular'], new Color(255, 255, 255));
+        regular.hass = hass;
+
+        expect(mixed.liveUpdateMinInterval).toBe(Consts.LiveUpdateHueGroupMinInterval);
+        expect(regular.liveUpdateMinInterval).toBe(Consts.LiveUpdateMinInterval);
     });
 });
 

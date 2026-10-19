@@ -151,7 +151,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         this._sliderSession = new LiveUpdateSession<number>(this._config.liveUpdate, () => {
             ctrl.releaseBrightnessPreview();
             this.onChangeHandler();
-        });
+        }, () => ctrl.liveUpdateMinInterval);
         this._actionHandler = new ActionHandler(this._config, this._ctrl, this);
 
         // For theme color set background to null

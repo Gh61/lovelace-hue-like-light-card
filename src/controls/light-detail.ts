@@ -48,11 +48,12 @@ export class HueLightDetail extends IdLitElement {
 
     private _brightnessSession: LiveUpdateSession<number> | null = null;
     private get brightnessSession() {
+        // the interval follows the current container - the session is stopped when the container changes
         this._brightnessSession ??= new LiveUpdateSession<number>(this.liveUpdate, () => {
             this._brightnessPreviewContainer?.releaseBrightnessPreview();
             this._brightnessPreviewContainer = null;
             this.requestUpdate();
-        });
+        }, () => this.lightContainer?.liveUpdateMinInterval ?? Consts.LiveUpdateMinInterval);
         return this._brightnessSession;
     }
 
@@ -620,7 +621,7 @@ class LightMarkerManager {
     private getSession(light: ISingleLightContainer) {
         const entityId = light.getEntityId();
         // when released, the marker should show the real state again
-        this._lightToSession[entityId] ??= new LiveUpdateSession<IHueColorTempPickerEventDetail>(this._liveUpdate, () => this.applyState(light));
+        this._lightToSession[entityId] ??= new LiveUpdateSession<IHueColorTempPickerEventDetail>(this._liveUpdate, () => this.applyState(light), () => light.liveUpdateMinInterval);
         return this._lightToSession[entityId];
     }
 

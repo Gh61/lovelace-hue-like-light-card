@@ -9,6 +9,7 @@ import { NotifyBase } from './notify-base';
 import { SceneData } from '../types/types-config';
 import { LightState } from './light-state';
 import { ensureEntityDomain } from '../types/extensions';
+import { Consts } from '../types/consts';
 
 /**
  * Serves as controller for single light.
@@ -67,6 +68,15 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
     public get features(): ILightFeatures {
         return this._entityFeatures;
+    }
+
+    public get liveUpdateMinInterval(): number {
+        // Hue room/zone is a grouped_light on the bridge - Hue recommends at most 1 command per second for it.
+        // Home Assistant confirms faster commands right away, but the bridge queues them and the lights lag behind (for seconds after a longer drag).
+        if (this._entity?.attributes?.is_hue_group === true)
+            return Consts.LiveUpdateHueGroupMinInterval;
+
+        return Consts.LiveUpdateMinInterval;
     }
 
     //#endregion

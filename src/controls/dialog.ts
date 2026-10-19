@@ -95,7 +95,7 @@ export class HueDialog extends IdLitElement {
         this._sliderSession = new LiveUpdateSession<number>(config.liveUpdate, () => {
             lightController.releaseBrightnessPreview();
             this.onChangeHandler();
-        });
+        }, () => lightController.liveUpdateMinInterval);
     }
 
     //#region Tile interactions

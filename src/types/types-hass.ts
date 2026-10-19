@@ -58,6 +58,9 @@ export interface HassLightAttributes extends HassEntityAttributeBase {
 
     /** Array [x, y] */
     xy_color?: number[];
+
+    /** Set by the Hue integration on grouped lights (Hue room or zone) */
+    is_hue_group?: boolean;
 }
 
 export interface HassFloorInfo {

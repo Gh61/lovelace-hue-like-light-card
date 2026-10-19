@@ -63,6 +63,27 @@ describe('LiveUpdateSession', () => {
         expect(apply.mock.calls).toEqual([[10], [20]]);
     });
 
+    it('should respect a custom minimal interval and re-read it before every apply', async () => {
+        let interval = 1000;
+        const session = new LiveUpdateSession<number>(true, noop, () => interval);
+        const { apply, calls } = createApply();
+
+        session.update(10, apply);
+        calls[0].resolve();
+        session.update(20, apply);
+        await jest.advanceTimersByTimeAsync(999);
+        expect(apply).toHaveBeenCalledTimes(1);
+
+        await jest.advanceTimersByTimeAsync(1);
+        expect(apply.mock.calls).toEqual([[10], [20]]);
+
+        interval = 300;
+        calls[1].resolve();
+        session.update(30, apply);
+        await jest.advanceTimersByTimeAsync(300);
+        expect(apply.mock.calls).toEqual([[10], [20], [30]]);
+    });
+
     it('should continue after a failed apply', async () => {
         const session = new LiveUpdateSession<number>(true);
         const { apply, calls } = createApply();

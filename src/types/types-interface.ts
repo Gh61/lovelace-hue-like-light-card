@@ -127,6 +127,11 @@ export interface ILightContainer extends ILightConfig {
      * Releases the previewed brightness - controls show the state from Home Assistant again.
      */
     releaseBrightnessPreview(): void;
+
+    /**
+     * Minimal interval (ms) between two live updates (while dragging) sent to lights in this container - some devices can't handle the default rate.
+     */
+    get liveUpdateMinInterval(): number;
 }
 
 export interface ISingleLightContainer extends ILightContainer, INotify {
