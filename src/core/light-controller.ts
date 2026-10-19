@@ -10,6 +10,9 @@ import { SceneData } from '../types/types-config';
 import { LightState } from './light-state';
 import { ensureEntityDomain } from '../types/extensions';
 import { Consts } from '../types/consts';
+import { ConsoleLogger } from './console-logger';
+
+const log = new ConsoleLogger('HueLightController');
 
 /**
  * Serves as controller for single light.
@@ -21,6 +24,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     private _entityFeatures: LightFeatures;
     private _domain: 'light' | 'switch';
     private readonly _lightState: LightState;
+    private _missingLogged = false;
 
     public constructor(entity_id: string) {
         super();
@@ -38,14 +42,24 @@ export class LightController extends NotifyBase<LightController> implements ISin
             throw new Error('No \'states\' available on passed hass instance.');
         }
 
-        this._entity = this._hass.states[this._entity_id] as HassLightEntity;
-        if (!this._entity) {
-            throw new Error(`Entity '${this._entity_id}' not found in states.`);
+        // An entity can be missing from the states for a while - e.g. its integration is still loading while HA starts,
+        // and the dashboard is rebuilt with the partial states. Throwing here makes HA swap the card for an error card
+        // that never recovers, so the light is treated as unavailable until a later hass update brings its state.
+        // Logged once, so a mistyped entity id still shows up in the console.
+        const entity = this._hass.states[this._entity_id] as HassLightEntity | undefined;
+        if (!entity && !this._missingLogged) {
+            this._missingLogged = true;
+            log.warn(`Entity '${this._entity_id}' not found in states yet, treating as unavailable.`);
         }
+        this._entity = entity ?? LightController.unavailableEntity(this._entity_id);
 
         this._lightState.refresh(this._entity);
         this._entityFeatures = new LightFeatures(this._entity);
         this.raisePropertyChanged('hass');
+    }
+
+    private static unavailableEntity(entityId: string): HassLightEntity {
+        return { entity_id: entityId, state: 'unavailable', attributes: {} } as HassLightEntity;
     }
 
     //#region Info
