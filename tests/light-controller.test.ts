@@ -76,6 +76,36 @@ describe('LightController', () => {
     });
 });
 
+describe('LightController - entity missing from states', () => {
+    it('should report the light as unavailable instead of throwing', () => {
+        const { hass } = createHass({});
+        const light = new LightController('light.ctrl_missing');
+
+        expect(() => light.hass = hass).not.toThrow();
+        expect(light.isUnavailable()).toBe(true);
+        expect(light.isOn()).toBe(false);
+        expect(light.getTitle().resolveToString()).toBe('light.ctrl_missing');
+    });
+
+    it('should pick up the entity once a later hass update brings its state', () => {
+        const light = new LightController('light.ctrl_late');
+        light.hass = createHass({}).hass;
+        expect(light.isUnavailable()).toBe(true);
+
+        light.hass = createHass({ 'light.ctrl_late': { state: 'on', brightness: 255 } }).hass;
+        expect(light.isUnavailable()).toBe(false);
+        expect(light.isOn()).toBe(true);
+    });
+
+    it('should not throw for an area light controller with a light still missing', () => {
+        const { hass } = createHass({ 'light.ctrl_present': { state: 'on', brightness: 255 } });
+        const area = new AreaLightController(['light.ctrl_present', 'light.ctrl_absent'], new Color(255, 255, 255));
+
+        expect(() => area.hass = hass).not.toThrow();
+        expect(area.isOn()).toBe(true);
+    });
+});
+
 describe('AreaLightController', () => {
     it('should resolve setBrightnessValue after all lights confirmed', async () => {
         const { hass, calls } = createHass({
