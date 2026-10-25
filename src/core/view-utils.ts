@@ -20,17 +20,17 @@ export class ViewUtils {
 
     /**
      * Colors of the ha-slider created by createSlider. The theme colors (primary / disabled) can blend with the light color,
-     * so the slider takes the foreground calculated for the background (falls back to the theme colors when it is not set).
-     * Overridable with --hue-slider-color.
+     * so the slider takes the foreground calculated for the background. Without it (theme background) the variables are invalid
+     * and ha-slider keeps its own theme colors. Overridable with --hue-slider-color.
      * @param foregroundVariable Variable holding the calculated foreground color.
      * @returns CSS declarations for the slider element.
      */
     public static getSliderColorStyles(foregroundVariable: string): string {
-        const color = `var(--hue-slider-color, var(${foregroundVariable}, var(--primary-color)))`;
+        const color = `var(--hue-slider-color, var(${foregroundVariable}))`;
         return `
         --ha-slider-indicator-color: ${color};
         --ha-slider-thumb-color: ${color};
-        --ha-slider-track-color: color-mix(in srgb, var(--hue-slider-color, var(${foregroundVariable}, var(--disabled-color))) 35%, transparent);`;
+        --ha-slider-track-color: color-mix(in srgb, ${color} 35%, transparent);`;
     }
 
     /**
