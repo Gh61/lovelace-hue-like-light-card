@@ -117,8 +117,10 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.liveUpdate = HueLikeLightCardConfig.getBoolean(plainConfig.liveUpdate, true);
         this.theme = plainConfig.theme || Consts.ThemeDefault;
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
-        this.offColor = plainConfig.offColor || ColorExtended.ThemeColor;
-        this.hueScreenBgColor = plainConfig.hueScreenBgColor || ColorExtended.ThemeColor;
+        this.hueColors = HueLikeLightCardConfig.getBoolean(plainConfig.hueColors, true);
+        this.offColor = plainConfig.offColor || (this.hueColors ? Consts.OffColor : ColorExtended.ThemeColor);
+        this.dialogOffColor = plainConfig.offColor || (this.hueColors ? Consts.DialogOffColor : ColorExtended.ThemeColor);
+        this.hueScreenBgColor = plainConfig.hueScreenBgColor || (this.hueColors ? Consts.DialogBgColor : ColorExtended.ThemeColor);
         this.offShadow = HueLikeLightCardConfig.getBoolean(plainConfig.offShadow, true);
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
         this.apiId = plainConfig.apiId;
@@ -275,7 +277,10 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     public readonly liveUpdate: boolean;
     public readonly theme: string;
     public readonly defaultColor: string;
+    public readonly hueColors: boolean;
     public readonly offColor: string;
+    /** offColor for the Hue screen heading (its Hue App default is darker than the card's). */
+    private readonly dialogOffColor: string;
     public readonly hueScreenBgColor: string;
     public readonly offShadow: boolean;
     public readonly hueBorders: boolean;
@@ -285,11 +290,6 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     /** Support for card-mod styling */
     public readonly style?: unknown;
     public readonly card_mod?: unknown;
-
-    /**
-     * Returns whether offColor was set in configuration.
-     * Returns false, when offColor is taken from Consts.
-     */
 
     /**
      * @returns List of unique entity identifiers
@@ -328,6 +328,10 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
      */
     public getOffColor(): ColorExtended {
         return new ColorExtended(this.offColor);
+    }
+
+    public getDialogOffColor(): ColorExtended {
+        return new ColorExtended(this.dialogOffColor);
     }
 
     /**

@@ -1,3 +1,4 @@
+import { ColorExtended } from '../src/core/colors/color-extended';
 import { HueLikeLightCardConfig } from '../src/types/config';
 import { Consts } from '../src/types/consts';
 import { HueLikeLightCardConfigInterface, KnownIconSize, SceneProvider } from '../src/types/types-config';
@@ -44,23 +45,38 @@ describe('Config parse', () => {
     });
 
     // Colors
-    it('parse unset offColor and hueScreenBgColor as theme colors', () => {
+    it('parse unset offColor and hueScreenBgColor as Hue App colors', () => {
         const config = new HueLikeLightCardConfig({
             entity: 'light.test'
         });
 
+        expect(config.hueColors).toBe(true);
+        expect(config.offColor).toBe(Consts.OffColor);
+        expect(config.getDialogOffColor().toString()).toBe(new ColorExtended(Consts.DialogOffColor).toString());
+        expect(config.hueScreenBgColor).toBe(Consts.DialogBgColor);
+    });
+
+    it('parse unset offColor and hueScreenBgColor as theme colors when hueColors is off', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test',
+            hueColors: false
+        });
+
         expect(config.getOffColor().isThemeColor()).toBe(true);
+        expect(config.getDialogOffColor().isThemeColor()).toBe(true);
         expect(config.getHueScreenBgColor().isThemeColor()).toBe(true);
     });
 
     it('parse offColor and hueScreenBgColor', () => {
         const config = new HueLikeLightCardConfig({
             entity: 'light.test',
-            offColor: '#666',
+            hueColors: false,
+            offColor: '#123456',
             hueScreenBgColor: '#171717'
         });
 
-        expect(config.getOffColor().isThemeColor()).toBe(false);
+        expect(config.offColor).toBe('#123456');
+        expect(config.getDialogOffColor().isThemeColor()).toBe(false);
         expect(config.getHueScreenBgColor().isThemeColor()).toBe(false);
     });
 

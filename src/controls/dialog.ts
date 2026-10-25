@@ -622,6 +622,16 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
             // To help change themes on the fly
             ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configBgColor.isThemeColor() || this._config.getOffColor().isThemeColor(), configBgColor.isThemeColor());
 
+            // tiles of scenes and lights that are off
+            if (this._config.hueColors) {
+                this.style.removeProperty('--hue-default-tile-off-color');
+                this.style.removeProperty('--hue-default-tile-off-text-color');
+            }
+            else {
+                this.style.setProperty('--hue-default-tile-off-color', Consts.ThemeTileOffColor);
+                this.style.setProperty('--hue-default-tile-off-text-color', Consts.ThemeTileOffTextColor);
+            }
+
             let contentBg = null;
             let contentFg = null;
             if (!configBgColor.isThemeColor()) {
@@ -651,7 +661,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
             throw new Error('Hue heading not found!');
 
         // theme color = no background, the theme is used
-        const offColor = this._config.getOffColor();
+        const offColor = this._config.getDialogOffColor();
         const offBackground = offColor.isThemeColor()
             ? null
             : new Background([offColor.getBaseColor()]);

@@ -20,10 +20,16 @@ export class Consts {
     public static readonly WarmColor = '#ffda95';
     public static readonly ColdColor = '#f5f5ff';
     public static readonly DefaultColor = 'warm';
+    public static readonly OffColor = '#666';
+    // --hue-default-tile-off-* are set by the Hue screen when hueColors is off
+    public static readonly TileOffColor = 'var(--hue-tile-off-color, var(--hue-default-tile-off-color, rgba(102, 102, 102, 0.6)))';
+    public static readonly TileOffTextColor = 'var(--hue-tile-off-text-color, var(--hue-default-tile-off-text-color, #fff))';
     // same as the background of HA control buttons (ha-control-button) - translucent, works on any dialog surface
-    public static readonly TileOffColor = 'var(--hue-tile-off-color, color-mix(in srgb, var(--disabled-color, #666) 20%, transparent))';
-    public static readonly TileOffTextColor = 'var(--hue-tile-off-text-color, var(--primary-text-color, #fff))';
+    public static readonly ThemeTileOffColor = 'color-mix(in srgb, var(--disabled-color, #666) 20%, transparent)';
+    public static readonly ThemeTileOffTextColor = 'var(--primary-text-color, #fff)';
+    public static readonly DialogBgColor = '#171717';
     public static readonly DialogFgLightColor = new Color('#aaa');
+    public static readonly DialogOffColor = '#363636';
     public static readonly GradientOffset = 7; // percent
     public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
     public static readonly LiveUpdateMinInterval = 200; // ms
