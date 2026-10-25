@@ -141,6 +141,8 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
             css`
     .scene {
         cursor: pointer;
+        /* for the dynamic badge - a positioned icon background would cover the title in the click animation */
+        position: relative;
     }
     .scene .icon-background {
         height: calc(100% - ${HueDialogTile.titleHeight}px);
@@ -159,13 +161,10 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
         justify-content: center;
         transition: all ${HueDialogSceneTile.animationSeconds}s linear;
     }
-    .scene .icon-background {
-        position: relative;
-    }
     .scene .dynamic-badge {
         position: absolute;
-        top: 0;
-        right: 0;
+        top: ${HueDialogTile.padding}px;
+        right: ${HueDialogTile.padding}px;
         height: ${HueDialogSceneTile.dynamicBadgeDimensions}px;
         width: ${HueDialogSceneTile.dynamicBadgeDimensions}px;
         border-radius: ${HueDialogSceneTile.dynamicBadgeDimensions / 2}px;
