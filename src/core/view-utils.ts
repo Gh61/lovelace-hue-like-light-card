@@ -17,14 +17,26 @@ import { LiveUpdateSession } from './live-update-session';
 export class ViewUtils {
 
     /**
+     * Variable calculated by the card (light color, foreground, shadow) that themes and card-mod can override.
+     * The card writes the value to `--hue-calculated-<name>` and reads `--hue-<name>` first, so the public variable
+     * set anywhere (theme, card-mod, even without !important) wins over the calculated one.
+     * @param name Name without the prefix, e.g. 'background'.
+     * @param fallback Used when neither is set.
+     */
+    public static getHueVar(name: string, fallback?: string): string {
+        const calculated = fallback ? `var(--hue-calculated-${name}, ${fallback})` : `var(--hue-calculated-${name})`;
+        return `var(--hue-${name}, ${calculated})`;
+    }
+
+    /**
      * Colors of the ha-slider created by createSlider. The theme colors (primary / disabled) can blend with the light color,
      * so the slider takes the foreground calculated for the background. Without it (theme background) the variables are invalid
      * and ha-slider keeps its own theme colors. Overridable with --hue-slider-color.
-     * @param foregroundVariable Variable holding the calculated foreground color.
+     * @param foreground CSS value of the calculated foreground color (see getHueVar).
      * @returns CSS declarations for the slider element.
      */
-    public static getSliderColorStyles(foregroundVariable: string): string {
-        const color = `var(--hue-slider-color, var(${foregroundVariable}))`;
+    public static getSliderColorStyles(foreground: string): string {
+        const color = `var(--hue-slider-color, ${foreground})`;
         return `
         --ha-slider-indicator-color: ${color};
         --ha-slider-thumb-color: ${color};
@@ -34,11 +46,11 @@ export class ViewUtils {
     /**
      * Colors of the ha-switch created by createSwitch when it is checked - same reason as getSliderColorStyles:
      * the foreground calculated for the background, the theme colors without it. Overridable with --hue-switch-color.
-     * @param foregroundVariable Variable holding the calculated foreground color.
+     * @param foreground CSS value of the calculated foreground color (see getHueVar).
      * @returns CSS declarations for the switch element.
      */
-    public static getSwitchColorStyles(foregroundVariable: string): string {
-        const color = `var(--hue-switch-color, var(${foregroundVariable}))`;
+    public static getSwitchColorStyles(foreground: string): string {
+        const color = `var(--hue-switch-color, ${foreground})`;
         return `
         --ha-switch-checked-background-color: color-mix(in srgb, ${color} 35%, transparent);
         --ha-switch-checked-border-color: color-mix(in srgb, ${color} 60%, transparent);

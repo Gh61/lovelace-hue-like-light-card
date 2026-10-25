@@ -234,9 +234,9 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     ha-card
     {
         min-height:80px;
-        background:var(--hue-background);
+        background:${unsafeCSS(ViewUtils.getHueVar('background'))};
         position:relative;
-        box-shadow:var(--hue-card-box-shadow);
+        box-shadow:${unsafeCSS(ViewUtils.getHueVar('card-box-shadow'))};
         background-origin: border-box;
         --hue-card-margin: 14px;
     }
@@ -245,13 +245,13 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
        When the lights are off, --hue-background is the theme card background, so such theme stays transparent. */
     :host(${unsafeCSS(Consts.CardElementName)}) ha-card
     {
-        background:var(--hue-background) !important;
+        background:${unsafeCSS(ViewUtils.getHueVar('background'))} !important;
         --hue-text-color:inherit !important;
     }
     ha-card.hue-borders
     {
         border-radius:${Consts.HueBorderRadius}px;
-        box-shadow:var(--hue-box-shadow), ${unsafeCSS(Consts.HueShadow)};
+        box-shadow:${unsafeCSS(ViewUtils.getHueVar('box-shadow'))}, ${unsafeCSS(Consts.HueShadow)};
         border:none;
     }
     ha-card div.main-info
@@ -279,14 +279,14 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         width: 70px;
         margin-left: calc(-1* var(--hue-card-margin));
         text-align: center;
-        color:var(--hue-text-color);
+        color:${unsafeCSS(ViewUtils.getHueVar('text-color'))};
         transition:${unsafeCSS(Consts.TransitionDefault)};
     }
     .text-area{
         flex-grow: 1;
         min-width: 0;
         line-height:normal;
-        color:var(--hue-text-color);
+        color:${unsafeCSS(ViewUtils.getHueVar('text-color'))};
         transition:${unsafeCSS(Consts.TransitionDefault)};
     }
     .text-area.no-switch{
@@ -319,11 +319,11 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         /*since HA 2025.10*/
         width: calc(100% - 2 * var(--hue-card-margin));
         margin: var(--hue-card-margin);
-        ${unsafeCSS(ViewUtils.getSliderColorStyles('--hue-text-color'))}
+        ${unsafeCSS(ViewUtils.getSliderColorStyles(ViewUtils.getHueVar('text-color')))}
     }
     ha-switch
     {
-        ${unsafeCSS(ViewUtils.getSwitchColorStyles('--hue-text-color'))}
+        ${unsafeCSS(ViewUtils.getSwitchColorStyles(ViewUtils.getHueVar('text-color')))}
     }
     ha-alert{
         display:flex;
@@ -383,15 +383,15 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config.offShadow, this._config.shadowDensityCoef);
 
         this.style.setProperty(
-            '--hue-background',
+            '--hue-calculated-background',
             bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar
         );
         this.style.setProperty(
-            '--hue-text-color',
+            '--hue-calculated-text-color',
             bfg.foreground?.toString() ?? Consts.ThemeSecondaryTextColorVar
         );
         this.style.setProperty(
-            '--hue-box-shadow',
+            '--hue-calculated-box-shadow',
             shadow
         );
 
@@ -399,7 +399,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         // and can't be part of a shadow list)
         const themeShadow = card ? getComputedStyle(card).getPropertyValue('--ha-card-box-shadow').trim() : '';
         this.style.setProperty(
-            '--hue-card-box-shadow',
+            '--hue-calculated-card-box-shadow',
             shadow && themeShadow && themeShadow !== 'none' ? `${shadow}, ${themeShadow}` : shadow
         );
 

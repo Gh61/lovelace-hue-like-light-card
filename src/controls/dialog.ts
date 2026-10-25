@@ -395,10 +395,10 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
 
     /* same color header */
     .hue-heading {
-        --hue-heading-text-color: var(--hue-text-color, ${unsafeCSS(Consts.ThemeDialogHeadingColorVar)});
+        --hue-heading-text-color: ${unsafeCSS(ViewUtils.getHueVar('text-color', Consts.ThemeDialogHeadingColorVar))};
         
-        background:var(--hue-background, transparent);
-        box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
+        background:${unsafeCSS(ViewUtils.getHueVar('background', 'transparent'))};
+        box-shadow:${unsafeCSS(ViewUtils.getHueVar('box-shadow'))}, 0px 5px 10px rgba(0,0,0,0.5);
         transition:${unsafeCSS(Consts.TransitionDefault)};
 
         border-bottom-left-radius: var(--ha-dialog-border-radius, 28px);
@@ -424,7 +424,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         display: block;
     }
     .hue-heading ha-switch {
-        ${unsafeCSS(ViewUtils.getSwitchColorStyles('--hue-text-color'))}
+        ${unsafeCSS(ViewUtils.getSwitchColorStyles(ViewUtils.getHueVar('text-color')))}
         padding: 12px;
     }
     .hue-heading .brightness-slider {
@@ -434,7 +434,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         width: calc(100% - 36px);
         margin: 18px;
         margin-top: 12px;
-        ${unsafeCSS(ViewUtils.getSliderColorStyles('--hue-text-color'))}
+        ${unsafeCSS(ViewUtils.getSliderColorStyles(ViewUtils.getHueVar('text-color')))}
     }
     /* Disable the bottom border radius */
     /* in default styles: --ha-border-radius=0 in this case */
@@ -561,7 +561,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                     backdropElement.style.width = '100%';
                     backdropElement.style.height = '100%';
                     backdropElement.style.borderRadius = 'var(--ha-dialog-border-radius, 28px)'; // same as dialog
-                    backdropElement.style.background = 'var(--hue-background)';
+                    backdropElement.style.background = ViewUtils.getHueVar('background');
                     backdropElement.style.transition = Consts.TransitionDefault;
 
                     const mask = 'linear-gradient(rgba(255, 255, 255, .25) 0%, transparent 70%)';
@@ -678,23 +678,23 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         }
 
         this.style.setProperty(
-            '--hue-background',
+            '--hue-calculated-background',
             // theme: the heading lies on the dialog surface, like the header of HA dialogs
             bfg.background?.toString() ?? 'transparent'
         );
         this.style.setProperty(
-            '--hue-box-shadow',
+            '--hue-calculated-box-shadow',
             shadow
         );
 
         if (bfg.foreground != null) {
             this.style.setProperty(
-                '--hue-text-color',
+                '--hue-calculated-text-color',
                 bfg.foreground.toString()
             );
         }
         else {
-            this.style.removeProperty('--hue-text-color');
+            this.style.removeProperty('--hue-calculated-text-color');
         }
 
         // sometimes the element is not yet displayed, so we need to calculate shadow later

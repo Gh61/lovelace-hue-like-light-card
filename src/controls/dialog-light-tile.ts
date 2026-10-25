@@ -60,8 +60,8 @@ export class HueDialogLightTile extends HueDialogTile {
             css`
     .hue-tile.light{
         height: ${HueDialogTile.height + HueDialogLightTile.switchHeight}px;
-        background:var(--hue-light-background, ${unsafeCSS(Consts.TileOffColor)});
-        box-shadow:var(--hue-light-box-shadow), ${unsafeCSS(Consts.HueShadow)};
+        background:${unsafeCSS(ViewUtils.getHueVar('light-background', Consts.TileOffColor))};
+        box-shadow:${unsafeCSS(ViewUtils.getHueVar('light-box-shadow'))}, ${unsafeCSS(Consts.HueShadow)};
         transition: ${unsafeCSS(Consts.TransitionDefault)}, ${unsafeCSS(HueDialogTile.clickTransition)};
     }
 
@@ -70,7 +70,7 @@ export class HueDialogLightTile extends HueDialogTile {
     }
 
     .selector.active{
-        border: ${HueDialogLightTile.selectorWidth}px solid var(--hue-light-background, ${unsafeCSS(Consts.WarmColor)});
+        border: ${HueDialogLightTile.selectorWidth}px solid ${unsafeCSS(ViewUtils.getHueVar('light-background', Consts.WarmColor))};
         padding: ${HueDialogLightTile.selectorSpacing}px;
         border-radius: ${Consts.HueBorderRadius + HueDialogLightTile.selectorWidth + HueDialogLightTile.selectorSpacing}px;
         margin: -${HueDialogLightTile.selectorWidth + HueDialogLightTile.selectorSpacing}px
@@ -85,7 +85,7 @@ export class HueDialogLightTile extends HueDialogTile {
     }
 
     .title{
-        color: var(--hue-light-text-color, ${unsafeCSS(Consts.TileOffTextColor)});
+        color: ${unsafeCSS(ViewUtils.getHueVar('light-text-color', Consts.TileOffTextColor))};
         padding-bottom: ${HueDialogLightTile.titlePadding}px;
         font-weight: 500;
     }
@@ -99,12 +99,12 @@ export class HueDialogLightTile extends HueDialogTile {
         justify-content: center;
     }
     .icon-slot ha-icon {
-        color: var(--hue-light-text-color, ${unsafeCSS(Consts.TileOffTextColor)});
+        color: ${unsafeCSS(ViewUtils.getHueVar('light-text-color', Consts.TileOffTextColor))};
         transform: scale(${HueDialogSceneTile.iconScale});
     }
 
     .switch ha-switch{
-        ${unsafeCSS(ViewUtils.getSwitchColorStyles('--hue-light-text-color'))}
+        ${unsafeCSS(ViewUtils.getSwitchColorStyles('--hue-calculated-light-text-color'))}
     }
     .switch{
         display:flex;
@@ -133,30 +133,30 @@ export class HueDialogLightTile extends HueDialogTile {
 
                 if (bfg.background) {
                     this.style.setProperty(
-                        '--hue-light-background',
+                        '--hue-calculated-light-background',
                         bfg.background.toString()
                     );
                 }
 
                 if (bfg.foreground) {
                     this.style.setProperty(
-                        '--hue-light-text-color',
+                        '--hue-calculated-light-text-color',
                         bfg.foreground.toString()
                     );
                 }
             }
             else {
                 this.style.removeProperty(
-                    '--hue-light-background'
+                    '--hue-calculated-light-background'
                 );
                 this.style.removeProperty(
-                    '--hue-light-text-color'
+                    '--hue-calculated-light-text-color'
                 );
             }
 
             const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, false, this.shadowDensityCoef);
             this.style.setProperty(
-                '--hue-light-box-shadow',
+                '--hue-calculated-light-box-shadow',
                 shadow
             );
 
