@@ -240,6 +240,14 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         background-origin: border-box;
         --hue-card-margin: 14px;
     }
+    /* Themes making this card transparent (e.g. Frosted Glass) would leave only the brightness shadow without the light color.
+       Same specificity as their :host(hue-like-light-card) rule - the card's adopted stylesheet comes later and wins.
+       When the lights are off, --hue-background is the theme card background, so such theme stays transparent. */
+    :host(${unsafeCSS(Consts.CardElementName)}) ha-card
+    {
+        background:var(--hue-background) !important;
+        --hue-text-color:inherit !important;
+    }
     ha-card.hue-borders
     {
         border-radius:${Consts.HueBorderRadius}px;
