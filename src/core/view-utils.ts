@@ -1,10 +1,8 @@
 import { css, nothing } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
-import { styleMap } from 'lit-html/directives/style-map.js';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
 import { Action } from '../types/functions';
-import { ThemeHelper } from '../types/theme-helper';
 import { ILightContainer } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
@@ -63,15 +61,11 @@ export class ViewUtils {
      * @param onChange Be careful - this function is called on different scope, better pack your function to arrow call.
      */
     public static createSwitch(ctrl: ILightContainer, onChange: Action, switchOnScene?: string) {
-        // To help change themes on the fly
-        const styles = ThemeHelper.getSwitchThemeStyle();
-
         return html`
         <ha-switch
             .checked=${ctrl.isOn()}
             .disabled=${ctrl.isUnavailable()}
             .haptic=true
-            style=${styleMap(styles)}
             @change=${(ev: Event) => ViewUtils.switchChanged(ev, ctrl, onChange, switchOnScene)}
         ></ha-switch>`;
     }

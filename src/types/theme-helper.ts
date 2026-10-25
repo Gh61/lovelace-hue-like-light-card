@@ -7,41 +7,6 @@ import { Consts } from './consts';
  * Contains methods with styles, that allow changing theme of single element.
  */
 export class ThemeHelper {
-    // #region Switch styles
-
-    private static switchCheckedButtonColorVar = '--detected-switch-checked-button-color';
-    private static switchCheckedTrackColorVar = '--detected-switch-checked-track-color';
-    private static possibleSwitchCheckedButtonColors = [
-        '--switch-checked-button-color',
-        '--primary-color'
-    ];
-    private static possibleSwitchCheckedTrackColors = [
-        '--switch-checked-track-color',
-        '--switch-checked-color',
-        '--dark-primary-color'
-    ];
-
-    /**
-     * @returns style variables for switches. Needs to be called with @method detectSwitchColors.
-     */
-    public static getSwitchThemeStyle() {
-        const styles = {
-            '--switch-checked-button-color': `var(${ThemeHelper.switchCheckedButtonColorVar})`,
-            '--switch-checked-track-color': `var(${ThemeHelper.switchCheckedTrackColorVar})`
-        };
-        return styles;
-    }
-
-    /**
-     * Will detect and set switch color variables (for use with @method getSwitchThemeStyle)
-     */
-    public static detectSwitchColors(element: HTMLElement, force = false) {
-        ThemeHelper.detectThemeVariable(element, ThemeHelper.switchCheckedButtonColorVar, ThemeHelper.possibleSwitchCheckedButtonColors, 'switchBtnDetected', force);
-        ThemeHelper.detectThemeVariable(element, ThemeHelper.switchCheckedTrackColorVar, ThemeHelper.possibleSwitchCheckedTrackColors, 'switchTrckDetected', force);
-    }
-
-    // #endregion
-
     /**
      * @param themeSurface The dialog keeps the dialog surface of the theme (same as other HA dialogs), otherwise uses the hueBgColorVariable.
      */
@@ -79,9 +44,6 @@ export class ThemeHelper {
         else {
             delete element.dataset.themeLocal;
         }
-
-        // Detect switch colors
-        ThemeHelper.detectSwitchColors(element, true);
 
         return true;
     }

@@ -355,21 +355,12 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         }
     }
 
-    private _switchColorDetected = false;
 
     // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
     private updateStylesInner(forceRefresh = false): void {
         // no config or controller, do nothing
         if (!this._config || !this._ctrl)
             return;
-
-        if (!this._switchColorDetected) {
-            // Detect switch colors
-            if (this._config.showSwitch) {
-                ThemeHelper.detectSwitchColors(this);
-            }
-            this._switchColorDetected = true;
-        }
 
         const card = this.renderRoot.querySelector('ha-card') as HTMLElement;
 
