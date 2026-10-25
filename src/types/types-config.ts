@@ -41,6 +41,11 @@ export enum SceneProvider {
     ScenePresets = 'scene-presets'
 }
 
+export enum PresetActivation {
+    Static = 'static',
+    Dynamic = 'dynamic'
+}
+
 //#region CardActions
 
 /** Actions of the card itself - on top of the HA actions (`more-info`, `navigate`, `perform-action`, ...). */
@@ -283,6 +288,7 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     readonly scenes?: (string | SceneConfig)[];
     readonly sceneOrder?: SceneOrder;
     readonly sceneProvider?: MaybeArray<string | SceneProvider>;
+    readonly presetTapActivation?: string | PresetActivation;
     readonly tap_action?: CardActionConfig;
     readonly hold_action?: CardActionConfig;
     readonly double_tap_action?: CardActionConfig;

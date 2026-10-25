@@ -12,7 +12,7 @@ import { fireEvent } from '../ha/common/dom/fire_event';
 import { HassDialog } from '../ha/dialogs/make-dialog-manager';
 import { ThemeHelper } from '../types/theme-helper';
 import { SceneConfig, SceneProvider } from '../types/types-config';
-import { PresetConfig } from '../types/types-hue-preset';
+import { PresetConfig, PresetData } from '../types/types-hue-preset';
 import { HueDialogScenePresetTile } from './dialog-scene-preset-tile';
 import { IdLitElement } from '../core/id-lit-element';
 import { HueDialogLightTile, ILightSelectedEventDetail } from './dialog-light-tile';
@@ -26,6 +26,10 @@ import { ActionHandler } from '../core/action-handler';
 import { DisplayObserver } from '../core/display-observer';
 import { HueDialogSceneHATile } from './dialog-scene-ha-tile';
 import { horizontalScroll } from '../directives/horizontal-scroll';
+import { HassWsClient } from '../core/hass-ws-client';
+import { ConsoleLogger } from '../core/console-logger';
+
+const log = new ConsoleLogger('HueDialog');
 
 /** Parameters of the Hue screen - passed through the HA `show-dialog` event. */
 export interface HueDialogParams {
@@ -72,6 +76,8 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
     private _ctrl: AreaLightController;
     private _actionHandler: ActionHandler;
     private _sliderSession?: LiveUpdateSession<number>;
+    @state()
+    private _dynamicPresetIds: string[] = [];
 
     // #region selectedLights
 
@@ -193,6 +199,23 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         HueDialog.tileScrollTo(ev.detail.tileElement);
     }
 
+    /**
+     * Loads which presets are running as a dynamic scene on the lights of this card.
+     */
+    private async refreshDynamicPresets() {
+        if (!this._config.hasSceneProvider(SceneProvider.ScenePresets))
+            return;
+
+        try {
+            const dynamicScenes = await new HassWsClient(this._ctrl.hass).getDynamicScenes();
+            this._dynamicPresetIds = PresetData.getRunningPresetIds(dynamicScenes, this._entitiesConfig.getIdList());
+        }
+        catch (error) {
+            // non-critical, the tiles are only shown without the dynamic badge
+            log.warn('Could not load dynamic scenes from Scene Presets.', error);
+        }
+    }
+
     //#endregion
 
     //#region Tile-Scrollers
@@ -254,6 +277,9 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
 
         // register update delegate (include hass - we need to update the dialog)
         this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler, /* includeHass: */ true);
+
+        this._dynamicPresetIds = [];
+        this.refreshDynamicPresets();
 
         this.resetConfigStyles();
         this.requestUpdate();
@@ -742,6 +768,9 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                 return html`<${unsafeStatic(HueDialogScenePresetTile.ElementName)}
                                 .presetConfig=${tile.config}
                                 .targets=${this._config.getPresetTargets()}
+                                .tapActivation=${this._config.presetTapActivation}
+                                .dynamic=${this._ctrl.isOn() && this._dynamicPresetIds.includes(tile.config.preset.id)}
+                                @preset-activated=${() => this.refreshDynamicPresets()}
                                 @activated=${(e: CustomEvent) => this.afterSceneTileActivated(e)}
                                 .hass=${this._ctrl.hass}
                                 .actionHandler=${this._actionHandler}>

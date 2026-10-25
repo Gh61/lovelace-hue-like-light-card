@@ -1,7 +1,8 @@
 import { PropertyValues } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { nameof } from '../types/extensions';
-import { PresetConfig, PresetData } from '../types/types-hue-preset';
+import { PresetConfig, PresetData, PresetTargets } from '../types/types-hue-preset';
+import { PresetActivation } from '../types/types-config';
 import { HueDialogSceneTile } from './dialog-scene-tile';
 
 /**
@@ -14,7 +15,14 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
     private _presetConfig: PresetConfig | null = null;
     @state()
     private _preset: PresetData | null = null;
-    private _targets: { entity_id?: string | string[], area_id?: string, floor_id?: string, label_id?: string } = {};
+    private _targets: PresetTargets = {};
+    private _tapActivation = PresetActivation.Static;
+
+    /**
+     * The preset is running as a dynamic scene on the lights of the card.
+     */
+    @property({ type: Boolean })
+    public dynamic = false;
 
     public set presetConfig(config: PresetConfig) {
         // only one-time setter (disabling re-render in exchange for performance)
@@ -31,8 +39,15 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
         this.requestUpdate(nameof(this, 'presetConfig'), oldPresetConfig);
     }
 
-    public set targets(value: { entity_id?: string | string[], area_id?: string, floor_id?: string, label_id?: string }) {
+    public set targets(value: PresetTargets) {
         this._targets = value;
+    }
+
+    /**
+     * Activation on tap, hold uses the other one.
+     */
+    public set tapActivation(value: PresetActivation) {
+        this._tapActivation = value;
     }
 
     public static override get styles() {
@@ -66,7 +81,34 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
     }
 
     protected override activateTile(): void {
-        this._preset?.activate(this._targets, false, false);
+        this.activatePreset(this._tapActivation);
+    }
+
+    protected override tileHeld(): void {
+        const holdActivation = this._tapActivation === PresetActivation.Static
+            ? PresetActivation.Dynamic
+            : PresetActivation.Static;
+
+        this.activateWithEffect(() => this.activatePreset(holdActivation));
+    }
+
+    private async activatePreset(activation: PresetActivation) {
+        if (!this._preset)
+            return;
+
+        if (activation === PresetActivation.Dynamic) {
+            await this._preset.activateDynamic(this._targets);
+        }
+        else {
+            await this._preset.activate(this._targets, false, false);
+        }
+
+        // the running dynamic scenes have changed
+        this.dispatchEvent(new CustomEvent('preset-activated'));
+    }
+
+    protected override isTileDynamic(): boolean {
+        return this.dynamic;
     }
 
     protected override isTileDataChanged(changedProps: PropertyValues): boolean {
