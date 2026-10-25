@@ -391,6 +391,17 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             shadow
         );
 
+        // color of the lights for card-mod (e.g. icon background), only while they are on
+        if (this._ctrl.isOn() && bfg.background) {
+            this.style.setProperty(
+                '--hue-light-color',
+                bfg.background.getFirstColor().toString()
+            );
+        }
+        else {
+            this.style.removeProperty('--hue-light-color');
+        }
+
         // the theme's card shadow under our own - read from the card itself ('none' is the HA default since 2022.11
         // and can't be part of a shadow list)
         const themeShadow = card ? getComputedStyle(card).getPropertyValue('--ha-card-box-shadow').trim() : '';

@@ -56,6 +56,13 @@ export class Background {
         return forLight > this._colors.length / 4 ? light : dark;
     }
 
+    /**
+     * @returns The first color of the background (the start of the gradient).
+     */
+    public getFirstColor(): Color {
+        return this._colors[0];
+    }
+
     public toString(): string {
         if (this._colors.length === 1)
             return this._colors[0].toString();
