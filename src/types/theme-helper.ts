@@ -63,7 +63,8 @@ export class ThemeHelper {
         if (element.dataset.themeLocal === theme)
             return false;
 
-        applyThemesOnElement(element, themes, theme);
+        // HA treats 'default' as its built-in theme, the card as the global theme - no theme only resets a previous local one
+        applyThemesOnElement(element, themes, theme !== Consts.ThemeDefault ? theme : undefined);
         if (theme !== Consts.ThemeDefault) {
             element.dataset.themeLocal = theme;
         }
