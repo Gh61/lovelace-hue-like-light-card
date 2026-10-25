@@ -1020,7 +1020,7 @@ Note, that scenes are listed in two rows populated like this:
 
 You can choose whether you want to use the default HA scene provider and/or [Hypfer's Scene Presets](https://github.com/Hypfer/hass-scene_presets).
 
-This can be done by chaning the config value `sceneProvider` to `scene-presets`. Supported values are `'ha-scenes'` and `'scene-presets'`.
+This can be done by changing the config value `sceneProvider` to `scene-presets`. Supported values are `'ha-scenes'` and `'scene-presets'`.
 You can set this value to one of them or a list of them. For example:
 ```yaml
 type: custom:hue-like-light-card
