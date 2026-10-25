@@ -1061,7 +1061,7 @@ scenes:
 Hue screen will allow you to activate [scenes](#scenes-configuration), set light colors, temp and brightness (same functionality as official Hue App).
 *Function of effects activation will come in the future.*
 
-The colors follow the Home Assistant theme. The tiles of scenes and lights that are off use the CSS variables `--hue-tile-off-color` (default: the theme's `--ha-color-fill-neutral-normal-resting`) and `--hue-tile-off-text-color` (default: the theme's `--primary-text-color`), so they can be changed in the theme or with card-mod.
+The colors follow the Home Assistant theme. The tiles of scenes and lights that are off use the CSS variables `--hue-tile-off-color` (default: the theme's `--disabled-color` at 20 % opacity, like the control buttons of Home Assistant) and `--hue-tile-off-text-color` (default: the theme's `--primary-text-color`), so they can be changed in the theme or with card-mod.
 
 To get the dark look of the official Hue App regardless of the theme, set the colors explicitly:
 ```yaml
