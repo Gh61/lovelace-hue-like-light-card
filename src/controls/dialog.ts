@@ -561,7 +561,10 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                     backdropElement.style.height = '100%';
                     backdropElement.style.borderRadius = 'var(--ha-dialog-border-radius, 28px)'; // same as dialog
                     backdropElement.style.background = 'var(--hue-background)';
-                    backdropElement.style.transition = Consts.TransitionDefault;
+                    // only the background - a transition of all properties is started by the hide animation of ha-dialog
+                    // (wa-dialog, verified on HA 2026.10) and cancelled when the dialog closes, the dialog then never
+                    // finishes closing (no `closed` event) and the next tap on the card only cleans up the stale state
+                    backdropElement.style.transition = 'background 0.3s ease-out 0s';
 
                     const mask = 'linear-gradient(rgba(255, 255, 255, .25) 0%, transparent 70%)';
                     backdropElement.style.mask = mask;
