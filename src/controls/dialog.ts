@@ -433,6 +433,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         width: calc(100% - 36px);
         margin: 18px;
         margin-top: 12px;
+        ${unsafeCSS(ViewUtils.getSliderColorStyles('--hue-text-color'))}
     }
     /* Disable the bottom border radius */
     /* in default styles: --ha-border-radius=0 in this case */

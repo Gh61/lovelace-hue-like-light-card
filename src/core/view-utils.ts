@@ -19,6 +19,21 @@ import { LiveUpdateSession } from './live-update-session';
 export class ViewUtils {
 
     /**
+     * Colors of the ha-slider created by createSlider. The theme colors (primary / disabled) can blend with the light color,
+     * so the slider takes the foreground calculated for the background (falls back to the theme colors when it is not set).
+     * Overridable with --hue-slider-color.
+     * @param foregroundVariable Variable holding the calculated foreground color.
+     * @returns CSS declarations for the slider element.
+     */
+    public static getSliderColorStyles(foregroundVariable: string): string {
+        const color = `var(--hue-slider-color, var(${foregroundVariable}, var(--primary-color)))`;
+        return `
+        --ha-slider-indicator-color: ${color};
+        --ha-slider-thumb-color: ${color};
+        --ha-slider-track-color: color-mix(in srgb, var(--hue-slider-color, var(${foregroundVariable}, var(--disabled-color))) 35%, transparent);`;
+    }
+
+    /**
      * Styles for the switch created by createSwitch - compose them into the styles of every element that renders it.
      */
     public static readonly SwitchStyles = css`
