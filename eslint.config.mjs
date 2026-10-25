@@ -5,7 +5,8 @@ export default [{
     ignores: [
         "src/ha/**", // Home Assistant source code
         "**/languages/*.json", // json localization
-        "dist", // release
+        "dist", // dev build
+        "release", // production build (rollup with dev = false)
         "*.config.js", // config file
         "*.config.mjs", // config file
         "scripts/**", // node tooling, not part of the card
