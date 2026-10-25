@@ -43,6 +43,27 @@ describe('Config parse', () => {
         expect(config.sceneProvider).toStrictEqual([]);
     });
 
+    // Colors
+    it('parse unset offColor and hueScreenBgColor as theme colors', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test'
+        });
+
+        expect(config.getOffColor().isThemeColor()).toBe(true);
+        expect(config.getHueScreenBgColor().isThemeColor()).toBe(true);
+    });
+
+    it('parse offColor and hueScreenBgColor', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test',
+            offColor: '#666',
+            hueScreenBgColor: '#171717'
+        });
+
+        expect(config.getOffColor().isThemeColor()).toBe(false);
+        expect(config.getHueScreenBgColor().isThemeColor()).toBe(false);
+    });
+
     // IconSize
     it('parse icon size enum', () => {
         const c = {

@@ -374,7 +374,7 @@ export class HueLightDetail extends IdLitElement {
         const light = this._lastRenderedContainer!;
         const colors = {
             '--control-switch-on-color': Consts.WarmColor,
-            '--control-switch-off-color': Consts.OffColor
+            '--control-switch-off-color': Consts.TileOffColor
         };
 
         return html`

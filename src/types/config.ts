@@ -117,9 +117,8 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.liveUpdate = HueLikeLightCardConfig.getBoolean(plainConfig.liveUpdate, true);
         this.theme = plainConfig.theme || Consts.ThemeDefault;
         this.defaultColor = plainConfig.defaultColor || Consts.DefaultColor;
-        this.offColor = plainConfig.offColor || Consts.OffColor;
-        this.wasOffColorSet = !!plainConfig.offColor;
-        this.hueScreenBgColor = plainConfig.hueScreenBgColor || Consts.DialogBgColor;
+        this.offColor = plainConfig.offColor || ColorExtended.ThemeColor;
+        this.hueScreenBgColor = plainConfig.hueScreenBgColor || ColorExtended.ThemeColor;
         this.offShadow = HueLikeLightCardConfig.getBoolean(plainConfig.offShadow, true);
         this.hueBorders = HueLikeLightCardConfig.getBoolean(plainConfig.hueBorders, true);
         this.apiId = plainConfig.apiId;
@@ -291,7 +290,6 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
      * Returns whether offColor was set in configuration.
      * Returns false, when offColor is taken from Consts.
      */
-    public readonly wasOffColorSet: boolean;
 
     /**
      * @returns List of unique entity identifiers

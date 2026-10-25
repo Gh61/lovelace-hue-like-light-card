@@ -20,11 +20,9 @@ export class Consts {
     public static readonly WarmColor = '#ffda95';
     public static readonly ColdColor = '#f5f5ff';
     public static readonly DefaultColor = 'warm';
-    public static readonly OffColor = '#666';
-    public static readonly TileOffColor = 'rgba(102, 102, 102, 0.6)';
-    public static readonly DialogBgColor = '#171717';
+    public static readonly TileOffColor = 'var(--hue-tile-off-color, var(--ha-color-fill-neutral-normal-resting, rgba(102, 102, 102, 0.6)))';
+    public static readonly TileOffTextColor = 'var(--hue-tile-off-text-color, var(--primary-text-color, #fff))';
     public static readonly DialogFgLightColor = new Color('#aaa');
-    public static readonly DialogOffColor = '#363636';
     public static readonly GradientOffset = 7; // percent
     public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
     public static readonly LiveUpdateMinInterval = 200; // ms

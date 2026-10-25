@@ -69,7 +69,7 @@ export abstract class HueDialogTile extends IdLitElement {
         transform: scale(0.95);
     }
     .title {
-        color:${unsafeCSS(Consts.LightColor)};
+        color:${unsafeCSS(Consts.TileOffTextColor)};
         font-size: 12px;
         line-height: 15px;
         font-weight:400;

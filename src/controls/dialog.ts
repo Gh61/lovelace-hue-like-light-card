@@ -3,7 +3,6 @@ import { html, unsafeStatic } from 'lit/static-html.js';
 import { customElement, state } from 'lit/decorators.js';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { Background } from '../core/colors/background';
-import { Color } from '../core/colors/color';
 import { AreaLightController } from '../core/area-light-controller';
 import { ViewUtils } from '../core/view-utils';
 import { HueLikeLightCardConfig, HueLikeLightCardEntityConfigCollection } from '../types/config';
@@ -650,20 +649,11 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         if (!heading)
             throw new Error('Hue heading not found!');
 
-        let offBackground: Background | null;
-        // if the user sets custom off color - use it
-        if (this._config.wasOffColorSet) {
-            const offColor = this._config.getOffColor();
-            if (!offColor.isThemeColor()) {
-                offBackground = new Background([offColor.getBaseColor()]);
-            }
-            else {
-                offBackground = null;
-            }
-        }
-        else {
-            offBackground = new Background([new Color(Consts.DialogOffColor)]);
-        }
+        // theme color = no background, the theme is used
+        const offColor = this._config.getOffColor();
+        const offBackground = offColor.isThemeColor()
+            ? null
+            : new Background([offColor.getBaseColor()]);
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
         const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.offShadow);

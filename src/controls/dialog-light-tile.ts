@@ -81,7 +81,7 @@ export class HueDialogLightTile extends HueDialogTile {
     }
 
     .title{
-        color: var(--hue-light-text-color, ${unsafeCSS(Consts.LightColor)});
+        color: var(--hue-light-text-color, ${unsafeCSS(Consts.TileOffTextColor)});
         padding-bottom: ${HueDialogLightTile.titlePadding}px;
         font-weight: 500;
     }
@@ -95,7 +95,7 @@ export class HueDialogLightTile extends HueDialogTile {
         justify-content: center;
     }
     .icon-slot ha-icon {
-        color: var(--hue-light-text-color, ${unsafeCSS(Consts.LightColor)});
+        color: var(--hue-light-text-color, ${unsafeCSS(Consts.TileOffTextColor)});
         transform: scale(${HueDialogSceneTile.iconScale});
     }
 

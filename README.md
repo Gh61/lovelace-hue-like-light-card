@@ -233,7 +233,7 @@ Some of these options may not be in the latest version. Please always check the 
     <td><a href="#colorextended">ColorExtended</a></td>
     <td>no</td>
     <td>1.0.0</td>
-    <td><code>'#666'</code><br/>(<code>'#363636'</code> for <a href="#hue-screen">Hue Screen</a>)</td>
+    <td><code>theme-color</code></td>
     <td>
       The color of the pane, when all lights are off.
       When set, also used in <a href="#hue-screen">Hue Screen</a> header (recommended setting also <code>hueScreenBgColor</code> accordingly).
@@ -244,7 +244,7 @@ Some of these options may not be in the latest version. Please always check the 
     <td><a href="#colorextended">ColorExtended</a></td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><code>'#171717'</code></td>
+    <td><code>theme-color</code></td>
     <td>
       Background color of <a href="#hue-screen">Hue Screen</a>
     </td>
@@ -1060,6 +1060,16 @@ scenes:
 ## Hue Screen
 Hue screen will allow you to activate [scenes](#scenes-configuration), set light colors, temp and brightness (same functionality as official Hue App).
 *Function of effects activation will come in the future.*
+
+The colors follow the Home Assistant theme. The tiles of scenes and lights that are off use the CSS variables `--hue-tile-off-color` (default: the theme's `--ha-color-fill-neutral-normal-resting`) and `--hue-tile-off-text-color` (default: the theme's `--primary-text-color`), so they can be changed in the theme or with card-mod.
+
+To get the dark look of the official Hue App regardless of the theme, set the colors explicitly:
+```yaml
+type: custom:hue-like-light-card
+...
+offColor: '#666'
+hueScreenBgColor: '#171717'
+```
 
 ![Hue-Screen](/doc_img/hue-screen1.png)
 <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc_img/hue-screen2.png" height="540" />
