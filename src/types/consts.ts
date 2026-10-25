@@ -28,6 +28,7 @@ export class Consts {
     public static readonly ThemeTileOffColor = 'color-mix(in srgb, var(--disabled-color, #666) 20%, transparent)';
     public static readonly ThemeTileOffTextColor = 'var(--primary-text-color, #fff)';
     public static readonly DialogBgColor = '#171717';
+    public static readonly ThemeShadowDensityCoef = 0.6; // lighter brightness shadow with hueColors off (the theme surface can be transparent)
     public static readonly DialogFgLightColor = new Color('#aaa');
     public static readonly DialogOffColor = '#363636';
     public static readonly GradientOffset = 7; // percent

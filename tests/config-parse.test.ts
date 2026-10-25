@@ -65,6 +65,7 @@ describe('Config parse', () => {
         expect(config.getOffColor().isThemeColor()).toBe(true);
         expect(config.getDialogOffColor().isThemeColor()).toBe(true);
         expect(config.getHueScreenBgColor().isThemeColor()).toBe(true);
+        expect(config.shadowDensityCoef).toBe(Consts.ThemeShadowDensityCoef);
     });
 
     it('parse offColor and hueScreenBgColor', () => {

@@ -1077,7 +1077,7 @@ hueColors: false
 hueBorders: false
 ```
 
-The tiles of scenes and lights that are off can be changed in the theme or with card-mod by the CSS variables `--hue-tile-off-color` and `--hue-tile-off-text-color` (with `hueColors: false` they default to the theme's `--disabled-color` at 20 % opacity, like the control buttons of Home Assistant, and `--primary-text-color`). The brightness slider takes the text color calculated for the light color (so it stays visible on any light color), it can be changed with `--hue-slider-color`.
+The tiles of scenes and lights that are off can be changed in the theme or with card-mod by the CSS variables `--hue-tile-off-color` and `--hue-tile-off-text-color` (with `hueColors: false` they default to the theme's `--disabled-color` at 20 % opacity, like the control buttons of Home Assistant, and `--primary-text-color`). The brightness slider takes the text color calculated for the light color (so it stays visible on any light color), it can be changed with `--hue-slider-color`. The switch does the same when it is on (`--hue-switch-color`). With `hueColors: false` the shadow showing the brightness is lighter.
 
 ![Hue-Screen](/doc_img/hue-screen1.png)
 <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc_img/hue-screen2.png" height="540" />

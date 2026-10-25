@@ -41,6 +41,10 @@ export class HueDialogLightTile extends HueDialogTile {
     @property()
     public isSelected = false;
 
+    /** Darkness of the brightness shadow (see HueLikeLightCardConfig.shadowDensityCoef). */
+    @property()
+    public shadowDensityCoef = 1;
+
     @property()
     public isUnselected = false;
 
@@ -99,6 +103,9 @@ export class HueDialogLightTile extends HueDialogTile {
         transform: scale(${HueDialogSceneTile.iconScale});
     }
 
+    .switch ha-switch{
+        ${unsafeCSS(ViewUtils.getSwitchColorStyles('--hue-light-text-color'))}
+    }
     .switch{
         display:flex;
         flex-flow:column;
@@ -147,7 +154,7 @@ export class HueDialogLightTile extends HueDialogTile {
                 );
             }
 
-            const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, false);
+            const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, false, this.shadowDensityCoef);
             this.style.setProperty(
                 '--hue-light-box-shadow',
                 shadow

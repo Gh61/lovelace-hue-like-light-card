@@ -330,6 +330,11 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         return new ColorExtended(this.offColor);
     }
 
+    /** Darkness of the brightness shadow - lighter with the theme colors. */
+    public get shadowDensityCoef(): number {
+        return this.hueColors ? 1 : Consts.ThemeShadowDensityCoef;
+    }
+
     public getDialogOffColor(): ColorExtended {
         return new ColorExtended(this.dialogOffColor);
     }

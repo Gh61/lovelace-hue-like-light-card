@@ -321,6 +321,10 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         margin: var(--hue-card-margin);
         ${unsafeCSS(ViewUtils.getSliderColorStyles('--hue-text-color'))}
     }
+    ha-switch
+    {
+        ${unsafeCSS(ViewUtils.getSwitchColorStyles('--hue-text-color'))}
+    }
     ha-alert{
         display:flex;
         overflow:auto;
@@ -385,7 +389,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         // FG: --primary-text-color (for off: --secondary-text-color)
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
-        const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config.offShadow);
+        const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config.offShadow, this._config.shadowDensityCoef);
 
         this.style.setProperty(
             '--hue-background',

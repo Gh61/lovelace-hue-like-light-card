@@ -424,6 +424,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         display: block;
     }
     .hue-heading ha-switch {
+        ${unsafeCSS(ViewUtils.getSwitchColorStyles('--hue-text-color'))}
         padding: 12px;
     }
     .hue-heading .brightness-slider {
@@ -667,7 +668,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
             : new Background([offColor.getBaseColor()]);
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
-        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.offShadow);
+        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.offShadow, this._config.shadowDensityCoef);
 
         if (this._config.hueBorders) {
             this.style.setProperty(
@@ -815,6 +816,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                             .isUnselected=${this._selectedLights.length && this._selectedLights.indexOf(l) === -1}
                             @selected-change=${(e: CustomEvent) => this.onLightSelected(e)}
                             .defaultColor=${this._config.getDefaultColor()}
+                            .shadowDensityCoef=${this._config.shadowDensityCoef}
                             .hass=${this._ctrl.hass}
                             .actionHandler=${this._actionHandler}>
                         </${unsafeStatic(HueDialogLightTile.ElementName)}>`))}

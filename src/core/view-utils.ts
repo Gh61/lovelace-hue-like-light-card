@@ -34,6 +34,21 @@ export class ViewUtils {
     }
 
     /**
+     * Colors of the ha-switch created by createSwitch when it is checked - same reason as getSliderColorStyles:
+     * the foreground calculated for the background, the theme colors without it. Overridable with --hue-switch-color.
+     * @param foregroundVariable Variable holding the calculated foreground color.
+     * @returns CSS declarations for the switch element.
+     */
+    public static getSwitchColorStyles(foregroundVariable: string): string {
+        const color = `var(--hue-switch-color, var(${foregroundVariable}))`;
+        return `
+        --ha-switch-checked-background-color: color-mix(in srgb, ${color} 35%, transparent);
+        --ha-switch-checked-border-color: color-mix(in srgb, ${color} 60%, transparent);
+        --ha-switch-checked-thumb-background-color: ${color};
+        --ha-switch-checked-thumb-border-color: ${color};`;
+    }
+
+    /**
      * Styles for the switch created by createSwitch - compose them into the styles of every element that renders it.
      */
     public static readonly SwitchStyles = css`
@@ -246,7 +261,10 @@ export class ViewUtils {
     /**
      * Calculates default shadow for passed element, using passed ILightContainer state and config.
      */
-    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, useOffShadow: boolean): string {
+    /**
+     * @param densityCoef Multiplies the darkness of the brightness shadow.
+     */
+    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, useOffShadow: boolean, densityCoef = 1): string {
         if (ctrl.isOff())
             return useOffShadow ? 'inset 0px 0px 10px rgba(0,0,0,0.2)' : '0px 0px 0px white';
 
@@ -265,6 +283,8 @@ export class ViewUtils {
         if (darkness > 60) {
             shadowDensity -= (shadowDensity - 0.5) * (darkness - 60) / 40; // shadowDensity: 0.5-0.65
         }
+
+        shadowDensity *= densityCoef;
 
         return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,${shadowDensity})`;
     }
