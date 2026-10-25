@@ -397,7 +397,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
     .hue-heading {
         --hue-heading-text-color: var(--hue-text-color, ${unsafeCSS(Consts.ThemeDialogHeadingColorVar)});
         
-        background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
+        background:var(--hue-background, transparent);
         box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
         transition:${unsafeCSS(Consts.TransitionDefault)};
 
@@ -619,7 +619,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
             ThemeHelper.applyTheme(this, this._ctrl.hass.themes, this._config.theme);
 
             // To help change themes on the fly
-            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configBgColor.isThemeColor() || this._config.getOffColor().isThemeColor());
+            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configBgColor.isThemeColor() || this._config.getOffColor().isThemeColor(), configBgColor.isThemeColor());
 
             let contentBg = null;
             let contentFg = null;
@@ -667,7 +667,8 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
 
         this.style.setProperty(
             '--hue-background',
-            bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar
+            // theme: the heading lies on the dialog surface, like the header of HA dialogs
+            bfg.background?.toString() ?? 'transparent'
         );
         this.style.setProperty(
             '--hue-box-shadow',

@@ -42,17 +42,25 @@ export class ThemeHelper {
 
     // #endregion
 
-    public static setDialogThemeStyles(dialog: HueDialog, hueBgColorVariable: string, detectThemeBg: boolean) {
+    /**
+     * @param themeSurface The dialog keeps the dialog surface of the theme (same as other HA dialogs), otherwise uses the hueBgColorVariable.
+     */
+    public static setDialogThemeStyles(dialog: HueDialog, hueBgColorVariable: string, detectThemeBg: boolean, themeSurface: boolean) {
         if (detectThemeBg) {
             // Detect theme color if needed
             ThemeHelper.detectThemeCardBackground(dialog, true, 1); // offset: 1 for dialog
         }
 
-        // To help change themes on the fly
-        dialog.style.setProperty(
-            '--ha-dialog-surface-background',
-            `var(${hueBgColorVariable}, ${Consts.ThemeCardBackgroundVar})`
-        );
+        if (themeSurface) {
+            dialog.style.removeProperty('--ha-dialog-surface-background');
+        }
+        else {
+            // To help change themes on the fly
+            dialog.style.setProperty(
+                '--ha-dialog-surface-background',
+                `var(${hueBgColorVariable})`
+            );
+        }
     }
 
     /** 
