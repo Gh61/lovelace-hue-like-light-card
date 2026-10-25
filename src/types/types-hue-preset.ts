@@ -130,13 +130,17 @@ export class PresetData {
      * Start this preset as a dynamic scene (colors keep changing) for the given targets.
      * Scene Presets stops the dynamic scenes already running on the targets.
      * @param targets Object containing entity_id, area_id, floor_id, or label_id
+     * @param interval Seconds between the steps (Scene Presets default when not set)
+     * @param transition Seconds of the transition of a step (Scene Presets default when not set)
      */
-    public async activateDynamic(targets: PresetTargets) {
+    public async activateDynamic(targets: PresetTargets, interval?: number, transition?: number) {
         this.ensureHass();
 
         const data = {
             preset_id: this._config.preset.id,
-            targets: targets
+            targets: targets,
+            ...(interval != null && { interval: interval }),
+            ...(transition != null && { transition: transition })
         };
 
         await this._hass.callService('scene_presets', 'start_dynamic_scene', data);

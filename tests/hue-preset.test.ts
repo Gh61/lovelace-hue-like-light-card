@@ -32,6 +32,16 @@ describe('PresetData', () => {
         ]);
     });
 
+    it('should start the dynamic scene with the interval and transition', () => {
+        const { preset, callService } = createPreset();
+
+        preset.activateDynamic({ area_id: 'living_room' }, 12, 8);
+
+        expect(callService.mock.calls).toStrictEqual([
+            ['scene_presets', 'start_dynamic_scene', { preset_id: 'preset-id', targets: { area_id: 'living_room' }, interval: 12, transition: 8 }]
+        ]);
+    });
+
     it('should return presets running as a dynamic scene on the given lights', () => {
         const scene = (presetId: string, lights: string[], running = true): DynamicScene => ({
             id: presetId + '-scene',

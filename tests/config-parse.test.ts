@@ -61,6 +61,19 @@ describe('Config parse', () => {
         expect(config.presetTapActivation).toBe(PresetActivation.Dynamic);
     });
 
+    it('parse presetDynamicInterval and presetDynamicTransition', () => {
+        const unset = new HueLikeLightCardConfig({ entity: 'light.test' });
+        expect(unset.presetDynamicInterval).toBeUndefined();
+        expect(unset.presetDynamicTransition).toBeUndefined();
+
+        const config = new HueLikeLightCardConfig({ entity: 'light.test', presetDynamicInterval: 12, presetDynamicTransition: 8 });
+        expect(config.presetDynamicInterval).toBe(12);
+        expect(config.presetDynamicTransition).toBe(8);
+
+        expect(() => new HueLikeLightCardConfig({ entity: 'light.test', presetDynamicInterval: 0 })).toThrow();
+        expect(() => new HueLikeLightCardConfig({ entity: 'light.test', presetDynamicTransition: 'slow' as unknown as number })).toThrow();
+    });
+
     it('parse invalid presetTapActivation', () => {
         expect(() => {
             new HueLikeLightCardConfig({

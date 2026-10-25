@@ -17,6 +17,8 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
     private _preset: PresetData | null = null;
     private _targets: PresetTargets = {};
     private _tapActivation = PresetActivation.Static;
+    private _dynamicInterval?: number;
+    private _dynamicTransition?: number;
 
     /**
      * The preset is running as a dynamic scene on the lights of the card.
@@ -48,6 +50,14 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
      */
     public set tapActivation(value: PresetActivation) {
         this._tapActivation = value;
+    }
+
+    public set dynamicInterval(value: number | undefined) {
+        this._dynamicInterval = value;
+    }
+
+    public set dynamicTransition(value: number | undefined) {
+        this._dynamicTransition = value;
     }
 
     public static override get styles() {
@@ -97,7 +107,7 @@ export class HueDialogScenePresetTile extends HueDialogSceneTile {
             return;
 
         if (activation === PresetActivation.Dynamic) {
-            await this._preset.activateDynamic(this._targets);
+            await this._preset.activateDynamic(this._targets, this._dynamicInterval, this._dynamicTransition);
         }
         else {
             await this._preset.activate(this._targets, false, false);

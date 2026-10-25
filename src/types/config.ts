@@ -113,6 +113,8 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this.sceneOrder = HueLikeLightCardConfig.getSceneOrder(plainConfig.sceneOrder);
         this.sceneProvider = HueLikeLightCardConfig.getSceneProviders(plainConfig.sceneProvider);
         this.presetTapActivation = HueLikeLightCardConfig.getPresetTapActivation(plainConfig.presetTapActivation);
+        this.presetDynamicInterval = HueLikeLightCardConfig.getPositiveNumber(plainConfig.presetDynamicInterval, 'Preset dynamic interval');
+        this.presetDynamicTransition = HueLikeLightCardConfig.getPositiveNumber(plainConfig.presetDynamicTransition, 'Preset dynamic transition');
         this.actions = new CardActions(plainConfig);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
         this.liveUpdate = HueLikeLightCardConfig.getBoolean(plainConfig.liveUpdate, true);
@@ -183,6 +185,19 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             return SceneOrder.Default;
 
         return tryParseEnum<SceneOrder>(SceneOrder, plain, 'Scene order');
+    }
+
+    /**
+     * @returns Positive number, undefined for empty or throws exception.
+     */
+    private static getPositiveNumber(plain: number | undefined, name: string): number | undefined {
+        if (plain == null)
+            return undefined;
+
+        if (typeof plain !== 'number' || !(plain > 0))
+            throw new Error(`${name} '${plain}' must be a positive number.`);
+
+        return plain;
     }
 
     /**
@@ -283,6 +298,10 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     public readonly sceneOrder: SceneOrder;
     public readonly sceneProvider: SceneProvider[];
     public readonly presetTapActivation: PresetActivation;
+    /** Seconds between the steps of a dynamic scene, undefined = Scene Presets default. */
+    public readonly presetDynamicInterval?: number;
+    /** Seconds of the transition of a dynamic scene step, undefined = Scene Presets default. */
+    public readonly presetDynamicTransition?: number;
     public readonly actions: CardActions;
     public readonly allowZero: boolean;
     public readonly liveUpdate: boolean;

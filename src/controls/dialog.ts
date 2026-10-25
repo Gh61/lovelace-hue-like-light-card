@@ -78,6 +78,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
     private _sliderSession?: LiveUpdateSession<number>;
     @state()
     private _dynamicPresetIds: string[] = [];
+    private _dynamicPresetsTimer?: ReturnType<typeof setInterval>;
 
     // #region selectedLights
 
@@ -280,6 +281,11 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
 
         this._dynamicPresetIds = [];
         this.refreshDynamicPresets();
+        // a dynamic scene can be started or stopped outside of the card (automation, other card)
+        this.stopDynamicPresetsRefresh();
+        if (this._config.hasSceneProvider(SceneProvider.ScenePresets)) {
+            this._dynamicPresetsTimer = setInterval(() => this.refreshDynamicPresets(), Consts.DynamicScenesRefreshInterval);
+        }
 
         this.resetConfigStyles();
         this.requestUpdate();
@@ -330,6 +336,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this._ctrl?.unregisterOnPropertyChanged(this._elementId);
         this._sliderSession?.stop();
         this._displayObserver.stop();
+        this.stopDynamicPresetsRefresh();
         fireEvent(this, 'dialog-closed', { dialog: this.localName });
         return true;
     }
@@ -345,7 +352,15 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this._ctrl?.unregisterOnPropertyChanged(this._elementId);
         this._sliderSession?.stop();
         this._displayObserver.stop();
+        this.stopDynamicPresetsRefresh();
         super.disconnectedCallback();
+    }
+
+    private stopDynamicPresetsRefresh() {
+        if (this._dynamicPresetsTimer) {
+            clearInterval(this._dynamicPresetsTimer);
+            this._dynamicPresetsTimer = undefined;
+        }
     }
 
     //#endregion
@@ -769,6 +784,8 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                                 .presetConfig=${tile.config}
                                 .targets=${this._config.getPresetTargets()}
                                 .tapActivation=${this._config.presetTapActivation}
+                                .dynamicInterval=${this._config.presetDynamicInterval}
+                                .dynamicTransition=${this._config.presetDynamicTransition}
                                 .dynamic=${this._ctrl.isOn() && this._dynamicPresetIds.includes(tile.config.preset.id)}
                                 @preset-activated=${() => this.refreshDynamicPresets()}
                                 @activated=${(e: CustomEvent) => this.afterSceneTileActivated(e)}

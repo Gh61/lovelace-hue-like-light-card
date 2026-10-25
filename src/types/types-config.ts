@@ -289,6 +289,8 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     readonly sceneOrder?: SceneOrder;
     readonly sceneProvider?: MaybeArray<string | SceneProvider>;
     readonly presetTapActivation?: string | PresetActivation;
+    readonly presetDynamicInterval?: number;
+    readonly presetDynamicTransition?: number;
     readonly tap_action?: CardActionConfig;
     readonly hold_action?: CardActionConfig;
     readonly double_tap_action?: CardActionConfig;

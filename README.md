@@ -212,6 +212,22 @@ Some of these options may not be in the latest version. Please always check the 
     <td>What tap on a <a href="https://github.com/Hypfer/hass-scene_presets">Scene Presets</a> tile does, hold does the other one</td>
   </tr>
   <tr>
+    <td><code>presetDynamicInterval</code></td>
+    <td>number</td>
+    <td>no</td>
+    <td>2.0.0</td>
+    <td><i>Scene Presets default</i></td>
+    <td>Seconds between the color changes of a dynamic scene started from a <a href="#preset-activation">preset tile</a></td>
+  </tr>
+  <tr>
+    <td><code>presetDynamicTransition</code></td>
+    <td>number</td>
+    <td>no</td>
+    <td>2.0.0</td>
+    <td><i>Scene Presets default</i></td>
+    <td>Seconds of the transition between the colors of a dynamic scene started from a <a href="#preset-activation">preset tile</a></td>
+  </tr>
+  <tr>
     <td><code>allowZero</code></td>
     <td>boolean</td>
     <td>no</td>
@@ -1060,6 +1076,12 @@ type: custom:hue-like-light-card
 ...
 sceneProvider: scene-presets
 presetTapActivation: dynamic
+```
+
+The speed of the dynamic scene can be set by `presetDynamicInterval` (seconds between the color changes) and `presetDynamicTransition` (seconds of the transition), otherwise the defaults of Scene Presets are used. The tile of a preset running as a dynamic scene on the lights of the card shows a play badge.
+```yaml
+presetDynamicInterval: 12
+presetDynamicTransition: 8
 ```
 
 ### Custom activation example (Hue dynamic scene)
