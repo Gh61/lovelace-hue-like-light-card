@@ -147,6 +147,8 @@ export class HueDialogLightTile extends HueDialogTile {
                 );
             }
 
+            ViewUtils.setControlColor(this, this.lightContainer);
+
             const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, false);
             this.style.setProperty(
                 '--hue-light-box-shadow',

@@ -56,6 +56,11 @@ export class Background {
         return forLight > this._colors.length / 4 ? light : dark;
     }
 
+    /** Whether the background is a gradient of more colors (CSS can't transition it). */
+    public get isGradient(): boolean {
+        return this._colors.length > 1;
+    }
+
     public toString(): string {
         if (this._colors.length === 1)
             return this._colors[0].toString();

@@ -23,6 +23,7 @@ import { IdLitElement } from './core/id-lit-element';
 import { HueApiProvider } from './core/api-provider';
 import { ICardApi } from './types/types-api';
 import { DisplayObserver } from './core/display-observer';
+import { BackgroundFade } from './core/background-fade';
 import { LiveUpdateSession } from './core/live-update-session';
 
 // Show version info in console
@@ -38,6 +39,7 @@ VersionNotifier.toConsole();
 
 @customElement(Consts.CardElementName)
 export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
+    private readonly _backgroundFade = new BackgroundFade(this);
     private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner(false));
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
@@ -230,6 +232,8 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     public static override styles = [
         ViewUtils.SwitchStyles,
+        ViewUtils.SliderStyles,
+        BackgroundFade.getStyles('ha-card', 'var(--hue-box-shadow)'),
         css`
     ha-card
     {
@@ -378,9 +382,11 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
         const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config.offShadow);
 
+        const background = bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar;
+        this._backgroundFade.update(card, bfg.background, background);
         this.style.setProperty(
             '--hue-background',
-            bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar
+            background
         );
         this.style.setProperty(
             '--hue-text-color',
@@ -390,6 +396,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             '--hue-box-shadow',
             shadow
         );
+        ViewUtils.setControlColor(this, this._ctrl);
 
         // the theme's card shadow under our own - read from the card itself ('none' is the HA default since 2022.11
         // and can't be part of a shadow list)
