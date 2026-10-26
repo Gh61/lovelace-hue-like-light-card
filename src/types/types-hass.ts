@@ -64,6 +64,9 @@ export interface HassLightAttributes extends HassEntityAttributeBase {
 
     /** Array [x, y] */
     xy_color?: number[];
+
+    /** Set by the Hue integration on grouped lights (Hue room or zone) */
+    is_hue_group?: boolean;
 }
 
 export interface HassLabelInfo {
@@ -72,6 +75,11 @@ export interface HassLabelInfo {
     icon?: string;
     color?: string;
     description?: string;
+}
+
+/** Bit flags of `supported_features` of a light entity (HA `LightEntityFeature`). */
+export enum HassLightEntityFeature {
+    Transition = 32
 }
 
 export enum HassLightColorMode {

@@ -2,16 +2,18 @@ import { HomeAssistant } from '../src/ha/types';
 import { AreaLightController } from '../src/core/area-light-controller';
 import { Color } from '../src/core/colors/color';
 import { LightController } from '../src/core/light-controller';
+import { Consts } from '../src/types/consts';
+import { HassLightEntityFeature } from '../src/types/types-hass';
 
 /** Creates hass with given light states, callService returns a promise resolved by the test (one per call). */
-function createHass(states: Record<string, { state: 'on' | 'off', brightness?: number }>) {
+function createHass(states: Record<string, { state: 'on' | 'off', brightness?: number, hueGroup?: boolean, supportedFeatures?: number }>) {
     const calls: { data: Record<string, unknown>, resolve: () => void }[] = [];
     const hassStates: Record<string, unknown> = {};
     Object.entries(states).forEach(([entityId, s]) => {
         hassStates[entityId] = {
             entity_id: entityId,
             state: s.state,
-            attributes: { brightness: s.brightness, supported_color_modes: ['hs', 'color_temp'] }
+            attributes: { brightness: s.brightness, supported_color_modes: ['hs', 'color_temp'], is_hue_group: s.hueGroup, supported_features: s.supportedFeatures }
         };
     });
 
@@ -127,6 +129,114 @@ describe('AreaLightController', () => {
 
         calls[1].resolve();
         expect(await isSettled(promise)).toBe(true);
+    });
+});
+
+describe('Live update min interval', () => {
+    it('should use the default interval for a regular light', () => {
+        const { hass } = createHass({ 'light.interval_regular': { state: 'on', brightness: 255 } });
+        const light = new LightController('light.interval_regular');
+        light.hass = hass;
+
+        expect(light.liveUpdateMinInterval).toBe(Consts.LiveUpdateMinInterval);
+    });
+
+    it('should use the Hue group interval for a Hue room or zone', () => {
+        const { hass } = createHass({ 'light.interval_hue_group': { state: 'on', brightness: 255, hueGroup: true } });
+        const light = new LightController('light.interval_hue_group');
+        light.hass = hass;
+
+        expect(light.liveUpdateMinInterval).toBe(Consts.LiveUpdateHueGroupMinInterval);
+    });
+
+    it('should use the default interval when is_hue_group is false', () => {
+        const { hass } = createHass({ 'light.interval_not_group': { state: 'on', brightness: 255, hueGroup: false } });
+        const light = new LightController('light.interval_not_group');
+        light.hass = hass;
+
+        expect(light.liveUpdateMinInterval).toBe(Consts.LiveUpdateMinInterval);
+    });
+
+    it('should use the default interval before hass is set', () => {
+        const light = new LightController('light.interval_no_hass');
+
+        expect(light.liveUpdateMinInterval).toBe(Consts.LiveUpdateMinInterval);
+    });
+
+    it('should use the slowest interval of all lights in an area', () => {
+        const { hass } = createHass({
+            'light.interval_area_regular': { state: 'on', brightness: 255 },
+            'light.interval_area_group': { state: 'on', brightness: 255, hueGroup: true }
+        });
+        const mixed = new AreaLightController(['light.interval_area_regular', 'light.interval_area_group'], new Color(255, 255, 255));
+        mixed.hass = hass;
+        const regular = new AreaLightController(['light.interval_area_regular'], new Color(255, 255, 255));
+        regular.hass = hass;
+
+        expect(mixed.liveUpdateMinInterval).toBe(Consts.LiveUpdateHueGroupMinInterval);
+        expect(regular.liveUpdateMinInterval).toBe(Consts.LiveUpdateMinInterval);
+    });
+});
+
+describe('Live update transition', () => {
+    const flashFeature = 8; // HA LightEntityFeature.FLASH
+    const transitionFeature = HassLightEntityFeature.Transition | flashFeature;
+
+    it('should send a live update interval longer than the default transition as transition', () => {
+        const { hass, calls } = createHass({ 'light.transition_long': { state: 'on', brightness: 255, supportedFeatures: transitionFeature } });
+        const light = new LightController('light.transition_long');
+        light.hass = hass;
+
+        light.setBrightnessValue(50, 1000);
+        light.setColorTemp(3000, 1000);
+        light.setColor(new Color(255, 0, 0), 1000);
+
+        expect(calls.map(c => c.data.transition)).toEqual([1, 1, 1]);
+    });
+
+    it('should send the transition in seconds', () => {
+        const { hass, calls } = createHass({ 'light.transition_seconds': { state: 'on', brightness: 255, supportedFeatures: transitionFeature } });
+        const light = new LightController('light.transition_seconds');
+        light.hass = hass;
+
+        light.setBrightnessValue(50, 500);
+
+        expect(calls[0].data.transition).toBe(0.5);
+    });
+
+    it('should not send transition without a live update interval or with a short one', () => {
+        const { hass, calls } = createHass({ 'light.transition_short': { state: 'on', brightness: 255, supportedFeatures: transitionFeature } });
+        const light = new LightController('light.transition_short');
+        light.hass = hass;
+
+        light.setBrightnessValue(50);
+        light.setBrightnessValue(50, Consts.LiveUpdateDefaultTransition);
+        light.setColor(new Color(255, 0, 0), Consts.LiveUpdateMinInterval);
+
+        expect(calls.every(c => !('transition' in c.data))).toBe(true);
+    });
+
+    it('should not send transition when the light does not support it', () => {
+        const { hass, calls } = createHass({ 'light.transition_unsupported': { state: 'on', brightness: 255, supportedFeatures: flashFeature } });
+        const light = new LightController('light.transition_unsupported');
+        light.hass = hass;
+
+        light.setBrightnessValue(50, 1000);
+
+        expect(calls[0].data).toEqual({ entity_id: 'light.transition_unsupported', brightness: 128 });
+    });
+
+    it('should pass the live update interval of an area to all its lights', () => {
+        const { hass, calls } = createHass({
+            'light.transition_area_a': { state: 'on', brightness: 255, supportedFeatures: transitionFeature },
+            'light.transition_area_b': { state: 'on', brightness: 128 }
+        });
+        const area = new AreaLightController(['light.transition_area_a', 'light.transition_area_b'], new Color(255, 255, 255));
+        area.hass = hass;
+
+        area.setBrightnessValue(30, 1000);
+
+        expect(calls.map(c => c.data.transition)).toEqual([1, undefined]);
     });
 });
 

@@ -245,7 +245,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this._sliderSession = new LiveUpdateSession<number>(this._config.liveUpdate, () => {
             this._ctrl.releaseBrightnessPreview();
             this.onChangeHandler();
-        });
+        }, () => this._ctrl.liveUpdateMinInterval);
         this._open = true;
 
         // root level of the dialog - the inner levels push their own `dialogData` states on top of it
@@ -580,7 +580,10 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                     const detailElement = new HueLightDetail();
                     detailElement.style.position = 'absolute';
                     detailElement.style.width = '100%';
-                    detailElement.style.height = 'calc(100% - 200px)';
+                    // the dialog surface has safe-area padding in the companion app (notch, home indicator),
+                    // absolute positioning ignores that padding, so we need to respect it manually
+                    detailElement.style.top = 'var(--safe-area-inset-top, 0px)';
+                    detailElement.style.height = 'calc(100% - 200px - var(--safe-area-inset-top, 0px) - var(--safe-area-inset-bottom, 0px))';
                     detailElement.style.zIndex = '2'; // over header
 
                     detailElement.areaController = this._ctrl;

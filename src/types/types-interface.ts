@@ -111,9 +111,10 @@ export interface ILightContainer extends ILightConfig {
     /**
      * If supported.
      * Sets brightness percentage (0 - 100) of lights in this container.
+     * @param liveUpdateInterval Interval (ms) of the live updates this value is part of (only while dragging) - a long interval is sent as transition (if supported).
      * @returns Promise resolved when Home Assistant confirmed the change.
      */
-    setBrightnessValue(value: number): Promise<void>;
+    setBrightnessValue(value: number, liveUpdateInterval?: number): Promise<void>;
 
     /**
      * If supported.
@@ -127,6 +128,11 @@ export interface ILightContainer extends ILightConfig {
      * Releases the previewed brightness - controls show the state from Home Assistant again.
      */
     releaseBrightnessPreview(): void;
+
+    /**
+     * Minimal interval (ms) between two live updates (while dragging) sent to lights in this container - some devices can't handle the default rate.
+     */
+    get liveUpdateMinInterval(): number;
 }
 
 export interface ISingleLightContainer extends ILightContainer, INotify {
@@ -162,16 +168,18 @@ export interface ISingleLightContainer extends ILightContainer, INotify {
     /**
      * If supported.
      * Sets light temperature in kelvin, causes mode to switch.
+     * @param liveUpdateInterval Interval (ms) of the live updates this value is part of (only while dragging) - a long interval is sent as transition (if supported).
      * @returns Promise resolved when Home Assistant confirmed the change.
      */
-    setColorTemp(newTemp: number | null): Promise<void>;
+    setColorTemp(newTemp: number | null, liveUpdateInterval?: number): Promise<void>;
 
     /**
      * If supported.
      * Sets light color, causes mode to switch.
+     * @param liveUpdateInterval Interval (ms) of the live updates this value is part of (only while dragging) - a long interval is sent as transition (if supported).
      * @returns Promise resolved when Home Assistant confirmed the change.
      */
-    setColor(newColor: Color | null): Promise<void>;
+    setColor(newColor: Color | null, liveUpdateInterval?: number): Promise<void>;
 }
 
 export interface ILightFeatures {

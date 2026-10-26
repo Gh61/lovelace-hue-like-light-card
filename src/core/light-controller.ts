@@ -1,5 +1,5 @@
 import { HomeAssistant } from '../ha/types';
-import { HassLightColorMode, HassLightEntity } from '../types/types-hass';
+import { HassLightColorMode, HassLightEntity, HassLightEntityFeature } from '../types/types-hass';
 import { ISingleLightContainer, ILightFeatures } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
@@ -9,6 +9,7 @@ import { NotifyBase } from './notify-base';
 import { SceneData } from '../types/types-config';
 import { LightState } from './light-state';
 import { ensureEntityDomain } from '../types/extensions';
+import { Consts } from '../types/consts';
 
 /**
  * Serves as controller for single light.
@@ -67,6 +68,15 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
     public get features(): ILightFeatures {
         return this._entityFeatures;
+    }
+
+    public get liveUpdateMinInterval(): number {
+        // Hue room/zone is a grouped_light on the bridge - Hue recommends at most 1 command per second for it.
+        // Home Assistant confirms faster commands right away, but the bridge queues them and the lights lag behind (for seconds after a longer drag).
+        if (this._entity?.attributes?.is_hue_group === true)
+            return Consts.LiveUpdateHueGroupMinInterval;
+
+        return Consts.LiveUpdateMinInterval;
     }
 
     //#endregion
@@ -195,7 +205,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     public set brightnessValue(value: number) {
         this.setBrightnessValue(value);
     }
-    public async setBrightnessValue(value: number): Promise<void> {
+    public async setBrightnessValue(value: number, liveUpdateInterval?: number): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support brightness
             return;
@@ -207,7 +217,8 @@ export class LightController extends NotifyBase<LightController> implements ISin
         // HA types return the service response - the callers only await the call
         await this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
-            ['brightness']: brightness
+            ['brightness']: brightness,
+            ...this.getLiveUpdateTransition(liveUpdateInterval)
         });
     }
 
@@ -263,7 +274,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     public set colorTemp(newTemp: number | null) {
         this.setColorTemp(newTemp);
     }
-    public async setColorTemp(newTemp: number | null): Promise<void> {
+    public async setColorTemp(newTemp: number | null, liveUpdateInterval?: number): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support color temp
             return;
@@ -285,8 +296,9 @@ export class LightController extends NotifyBase<LightController> implements ISin
         this.notifyColorTempChanged(newTemp);
         await this._hass.callService('light', 'turn_on', {
             entity_id: this._entity_id,
-            ['color_temp_kelvin']: newTemp
+            ['color_temp_kelvin']: newTemp,
             //['kelvin']: newTemp, // Deprecated since 2025.1, removed in 2026.1
+            ...this.getLiveUpdateTransition(liveUpdateInterval)
         });
     }
 
@@ -300,7 +312,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
     public set color(newColor: Color | null) {
         this.setColor(newColor);
     }
-    public async setColor(newColor: Color | null): Promise<void> {
+    public async setColor(newColor: Color | null, liveUpdateInterval?: number): Promise<void> {
         if (this._domain === 'switch') {
             // Switches do not support color
             return;
@@ -309,7 +321,7 @@ export class LightController extends NotifyBase<LightController> implements ISin
             return;
 
         let mode: HassLightColorMode;
-        const serviceData: Record<string, unknown> = { entity_id: this._entity_id };
+        const serviceData: Record<string, unknown> = { entity_id: this._entity_id, ...this.getLiveUpdateTransition(liveUpdateInterval) };
         if (newColor.getOriginalMode() === 'hsv') {
             mode = HassLightColorMode.hs;
             serviceData.hs_color = [newColor.getHue(), newColor.getSaturation() * 100];
@@ -321,6 +333,25 @@ export class LightController extends NotifyBase<LightController> implements ISin
 
         this.notifyColorChanged(newColor, mode);
         await this._hass.callService('light', 'turn_on', serviceData);
+    }
+
+    //#endregion
+
+    //#region Live update
+
+    /**
+     * @param liveUpdateInterval Interval (ms) of the live updates the sent value is part of.
+     * @returns Service data with the interval as transition when it is longer than the default transition - the light changes smoothly until the next value comes.
+     */
+    private getLiveUpdateTransition(liveUpdateInterval?: number): Record<string, unknown> {
+        if (liveUpdateInterval == null || liveUpdateInterval <= Consts.LiveUpdateDefaultTransition)
+            return {};
+
+        const features = this._entity?.attributes?.supported_features ?? 0;
+        if ((features & HassLightEntityFeature.Transition) === 0)
+            return {};
+
+        return { transition: liveUpdateInterval / 1000 }; // in seconds
     }
 
     //#endregion

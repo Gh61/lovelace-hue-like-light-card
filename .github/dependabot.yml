@@ -31,3 +31,6 @@ updates:
       eslint-group:
         patterns:
           - "@typescript-eslint/*"
+      babel-group:
+        patterns:
+          - "@babel/*"

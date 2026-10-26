@@ -146,9 +146,10 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
     public set brightnessValue(value: number) {
         this.setBrightnessValue(value);
     }
-    public async setBrightnessValue(value: number): Promise<void> {
+
+    public async setBrightnessValue(value: number, liveUpdateInterval?: number): Promise<void> {
         const lightValues = this.getLightBrightnessValues(value, this._previewBaseline ?? this.createBrightnessBaseline());
-        await Promise.all(lightValues.map(([l, v]) => l.setBrightnessValue(v)));
+        await Promise.all(lightValues.map(([l, v]) => l.setBrightnessValue(v, liveUpdateInterval)));
     }
 
     /** Brightness of lights at the start of the preview - all preview steps are computed from it (rounding of small steps would accumulate otherwise). */
@@ -324,5 +325,10 @@ export class AreaLightController implements ILightContainer, INotifyGeneric<Ligh
 
     public get features(): ILightFeatures {
         return this._lightsFeatures;
+    }
+
+    public get liveUpdateMinInterval(): number {
+        // live updates are sent to all lights together - the slowest light sets the pace
+        return Math.max(...this._lights.map(l => l.liveUpdateMinInterval));
     }
 }

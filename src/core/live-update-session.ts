@@ -12,10 +12,12 @@ export type LiveUpdateApply<T> = Func1<T, Promise<unknown> | void>;
  * Sends the values to Home Assistant one at a time and pins the shown value, so the control doesn't jump back to the lagging state from Home Assistant.
  *
  * - At most one apply is in flight - the next value is applied only after Home Assistant confirmed the previous one
- *   (or it failed, or `Consts.LiveUpdateConfirmTimeout` passed) and at least `Consts.LiveUpdateMinInterval` after it was sent.
+ *   (or it failed, or `Consts.LiveUpdateConfirmTimeout` passed) and at least the minimal interval (`Consts.LiveUpdateMinInterval` by default) after it was sent.
  *   Values in between are skipped - the latest value wins.
- * - `update` (during drag): pins the value and queues it.
+ * - `update` (during drag): pins the value and queues it. The first value of a movement (nothing in flight or waiting, minimal interval passed)
+ *   is applied after half of the minimal interval - a drag usually moves by more than one step, so the first applied value is closer to the target.
  * - `commit` (drag finished): queues the final value the same way (never overtaken by an older value) and keeps it pinned.
+ *   It doesn't wait for the delay of the first value (e.g. single click), only for the minimal interval.
  * - The pin is released after `Consts.LiveUpdateHoldTime` from the last pinned value or the last confirmation, whichever is later,
  *   or by `stop` - `onRelease` is called in both cases.
  * - When disabled, `update` does nothing and `commit` only applies the value.
@@ -23,6 +25,7 @@ export type LiveUpdateApply<T> = Func1<T, Promise<unknown> | void>;
 export class LiveUpdateSession<T> {
     private readonly _enabled: boolean;
     private readonly _onRelease: Action;
+    private readonly _minInterval: Func<number>;
     private _pinnedValue: T | null = null;
     private _lastSentValue: T | null = null;
     private _pending: { value: T, apply: LiveUpdateApply<T> } | null = null;
@@ -35,10 +38,12 @@ export class LiveUpdateSession<T> {
     /**
      * @param enabled Whether live updates are enabled.
      * @param onRelease Called when the pinned value is released (the control should show the real state again).
+     * @param minInterval Returns the minimal interval (ms) between two applies - read before every apply, so it follows the current lights.
      */
-    public constructor(enabled: boolean, onRelease: Action = noop) {
+    public constructor(enabled: boolean, onRelease: Action = noop, minInterval: Func<number> = () => Consts.LiveUpdateMinInterval) {
         this._enabled = enabled;
         this._onRelease = onRelease;
+        this._minInterval = minInterval;
     }
 
     /** Whether live updates are enabled. */
@@ -73,8 +78,14 @@ export class LiveUpdateSession<T> {
             return;
 
         this.pin(value);
+        const isFirst = this.isIdle();
         this._pending = { value, apply };
-        this.tryApplyPending();
+        if (isFirst) {
+            this.scheduleApply(this._minInterval() / 2);
+        }
+        else {
+            this.tryApplyPending();
+        }
     }
 
     /**
@@ -90,6 +101,8 @@ export class LiveUpdateSession<T> {
         // pin before apply - apply can trigger render, which should already use the pinned value
         this.pin(value);
         this._pending = { value, apply };
+        // cancels the delay of the first value - the wait for the minimal interval is computed again
+        this.clearApplyTimeout();
         this.tryApplyPending();
     }
 
@@ -115,12 +128,9 @@ export class LiveUpdateSession<T> {
         if (!this._pending || this._inFlight || this._applyTimeout)
             return;
 
-        const wait = this._lastApplyTime + Consts.LiveUpdateMinInterval - Date.now();
+        const wait = this._lastApplyTime + this._minInterval() - Date.now();
         if (wait > 0) {
-            this._applyTimeout = setTimeout(() => {
-                this._applyTimeout = null;
-                this.tryApplyPending();
-            }, wait);
+            this.scheduleApply(wait);
             return;
         }
 
@@ -147,6 +157,18 @@ export class LiveUpdateSession<T> {
             }
             this.tryApplyPending();
         });
+    }
+
+    /** Whether a new value would be applied right away (nothing in flight or waiting, minimal interval passed). */
+    private isIdle(): boolean {
+        return !this._inFlight && !this._applyTimeout && Date.now() - this._lastApplyTime >= this._minInterval();
+    }
+
+    private scheduleApply(wait: number) {
+        this._applyTimeout = setTimeout(() => {
+            this._applyTimeout = null;
+            this.tryApplyPending();
+        }, wait);
     }
 
     /** @returns Promise resolved when the apply is confirmed, failed or the confirm timeout passed - never rejected. */

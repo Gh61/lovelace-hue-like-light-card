@@ -2,7 +2,7 @@ import { Color } from '../core/colors/color';
 import { KnownIconSize } from './types-config';
 
 export class Consts {
-    public static readonly Version = 'v1.11.0';
+    public static readonly Version = 'v1.12.1';
     public static readonly Dev = true;
     public static readonly ElementPostfix = Consts.Dev ? '-test' : '';
     public static readonly CardElementName = 'hue-like-light-card' + Consts.ElementPostfix;
@@ -28,6 +28,8 @@ export class Consts {
     public static readonly GradientOffset = 7; // percent
     public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
     public static readonly LiveUpdateMinInterval = 200; // ms
+    public static readonly LiveUpdateHueGroupMinInterval = 1000; // ms - Hue room/zone, see LightController.liveUpdateMinInterval
+    public static readonly LiveUpdateDefaultTransition = 400; // ms - default transition of a Hue light (used when no transition is sent)
     public static readonly LiveUpdateConfirmTimeout = 5000; // ms
     public static readonly LiveUpdateHoldTime = 1500; // ms
 
