@@ -233,7 +233,7 @@ Some of these options may not be in the latest version. Please always check the 
     <td><a href="#colorextended">ColorExtended</a></td>
     <td>no</td>
     <td>1.0.0</td>
-    <td><code>'#666'</code><br/>(<code>'#363636'</code> for <a href="#hue-screen">Hue Screen</a>)</td>
+    <td><code>'#666'</code><br/>(<code>'#363636'</code> for <a href="#hue-screen">Hue Screen</a>;<br/><code>theme-color</code> with <code>hueColors: false</code>)</td>
     <td>
       The color of the pane, when all lights are off.
       When set, also used in <a href="#hue-screen">Hue Screen</a> header (recommended setting also <code>hueScreenBgColor</code> accordingly).
@@ -244,7 +244,7 @@ Some of these options may not be in the latest version. Please always check the 
     <td><a href="#colorextended">ColorExtended</a></td>
     <td>no</td>
     <td>1.1.0</td>
-    <td><code>'#171717'</code></td>
+    <td><code>'#171717'</code><br/>(<code>theme-color</code> with <code>hueColors: false</code>)</td>
     <td>
       Background color of <a href="#hue-screen">Hue Screen</a>
     </td>
@@ -280,6 +280,14 @@ Some of these options may not be in the latest version. Please always check the 
     <td>1.0.0</td>
     <td><code>true</code></td>
     <td>If turned off, the card will take border settings from current Home Assistant theme.</td>
+  </tr>
+  <tr>
+    <td><code>hueColors</code></td>
+    <td>boolean</td>
+    <td>no</td>
+    <td>2.0.0</td>
+    <td><code>true</code></td>
+    <td>If turned off, the card and <a href="#hue-screen">Hue Screen</a> will take the colors from current Home Assistant theme (<code>offColor</code> and <code>hueScreenBgColor</code> default to <code>theme-color</code>, tiles that are off use the theme colors).</td>
   </tr>
   <tr>
     <td><code>apiId</code></td>
@@ -1060,6 +1068,16 @@ scenes:
 ## Hue Screen
 Hue screen will allow you to activate [scenes](#scenes-configuration), set light colors, temp and brightness (same functionality as official Hue App).
 *Function of effects activation will come in the future.*
+
+By default the Hue Screen has the dark look of the official Hue App. With `hueColors: false` it takes the colors from the Home Assistant theme, together with `hueBorders: false` it looks like the other dialogs of the theme:
+```yaml
+type: custom:hue-like-light-card
+...
+hueColors: false
+hueBorders: false
+```
+
+The tiles of scenes and lights that are off can be changed in the theme or with card-mod by the CSS variables `--hue-tile-off-color` and `--hue-tile-off-text-color` (with `hueColors: false` they default to the theme's `--disabled-color` at 20 % opacity, like the control buttons of Home Assistant, and `--primary-text-color`). The brightness slider takes the text color calculated for the light color (so it stays visible on any light color), it can be changed with `--hue-slider-color`. The switch does the same when it is on (`--hue-switch-color`). The colors calculated from the lights - `--hue-background`, `--hue-text-color`, `--hue-box-shadow` and `--hue-card-box-shadow` of the card and the Hue Screen heading, `--hue-light-background`, `--hue-light-text-color` and `--hue-light-box-shadow` of the light tiles - can be overridden the same way (a theme or card-mod setting them wins, no `!important` needed). With `hueColors: false` the shadow showing the brightness is lighter.
 
 ![Hue-Screen](/doc_img/hue-screen1.png)
 <img alt="Hue-Screen2" src="https://github.com/Gh61/lovelace-hue-like-light-card/raw/main/doc_img/hue-screen2.png" height="540" />

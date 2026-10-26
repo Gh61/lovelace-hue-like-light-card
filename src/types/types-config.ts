@@ -316,6 +316,7 @@ export interface HueLikeLightCardConfigInterface extends HueLikeLightCardEntityC
     readonly hueScreenBgColor?: string;
     readonly offShadow?: boolean;
     readonly hueBorders?: boolean;
+    readonly hueColors?: boolean;
     readonly apiId?: string;
     readonly isVisible?: boolean;
     /** Support for card-mod styling */

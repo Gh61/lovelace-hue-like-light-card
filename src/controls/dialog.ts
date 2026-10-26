@@ -3,7 +3,6 @@ import { html, unsafeStatic } from 'lit/static-html.js';
 import { customElement, state } from 'lit/decorators.js';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { Background } from '../core/colors/background';
-import { Color } from '../core/colors/color';
 import { AreaLightController } from '../core/area-light-controller';
 import { ViewUtils } from '../core/view-utils';
 import { HueLikeLightCardConfig, HueLikeLightCardEntityConfigCollection } from '../types/config';
@@ -396,10 +395,10 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
 
     /* same color header */
     .hue-heading {
-        --hue-heading-text-color: var(--hue-text-color, ${unsafeCSS(Consts.ThemeDialogHeadingColorVar)});
+        --hue-heading-text-color: ${unsafeCSS(ViewUtils.getHueVar('text-color', Consts.ThemeDialogHeadingColorVar))};
         
-        background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
-        box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
+        background:${unsafeCSS(ViewUtils.getHueVar('background', 'transparent'))};
+        box-shadow:${unsafeCSS(ViewUtils.getHueVar('box-shadow'))}, 0px 5px 10px rgba(0,0,0,0.5);
         transition:${unsafeCSS(Consts.TransitionDefault)};
 
         border-bottom-left-radius: var(--ha-dialog-border-radius, 28px);
@@ -425,6 +424,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         display: block;
     }
     .hue-heading ha-switch {
+        ${unsafeCSS(ViewUtils.getSwitchColorStyles(ViewUtils.getHueVar('text-color')))}
         padding: 12px;
     }
     .hue-heading .brightness-slider {
@@ -434,6 +434,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         width: calc(100% - 36px);
         margin: 18px;
         margin-top: 12px;
+        ${unsafeCSS(ViewUtils.getSliderColorStyles(ViewUtils.getHueVar('text-color')))}
     }
     /* Disable the bottom border radius */
     /* in default styles: --ha-border-radius=0 in this case */
@@ -560,7 +561,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                     backdropElement.style.width = '100%';
                     backdropElement.style.height = '100%';
                     backdropElement.style.borderRadius = 'var(--ha-dialog-border-radius, 28px)'; // same as dialog
-                    backdropElement.style.background = 'var(--hue-background)';
+                    backdropElement.style.background = ViewUtils.getHueVar('background');
                     backdropElement.style.transition = Consts.TransitionDefault;
 
                     const mask = 'linear-gradient(rgba(255, 255, 255, .25) 0%, transparent 70%)';
@@ -620,7 +621,17 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
             ThemeHelper.applyTheme(this, this._ctrl.hass.themes, this._config.theme);
 
             // To help change themes on the fly
-            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configBgColor.isThemeColor() || this._config.getOffColor().isThemeColor());
+            ThemeHelper.setDialogThemeStyles(this, '--hue-screen-background', configBgColor.isThemeColor() || this._config.getOffColor().isThemeColor(), configBgColor.isThemeColor());
+
+            // tiles of scenes and lights that are off
+            if (this._config.hueColors) {
+                this.style.removeProperty('--hue-default-tile-off-color');
+                this.style.removeProperty('--hue-default-tile-off-text-color');
+            }
+            else {
+                this.style.setProperty('--hue-default-tile-off-color', Consts.ThemeTileOffColor);
+                this.style.setProperty('--hue-default-tile-off-text-color', Consts.ThemeTileOffTextColor);
+            }
 
             let contentBg = null;
             let contentFg = null;
@@ -650,23 +661,14 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         if (!heading)
             throw new Error('Hue heading not found!');
 
-        let offBackground: Background | null;
-        // if the user sets custom off color - use it
-        if (this._config.wasOffColorSet) {
-            const offColor = this._config.getOffColor();
-            if (!offColor.isThemeColor()) {
-                offBackground = new Background([offColor.getBaseColor()]);
-            }
-            else {
-                offBackground = null;
-            }
-        }
-        else {
-            offBackground = new Background([new Color(Consts.DialogOffColor)]);
-        }
+        // theme color = no background, the theme is used
+        const offColor = this._config.getDialogOffColor();
+        const offBackground = offColor.isThemeColor()
+            ? null
+            : new Background([offColor.getBaseColor()]);
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
-        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.offShadow);
+        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.offShadow, this._config.shadowDensityCoef);
 
         if (this._config.hueBorders) {
             this.style.setProperty(
@@ -676,22 +678,23 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         }
 
         this.style.setProperty(
-            '--hue-background',
-            bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar
+            '--hue-calculated-background',
+            // theme: the heading lies on the dialog surface, like the header of HA dialogs
+            bfg.background?.toString() ?? 'transparent'
         );
         this.style.setProperty(
-            '--hue-box-shadow',
+            '--hue-calculated-box-shadow',
             shadow
         );
 
         if (bfg.foreground != null) {
             this.style.setProperty(
-                '--hue-text-color',
+                '--hue-calculated-text-color',
                 bfg.foreground.toString()
             );
         }
         else {
-            this.style.removeProperty('--hue-text-color');
+            this.style.removeProperty('--hue-calculated-text-color');
         }
 
         // sometimes the element is not yet displayed, so we need to calculate shadow later
@@ -813,6 +816,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                             .isUnselected=${this._selectedLights.length && this._selectedLights.indexOf(l) === -1}
                             @selected-change=${(e: CustomEvent) => this.onLightSelected(e)}
                             .defaultColor=${this._config.getDefaultColor()}
+                            .shadowDensityCoef=${this._config.shadowDensityCoef}
                             .hass=${this._ctrl.hass}
                             .actionHandler=${this._actionHandler}>
                         </${unsafeStatic(HueDialogLightTile.ElementName)}>`))}

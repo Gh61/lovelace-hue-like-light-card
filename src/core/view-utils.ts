@@ -1,10 +1,8 @@
 import { css, nothing } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
-import { styleMap } from 'lit-html/directives/style-map.js';
 import { HueLikeLightCardConfig } from '../types/config';
 import { Consts } from '../types/consts';
 import { Action } from '../types/functions';
-import { ThemeHelper } from '../types/theme-helper';
 import { ILightContainer } from '../types/types-interface';
 import { Background } from './colors/background';
 import { Color } from './colors/color';
@@ -17,6 +15,48 @@ import { computeStateDisplay } from '../ha/common/entity/compute_state_display';
 import { LiveUpdateSession } from './live-update-session';
 
 export class ViewUtils {
+
+    /**
+     * Variable calculated by the card (light color, foreground, shadow) that themes and card-mod can override.
+     * The card writes the value to `--hue-calculated-<name>` and reads `--hue-<name>` first, so the public variable
+     * set anywhere (theme, card-mod, even without !important) wins over the calculated one.
+     * @param name Name without the prefix, e.g. 'background'.
+     * @param fallback Used when neither is set.
+     */
+    public static getHueVar(name: string, fallback?: string): string {
+        const calculated = fallback ? `var(--hue-calculated-${name}, ${fallback})` : `var(--hue-calculated-${name})`;
+        return `var(--hue-${name}, ${calculated})`;
+    }
+
+    /**
+     * Colors of the ha-slider created by createSlider. The theme colors (primary / disabled) can blend with the light color,
+     * so the slider takes the foreground calculated for the background. Without it (theme background) the variables are invalid
+     * and ha-slider keeps its own theme colors. Overridable with --hue-slider-color.
+     * @param foreground CSS value of the calculated foreground color (see getHueVar).
+     * @returns CSS declarations for the slider element.
+     */
+    public static getSliderColorStyles(foreground: string): string {
+        const color = `var(--hue-slider-color, ${foreground})`;
+        return `
+        --ha-slider-indicator-color: ${color};
+        --ha-slider-thumb-color: ${color};
+        --ha-slider-track-color: color-mix(in srgb, ${color} 35%, transparent);`;
+    }
+
+    /**
+     * Colors of the ha-switch created by createSwitch when it is checked - same reason as getSliderColorStyles:
+     * the foreground calculated for the background, the theme colors without it. Overridable with --hue-switch-color.
+     * @param foreground CSS value of the calculated foreground color (see getHueVar).
+     * @returns CSS declarations for the switch element.
+     */
+    public static getSwitchColorStyles(foreground: string): string {
+        const color = `var(--hue-switch-color, ${foreground})`;
+        return `
+        --ha-switch-checked-background-color: color-mix(in srgb, ${color} 35%, transparent);
+        --ha-switch-checked-border-color: color-mix(in srgb, ${color} 60%, transparent);
+        --ha-switch-checked-thumb-background-color: ${color};
+        --ha-switch-checked-thumb-border-color: ${color};`;
+    }
 
     /**
      * Styles for the switch created by createSwitch - compose them into the styles of every element that renders it.
@@ -33,15 +73,11 @@ export class ViewUtils {
      * @param onChange Be careful - this function is called on different scope, better pack your function to arrow call.
      */
     public static createSwitch(ctrl: ILightContainer, onChange: Action, switchOnScene?: string) {
-        // To help change themes on the fly
-        const styles = ThemeHelper.getSwitchThemeStyle();
-
         return html`
         <ha-switch
             .checked=${ctrl.isOn()}
             .disabled=${ctrl.isUnavailable()}
             .haptic=true
-            style=${styleMap(styles)}
             @change=${(ev: Event) => ViewUtils.switchChanged(ev, ctrl, onChange, switchOnScene)}
         ></ha-switch>`;
     }
@@ -231,7 +267,10 @@ export class ViewUtils {
     /**
      * Calculates default shadow for passed element, using passed ILightContainer state and config.
      */
-    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, useOffShadow: boolean): string {
+    /**
+     * @param densityCoef Multiplies the darkness of the brightness shadow.
+     */
+    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, useOffShadow: boolean, densityCoef = 1): string {
         if (ctrl.isOff())
             return useOffShadow ? 'inset 0px 0px 10px rgba(0,0,0,0.2)' : '0px 0px 0px white';
 
@@ -250,6 +289,8 @@ export class ViewUtils {
         if (darkness > 60) {
             shadowDensity -= (shadowDensity - 0.5) * (darkness - 60) / 40; // shadowDensity: 0.5-0.65
         }
+
+        shadowDensity *= densityCoef;
 
         return `inset 0px -${position}px ${width}px -${spread}px rgba(0,0,0,${shadowDensity})`;
     }
