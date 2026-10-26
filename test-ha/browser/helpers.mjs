@@ -114,10 +114,16 @@ export async function hold(page, point, ms = 700) {
     await page.mouse.up();
 }
 
-/** True when the Hue dialog is open (the element stays in the DOM after closing - the HA dialog manager re-uses it). */
+/**
+ * True when the Hue dialog is open (the element stays in the DOM after closing - the HA dialog manager re-uses it).
+ * Checks the inner `wa-dialog` too - after a dismissal (scrim, Esc, X) it is closed even when `ha-dialog` still has `open`.
+ */
 export async function isDialogOpen(page) {
     const dialogs = await findDeep(page, DialogTag);
-    return dialogs.evaluate(list => list.some(d => d.shadowRoot?.querySelector('ha-dialog')?.hasAttribute('open')));
+    return dialogs.evaluate(list => list.some(d => {
+        const haDialog = d.shadowRoot?.querySelector('ha-dialog');
+        return !!haDialog?.hasAttribute('open') && !!haDialog.shadowRoot?.querySelector('wa-dialog')?.open;
+    }));
 }
 
 /** True when the HA more-info dialog is open. */

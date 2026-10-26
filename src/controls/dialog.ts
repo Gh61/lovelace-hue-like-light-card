@@ -594,9 +594,13 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                         this.toggleUnderDetailControls(false);
                         this.hideLightDetail();
                     });
-                    // when lightContainer changes from picker
+                    // when lightContainer changes from picker - only in the open detail, the hidden picker also activates
+                    // markers when they are created and merged (lights of the same color), the dialog would then think
+                    // the detail is open and closing it from the dialog (scrim, X, Esc) would only clear the selection
                     detailElement.addEventListener('lightcontainer-change', () => {
-                        this.loadSelectedLights(detailElement);
+                        if (this.isLightDetailOpen) {
+                            this.loadSelectedLights(detailElement);
+                        }
                     });
 
                     surface.prepend(detailElement);

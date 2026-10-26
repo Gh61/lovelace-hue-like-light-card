@@ -125,6 +125,21 @@ await page.goBack();
 await settle(1500);
 check(!(await isDialogOpen(page)), 'back closes the dialog afterwards');
 
+// 8. lights of the same color: their markers in the hidden light detail merge (the last added marker is active),
+// closing by the scrim must still close the dialog and the next tap must open it again
+await page.evaluate(() => document.querySelector('home-assistant').hass.callService('light', 'turn_on',
+    { entity_id: ['light.ceiling_lights', 'light.kitchen_lights'], hs_color: [30, 60], brightness: 200 }));
+await settle();
+for (let round = 1; round <= 2; round++) {
+    await tap(page, await cardPoint(page, 0, '.tap-area'));
+    await settle();
+    check(await isDialogOpen(page) && !(await isDetailOpen()), `merged markers: tap opens the dialog without the detail (round ${round})`);
+    await page.mouse.click(30, 400); // scrim beside the dialog
+    await settle(1500);
+    check(!(await isDialogOpen(page)), `merged markers: scrim closes the dialog (round ${round})`);
+    check(!(await page.evaluate(() => 'dialogData' in (history.state ?? {}) || 'dialog' in (history.state ?? {}))), `merged markers: history cleaned after the scrim (${await historyState()})`);
+}
+
 check(await page.evaluate(() => history.length) <= entriesBefore + 2 || true, `history entries: ${entriesBefore} -> ${entriesAfterClose} -> ${await page.evaluate(() => history.length)}`);
 const relevantErrors = cardErrors(errors);
 check(relevantErrors.length === 0, `console errors: ${relevantErrors.length ? relevantErrors.join(' | ') : 'none'}`);
