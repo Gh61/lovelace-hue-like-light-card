@@ -29,7 +29,8 @@ export class BackgroundFade {
     public static getStyles(selector: string, shadow: string): CSSResult {
         return css`
     ${unsafeCSS(selector)} {
-        /* the ::before stays under the content */
+        /* the ::before covers only the element (not the nearest positioned ancestor) and stays under the content */
+        position: relative;
         isolation: isolate;
     }
     ${unsafeCSS(selector)}::before {
