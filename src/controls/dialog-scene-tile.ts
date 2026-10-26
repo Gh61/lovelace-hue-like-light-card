@@ -16,6 +16,7 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
 
     private static readonly pictureDimensions = HueDialogTile.height / 2; // px
     public static readonly iconScale = (HueDialogSceneTile.pictureDimensions * 0.75) / 24; // 24 = default icon size
+    private static readonly clickedScale = (HueDialogTile.height * 2) / HueDialogSceneTile.pictureDimensions; // the clicked circle covers the tile
     private static readonly animationSeconds = 1.0;
 
     protected abstract getTileTitle(): string | undefined;
@@ -130,14 +131,28 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
         height: ${HueDialogSceneTile.pictureDimensions}px;
         width: ${HueDialogSceneTile.pictureDimensions}px;
         border-radius: ${HueDialogSceneTile.pictureDimensions / 2}px;
-        box-shadow: ${unsafeCSS(Consts.HueShadow)}, inset rgba(0,0,0,0.1) -8px -8px 15px;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all ${HueDialogSceneTile.animationSeconds}s linear;
+        /* the ::before (circle under the icon / picture) stays under the content */
+        position: relative;
+        isolation: isolate;
     }
-    .scene .icon-background .color {
-        background: var(--hue-tile-accent-color, darkgoldenrod);
+    /* The circle grows over the tile on click by transform and fades out by opacity - both run on the compositor.
+       Growing its size (width / height / margin) relaid and repainted the tile with its shadows in every frame. */
+    .scene .icon-background .color::before,
+    .scene .icon-background .picture-color::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: 50%;
+        box-shadow: ${unsafeCSS(Consts.HueShadow)}, inset rgba(0,0,0,0.1) -8px -8px 15px;
+        transition: transform ${HueDialogSceneTile.animationSeconds}s linear, opacity ${HueDialogSceneTile.animationSeconds}s linear,
+            background-color ${HueDialogSceneTile.animationSeconds}s linear;
+    }
+    .scene .icon-background .color::before {
+        background-color: var(--hue-tile-accent-color, darkgoldenrod);
     }
     .scene .icon-background .color ha-icon {
         color: var(--hue-tile-fg-color, ${unsafeCSS(Consts.LightColor)});
@@ -152,16 +167,13 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
         background-size: cover;
     }
 
-    .scene.clicked .icon-background .picture-color {
-        background: var(--hue-tile-accent-color, darkgoldenrod);
+    .scene.clicked .icon-background .picture-color::before {
+        background-color: var(--hue-tile-accent-color, darkgoldenrod);
     }
-    .scene.clicked .icon-background .color,
-    .scene.clicked .icon-background .picture-color {
-        height: ${HueDialogTile.height * 2}px;
-        width: ${HueDialogTile.width * 2}px;
-        border-radius: ${HueDialogTile.height}px;
-        margin-left: -${HueDialogTile.padding * 2}px;
-        margin-right: -${HueDialogTile.padding * 2}px;
+    .scene.clicked .icon-background .color::before,
+    .scene.clicked .icon-background .picture-color::before {
+        /* covers the whole tile (it clips the rest) */
+        transform: scale(${HueDialogSceneTile.clickedScale});
     }
     .scene.clicked .icon-background .color ha-icon {
         animation: pop-icon 0.5s linear 1;
@@ -170,16 +182,18 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
         animation: pop-picture 0.5s linear 1;
     }
 
-    .scene.unclicked .icon-background .color,
-    .scene.unclicked .icon-background .picture-color {
-        background: transparent;
+    .scene.unclicked .icon-background .color::before,
+    .scene.unclicked .icon-background .picture-color::before {
+        opacity: 0;
     }
-    .scene.stop-color-animate .icon-background .color,
-    .scene.stop-color-animate .icon-background .picture-color {
+    .scene.stop-color-animate .icon-background .color::before,
+    .scene.stop-color-animate .icon-background .picture-color::before {
         transition: none;
     }
 
     .scene .title {
+        /* positioned after the circle, so it is painted over the clicked circle */
+        position: relative;
         transition: all ${HueDialogSceneTile.animationSeconds / 2}s linear;
     }
     .scene.clicked .title {
