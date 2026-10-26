@@ -1,14 +1,15 @@
 /**
  * Hue dialog lifecycle in the testing Home Assistant instance (HA dialog manager):
  * open / re-open from different cards, browser back closes the light detail first and the dialog second,
- * closing from the dialog cleans the history, more-info from a tile stacks on top of the dialog.
+ * closing from the dialog cleans the history, more-info from a tile stacks on top of the dialog,
+ * lights of the same color (merged markers of the hidden light detail) don't block closing from the dialog.
  * Run with `npm run ha-test -- dialog` (needs a running instance and a fresh `npm run rollup`).
  */
 
 import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { cardErrors, cardPoint, findDeep, hold, isDialogOpen, isMoreInfoOpen, openBrowser, openView, tap, DialogTag } from './helpers.mjs';
+import { cardErrors, cardPoint, cardPointByTitle, findDeep, hold, isDialogOpen, isMoreInfoOpen, openBrowser, openView, tap, DialogTag } from './helpers.mjs';
 
 const OutDir = join(dirname(fileURLToPath(import.meta.url)), 'out');
 mkdirSync(OutDir, { recursive: true });
@@ -50,6 +51,15 @@ const closeButtonPoint = async () => {
 
 // 1. open from the first card, close by back
 await openView(page, 'hue-screen');
+// the demo lights keep their state between runs - start with distinct colors (scenario 8 makes two of them equal)
+const DistinctColor = [200, 60];
+const setCeilingColor = async (hs) => {
+    await page.evaluate((hsColor) => document.querySelector('home-assistant').hass.callService('light', 'turn_on',
+        { entity_id: 'light.ceiling_lights', hs_color: hsColor, brightness: 200 }), hs);
+    await settle();
+};
+await setCeilingColor(DistinctColor);
+
 const entriesBefore = await page.evaluate(() => history.length);
 await tap(page, await cardPoint(page, 0, '.tap-area'));
 await settle();
@@ -126,18 +136,26 @@ await settle(1500);
 check(!(await isDialogOpen(page)), 'back closes the dialog afterwards');
 
 // 8. lights of the same color: their markers in the hidden light detail merge (the last added marker is active),
-// closing by the scrim must still close the dialog and the next tap must open it again
-await page.evaluate(() => document.querySelector('home-assistant').hass.callService('light', 'turn_on',
-    { entity_id: ['light.ceiling_lights', 'light.kitchen_lights'], hs_color: [30, 60], brightness: 200 }));
-await settle();
-for (let round = 1; round <= 2; round++) {
-    await tap(page, await cardPoint(page, 0, '.tap-area'));
+// closing by the scrim must still close the dialog and the next tap must open it again.
+// The markers are created when the dialog element is created, so the view is reloaded after the colors change
+// (the demo lights keep their state between runs - the color is set back at the end).
+try {
+    await page.evaluate(() => document.querySelector('home-assistant').hass.callService('light', 'turn_on',
+        { entity_id: ['light.ceiling_lights', 'light.kitchen_lights'], hs_color: [30, 60], brightness: 200 }));
     await settle();
-    check(await isDialogOpen(page) && !(await isDetailOpen()), `merged markers: tap opens the dialog without the detail (round ${round})`);
-    await page.mouse.click(30, 400); // scrim beside the dialog
-    await settle(1500);
-    check(!(await isDialogOpen(page)), `merged markers: scrim closes the dialog (round ${round})`);
-    check(!(await page.evaluate(() => 'dialogData' in (history.state ?? {}) || 'dialog' in (history.state ?? {}))), `merged markers: history cleaned after the scrim (${await historyState()})`);
+    await openView(page, 'hue-screen');
+    for (let round = 1; round <= 2; round++) {
+        await tap(page, await cardPointByTitle(page, 'With scenes', '.tap-area'));
+        await settle();
+        check(await isDialogOpen(page) && !(await isDetailOpen()), `merged markers: tap opens the dialog without the detail (round ${round})`);
+        await page.mouse.click(30, 400); // scrim beside the dialog
+        await settle(1500);
+        check(!(await isDialogOpen(page)), `merged markers: scrim closes the dialog (round ${round})`);
+        check(!(await page.evaluate(() => 'dialogData' in (history.state ?? {}) || 'dialog' in (history.state ?? {}))), `merged markers: history cleaned after the scrim (${await historyState()})`);
+    }
+}
+finally {
+    await setCeilingColor(DistinctColor);
 }
 
 check(await page.evaluate(() => history.length) <= entriesBefore + 2 || true, `history entries: ${entriesBefore} -> ${entriesAfterClose} -> ${await page.evaluate(() => history.length)}`);
