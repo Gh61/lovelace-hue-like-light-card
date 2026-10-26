@@ -43,7 +43,7 @@ export class ViewUtils {
     /**
      * Styles for the brightness slider created by createSlider - compose them into the styles of every element that renders it.
      * White on the light color like in the Hue App (the thumb with a shadow and the track a little shaded, so they stay visible
-     * on a light color), the theme colors without it (the variables are invalid).
+     * on a light color), the theme colors without it (the variables are invalid). The position moves smoothly.
      */
     public static readonly SliderStyles = css`
     ha-slider.brightness-slider {
@@ -53,6 +53,11 @@ export class ViewUtils {
     }
     ha-slider.brightness-slider::part(thumb) {
         box-shadow: ${unsafeCSS(ViewUtils.ControlThumbShadow)};
+    }
+    /* brightness changed elsewhere (light transition, scene) moves the slider smoothly - not while it is dragged */
+    ha-slider.brightness-slider:not(:active)::part(thumb),
+    ha-slider.brightness-slider:not(:active)::part(indicator) {
+        transition: ${unsafeCSS(Consts.SliderTransition)};
     }
     `;
 

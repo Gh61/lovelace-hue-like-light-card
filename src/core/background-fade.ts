@@ -12,6 +12,7 @@ export class BackgroundFade {
 
     private readonly _host: HTMLElement;
     private _shown: { value: string, isGradient: boolean } | null = null;
+    private _animation: Animation | null = null;
 
     /**
      * @param host Element holding the variable with the previous background (inherited by the faded element).
@@ -64,8 +65,13 @@ export class BackgroundFade {
         if (!element || !previous || previous.value === value || !(previous.isGradient || isGradient))
             return;
 
+        // a fade is still running (e.g. a light transition reported step by step) - restarting it would show
+        // the previous background at full again and the element would flash, so the small step is applied at once
+        if (this._animation?.playState === 'running')
+            return;
+
         this._host.style.setProperty(BackgroundFade.PreviousBackgroundVar, previous.value);
-        element.animate([{ opacity: 1 }, { opacity: 0 }], {
+        this._animation = element.animate([{ opacity: 1 }, { opacity: 0 }], {
             duration: Consts.TransitionDuration,
             easing: Consts.TransitionEasing,
             pseudoElement: '::before'

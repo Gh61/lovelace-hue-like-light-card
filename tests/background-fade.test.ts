@@ -55,6 +55,23 @@ describe('BackgroundFade', () => {
         expect(animate).not.toHaveBeenCalled();
     });
 
+    it('should not restart a running fade (the previous background would flash)', () => {
+        const animation = { playState: 'running' };
+        const element = document.createElement('div');
+        const animate = jest.fn(() => animation);
+        element.animate = animate as unknown as typeof element.animate;
+        const fade = new BackgroundFade(document.createElement('div'));
+
+        fade.update(element, red, red.toString());
+        fade.update(element, gradient, gradient.toString());
+        fade.update(element, blue, blue.toString());
+        expect(animate).toHaveBeenCalledTimes(1);
+
+        animation.playState = 'finished';
+        fade.update(element, gradient, gradient.toString());
+        expect(animate).toHaveBeenCalledTimes(2);
+    });
+
     it('should not fade after reset or without the element', () => {
         const { element, animate } = createElement();
         const fade = new BackgroundFade(document.createElement('div'));
