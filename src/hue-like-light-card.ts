@@ -23,7 +23,7 @@ import { IdLitElement } from './core/id-lit-element';
 import { HueApiProvider } from './core/api-provider';
 import { ICardApi } from './types/types-api';
 import { DisplayObserver } from './core/display-observer';
-import { BackgroundFade } from './core/background-fade';
+import { BackgroundTransition } from './core/background-transition';
 import { LiveUpdateSession } from './core/live-update-session';
 
 // Show version info in console
@@ -39,7 +39,7 @@ VersionNotifier.toConsole();
 
 @customElement(Consts.CardElementName)
 export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
-    private readonly _backgroundFade = new BackgroundFade(this);
+    private readonly _backgroundTransition = new BackgroundTransition(this, '--hue-background');
     private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner(false));
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
@@ -233,7 +233,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     public static override styles = [
         ViewUtils.SwitchStyles,
         ViewUtils.SliderStyles,
-        BackgroundFade.getStyles('ha-card', 'var(--hue-box-shadow)'),
+        BackgroundTransition.getStyles('ha-card', 'var(--hue-box-shadow)'),
         css`
     ha-card
     {
@@ -383,11 +383,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config.offShadow);
 
         const background = bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar;
-        this._backgroundFade.update(card, bfg.background, background);
-        this.style.setProperty(
-            '--hue-background',
-            background
-        );
+        this._backgroundTransition.update(card, bfg.background, background);
         this.style.setProperty(
             '--hue-text-color',
             bfg.foreground?.toString() ?? Consts.ThemeSecondaryTextColorVar
@@ -476,6 +472,7 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
     public override disconnectedCallback(): void {
         this.destroyListeners();
         this._displayObserver.stop();
+        this._backgroundTransition.reset();
         super.disconnectedCallback();
     }
 

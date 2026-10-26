@@ -24,7 +24,7 @@ import { LightController } from '../core/light-controller';
 import { localize } from '../localize/localize';
 import { ActionHandler } from '../core/action-handler';
 import { DisplayObserver } from '../core/display-observer';
-import { BackgroundFade } from '../core/background-fade';
+import { BackgroundTransition } from '../core/background-transition';
 import { HueDialogSceneHATile } from './dialog-scene-ha-tile';
 import { horizontalScroll } from '../directives/horizontal-scroll';
 
@@ -65,7 +65,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
     https://material-components.github.io/material-components-web-catalog/#/component/dialog
     */
 
-    private readonly _backgroundFade = new BackgroundFade(this);
+    private readonly _backgroundTransition = new BackgroundTransition(this, '--hue-background');
     private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner(false));
     @state()
     private _open = false;
@@ -258,7 +258,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler, /* includeHass: */ true);
 
         this.resetConfigStyles();
-        this._backgroundFade.reset(); // the dialog is re-used - don't fade from the colors of the previous card
+        this._backgroundTransition.reset(); // the dialog is re-used - don't change from the colors of the previous card
         this.requestUpdate();
         this.updateComplete.then(() => {
             this.tryCreateBackdropAndLightDetail(true);
@@ -322,6 +322,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this._ctrl?.unregisterOnPropertyChanged(this._elementId);
         this._sliderSession?.stop();
         this._displayObserver.stop();
+        this._backgroundTransition.reset();
         super.disconnectedCallback();
     }
 
@@ -387,7 +388,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
             HueDialog.haStyleDialog,
             ViewUtils.SwitchStyles,
             ViewUtils.SliderStyles,
-            BackgroundFade.getStyles('.hue-heading', 'var(--hue-box-shadow)'),
+            BackgroundTransition.getStyles('.hue-heading', 'var(--hue-box-shadow)'),
             css`
     /* hiding controls when light detail is open */
     .detail-hide {
@@ -685,11 +686,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         }
 
         const background = bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar;
-        this._backgroundFade.update(heading, bfg.background, background);
-        this.style.setProperty(
-            '--hue-background',
-            background
-        );
+        this._backgroundTransition.update(heading, bfg.background, background);
         this.style.setProperty(
             '--hue-box-shadow',
             shadow
