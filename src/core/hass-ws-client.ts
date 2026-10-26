@@ -1,6 +1,7 @@
 import { HomeAssistant } from '../ha/types';
 import { HassLabelInfo, HassSearchDeviceResult } from '../types/types-hass';
 import { removeDiacritics } from '../types/extensions';
+import { DynamicScene } from '../types/types-hue-preset';
 
 export interface HassSearchLightsResult {
     groupName: string,
@@ -27,6 +28,17 @@ export class HassWsClient {
             throw new Error('Hass instance must be passed!');
 
         this._hass = hass;
+    }
+
+    /**
+     * Will get dynamic scenes running in the Scene Presets integration.
+     */
+    public async getDynamicScenes(): Promise<DynamicScene[]> {
+        const result = await this._hass.connection.sendMessagePromise<{ dynamic_scenes: DynamicScene[] }>({
+            type: 'scene_presets/get_dynamic_scenes'
+        });
+
+        return result?.dynamic_scenes ?? [];
     }
 
     /**

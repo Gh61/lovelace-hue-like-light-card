@@ -204,6 +204,30 @@ Some of these options may not be in the latest version. Please always check the 
     <td>The provider(s) of scenes to be displayed</td>
   </tr>
   <tr>
+    <td><code>presetTapActivation</code></td>
+    <td><a href="#preset-activation">Preset Activation</a></td>
+    <td>no</td>
+    <td>2.0.0</td>
+    <td><code>static</code></td>
+    <td>What tap on a <a href="https://github.com/Hypfer/hass-scene_presets">Scene Presets</a> tile does, hold does the other one</td>
+  </tr>
+  <tr>
+    <td><code>presetDynamicInterval</code></td>
+    <td>number</td>
+    <td>no</td>
+    <td>2.0.0</td>
+    <td><i>Scene Presets default</i></td>
+    <td>Seconds between the color changes of a dynamic scene started from a <a href="#preset-activation">preset tile</a></td>
+  </tr>
+  <tr>
+    <td><code>presetDynamicTransition</code></td>
+    <td>number</td>
+    <td>no</td>
+    <td>2.0.0</td>
+    <td><i>Scene Presets default</i></td>
+    <td>Seconds of the transition between the colors of a dynamic scene started from a <a href="#preset-activation">preset tile</a></td>
+  </tr>
+  <tr>
     <td><code>allowZero</code></td>
     <td>boolean</td>
     <td>no</td>
@@ -1039,6 +1063,26 @@ sceneProvider:
 ```
 
 *The order of scenes in [Hue Screen](#hue-screen) depends on the order of providers passed.*
+
+#### Preset activation
+*Since version 2.0.0*
+
+A tile of [Scene Presets](https://github.com/Hypfer/hass-scene_presets) can apply the preset once (`static`) or start it as a dynamic scene, where the colors keep changing (`dynamic`).
+By default tap applies the preset and hold starts the dynamic scene. Activating a preset stops the dynamic scene running on the same lights.
+
+The config value `presetTapActivation` sets what tap does, hold always does the other one. Supported values are `'static'` and `'dynamic'`. For example:
+```yaml
+type: custom:hue-like-light-card
+...
+sceneProvider: scene-presets
+presetTapActivation: dynamic
+```
+
+The speed of the dynamic scene can be set by `presetDynamicInterval` (seconds between the color changes) and `presetDynamicTransition` (seconds of the transition), otherwise the defaults of Scene Presets are used. The tile of a preset running as a dynamic scene on the lights of the card shows a play badge.
+```yaml
+presetDynamicInterval: 12
+presetDynamicTransition: 8
+```
 
 ### Custom activation example (Hue dynamic scene)
 ```yaml

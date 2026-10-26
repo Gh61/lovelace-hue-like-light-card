@@ -61,6 +61,29 @@ export interface PresetConfig {
 }
 
 /**
+ * Lights the preset is applied to (one of the target kinds)
+ */
+export interface PresetTargets {
+    entity_id?: string | string[];
+    area_id?: string;
+    floor_id?: string;
+    label_id?: string;
+}
+
+/**
+ * Dynamic scene running in Scene Presets (websocket `scene_presets/get_dynamic_scenes`)
+ */
+export interface DynamicScene {
+    id: string;
+    interval: number;
+    running: boolean;
+    parameters: {
+        preset_id: string;
+        light_entity_ids: string[];
+    };
+}
+
+/**
  * Data wrapper for a preset with Home Assistant integration
  */
 export class PresetData {
@@ -87,8 +110,11 @@ export class PresetData {
      * @param shuffle Whether to shuffle the colors
      * @param smartShuffle Whether to use smart shuffle
      */
-    public activate(targets: { entity_id?: string | string[], area_id?: string, floor_id?: string, label_id?: string }, shuffle: boolean = false, smartShuffle: boolean = false) {
+    public async activate(targets: PresetTargets, shuffle: boolean = false, smartShuffle: boolean = false) {
         this.ensureHass();
+
+        // a running dynamic scene would overwrite the preset with its next step
+        await this._hass.callService('scene_presets', 'stop_dynamic_scenes_for_targets', { targets: targets });
 
         const data = {
             preset_id: this._config.preset.id,
@@ -97,7 +123,36 @@ export class PresetData {
             smart_shuffle: smartShuffle
         };
 
-        this._hass.callService('scene_presets', 'apply_preset', data);
+        await this._hass.callService('scene_presets', 'apply_preset', data);
+    }
+
+    /**
+     * Start this preset as a dynamic scene (colors keep changing) for the given targets.
+     * Scene Presets stops the dynamic scenes already running on the targets.
+     * @param targets Object containing entity_id, area_id, floor_id, or label_id
+     * @param interval Seconds between the steps (Scene Presets default when not set)
+     * @param transition Seconds of the transition of a step (Scene Presets default when not set)
+     */
+    public async activateDynamic(targets: PresetTargets, interval?: number, transition?: number) {
+        this.ensureHass();
+
+        const data = {
+            preset_id: this._config.preset.id,
+            targets: targets,
+            ...(interval != null && { interval: interval }),
+            ...(transition != null && { transition: transition })
+        };
+
+        await this._hass.callService('scene_presets', 'start_dynamic_scene', data);
+    }
+
+    /**
+     * @returns Ids of the presets running as a dynamic scene on any of the given lights.
+     */
+    public static getRunningPresetIds(dynamicScenes: DynamicScene[], lightIds: string[]): string[] {
+        return dynamicScenes
+            .filter(s => s.running && s.parameters.light_entity_ids.some(id => lightIds.includes(id)))
+            .map(s => s.parameters.preset_id);
     }
 
     /**

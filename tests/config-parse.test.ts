@@ -1,6 +1,6 @@
 import { HueLikeLightCardConfig } from '../src/types/config';
 import { Consts } from '../src/types/consts';
-import { HueLikeLightCardConfigInterface, KnownIconSize, SceneProvider } from '../src/types/types-config';
+import { HueLikeLightCardConfigInterface, KnownIconSize, PresetActivation, SceneProvider } from '../src/types/types-config';
 
 describe('Config parse', () => {
     it('parse default config', () => {
@@ -41,6 +41,46 @@ describe('Config parse', () => {
         });
 
         expect(config.sceneProvider).toStrictEqual([]);
+    });
+
+    // PresetTapActivation
+    it('parse unset presetTapActivation', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test'
+        });
+
+        expect(config.presetTapActivation).toBe(PresetActivation.Static);
+    });
+
+    it('parse presetTapActivation', () => {
+        const config = new HueLikeLightCardConfig({
+            entity: 'light.test',
+            presetTapActivation: 'dynamic'
+        });
+
+        expect(config.presetTapActivation).toBe(PresetActivation.Dynamic);
+    });
+
+    it('parse presetDynamicInterval and presetDynamicTransition', () => {
+        const unset = new HueLikeLightCardConfig({ entity: 'light.test' });
+        expect(unset.presetDynamicInterval).toBeUndefined();
+        expect(unset.presetDynamicTransition).toBeUndefined();
+
+        const config = new HueLikeLightCardConfig({ entity: 'light.test', presetDynamicInterval: 12, presetDynamicTransition: 8 });
+        expect(config.presetDynamicInterval).toBe(12);
+        expect(config.presetDynamicTransition).toBe(8);
+
+        expect(() => new HueLikeLightCardConfig({ entity: 'light.test', presetDynamicInterval: 0 })).toThrow();
+        expect(() => new HueLikeLightCardConfig({ entity: 'light.test', presetDynamicTransition: 'slow' as unknown as number })).toThrow();
+    });
+
+    it('parse invalid presetTapActivation', () => {
+        expect(() => {
+            new HueLikeLightCardConfig({
+                entity: 'light.test',
+                presetTapActivation: 'animated'
+            });
+        }).toThrow();
     });
 
     // IconSize

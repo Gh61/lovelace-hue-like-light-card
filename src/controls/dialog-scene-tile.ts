@@ -5,6 +5,7 @@ import { HueEffectQueue } from '../core/effect-queue';
 import { Consts } from '../types/consts';
 import { HueDialogTile, ITileEventDetail } from './dialog-tile';
 import { actionHandler } from '../ha/panels/lovelace/common/directives/action-handler-directive';
+import { Action } from '../types/functions';
 
 /**
  * Shared implementation for scene tiles in HueDialog. Base Class
@@ -17,6 +18,7 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
     private static readonly pictureDimensions = HueDialogTile.height / 2; // px
     public static readonly iconScale = (HueDialogSceneTile.pictureDimensions * 0.75) / 24; // 24 = default icon size
     private static readonly animationSeconds = 1.0;
+    private static readonly dynamicBadgeDimensions = 20; // px
 
     protected abstract getTileTitle(): string | undefined;
     protected abstract getTilePicture(): string | undefined;
@@ -25,7 +27,21 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
     protected abstract activateTile(): void;
     protected abstract isTileDataChanged(changedProps: PropertyValues): boolean;
 
+    /**
+     * @returns true when the scene is running as a dynamic scene (shows the play badge).
+     */
+    protected isTileDynamic(): boolean {
+        return false;
+    }
+
     protected override tileClicked() {
+        this.activateWithEffect(() => this.activateTile());
+    }
+
+    /**
+     * Runs the activation with haptic feedback and the tile animation, then fires the `activated` event.
+     */
+    protected activateWithEffect(activate: Action) {
         if (this.getTileTitle() == null) {
             return;
         }
@@ -34,7 +50,7 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
         forwardHaptic(this, 'light');
 
         // activate scene
-        this.activateTile();
+        activate();
 
         // stops the animation and clears the queue
         this._effectQueue.stopAndClear();
@@ -103,6 +119,13 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
                         <ha-icon icon="${this.getTileIcon() || 'mdi:palette'}"></ha-icon>
                     </div>`
             }
+                ${this.isTileDynamic()
+                ? html`
+                    <div class='dynamic-badge'>
+                        <ha-icon icon='mdi:play'></ha-icon>
+                    </div>`
+                : nothing
+            }
             </div>
             <div class='title'>
                 <span>${title}</span>
@@ -118,6 +141,8 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
             css`
     .scene {
         cursor: pointer;
+        /* for the dynamic badge - a positioned icon background would cover the title in the click animation */
+        position: relative;
     }
     .scene .icon-background {
         height: calc(100% - ${HueDialogTile.titleHeight}px);
@@ -135,6 +160,21 @@ export abstract class HueDialogSceneTile extends HueDialogTile {
         align-items: center;
         justify-content: center;
         transition: all ${HueDialogSceneTile.animationSeconds}s linear;
+    }
+    .scene .dynamic-badge {
+        position: absolute;
+        top: ${HueDialogTile.padding}px;
+        right: ${HueDialogTile.padding}px;
+        height: ${HueDialogSceneTile.dynamicBadgeDimensions}px;
+        width: ${HueDialogSceneTile.dynamicBadgeDimensions}px;
+        border-radius: ${HueDialogSceneTile.dynamicBadgeDimensions / 2}px;
+        background: var(--hue-tile-accent-color, darkgoldenrod);
+        color: var(--hue-tile-fg-color, ${unsafeCSS(Consts.LightColor)});
+        box-shadow: ${unsafeCSS(Consts.HueShadow)};
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        --mdc-icon-size: ${HueDialogSceneTile.dynamicBadgeDimensions - 6}px;
     }
     .scene .icon-background .color {
         background: var(--hue-tile-accent-color, darkgoldenrod);

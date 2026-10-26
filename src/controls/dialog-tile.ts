@@ -100,13 +100,7 @@ export abstract class HueDialogTile extends IdLitElement {
     private handleAction(ev: ActionHandlerEvent){
         switch (ev.detail.action){
             case 'hold':
-                const entityId = this.getEntityId();
-                if (entityId) {
-                    if (!this.actionHandler)
-                        throw new Error('Cannot open more-info - ActionHandler not set in ' + this._elementId);
-
-                    this.actionHandler.showMoreInfo(entityId);
-                }
+                this.tileHeld();
                 break;
 
             case 'tap':
@@ -118,6 +112,19 @@ export abstract class HueDialogTile extends IdLitElement {
     protected abstract getEntityId(): string | undefined;
 
     protected abstract tileClicked(event: ActionHandlerEvent): void;
+
+    /**
+     * Opens more-info of the tile entity (if the tile has one).
+     */
+    protected tileHeld(): void {
+        const entityId = this.getEntityId();
+        if (entityId) {
+            if (!this.actionHandler)
+                throw new Error('Cannot open more-info - ActionHandler not set in ' + this._elementId);
+
+            this.actionHandler.showMoreInfo(entityId);
+        }
+    }
 
     protected abstract override updated(changedProps: PropertyValues): void;
 

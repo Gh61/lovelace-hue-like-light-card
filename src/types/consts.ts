@@ -30,6 +30,7 @@ export class Consts {
     public static readonly LiveUpdateMinInterval = 200; // ms
     public static readonly LiveUpdateConfirmTimeout = 5000; // ms
     public static readonly LiveUpdateHoldTime = 1500; // ms
+    public static readonly DynamicScenesRefreshInterval = 10000; // ms - Scene Presets does not notify about its dynamic scenes
 
     // Theme colors
     public static readonly ThemeDefault = 'default';

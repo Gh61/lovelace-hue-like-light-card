@@ -6,10 +6,10 @@ import { HomeAssistant } from '../ha/types';
 import { removeDuplicates, tryParseEnum } from './extensions';
 import { ColorExtended } from '../core/colors/color-extended';
 import { HassTextTemplate } from '../core/hass-text-template';
-import { HueLikeLightCardEntityConfigInterface, HueLikeLightCardConfigInterface, KnownIconSize, SceneConfig, SceneOrder, SceneProvider, SliderType } from './types-config';
+import { HueLikeLightCardEntityConfigInterface, HueLikeLightCardConfigInterface, KnownIconSize, PresetActivation, SceneConfig, SceneOrder, SceneProvider, SliderType } from './types-config';
 import { CardActions } from './card-actions';
 import { HassSearchLightsResult, HassWsClient } from '../core/hass-ws-client';
-import { LightingData, PresetConfig } from './types-hue-preset';
+import { LightingData, PresetConfig, PresetTargets } from './types-hue-preset';
 import { MaybeArray } from './types-helpers';
 import { Action2, Func2 } from './functions';
 import { ConsoleLogger } from '../core/console-logger';
@@ -112,6 +112,9 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         this._scenes = HueLikeLightCardConfig.getScenesArray(plainConfig.scenes);
         this.sceneOrder = HueLikeLightCardConfig.getSceneOrder(plainConfig.sceneOrder);
         this.sceneProvider = HueLikeLightCardConfig.getSceneProviders(plainConfig.sceneProvider);
+        this.presetTapActivation = HueLikeLightCardConfig.getPresetTapActivation(plainConfig.presetTapActivation);
+        this.presetDynamicInterval = HueLikeLightCardConfig.getPositiveNumber(plainConfig.presetDynamicInterval, 'Preset dynamic interval');
+        this.presetDynamicTransition = HueLikeLightCardConfig.getPositiveNumber(plainConfig.presetDynamicTransition, 'Preset dynamic transition');
         this.actions = new CardActions(plainConfig);
         this.allowZero = HueLikeLightCardConfig.getBoolean(plainConfig.allowZero, false);
         this.liveUpdate = HueLikeLightCardConfig.getBoolean(plainConfig.liveUpdate, true);
@@ -182,6 +185,29 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             return SceneOrder.Default;
 
         return tryParseEnum<SceneOrder>(SceneOrder, plain, 'Scene order');
+    }
+
+    /**
+     * @returns Positive number, undefined for empty or throws exception.
+     */
+    private static getPositiveNumber(plain: number | undefined, name: string): number | undefined {
+        if (plain == null)
+            return undefined;
+
+        if (typeof plain !== 'number' || !(plain > 0))
+            throw new Error(`${name} '${plain}' must be a positive number.`);
+
+        return plain;
+    }
+
+    /**
+     * @returns PresetActivation valid enum, default for empty or throws exception.
+     */
+    private static getPresetTapActivation(plain: string | undefined): PresetActivation {
+        if (!plain)
+            return PresetActivation.Static;
+
+        return tryParseEnum<PresetActivation>(PresetActivation, plain, 'Preset tap activation');
     }
 
     /**
@@ -271,6 +297,11 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     }
     public readonly sceneOrder: SceneOrder;
     public readonly sceneProvider: SceneProvider[];
+    public readonly presetTapActivation: PresetActivation;
+    /** Seconds between the steps of a dynamic scene, undefined = Scene Presets default. */
+    public readonly presetDynamicInterval?: number;
+    /** Seconds of the transition of a dynamic scene step, undefined = Scene Presets default. */
+    public readonly presetDynamicTransition?: number;
     public readonly actions: CardActions;
     public readonly allowZero: boolean;
     public readonly liveUpdate: boolean;
@@ -609,8 +640,8 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     /**
      * Get targets for preset activation based on card configuration
      */
-    public getPresetTargets(): { entity_id?: string | string[], area_id?: string, floor_id?: string, label_id?: string } {
-        const targets: { entity_id?: string | string[], area_id?: string, floor_id?: string, label_id?: string } = {};
+    public getPresetTargets(): PresetTargets {
+        const targets: PresetTargets = {};
 
         if (this.area) {
             targets.area_id = this.area;
