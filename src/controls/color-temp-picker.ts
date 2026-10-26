@@ -117,7 +117,11 @@ export class HueColorTempPicker extends LitElement {
     }
 
     private onResize(): void {
-        this._markers.forEach(m => m.refresh());
+        this._radius = null;
+        this._markers.forEach(m => {
+            m.resetSize();
+            m.refresh();
+        });
     }
 
     // #region Rendering
@@ -125,6 +129,7 @@ export class HueColorTempPicker extends LitElement {
     private _tempMin = 2000; // default hue min
     private _tempMax = 6535; // default hue max
     private _isRendered = false;
+    private _radius: number | null = null;
     private _canvas: HTMLDivElement;
     private _backgroundLayer: HTMLCanvasElement;
     private _interactionLayer: SVGElement;
@@ -483,12 +488,22 @@ export class HueColorTempPicker extends LitElement {
      * @returns current rendered or expected radius.
      */
     public getRadius(): number {
+        // measured once per size (reset by onResize) - the markers ask on every light change and reading
+        // the size after the style changes forces a layout of the whole page
+        if (this._radius != null)
+            return this._radius;
+
         let width = this._canvas?.clientWidth;
         if (!width) { // not visible
             width = Math.min(HueColorTempPicker.maxWidth, HueColorTempPicker.renderWidthHeight);
         }
 
-        return width / 2;
+        const radius = width / 2;
+        // without ResizeObserver there is nothing to reset the cache
+        if (this._ro) {
+            this._radius = radius;
+        }
+        return radius;
     }
 
     /**

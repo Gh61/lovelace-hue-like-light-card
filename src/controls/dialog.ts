@@ -23,7 +23,8 @@ import { LiveUpdateSession } from '../core/live-update-session';
 import { LightController } from '../core/light-controller';
 import { localize } from '../localize/localize';
 import { ActionHandler } from '../core/action-handler';
-import { DisplayObserver } from '../core/display-observer';
+import { ElementHeight } from '../core/element-height';
+import { BackgroundTransition } from '../core/background-transition';
 import { HueDialogSceneHATile } from './dialog-scene-ha-tile';
 import { horizontalScroll } from '../directives/horizontal-scroll';
 
@@ -64,7 +65,8 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
     https://material-components.github.io/material-components-web-catalog/#/component/dialog
     */
 
-    private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner(false));
+    private readonly _backgroundTransition = new BackgroundTransition(this, '--hue-background');
+    private readonly _headingHeight = new ElementHeight(() => this.updateStylesInner(false));
     @state()
     private _open = false;
     private _config: HueLikeLightCardConfig;
@@ -238,6 +240,8 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
      */
     public showDialog(params: HueDialogParams): void {
         this._config = params.config;
+        // the presets can come after the dialog is shown
+        this._config.presetsLoaded.then(() => this.requestUpdate());
         this._entitiesConfig = params.config.getEntities();
         this._ctrl = params.lightController;
         this._actionHandler = params.actionHandler;
@@ -256,6 +260,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this._ctrl.registerOnPropertyChanged(this._elementId, this.onChangeHandler, /* includeHass: */ true);
 
         this.resetConfigStyles();
+        this._backgroundTransition.reset(); // the dialog is re-used - don't change from the colors of the previous card
         this.requestUpdate();
         this.updateComplete.then(() => {
             this.tryCreateBackdropAndLightDetail(true);
@@ -303,7 +308,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         this.hideLightDetailInternal(true);
         this._ctrl?.unregisterOnPropertyChanged(this._elementId);
         this._sliderSession?.stop();
-        this._displayObserver.stop();
+        this._headingHeight.stop();
         fireEvent(this, 'dialog-closed', { dialog: this.localName });
         return true;
     }
@@ -318,7 +323,8 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
     public override disconnectedCallback(): void {
         this._ctrl?.unregisterOnPropertyChanged(this._elementId);
         this._sliderSession?.stop();
-        this._displayObserver.stop();
+        this._headingHeight.stop();
+        this._backgroundTransition.reset();
         super.disconnectedCallback();
     }
 
@@ -383,10 +389,13 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         return [
             HueDialog.haStyleDialog,
             ViewUtils.SwitchStyles,
+            ViewUtils.SliderStyles,
+            BackgroundTransition.getStyles('.hue-heading', 'var(--hue-box-shadow)'),
             css`
     /* hiding controls when light detail is open */
     .detail-hide {
-        transition:${unsafeCSS(Consts.TransitionDefault)};
+        /* not 'all' - it would animate also the inherited colors (e.g. scrollbar-color) and repaint the scrolled tiles every frame */
+        transition: opacity ${unsafeCSS(Consts.TransitionTiming)};
     }
 
     .hue-hidden {
@@ -400,7 +409,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         
         background:var(--hue-background, ${unsafeCSS(Consts.ThemeCardBackgroundVar)} );
         box-shadow:var(--hue-box-shadow), 0px 5px 10px rgba(0,0,0,0.5);
-        transition:${unsafeCSS(Consts.TransitionDefault)};
+        transition: opacity ${unsafeCSS(Consts.TransitionTiming)}, box-shadow ${unsafeCSS(Consts.TransitionTiming)};
 
         border-bottom-left-radius: var(--ha-dialog-border-radius, 28px);
         border-bottom-right-radius: var(--ha-dialog-border-radius, 28px);
@@ -525,7 +534,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
 
     /* Light tiles */
     .tile-scroller.light-tiles{
-        transition: ${unsafeCSS(Consts.TransitionDefault)};
+        transition: bottom ${unsafeCSS(Consts.TransitionTiming)};
         bottom: 100px;
     }
 
@@ -653,7 +662,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         }
 
         // ## Heading styles
-        const heading = this.renderRoot.querySelector('.hue-heading') as Element;
+        const heading = this.renderRoot.querySelector('.hue-heading') as HTMLElement;
         if (!heading)
             throw new Error('Hue heading not found!');
 
@@ -673,7 +682,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         }
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, offBackground, true);
-        const shadow = ViewUtils.calculateDefaultShadow(heading, this._ctrl, this._config.offShadow);
+        const shadow = ViewUtils.calculateDefaultShadow(this._headingHeight.get(heading), this._ctrl, this._config.offShadow);
 
         if (this._config.hueBorders) {
             this.style.setProperty(
@@ -682,14 +691,13 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
             );
         }
 
-        this.style.setProperty(
-            '--hue-background',
-            bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar
-        );
+        const background = bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar;
+        this._backgroundTransition.update(heading, bfg.background, background);
         this.style.setProperty(
             '--hue-box-shadow',
             shadow
         );
+        ViewUtils.setControlColor(this, this._ctrl);
 
         if (bfg.foreground != null) {
             this.style.setProperty(
@@ -699,14 +707,6 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         }
         else {
             this.style.removeProperty('--hue-text-color');
-        }
-
-        // sometimes the element is not yet displayed, so we need to calculate shadow later
-        if (!shadow) {
-            this._displayObserver.waitForDisplay(heading);
-        }
-        else {
-            this._displayObserver.stop();
         }
     }
 

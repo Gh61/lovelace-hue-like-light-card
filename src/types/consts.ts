@@ -26,7 +26,14 @@ export class Consts {
     public static readonly DialogFgLightColor = new Color('#aaa');
     public static readonly DialogOffColor = '#363636';
     public static readonly GradientOffset = 7; // percent
-    public static readonly TransitionDefault = 'all 0.3s ease-out 0s';
+    public static readonly ControlColorVar = '--hue-control-color'; // switch and slider color, set only while the lights are on
+    public static readonly ControlOnColor = '#fff';
+    public static readonly ControlTrackShade = 'rgba(0, 0, 0, 0.15)'; // mixed into the white track, visible on a white light
+    public static readonly TransitionDuration = 300; // ms
+    public static readonly TransitionEasing = 'ease-out';
+    public static readonly TransitionTiming = `${Consts.TransitionDuration / 1000}s ${Consts.TransitionEasing}`;
+    public static readonly SliderTransition = `left ${Consts.TransitionTiming}, right ${Consts.TransitionTiming}`;
+    public static readonly TransitionDefault = `all ${Consts.TransitionTiming} 0s`;
     public static readonly LiveUpdateMinInterval = 200; // ms
     public static readonly LiveUpdateHueGroupMinInterval = 1000; // ms - Hue room/zone, see LightController.liveUpdateMinInterval
     public static readonly LiveUpdateDefaultTransition = 400; // ms - default transition of a Hue light (used when no transition is sent)

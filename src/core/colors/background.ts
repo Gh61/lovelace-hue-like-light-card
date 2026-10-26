@@ -56,6 +56,46 @@ export class Background {
         return forLight > this._colors.length / 4 ? light : dark;
     }
 
+    /** Whether the background is a gradient of more colors (CSS can't transition it). */
+    public get isGradient(): boolean {
+        return this._colors.length > 1;
+    }
+
+    /** Number of the colors of the background. */
+    public get colorCount(): number {
+        return this._colors.length;
+    }
+
+    /**
+     * @returns Background between this one and the other one, each color mixed with the color on the same position
+     * (the order of the colors is kept, so the gradient doesn't reorder while it changes).
+     * @param ratio 0 = this background, 1 = the other one.
+     * @throws When the backgrounds have a different number of colors.
+     */
+    public mix(other: Background, ratio: number): Background {
+        // eslint-disable-next-line no-underscore-dangle
+        const otherColors = other._colors;
+        if (otherColors.length !== this._colors.length)
+            throw new Error(`Cannot mix backgrounds with ${this._colors.length} and ${otherColors.length} colors.`);
+
+        const mixValue = (from: number, to: number) => from + (to - from) * ratio;
+        const mixed = this._colors.map((from, i) => {
+            const to = otherColors[i];
+            return new Color(
+                Math.round(mixValue(from.getRed(), to.getRed())),
+                Math.round(mixValue(from.getGreen(), to.getGreen())),
+                Math.round(mixValue(from.getBlue(), to.getBlue())),
+                mixValue(from.getOpacity(), to.getOpacity())
+            );
+        });
+
+        // the constructor would sort the mixed colors
+        const result = new Background([this._colors[0]]);
+        // eslint-disable-next-line no-underscore-dangle
+        result._colors = mixed;
+        return result;
+    }
+
     public toString(): string {
         if (this._colors.length === 1)
             return this._colors[0].toString();

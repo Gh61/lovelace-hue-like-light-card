@@ -11,7 +11,7 @@ import { noop } from '../types/functions';
 import { IconHelper } from '../core/icon-helper';
 import { HueLikeLightCardEntityConfig } from '../types/config';
 import { actionHandler } from '../ha/panels/lovelace/common/directives/action-handler-directive';
-import { DisplayObserver } from '../core/display-observer';
+import { ElementHeight } from '../core/element-height';
 
 export interface ILightSelectedEventDetail extends ITileEventDetail {
     isSelected: boolean;
@@ -115,7 +115,7 @@ export class HueDialogLightTile extends HueDialogTile {
     `];
     }
 
-    private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner());
+    private readonly _height = new ElementHeight(() => this.updateStylesInner());
 
     // Can't be named 'updateStyles', because HA searches for that method and calls it instead of applying theme
     private updateStylesInner(): void {
@@ -147,19 +147,13 @@ export class HueDialogLightTile extends HueDialogTile {
                 );
             }
 
-            const shadow = ViewUtils.calculateDefaultShadow(this, this.lightContainer, false);
+            ViewUtils.setControlColor(this, this.lightContainer);
+
+            const shadow = ViewUtils.calculateDefaultShadow(this._height.get(this), this.lightContainer, false);
             this.style.setProperty(
                 '--hue-light-box-shadow',
                 shadow
             );
-
-            // sometimes the element is not yet displayed, so we need to calculate shadow later
-            if (!shadow) {
-                this._displayObserver.waitForDisplay(this);
-            }
-            else {
-                this._displayObserver.stop();
-            }
         }
     }
 
@@ -258,6 +252,6 @@ export class HueDialogLightTile extends HueDialogTile {
             this.lightContainer.unregisterOnPropertyChanged(this._elementId);
         }
 
-        this._displayObserver.stop();
+        this._height.stop();
     }
 }

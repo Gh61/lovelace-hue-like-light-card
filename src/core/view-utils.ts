@@ -1,4 +1,4 @@
-import { css, nothing } from 'lit';
+import { css, nothing, unsafeCSS } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { HueLikeLightCardConfig } from '../types/config';
@@ -18,15 +18,60 @@ import { LiveUpdateSession } from './live-update-session';
 
 export class ViewUtils {
 
+    /** Shadow keeping the white thumb visible on a light color - invalid (no shadow) without the control color. */
+    private static readonly ControlThumbShadow = `0 1px 4px color-mix(in srgb, rgba(0, 0, 0, 0.4) 100%, var(${Consts.ControlColorVar}) 0%)`;
+
     /**
-     * Styles for the switch created by createSwitch - compose them into the styles of every element that renders it.
+     * Styles for the switch created by createSwitch (white on the light color like the slider, see SliderStyles) - compose them into the styles of every element that renders it.
      */
     public static readonly SwitchStyles = css`
     ha-switch {
         /* since HA 2026.5 - compensate for inner label margin */
         margin-inline-end: -0.5em;
+
+        /* white on the light color like in the Hue App, the theme colors without it (the variables are invalid) */
+        --ha-switch-checked-background-color: color-mix(in srgb, var(${unsafeCSS(Consts.ControlColorVar)}) 40%, ${unsafeCSS(Consts.ControlTrackShade)});
+        --ha-switch-checked-border-color: color-mix(in srgb, var(${unsafeCSS(Consts.ControlColorVar)}) 0%, transparent);
+        --ha-switch-checked-thumb-background-color: var(${unsafeCSS(Consts.ControlColorVar)});
+        --ha-switch-checked-thumb-border-color: var(${unsafeCSS(Consts.ControlColorVar)});
+    }
+    ha-switch::part(thumb) {
+        box-shadow: ${unsafeCSS(ViewUtils.ControlThumbShadow)};
     }
     `;
+
+    /**
+     * Styles for the brightness slider created by createSlider - compose them into the styles of every element that renders it.
+     * White on the light color like in the Hue App (the thumb with a shadow and the track a little shaded, so they stay visible
+     * on a light color), the theme colors without it (the variables are invalid). The position moves smoothly.
+     */
+    public static readonly SliderStyles = css`
+    ha-slider.brightness-slider {
+        --ha-slider-indicator-color: var(${unsafeCSS(Consts.ControlColorVar)});
+        --ha-slider-thumb-color: var(${unsafeCSS(Consts.ControlColorVar)});
+        --ha-slider-track-color: color-mix(in srgb, var(${unsafeCSS(Consts.ControlColorVar)}) 40%, ${unsafeCSS(Consts.ControlTrackShade)});
+    }
+    ha-slider.brightness-slider::part(thumb) {
+        box-shadow: ${unsafeCSS(ViewUtils.ControlThumbShadow)};
+    }
+    /* brightness changed elsewhere (light transition, scene) moves the slider smoothly - not while it is dragged */
+    ha-slider.brightness-slider:not(:active)::part(thumb),
+    ha-slider.brightness-slider:not(:active)::part(indicator) {
+        transition: ${unsafeCSS(Consts.SliderTransition)};
+    }
+    `;
+
+    /**
+     * Sets the color of the switch and slider (see SwitchStyles, SliderStyles) on the element - only while the lights are on.
+     */
+    public static setControlColor(element: HTMLElement, ctrl: ILightContainer): void {
+        if (ctrl.isOn()) {
+            element.style.setProperty(Consts.ControlColorVar, Consts.ControlOnColor);
+        }
+        else {
+            element.style.removeProperty(Consts.ControlColorVar);
+        }
+    }
 
     /**
      * Creates switch for given ILightContainer.
@@ -229,20 +274,20 @@ export class ViewUtils {
     }
 
     /**
-     * Calculates default shadow for passed element, using passed ILightContainer state and config.
+     * Calculates default shadow for an element of the passed height, using passed ILightContainer state and config.
+     * @param height Height of the element (see ElementHeight), 0 when not displayed - then returns an empty string.
      */
-    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, useOffShadow: boolean): string {
+    public static calculateDefaultShadow(height: number, ctrl: ILightContainer, useOffShadow: boolean): string {
         if (ctrl.isOff())
             return useOffShadow ? 'inset 0px 0px 10px rgba(0,0,0,0.2)' : '0px 0px 0px white';
 
-        const card = element;
-        if (!card || !card.clientHeight)
+        if (!height)
             return '';
         const darkness = 100 - ctrl.brightnessValue;
-        const coef = (card.clientHeight / 100);
+        const coef = (height / 100);
         const spread = 20;
         const position = spread + (darkness * 0.95) * coef;
-        let width = card.clientHeight / 2;
+        let width = height / 2;
         if (darkness > 70) {
             width -= (width - 20) * (darkness - 70) / 30; // width: 20-clientHeight/2
         }

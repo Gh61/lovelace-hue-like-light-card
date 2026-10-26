@@ -22,7 +22,8 @@ import { actionHandler } from './ha/panels/lovelace/common/directives/action-han
 import { IdLitElement } from './core/id-lit-element';
 import { HueApiProvider } from './core/api-provider';
 import { ICardApi } from './types/types-api';
-import { DisplayObserver } from './core/display-observer';
+import { ElementHeight } from './core/element-height';
+import { BackgroundTransition } from './core/background-transition';
 import { LiveUpdateSession } from './core/live-update-session';
 
 // Show version info in console
@@ -38,7 +39,10 @@ VersionNotifier.toConsole();
 
 @customElement(Consts.CardElementName)
 export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
-    private readonly _displayObserver = new DisplayObserver(() => this.updateStylesInner(false));
+    private readonly _backgroundTransition = new BackgroundTransition(this, '--hue-background');
+    private readonly _cardHeight = new ElementHeight(() => this.updateStylesInner(false));
+    private _themeShadow: string | null = null;
+    private _themeShadowKey = '';
     private _config?: HueLikeLightCardConfig;
     private _hass?: HomeAssistant;
     private _ctrl?: AreaLightController;
@@ -230,6 +234,8 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     public static override styles = [
         ViewUtils.SwitchStyles,
+        ViewUtils.SliderStyles,
+        BackgroundTransition.getStyles('ha-card', 'var(--hue-box-shadow)'),
         css`
     ha-card
     {
@@ -329,16 +335,16 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         this.setupListeners();
         this.updateStylesInner();
 
+        // only when the themes or the config changed - applying the theme reads computed styles, on every update it slowed down
+        // the whole dashboard. The props are in changedProps only when they changed: an update from the light controller
+        // (e.g. a moving brightness slider) has no 'hass' there, so its missing old value doesn't mean new themes.
         const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
-        const oldConfig = changedProps.get('_config') as HueLikeLightCardConfig | undefined;
+        const themesChanged = changedProps.has('hass') && (!oldHass || oldHass.themes !== this.hass.themes);
+        if (themesChanged || changedProps.has('_config')) {
+            ThemeHelper.applyTheme(this, this.hass.themes, this._config.theme);
 
-        if (!oldHass || !oldConfig || oldHass.themes !== this.hass.themes || oldConfig.theme !== this._config.theme) {
-
-            // Try apply theme
-            if (ThemeHelper.applyTheme(this, this.hass.themes, this._config.theme)) {
-                // Update styles - when theme changes
-                this.updateStylesInner(true);
-            }
+            // Update styles - also when the theme was applied already (the themes can load later), the theme values are cached
+            this.updateStylesInner(true);
         }
     }
 
@@ -376,12 +382,10 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         // FG: --primary-text-color (for off: --secondary-text-color)
 
         const bfg = ViewUtils.calculateBackAndForeground(this._ctrl, this._offBackground);
-        const shadow = ViewUtils.calculateDefaultShadow(card, this._ctrl, this._config.offShadow);
+        const shadow = ViewUtils.calculateDefaultShadow(card ? this._cardHeight.get(card) : 0, this._ctrl, this._config.offShadow);
 
-        this.style.setProperty(
-            '--hue-background',
-            bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar
-        );
+        const background = bfg.background?.toString() ?? Consts.ThemeCardBackgroundVar;
+        this._backgroundTransition.update(card, bfg.background, background);
         this.style.setProperty(
             '--hue-text-color',
             bfg.foreground?.toString() ?? Consts.ThemeSecondaryTextColorVar
@@ -390,25 +394,29 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
             '--hue-box-shadow',
             shadow
         );
+        ViewUtils.setControlColor(this, this._ctrl);
 
-        // the theme's card shadow under our own - read from the card itself ('none' is the HA default since 2022.11
-        // and can't be part of a shadow list)
-        const themeShadow = card ? getComputedStyle(card).getPropertyValue('--ha-card-box-shadow').trim() : '';
+        // the theme's card shadow under our own ('none' is the HA default since 2022.11 and can't be part of a shadow list)
+        const themeShadow = this.getThemeShadow(card, forceRefresh);
         this.style.setProperty(
             '--hue-card-box-shadow',
             shadow && themeShadow && themeShadow !== 'none' ? `${shadow}, ${themeShadow}` : shadow
         );
+    }
 
-        // sometimes the element is not yet displayed, so we need to calculate shadow later
-        // (when the card is not rendered yet, updated() will call this again)
-        if (!shadow) {
-            if (card) {
-                this._displayObserver.waitForDisplay(card);
-            }
+    /**
+     * @returns The theme's card shadow (--ha-card-box-shadow) read from the card itself. The computed styles are read only
+     * when the theme on the card changes (its inline variable can be read without a layout) - reading them on every update
+     * forced a layout of the whole page. A card that is not in the document yet (HA creates the cards before attaching them)
+     * has no computed styles, so it is read later.
+     */
+    private getThemeShadow(card: HTMLElement | null, forceRefresh: boolean): string {
+        const themeShadowKey = this.style.getPropertyValue('--ha-card-box-shadow');
+        if (card?.isConnected && (this._themeShadow == null || forceRefresh || themeShadowKey !== this._themeShadowKey)) {
+            this._themeShadow = getComputedStyle(card).getPropertyValue('--ha-card-box-shadow').trim();
+            this._themeShadowKey = themeShadowKey;
         }
-        else {
-            this._displayObserver.stop();
-        }
+        return this._themeShadow ?? '';
     }
 
     private onChangeHandler = () => this.onChangeCallback();
@@ -468,7 +476,8 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
 
     public override disconnectedCallback(): void {
         this.destroyListeners();
-        this._displayObserver.stop();
+        this._cardHeight.stop();
+        this._backgroundTransition.reset();
         super.disconnectedCallback();
     }
 
