@@ -335,11 +335,12 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         this.setupListeners();
         this.updateStylesInner();
 
+        // only when the themes or the config changed - applying the theme reads computed styles, on every update it slowed down
+        // the whole dashboard. The props are in changedProps only when they changed: an update from the light controller
+        // (e.g. a moving brightness slider) has no 'hass' there, so its missing old value doesn't mean new themes.
         const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
-
-        // only when the themes or the config changed - _config is in changedProps only when it changed (applying the theme
-        // reads computed styles, on every hass update it slowed down the whole dashboard)
-        if (!oldHass || oldHass.themes !== this.hass.themes || changedProps.has('_config')) {
+        const themesChanged = changedProps.has('hass') && (!oldHass || oldHass.themes !== this.hass.themes);
+        if (themesChanged || changedProps.has('_config')) {
             ThemeHelper.applyTheme(this, this.hass.themes, this._config.theme);
 
             // Update styles - also when the theme was applied already (the themes can load later), the theme values are cached
