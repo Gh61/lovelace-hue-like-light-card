@@ -561,10 +561,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                     backdropElement.style.height = '100%';
                     backdropElement.style.borderRadius = 'var(--ha-dialog-border-radius, 28px)'; // same as dialog
                     backdropElement.style.background = 'var(--hue-background)';
-                    // only the background - a transition of all properties is started by the hide animation of ha-dialog
-                    // (wa-dialog, verified on HA 2026.10) and cancelled when the dialog closes, the dialog then never
-                    // finishes closing (no `closed` event) and the next tap on the card only cleans up the stale state
-                    backdropElement.style.transition = 'background 0.3s ease-out 0s';
+                    backdropElement.style.transition = Consts.TransitionDefault;
 
                     const mask = 'linear-gradient(rgba(255, 255, 255, .25) 0%, transparent 70%)';
                     backdropElement.style.mask = mask;
@@ -597,9 +594,13 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
                         this.toggleUnderDetailControls(false);
                         this.hideLightDetail();
                     });
-                    // when lightContainer changes from picker
+                    // when lightContainer changes from picker - only in the open detail, the hidden picker also activates
+                    // markers when they are created and merged (lights of the same color), the dialog would then think
+                    // the detail is open and closing it from the dialog (scrim, X, Esc) would only clear the selection
                     detailElement.addEventListener('lightcontainer-change', () => {
-                        this.loadSelectedLights(detailElement);
+                        if (this.isLightDetailOpen) {
+                            this.loadSelectedLights(detailElement);
+                        }
                     });
 
                     surface.prepend(detailElement);
