@@ -6,7 +6,7 @@ export default [{
         "src/ha/**", // Home Assistant source code
         "**/languages/*.json", // json localization
         "dist", // dev build
-        "release", // production build (rollup with dev = false)
+        "release", // production build output of the release workflow
         "*.config.js", // config file
         "*.config.mjs", // config file
         "scripts/**", // node tooling, not part of the card
