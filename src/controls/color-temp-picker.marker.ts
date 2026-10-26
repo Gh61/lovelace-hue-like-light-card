@@ -23,6 +23,7 @@ export class HueColorTempPickerMarker {
     private _icon: string = HueColorTempPickerMarker.defaultIconName;
     private _isOff = false;
     private _isPreview = false;
+    private readonly _pathSizes = new Map<boolean, { width: number, height: number }>();
 
     private static counter = 1;
     private static readonly defaultIconName = 'default';
@@ -190,6 +191,11 @@ export class HueColorTempPickerMarker {
 
         this._mode = mod;
         this.renderMode();
+    }
+
+    /** Forgets the measured size of the marker - call when the picker changes its size (e.g. gets displayed). */
+    public resetSize() {
+        this._pathSizes.clear();
     }
 
     /**
@@ -413,19 +419,20 @@ export class HueColorTempPickerMarker {
      * @returns offset of marker tip (point where color is taken).
      */
     private getMarkerOffset() {
-        let rect = this._markerPath.getBBox() as { width: number, height: number };
+        const isActive = this.isActive || this.isPreview;
 
-        // init fallback
-        if (rect.width === 0) {
-            if (this.isActive || this.isPreview) {
-                rect = HueColorTempPickerMarker.markerActivePathSize;
+        // the path changes only with the active state - measured once per state (until resetSize), getBBox after style changes
+        // forces a layout of the whole page and the position is rendered on every light change
+        let rect = this._pathSizes.get(isActive);
+        if (!rect) {
+            rect = this._markerPath.getBBox() as { width: number, height: number };
+            if (rect.width === 0) { // not rendered (hidden picker) - init fallback, measured again after resetSize
+                rect = isActive ? HueColorTempPickerMarker.markerActivePathSize : HueColorTempPickerMarker.markerNonActivePathSize;
             }
-            else {
-                rect = HueColorTempPickerMarker.markerNonActivePathSize;
-            }
+            this._pathSizes.set(isActive, { width: rect.width, height: rect.height });
         }
 
-        if (this.isActive || this.isPreview) {
+        if (isActive) {
             // we want the pointer (bottom middle) of active marker
             const x = rect.width / 2;
             const y = rect.height;

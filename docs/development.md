@@ -124,7 +124,7 @@ src/
 │  ├─ api-provider.ts             window.hue_card JS + URL API
 │  ├─ hass-ws-client.ts           WebSocket queries (areas, floors, labels, scenes)
 │  ├─ colors/                     Color, ColorExtended, Background, resolvers
-│  └─ ...                         view-utils, icon-helper, display-observer, live-update-session, effect-queue, ...
+│  └─ ...                         view-utils, icon-helper, element-height, live-update-session, effect-queue, ...
 ├─ controls/                Lit UI elements (dialog, tiles, light detail, pickers, switches, sliders)
 ├─ directives/              Lit directives (horizontal-scroll)
 ├─ ha/                      Home Assistant frontend source (copied, managed by ha-sync - see below)

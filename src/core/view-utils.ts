@@ -274,20 +274,20 @@ export class ViewUtils {
     }
 
     /**
-     * Calculates default shadow for passed element, using passed ILightContainer state and config.
+     * Calculates default shadow for an element of the passed height, using passed ILightContainer state and config.
+     * @param height Height of the element (see ElementHeight), 0 when not displayed - then returns an empty string.
      */
-    public static calculateDefaultShadow(element: Element, ctrl: ILightContainer, useOffShadow: boolean): string {
+    public static calculateDefaultShadow(height: number, ctrl: ILightContainer, useOffShadow: boolean): string {
         if (ctrl.isOff())
             return useOffShadow ? 'inset 0px 0px 10px rgba(0,0,0,0.2)' : '0px 0px 0px white';
 
-        const card = element;
-        if (!card || !card.clientHeight)
+        if (!height)
             return '';
         const darkness = 100 - ctrl.brightnessValue;
-        const coef = (card.clientHeight / 100);
+        const coef = (height / 100);
         const spread = 20;
         const position = spread + (darkness * 0.95) * coef;
-        let width = card.clientHeight / 2;
+        let width = height / 2;
         if (darkness > 70) {
             width -= (width - 20) * (darkness - 70) / 30; // width: 20-clientHeight/2
         }

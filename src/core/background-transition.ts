@@ -42,6 +42,8 @@ export class BackgroundTransition {
         /* the ::before covers only the element (not the nearest positioned ancestor) and stays under the content */
         position: relative;
         isolation: isolate;
+        /* own compositing layer - the changing colors repaint only the element, not the whole Hue screen around it */
+        will-change: transform;
     }
     ${unsafeCSS(selector)}::before {
         content: '';

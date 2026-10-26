@@ -31,8 +31,9 @@ export class Consts {
     public static readonly ControlTrackShade = 'rgba(0, 0, 0, 0.15)'; // mixed into the white track, visible on a white light
     public static readonly TransitionDuration = 300; // ms
     public static readonly TransitionEasing = 'ease-out';
-    public static readonly SliderTransition = `left ${Consts.TransitionDuration / 1000}s ${Consts.TransitionEasing}, right ${Consts.TransitionDuration / 1000}s ${Consts.TransitionEasing}`;
-    public static readonly TransitionDefault = `all ${Consts.TransitionDuration / 1000}s ${Consts.TransitionEasing} 0s`;
+    public static readonly TransitionTiming = `${Consts.TransitionDuration / 1000}s ${Consts.TransitionEasing}`;
+    public static readonly SliderTransition = `left ${Consts.TransitionTiming}, right ${Consts.TransitionTiming}`;
+    public static readonly TransitionDefault = `all ${Consts.TransitionTiming} 0s`;
     public static readonly LiveUpdateMinInterval = 200; // ms
     public static readonly LiveUpdateConfirmTimeout = 5000; // ms
     public static readonly LiveUpdateHoldTime = 1500; // ms
