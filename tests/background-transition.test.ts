@@ -45,7 +45,8 @@ function setup() {
     const animate = jest.fn(() => animation);
     element.animate = animate as unknown as typeof element.animate;
     const transition = new BackgroundTransition(host, Variable);
-    const shown = () => host.style.getPropertyValue(Variable);
+    // the element overrides the host variable during the color transition
+    const shown = () => element.style.getPropertyValue(Variable) || host.style.getPropertyValue(Variable);
     return { host, element, animate, animation, transition, shown };
 }
 
@@ -94,6 +95,21 @@ describe('BackgroundTransition', () => {
         frames.frame(Consts.TransitionDuration);
         expect(shown()).toBe(greenBlue.toString());
         expect(animate).not.toHaveBeenCalled();
+    });
+
+    it('should change the variable of the host only once per update, the frames only on the element', () => {
+        const frames = new Frames();
+        const { host, element, transition } = setup();
+        transition.update(element, redBlue, redBlue.toString());
+
+        transition.update(element, greenBlue, greenBlue.toString());
+        expect(host.style.getPropertyValue(Variable)).toBe(greenBlue.toString());
+        frames.frame(Consts.TransitionDuration / 2);
+        expect(host.style.getPropertyValue(Variable)).toBe(greenBlue.toString());
+        expect(element.style.getPropertyValue(Variable)).not.toBe('');
+
+        frames.frame(Consts.TransitionDuration);
+        expect(element.style.getPropertyValue(Variable)).toBe('');
     });
 
     it('should not mix out of the range when the frame time is older than the start', () => {

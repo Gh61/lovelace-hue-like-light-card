@@ -656,7 +656,7 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
         }
 
         // ## Heading styles
-        const heading = this.renderRoot.querySelector('.hue-heading') as Element;
+        const heading = this.renderRoot.querySelector('.hue-heading') as HTMLElement;
         if (!heading)
             throw new Error('Hue heading not found!');
 

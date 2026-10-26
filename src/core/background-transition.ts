@@ -15,9 +15,11 @@ export class BackgroundTransition {
 
     private readonly _host: HTMLElement;
     private readonly _variable: string;
-    /** Applied value and the background shown right now (during the color transition the mixed one). */
+    /** Background shown right now (during the color transition the mixed one). */
     private _shown: { value: string, background: Background | null } | null = null;
-    private _colorTransition: { from: Background, to: Background, value: string, start: number, frame: number } | null = null;
+    /** Value of the last update (the end of a running transition). */
+    private _target: string | null = null;
+    private _colorTransition: { element: HTMLElement, start: number, frame: number } | null = null;
     private _fade: Animation | null = null;
 
     /**
@@ -59,6 +61,7 @@ export class BackgroundTransition {
     public reset(): void {
         this.stopColorTransition();
         this._shown = null;
+        this._target = null;
     }
 
     /**
@@ -67,15 +70,18 @@ export class BackgroundTransition {
      * @param background The new background, null for a theme background.
      * @param value CSS value of the new background.
      */
-    public update(element: Element | null, background: Background | null, value: string): void {
+    public update(element: HTMLElement | null, background: Background | null, value: string): void {
         const shown = this._shown;
-        const target = this._colorTransition?.value ?? shown?.value;
-        if (target === value)
+        if (this._target === value)
             return;
+
+        // the host gets the new background at once (other users of the variable), the transition overrides it on the element only
+        this._target = value;
+        this._host.style.setProperty(this._variable, value);
 
         const from = shown?.background;
         if (element && from && background && from.isGradient && background.isGradient && from.colorCount === background.colorCount) {
-            this.startColorTransition(from, background, value);
+            this.startColorTransition(element, from, background, value);
             return;
         }
 
@@ -83,13 +89,19 @@ export class BackgroundTransition {
         if (element && shown && (from?.isGradient || background?.isGradient))
             this.fadeOut(element, shown.value);
 
-        this.apply(value, background);
+        this._shown = { value, background };
     }
 
-    private startColorTransition(from: Background, to: Background, value: string): void {
+    /**
+     * Moves the colors on the element frame by frame. Only the element gets the mixed colors - changing a variable
+     * of the host every frame would recalculate the styles of everything inside the host (e.g. the whole Hue screen).
+     */
+    private startColorTransition(element: HTMLElement, from: Background, to: Background, value: string): void {
         this.stopColorTransition();
-        const transition = { from, to, value, start: performance.now(), frame: 0 };
+        const transition = { element, start: performance.now(), frame: 0 };
         this._colorTransition = transition;
+        // until the first frame the element keeps the shown colors (the host has the new ones already)
+        element.style.setProperty(this._variable, from.toString());
 
         const step = (now: number) => {
             // the frame time can be a little older than the start
@@ -97,12 +109,13 @@ export class BackgroundTransition {
             if (progress < 1) {
                 // ease-out
                 const mixed = from.mix(to, 1 - Math.pow(1 - progress, 3));
-                this.apply(mixed.toString(), mixed);
+                this._shown = { value: mixed.toString(), background: mixed };
+                element.style.setProperty(this._variable, this._shown.value);
                 transition.frame = requestAnimationFrame(step);
             }
             else {
-                this._colorTransition = null;
-                this.apply(value, to);
+                this.stopColorTransition();
+                this._shown = { value, background: to };
             }
         };
         transition.frame = requestAnimationFrame(step);
@@ -111,12 +124,13 @@ export class BackgroundTransition {
     private stopColorTransition(): void {
         if (this._colorTransition) {
             cancelAnimationFrame(this._colorTransition.frame);
+            this._colorTransition.element.style.removeProperty(this._variable);
             this._colorTransition = null;
         }
     }
 
     /** Fades out the previous background (unless a fade is running - restarting it would flash the previous background). */
-    private fadeOut(element: Element, previousValue: string): void {
+    private fadeOut(element: HTMLElement, previousValue: string): void {
         if (this._fade?.playState === 'running')
             return;
 
@@ -126,10 +140,5 @@ export class BackgroundTransition {
             easing: Consts.TransitionEasing,
             pseudoElement: '::before'
         });
-    }
-
-    private apply(value: string, background: Background | null): void {
-        this._shown = { value, background };
-        this._host.style.setProperty(this._variable, value);
     }
 }
