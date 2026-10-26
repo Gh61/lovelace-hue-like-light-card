@@ -396,20 +396,27 @@ export class HueLikeLightCard extends IdLitElement implements LovelaceCard {
         );
         ViewUtils.setControlColor(this, this._ctrl);
 
-        // the theme's card shadow under our own - read from the card itself ('none' is the HA default since 2022.11
-        // and can't be part of a shadow list); computed styles are read only when the theme on the card changes (its inline
-        // variable can be read without a layout) - reading them on every update forced a layout of the whole page
-        // (a card that is not in the document yet - HA creates the cards before attaching them - has no computed styles)
+        // the theme's card shadow under our own ('none' is the HA default since 2022.11 and can't be part of a shadow list)
+        const themeShadow = this.getThemeShadow(card, forceRefresh);
+        this.style.setProperty(
+            '--hue-card-box-shadow',
+            shadow && themeShadow && themeShadow !== 'none' ? `${shadow}, ${themeShadow}` : shadow
+        );
+    }
+
+    /**
+     * @returns The theme's card shadow (--ha-card-box-shadow) read from the card itself. The computed styles are read only
+     * when the theme on the card changes (its inline variable can be read without a layout) - reading them on every update
+     * forced a layout of the whole page. A card that is not in the document yet (HA creates the cards before attaching them)
+     * has no computed styles, so it is read later.
+     */
+    private getThemeShadow(card: HTMLElement | null, forceRefresh: boolean): string {
         const themeShadowKey = this.style.getPropertyValue('--ha-card-box-shadow');
         if (card?.isConnected && (this._themeShadow == null || forceRefresh || themeShadowKey !== this._themeShadowKey)) {
             this._themeShadow = getComputedStyle(card).getPropertyValue('--ha-card-box-shadow').trim();
             this._themeShadowKey = themeShadowKey;
         }
-        const themeShadow = this._themeShadow ?? '';
-        this.style.setProperty(
-            '--hue-card-box-shadow',
-            shadow && themeShadow && themeShadow !== 'none' ? `${shadow}, ${themeShadow}` : shadow
-        );
+        return this._themeShadow ?? '';
     }
 
     private onChangeHandler = () => this.onChangeCallback();
