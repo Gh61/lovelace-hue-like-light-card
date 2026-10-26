@@ -43,6 +43,7 @@ export default [{
                 "_lastHash",
                 "_isHistoryOverriden",
                 "_registeredCards",
+                "_sharedPresets",
             ],
 
             allowAfterThis: true,

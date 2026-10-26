@@ -135,6 +135,11 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
         else {
             this._isInitialized = true;
         }
+
+        // the presets don't need hass - loaded here also for a config that needs no init (entities with scenes)
+        if (this.hasSceneProvider(SceneProvider.ScenePresets)) {
+            this.tryLoadPresets();
+        }
     }
 
     /**
@@ -391,17 +396,13 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
                 this.trySetLabelIcon(info);
             });
 
-        // load scenes and presets as needed (scenes depend on already loaded entities):
+        // load scenes as needed (scenes depend on already loaded entities):
         if (this.hasSceneProvider(SceneProvider.HaScenes)) {
             // fire&forget, no need to wait for these
             this.tryLoadScenes(hass);
         }
 
-        if (this.hasSceneProvider(SceneProvider.ScenePresets)) {
-            // fire&forget, no need to wait for these
-            this.tryLoadPresets();
-        }
-        // end loading of scenes and presets
+        // end loading of scenes (the presets are loaded by the constructor)
     }
 
     // #region Auto load entities
@@ -560,22 +561,42 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
     // #region Hue Presets
 
     /**
-     * Get all presets
+     * Get all presets (empty until they are loaded, see presetsLoaded)
      */
     public get presets(): PresetConfig[] {
         return this._presets;
     }
 
-    private _presetsLoaded = false;
+    /**
+     * Resolves when the presets are loaded (at once without the Scene Presets provider).
+     */
+    public get presetsLoaded(): Promise<void> {
+        return this._presetsLoading ?? Promise.resolve();
+    }
+
+    private _presetsLoading: Promise<void> | null = null;
+
+    /**
+     * Presets of the hass-scene_presets addon, loaded once per page and shared by all configs. HA creates the cards
+     * (and so their configs) again e.g. when switching views - every config loading the JSON on its own showed the Hue screen
+     * without presets until the JSON came.
+     */
+    private static _sharedPresets: Promise<PresetConfig[]> | null = null;
+
     /**
      * Will try to load Hue Presets from hass-scene_presets addon JSON.
      */
-    private async tryLoadPresets() {
-        if (this._presetsLoaded)
+    private tryLoadPresets() {
+        if (this._presetsLoading)
             return;
 
-        this._presetsLoaded = true;
+        HueLikeLightCardConfig._sharedPresets ??= HueLikeLightCardConfig.loadPresets();
+        this._presetsLoading = HueLikeLightCardConfig._sharedPresets.then(presets => {
+            this._presets = presets;
+        });
+    }
 
+    private static async loadPresets(): Promise<PresetConfig[]> {
         try {
             const jsonUrl = '/assets/scene_presets/scene_presets.json';
 
@@ -583,7 +604,7 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             const response = await fetch(jsonUrl);
             if (!response.ok) {
                 log.warn('Hue Presets JSON not found. The hass-scene_presets addon may not be installed.');
-                return;
+                return [];
             }
 
             const data: LightingData = await response.json();
@@ -595,14 +616,14 @@ export class HueLikeLightCardConfig extends HueLikeLightCardEntityConfig impleme
             });
 
             // Convert presets to PresetConfig
-            this._presets = data.presets.map(preset => ({
+            return data.presets.map(preset => ({
                 preset: preset,
                 categoryName: categoryMap.get(preset.categoryId)
             }));
-
         }
         catch (error) {
             log.error('Could not load Hue Presets from hass-scene_presets addon.', error);
+            return [];
         }
     }
 

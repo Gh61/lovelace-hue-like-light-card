@@ -240,6 +240,8 @@ export class HueDialog extends IdLitElement implements HassDialog<HueDialogParam
      */
     public showDialog(params: HueDialogParams): void {
         this._config = params.config;
+        // the presets can come after the dialog is shown
+        this._config.presetsLoaded.then(() => this.requestUpdate());
         this._entitiesConfig = params.config.getEntities();
         this._ctrl = params.lightController;
         this._actionHandler = params.actionHandler;
