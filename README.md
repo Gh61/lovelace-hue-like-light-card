@@ -543,6 +543,21 @@ card_mod:
     }
 ```
 
+## Light color variable
+*Since version 2.0.0*
+
+While the lights are on, the card sets the CSS variable `--hue-light-color` to the color of the lights (the first color when the lights have different colors). It can be used with [Card mod](https://github.com/thomasloven/lovelace-card-mod), e.g. for a background of the icon:
+```yaml
+type: custom:hue-like-light-card
+entity: light.office
+card_mod:
+  style: |
+    ha-icon {
+      border-radius: 50%;
+      background-color: rgba(from var(--hue-light-color, transparent) r g b / 0.5);
+    }
+```
+
 ## Live updates
 *Since version 1.12.0*
 
